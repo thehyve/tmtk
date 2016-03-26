@@ -1,0 +1,25 @@
+import setuptools
+
+setuptools.setup(
+    name="tmtk",
+    version="0.1.0",
+    url="https://github.com/borntyping/cookiecutter-pypackage-minimal",
+
+    author="Jochem Bijlard",
+    author_email="j.bijlard@gmail.com",
+
+    description="A toolkit for cu ETL curation for the tranSMART data warehouse.",
+    long_description=open('README.rst').read(),
+
+    packages=setuptools.find_packages(),
+
+    install_requires=['pandas'],
+
+    classifiers=[
+        'Development Status :: 2 - Pre-Alpha',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+    ],
+)
