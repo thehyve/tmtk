@@ -105,3 +105,7 @@ def get_unique_filename(first_filename):
         full_filename = os.path.join(directory, new_filename)
     else:
         return full_filename
+
+
+def is_categorical(values):
+    pass

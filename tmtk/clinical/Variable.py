@@ -1,3 +1,6 @@
+import tmtk.utils as utils
+
+
 class Variable(object):
     """
     Base class for clinical variables
@@ -6,16 +9,15 @@ class Variable(object):
         pass
         self.unique_values = self.get_unique_values()
         # self.concept_path =
-        # self.value_type = self.get_value_type()
-
+        self.is_categorical = self.get_value_type()
 
     def get_unique_values(self):
         pass
 
-    @property
-    def value_type(self):
-        pass
+    def get_value_type(self):
+        """
+        Return True if transmart would consider this to be of categorical datatype.
+        """
+        values = self.unique_values
+        return utils.is_categorical(values)
 
-    @value_type.getter
-    def value_type(self):
-        pass
