@@ -45,7 +45,7 @@ class Study(object):
         for f in glob.iglob(os.path.join(self.study_folder, '*/**/*.params'), recursive=True):
             datatype = os.path.basename(f).split('.params')[0]
             subdir = self._pick_subdir_name(f, datatype)
-            params[subdir] = ParamsFile(path=f, datatype=datatype)
+            params[subdir] = ParamsFile(path=f, datatype=datatype, subdir=subdir)
         return params
 
     def _pick_subdir_name(self, abs_path, datatype):
@@ -76,18 +76,20 @@ class Study(object):
         return statement
 
     def validate_all(self):
-        pass
+        for key, params_object in self.Params.as_dict.items():
+            params_object.validate()
 
 
 class ParamsFile:
     """
     Class for parameter files.
 
-    :param path describes the path to the params file.
-    :param datatype the parameters belong to.
-    :param parameters is a dictionary that contains all parameters in the file.
+    :param path: describes the path to the params file.
+    :param datatype: the parameters belong to.
+    :param parameters: is a dictionary that contains all parameters in the file.
+    :param subdir: is the key that is given by Study class.
     """
-    def __init__(self, path=None, datatype=None, parameters=None):
+    def __init__(self, path=None, datatype=None, parameters=None, subdir=None):
         if parameters == None:
             parameters = {}
         self.path = path
@@ -99,6 +101,10 @@ class ParamsFile:
                 if '=' in line:
                     param = line.split('=')
                     self.__dict__[param[0]] = param[1]
+        if subdir:
+            self.subdir = subdir
+        else:
+            self.subdir = self.path
 
     def __get__(self, instance, owner):
         pass
@@ -111,4 +117,50 @@ class ParamsFile:
         return statement
 
     def validate(self):
-        pass
+        if self.datatype == 'clinical':
+            message = self._validate_clinical()
+        elif self.datatype == 'vcf':
+            message = ['Not implemented in transmart-batch, skipping..']
+        elif self.datatype:
+            message = self._validate_hd()
+
+        if message:
+            print('\nValidating {}'.format(self.path))
+            for m in message:
+                print(m)
+        else:
+            print('Looks good to me.')
+
+    def _validate_clinical(self):
+        mandatory = ['PLATFORM',
+                     'TITLE',
+                     'ANNOTATION_FILE'
+                     ]
+
+        optional = ['ORGANISM',
+                    'GENOME_RELEASE'
+                    ]
+
+        return self._check_for_correct_params(mandatory)
+
+    def _validate_hd(self):
+        mandatory = ['DATA_FILE',
+                     'DATA_TYPE',
+                     'MAP_FILENAME',
+                     ]
+
+        optional = ['LOG_BASE',
+                    'ALLOW_MISSING_ANNOTATIONS'
+                    ]
+
+        return self._check_for_correct_params(mandatory)
+
+    def _check_for_correct_params(self, params):
+        messages = []
+        for param in params:
+            value = self.__dict__.get(param, None)
+            if not value:
+                messages.append('No {} given.'.format(param, self.path))
+            elif 'FILE' in param and not os.path.exists(value):
+                messages.append('{}={} cannot be found.'.format(param, value, self.path))
+        return messages
