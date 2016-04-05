@@ -117,50 +117,79 @@ class ParamsFile:
         return statement
 
     def validate(self):
+
         if self.datatype == 'clinical':
             message = self._validate_clinical()
-        elif self.datatype == 'vcf':
-            message = ['Not implemented in transmart-batch, skipping..']
-        elif self.datatype:
+
+        elif 'annotation' in self.datatype:
+            message = self._validate_annotations()
+
+        elif self.datatype == 'tags':
+            message = self._validate_tags()
+
+        elif self.datatype in ['acgh', 'rnaseq', 'expression', 'proteomics']:
             message = self._validate_hd()
+
+        else:
+            message = ['({}) Not implemented in transmart-batch, skipping..'.format(self.datatype)]
 
         if message:
             print('\nValidating {}'.format(self.path))
             for m in message:
                 print(m)
-        else:
-            print('Looks good to me.')
 
     def _validate_clinical(self):
+        mandatory = ['COLUMN_MAP_FILE',
+                     ]
+        optional = ['WORD_MAP_FILE',
+                    'XTRIAL_FILE',
+                    'TAGS_FILE',
+                    ]
+
+        return self._check_for_correct_params(mandatory, optional)
+
+    def _validate_annotations(self):
         mandatory = ['PLATFORM',
                      'TITLE',
-                     'ANNOTATION_FILE'
+                     'ANNOTATIONS_FILE'
                      ]
-
         optional = ['ORGANISM',
                     'GENOME_RELEASE'
                     ]
 
-        return self._check_for_correct_params(mandatory)
+        return self._check_for_correct_params(mandatory, optional)
+
+    def _validate_tags(self):
+        mandatory = ['TAGS_FILE',
+                     ]
+        optional = [
+                    ]
+
+        return self._check_for_correct_params(mandatory, optional)
 
     def _validate_hd(self):
         mandatory = ['DATA_FILE',
                      'DATA_TYPE',
                      'MAP_FILENAME',
                      ]
-
         optional = ['LOG_BASE',
                     'ALLOW_MISSING_ANNOTATIONS'
                     ]
 
-        return self._check_for_correct_params(mandatory)
+        return self._check_for_correct_params(mandatory, optional)
 
-    def _check_for_correct_params(self, params):
+    def _check_for_correct_params(self, mandatory, optional):
         messages = []
-        for param in params:
+        for param in mandatory:
             value = self.__dict__.get(param, None)
             if not value:
-                messages.append('No {} given.'.format(param, self.path))
-            elif 'FILE' in param and not os.path.exists(value):
-                messages.append('{}={} cannot be found.'.format(param, value, self.path))
+                messages.append('No {} given.'.format(param))
+
+        for param, value in self.__dict__.items():
+            if param.islower():
+                continue
+            if param not in mandatory + optional:
+                messages.append('Disallowed param found: {}.'.format(param))
+            elif 'FILE' in param and not os.path.exists(os.path.join(self.dirname, value)):
+                messages.append('{}={} cannot be found.'.format(param, value))
         return messages
