@@ -190,6 +190,7 @@ class ParamsFile:
                 continue
             if param not in mandatory + optional:
                 messages.append('Disallowed param found: {}.'.format(param))
-            elif 'FILE' in param and not os.path.exists(os.path.join(self.dirname, value)):
+            elif 'FILE' in param and not os.path.exists(
+                    os.path.join(self.dirname, value.strip("\'\""))):
                 messages.append('{}={} cannot be found.'.format(param, value))
         return messages
