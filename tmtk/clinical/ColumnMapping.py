@@ -12,7 +12,7 @@ class ColumnMapping(object):
         if isinstance(params, tmtk.ParamsFile) and params.datatype == 'clinical':
             self.path = os.path.join(params.dirname, params.COLUMN_MAP_FILE)
         else:
-            raise utils.exceptions.ClassError(type(params), tmtk.ParamsFile)
+            raise utils.Exceptions.ClassError(type(params), tmtk.ParamsFile)
 
         self.df = utils.file2df(self.path)
 

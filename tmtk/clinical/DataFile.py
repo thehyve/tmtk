@@ -5,7 +5,7 @@ class DataFile(object):
     """
     Base Class for clinical data files.
     """
-    def __init__(self, path=""):
+    def __init__(self, path=None):
         self.path = path
         self.df = utils.file2df(self.path)
 

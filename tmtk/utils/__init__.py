@@ -1,2 +1,3 @@
-from .generic import *
-from .exceptions import *
+from .Generic import *
+from .Exceptions import *
+from .HighDimUtils import *

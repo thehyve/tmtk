@@ -2,7 +2,23 @@ import os
 import webbrowser
 import pandas as pd
 import tmtk
-from .exceptions import *
+from .Exceptions import *
+
+
+class Bunch(object):
+    """
+    Namespace class to allow for dot.<key> autocomplete notation.
+    """
+    def __init__(self, a_dict):
+        self.as_dict = a_dict
+        self.__dict__.update(a_dict)
+
+    @staticmethod
+    def clean_for_namespace(value):
+        disallowed = ['/', '-', ' ', '.']
+        for item in disallowed:
+            value = value.replace(item, '_')
+        return value
 
 
 def file2df(path=None):
