@@ -32,21 +32,14 @@ class Study(object):
         if annotation_params:
             self.Annotations = Annotations(annotation_params)
 
-        highdim_types = {'rnaseq',
+        highdim_types = ['rnaseq',
                          'acgh',
                          'expression'
-                         }
-        for datatype in highdim_types:
-            params = self.find_params_for_datatype(datatypes=datatype)
-            if not params:
-                continue
-            for p in params:
-                if datatype == 'rnaseq':
-                    self.__dict__[str(p)] = ReadCounts(p, parent=self)
-                if datatype == 'acgh':
-                    self.__dict__[str(p)] = CopyNumberVariation(p, parent=self)
-                if datatype == 'expression':
-                    self.__dict__[str(p)] = Expression(p, parent=self)
+                         ]
+
+        highdim_params = self.find_params_for_datatype(datatypes=highdim_types)
+        if highdim_params:
+            self.HighDim = HighDim(params_list=highdim_params, parent=self)
 
     def _create_params_list(self):
         """

@@ -3,7 +3,7 @@ from .SampleMapping import SampleMapping
 import os
 
 
-class HighDim(object):
+class HighDimBase(object):
     """
     Base class for high dimensional data structures.
     """

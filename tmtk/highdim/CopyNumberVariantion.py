@@ -1,8 +1,8 @@
-from tmtk.highdim import HighDim
+from tmtk.highdim import HighDimBase
 import tmtk.utils as utils
 
 
-class CopyNumberVariation(HighDim):
+class CopyNumberVariation(HighDimBase):
     """
     Base class for copy number variation datatypes (aCGH, qDNAseq)
     """

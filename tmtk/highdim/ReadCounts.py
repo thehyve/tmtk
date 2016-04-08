@@ -1,8 +1,8 @@
 import tmtk.utils as utils
-from .Base import HighDim
+from .Base import HighDimBase
 
 
-class ReadCounts(HighDim):
+class ReadCounts(HighDimBase):
     """
     Subclass for ReadCounts.
     """

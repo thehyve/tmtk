@@ -1,8 +1,8 @@
-from tmtk.highdim import HighDim
+from tmtk.highdim import HighDimBase
 import tmtk.utils as utils
 
 
-class Expression(HighDim):
+class Expression(HighDimBase):
     """
     Base class for microarray mRNA expression data.
     """
