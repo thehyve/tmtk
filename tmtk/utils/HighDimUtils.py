@@ -11,7 +11,7 @@ def find_missing_annotations(annotation_series, data_series):
     :return: a new series with all missing annotations.
     """
     complement = data_series[~data_series.isin(annotation_series)]
-    return complement
+    return list(complement)
 
 
 def check_datafile_header_with_subjects(header_samples, mapping_samples):
@@ -20,7 +20,7 @@ def check_datafile_header_with_subjects(header_samples, mapping_samples):
 
     :param header_samples: samples from datafile header.
     :param mapping_samples: samples present in sample mapping file.
-    :return: a dict with mismapped samples,
+    :return: a dict with mismapped and excluded samples.
     """
     header_samples = pd.Series(header_samples)
     mapping_samples = pd.Series(mapping_samples)
@@ -28,7 +28,7 @@ def check_datafile_header_with_subjects(header_samples, mapping_samples):
     not_in_data_header = mapping_samples[~mapping_samples.isin(header_samples)]
     not_in_sample_mapping = header_samples[~header_samples.isin(mapping_samples)]
     intersection = header_samples[header_samples.isin(mapping_samples)]
-    return {'mismapped': list(not_in_data_header),
-            'excluded': list(not_in_sample_mapping),
-            'intersection': list(intersection),
+    return {'not_in_datafile': set(not_in_data_header),
+            'not_in_sample_mapping': set(not_in_sample_mapping),
+            'intersection': set(intersection),
             }

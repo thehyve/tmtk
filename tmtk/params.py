@@ -1,5 +1,5 @@
 import os
-
+import tmtk.utils as utils
 
 class ParamsFile:
     """
@@ -23,8 +23,12 @@ class ParamsFile:
                 # Only keep things before a comment character
                 line = line.strip().split('#', 1)[0]
                 if '=' in line:
-                    param = line.split('=')
-                    self.__dict__[param[0]] = param[1].strip("\'\"")
+                    parameter = line.split('=')
+                    param = parameter[0]
+                    value = parameter[1].strip("\'\"")
+                    if param == 'PLATFORM':
+                        value = value.upper()
+                    self.__dict__[param] = value
         if subdir:
             self.subdir = subdir
         else:
@@ -52,8 +56,7 @@ class ParamsFile:
 
         if message:
             print('\nValidating {}'.format(self.path))
-            for m in message:
-                print(m)
+            utils.print_message_list(message)
 
     def _validate_clinical(self):
         mandatory = ['COLUMN_MAP_FILE',

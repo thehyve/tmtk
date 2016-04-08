@@ -73,6 +73,20 @@ def call_boris(column_mapping=None, port=26747):
     arborist.app.run(port=port)
 
 
+def print_message_list(message):
+    """
+    Print a message list or string.
+    :param message: list or string
+    """
+    if isinstance(message, str):
+        print(message)
+    elif isinstance(message, list):
+        for m in message:
+            print(m)
+    else:
+        print("Don't know what to print, got {}.".format(type(message)))
+
+
 def validate_clinical_data(df):
     """
     This function takes a dataframe and checks whether transmart-batch can load this.

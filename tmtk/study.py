@@ -26,15 +26,27 @@ class Study(object):
         annotation_types = ['microarray_annotation',
                             'acgh_annotation',
                             'rnaseq_annotation',
+                            'annotation',
                             ]
         annotation_params = self.find_params_for_datatype(datatypes=annotation_types)
         if annotation_params:
             self.Annotations = Annotations(annotation_params)
 
-        readcount_params = self.find_params_for_datatype(datatypes='rnaseq')
-        if len(readcount_params) > 0:
-            for p in readcount_params:
-                self.__dict__[str(p)] = ReadCounts(p, parent=self)
+        highdim_types = {'rnaseq',
+                         'acgh',
+                         'expression'
+                         }
+        for datatype in highdim_types:
+            params = self.find_params_for_datatype(datatypes=datatype)
+            if not params:
+                continue
+            for p in params:
+                if datatype == 'rnaseq':
+                    self.__dict__[str(p)] = ReadCounts(p, parent=self)
+                if datatype == 'acgh':
+                    self.__dict__[str(p)] = CopyNumberVariation(p, parent=self)
+                if datatype == 'expression':
+                    self.__dict__[str(p)] = Expression(p, parent=self)
 
     def _create_params_list(self):
         """
