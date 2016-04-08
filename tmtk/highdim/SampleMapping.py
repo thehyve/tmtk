@@ -30,11 +30,30 @@ class SampleMapping(object):
         """
         Creates a new sample mapping file and returns the location it has been given.
         """
-        
         pass
+
+    def __str__(self):
+        return self.path
 
     def validate(self):
         """
         Makes checks to determine whether transmart-batch likes this file.
         """
         pass
+
+    def get_samples(self):
+        """
+        :return: samples in this sample mapping file.
+        """
+        return list(self.df.ix[:, 3])
+
+    def get_platform(self):
+        """
+        :return: the platform id in this sample mapping file.
+        """
+        platform_ids = list(self.df.ix[:, 4].unique())
+        if len(platform_ids) > 1:
+            print('Found multiple platforms in {}. '
+                  'This might lead to unexpected behaviour.'.format(self.path))
+        elif platform_ids:
+            return str(platform_ids[0])

@@ -9,13 +9,15 @@ class ParamsFile:
     :param datatype: the parameters belong to.
     :param parameters: is a dictionary that contains all parameters in the file.
     :param subdir: is the key that is given by Study class.
+    :param parent: can be used to find the parent instance of this object.
     """
-    def __init__(self, path=None, datatype=None, parameters=None, subdir=None):
+    def __init__(self, path=None, datatype=None, parameters=None, subdir=None, parent=None):
         if parameters == None:
             parameters = {}
         self.path = path
         self.dirname = os.path.dirname(path)
         self.datatype = datatype
+        self._parent = parent
         with open(self.path, 'r') as f:
             for line in f.readlines():
                 # Only keep things before a comment character

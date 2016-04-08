@@ -19,14 +19,22 @@ class Study(object):
         self.study_folder = os.path.dirname(self.params_path)
         self.Params = Bunch(self._create_params_list())
 
-        clinical_params = self.find_params_for_datatype(datatype='clinical')
+        clinical_params = self.find_params_for_datatype(datatypes='clinical')
         if len(clinical_params) == 1:
             self.Clinical = Clinical(clinical_params[0])
 
-        readcount_params = self.find_params_for_datatype(datatype='rnaseq')
+        annotation_types = ['microarray_annotation',
+                            'acgh_annotation',
+                            'rnaseq_annotation',
+                            ]
+        annotation_params = self.find_params_for_datatype(datatypes=annotation_types)
+        if annotation_params:
+            self.Annotations = Annotations(annotation_params)
+
+        readcount_params = self.find_params_for_datatype(datatypes='rnaseq')
         if len(readcount_params) > 0:
             for p in readcount_params:
-                self.__dict__[str(p)] = ReadCounts(p)
+                self.__dict__[str(p)] = ReadCounts(p, parent=self)
 
     def _create_params_list(self):
         """
@@ -35,6 +43,8 @@ class Study(object):
         params = {}
         for f in glob.iglob(os.path.join(self.study_folder, '*/**/*.params'), recursive=True):
             datatype = os.path.basename(f).split('.params')[0]
+            if 'kettle' in str(f):
+                continue
             subdir = self._pick_subdir_name(f, datatype)
             params[subdir] = ParamsFile(path=f, datatype=datatype, subdir=subdir)
         return params
@@ -51,19 +61,41 @@ class Study(object):
             subdir = "{}_{}".format(datatype, subdir)
         return subdir
 
-    def find_params_for_datatype(self, datatype=None):
+    def find_params_for_datatype(self, datatypes=None):
         """
-        Returns a list of Params files for specific datatype in this study.
+        :param datatypes: single string datatype or list of strings.
+        :return: a list of ParamsFile objects for specific datatype in this study.
         """
+        if type(datatypes) == 'str':
+            datatypes = [datatypes]
+
         params_list = []
         for key, params_object in self.Params.as_dict.items():
-            if params_object.datatype == datatype:
+            if params_object.datatype in datatypes:
                 params_list.append(params_object)
         return params_list
 
+    def find_annotation(self, platform=None):
+        """
+        :param platform: platform id to look for in this study.
+        :return: a AnnotationFile object.
+        """
+        annotations = []
+        for key, params_object in self.Annotations.__dict__.items():
+            if params_object.platform == platform:
+                annotations.append(params_object)
+
+        if not annotations:
+            print('Platform {} not found in study.'.format(platform))
+
+        elif len(annotations) == 1:
+            return annotations[0]
+
+        else:
+            print('Duplicate platform objects found for {}: {}').format(platform, annotations)
+
     def __str__(self):
-        n_data_assets = len(self.Params)
-        statement = "Study object with {} data assets.".format(n_data_assets)
+        statement = "Study object: {}".format(self.params_path)
         return statement
 
     def validate_all(self):

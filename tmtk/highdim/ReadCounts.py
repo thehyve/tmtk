@@ -7,14 +7,17 @@ class ReadCounts(object):
     """
     Base class for RNAseq read counts
     """
-    def __init__(self, p):
+    def __init__(self, p, parent=None):
         self.path = os.path.join(p.dirname, p.DATA_FILE)
         if not os.path.exists(self.path):
             raise utils.PathError(self.path)
         self.df = utils.file2df(self.path)
         self.sample_mapping = SampleMapping(os.path.join(p.dirname, p.MAP_FILENAME))
-        self.sample_mapping_samples = self.sample_mapping.df.ix[:, 3]
-        self.platform = self.sample_mapping.df.ix[0, 4]
+        self.sample_mapping_samples = self.sample_mapping.get_samples()
+        self.platform = self.sample_mapping.get_platform()
+        self._parent = parent
+        if hasattr(self._parent, 'Annotations'):
+            self.annotation_file = parent.find_annotation(self.platform)
 
     def validate(self):
         """
@@ -54,6 +57,7 @@ class ReadCounts(object):
         """
         Checks for missing annotations.
         """
-        pass
-        # utils.find_missing_annotations(annotation_series=self.
-        #                                data_series=self.df.ix[:0])
+        biomarker_ids = self.annotation_file.df.ix[:, 8]
+
+        utils.find_missing_annotations(annotation_series=biomarker_ids,
+                                       data_series=self.df.ix[:0])
