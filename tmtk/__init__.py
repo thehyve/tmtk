@@ -4,6 +4,7 @@ from tmtk.study import Study
 from tmtk.params import ParamsFile
 from tmtk.utils import *
 from tmtk.highdim import *
+from tmtk.annotation import *
 
 __version__ = '0.1.0'
 __author__ = 'Jochem Bijlard <j.bijlard@gmail.com>'

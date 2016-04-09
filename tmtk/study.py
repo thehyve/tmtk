@@ -3,6 +3,7 @@ from .utils import *
 from .clinical import *
 from .params import ParamsFile
 from .highdim import *
+from .annotation import *
 
 
 class Study(object):
@@ -19,27 +20,35 @@ class Study(object):
         self.study_folder = os.path.dirname(self.params_path)
         self.Params = Bunch(self._create_params_list())
 
+        # Look for clinical params and create child opbject
         clinical_params = self.find_params_for_datatype(datatypes='clinical')
         if len(clinical_params) == 1:
             self.Clinical = Clinical(clinical_params[0])
 
-        annotation_types = ['microarray_annotation',
-                            'acgh_annotation',
-                            'rnaseq_annotation',
-                            'annotation',
-                            ]
-        annotation_params = self.find_params_for_datatype(datatypes=annotation_types)
+        annotation_map = {'microarray_annotation': 'MicroarrayAnnotation',
+                          'acgh_annotation': 'CNVAnnotation',
+                          'rnaseq_annotation': 'ReadCountsAnnotation',
+                          'proteomics_annotation': 'ProteomicsAnnotation',
+                          'annotation': 'MicroarrayAnnotation',
+                          }
+
+        annotation_params = self.find_params_for_datatype(datatypes=list(annotation_map))
         if annotation_params:
-            self.Annotations = Annotations(annotation_params)
+            self.Annotations = Annotations(annotation_params,
+                                           parent=self,
+                                           mapping=annotation_map)
 
-        highdim_types = ['rnaseq',
-                         'acgh',
-                         'expression'
-                         ]
+        highdim_map = {'rnaseq': 'ReadCounts',
+                       'acgh': 'CopyNumberVariation',
+                       'expression': 'Expression',
+                       'proteomics': 'Proteomics',
+                       }
 
-        highdim_params = self.find_params_for_datatype(datatypes=highdim_types)
+        highdim_params = self.find_params_for_datatype(datatypes=list(highdim_map))
         if highdim_params:
-            self.HighDim = HighDim(params_list=highdim_params, parent=self)
+            self.HighDim = HighDim(params_list=highdim_params,
+                                   parent=self,
+                                   mapping=highdim_map)
 
     def _create_params_list(self):
         """

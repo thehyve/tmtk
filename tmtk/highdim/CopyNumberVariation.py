@@ -14,7 +14,9 @@ class CopyNumberVariation(HighDimBase):
         self._validate_header()
 
         if self.annotation_file:
-            self._find_missing_annotation()
+            biomarker_ids = self.annotation_file.df.ix[:, 1]
+            data_series = self.df.ix[:, 0]
+            self._find_missing_annotation(annotation_series=biomarker_ids, data_series=data_series)
 
     def _validate_header(self):
         header = self.df.columns
@@ -33,12 +35,4 @@ class CopyNumberVariation(HighDimBase):
 
         utils.print_message_list(message)
 
-    def _find_missing_annotation(self):
-        """
-        Checks for missing annotations.
-        """
-        biomarker_ids = self.annotation_file.df.ix[:, 8]
 
-        message = utils.find_missing_annotations(annotation_series=biomarker_ids,
-                                                 data_series=self.df.ix[:0])
-        utils.print_message_list(message)

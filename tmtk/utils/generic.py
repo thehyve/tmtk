@@ -73,11 +73,15 @@ def call_boris(column_mapping=None, port=26747):
     arborist.app.run(port=port)
 
 
-def print_message_list(message):
+def print_message_list(message, head=None):
     """
     Print a message list or string.
     :param message: list or string
+    :param head: prints prior to printing message.
     """
+
+    if message and head:
+        print(head)
     if isinstance(message, str):
         print(message)
     elif isinstance(message, list):

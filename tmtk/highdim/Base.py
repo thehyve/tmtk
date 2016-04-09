@@ -58,3 +58,12 @@ class HighDimBase(object):
             message.append('Intersection of samples: {}.\n'.format(intersection))
 
         return message
+
+    def _find_missing_annotation(self, annotation_series=None, data_series=None):
+        """
+        Checks for missing annotations.
+        """
+        missing_annotations = utils.find_missing_annotations(annotation_series=annotation_series,
+                                                             data_series=data_series)
+
+        utils.print_message_list(missing_annotations, 'Missing annotations:')

@@ -30,6 +30,17 @@ class SampleMapping(object):
         """
         Creates a new sample mapping file and returns the location it has been given.
         """
+        header = ['STUDY_ID',
+                  'SITE_ID',
+                  'SUBJECT_ID',
+                  'SAMPLE_CD',
+                  'PLATFORM',
+                  'SAMPLE_TYPE',
+                  'TISSUE_TYPE',
+                  'TIME_POINT',
+                  'CATEGORY_CD',
+                  'SOURCE_CD',
+                  ]
         pass
 
     def __str__(self):

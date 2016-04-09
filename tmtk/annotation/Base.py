@@ -3,23 +3,7 @@ import tmtk.utils as utils
 import tmtk
 
 
-class Annotations(object):
-    """
-    Class containing all AnnotationFile objects.
-    """
-    def __init__(self, params_list=None):
-        assert type(params_list) == list, \
-            'Expected list with annotation params, but got {}.'.format(type(params_list))
-
-        for p in params_list:
-            af = AnnotationFile(p)
-
-            platform_key = p.datatype.split('annotation')[0] + af.platform
-            platform_key = utils.Bunch.clean_for_namespace(platform_key)
-            self.__dict__[platform_key] = af
-
-
-class AnnotationFile(object):
+class AnnotationBase(object):
     """
     Base class for annotation files.
 
