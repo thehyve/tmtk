@@ -1,0 +1,3 @@
+concept_key	tag_title	tag_description	index
+\1. Cell line characteristics\1. Cell lines\Gender	Info	Gender of patient cell line was derived from.	3
+\1. Cell line characteristics\1. Cell lines\Age	Info	Age of patient at time of tumor (years).	3
