@@ -1,7 +1,7 @@
 import tmtk.utils as utils
 
 
-class DataFile(object):
+class DataFile:
     """
     Base Class for clinical data files.
     """

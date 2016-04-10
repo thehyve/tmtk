@@ -6,14 +6,17 @@ from .ProteomicsAnnotation import ProteomicsAnnotation
 from .ReadCountsAnnotation import ReadCountsAnnotation
 
 
-class Annotations(object):
+class Annotations:
     """
     Class containing all AnnotationFile objects.
-    :param params_list: contains a list with Params objects.
-    :param mapping: dictionary that that points params to the right Subclass.
-    e.g. {'rnaseq': 'ReadCountsAnnotation'}.
     """
     def __init__(self, params_list=None, parent=None, mapping=None):
+        """
+        :param params_list: contains a list with Params objects.
+        :param parent:
+        :param mapping: dictionary that that points params to the right Subclass.
+        e.g. {'rnaseq': 'ReadCountsAnnotation'}.
+        """
         assert type(params_list) == list, \
             'Expected list with annotation params, but got {}.'.format(type(params_list))
         assert type(mapping) == dict, \
@@ -31,5 +34,5 @@ class Annotations(object):
                 annotation_type = 'microarray_'
 
             platform_key = annotation_type + af.platform
-            platform_key = utils.Bunch.clean_for_namespace(platform_key)
+            platform_key = utils.clean_for_namespace(platform_key)
             self.__dict__[platform_key] = af

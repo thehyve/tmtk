@@ -3,7 +3,7 @@ import tmtk.utils as utils
 import tmtk
 
 
-class ColumnMapping(object):
+class ColumnMapping:
     """
     Class with utilities for the column mapping file for clinical data.
     Can be initiated with either a path to column mapping file, or a clinical params file object.

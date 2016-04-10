@@ -1,18 +1,55 @@
 import os
 import tmtk.utils as utils
+import glob
+
+
+class Params:
+    """
+    Container class for all params files, called by Study to locate all params files.
+    """
+    def __init__(self, study_folder=None):
+        """
+        :param study_folder: points to a study.params file at the root of a study.
+        """
+        assert os.path.exists(study_folder), 'Params: {} does not exist.'.format(study_folder)
+
+        for f in glob.iglob(os.path.join(study_folder, '*/**/*.params'), recursive=True):
+            datatype = os.path.basename(f).split('.params')[0]
+            if 'kettle' in str(f):  # Skip subdirectories that have kettle in the name.
+                continue
+
+            relative_path = f.split(study_folder)[1]
+            subdir = self._pick_subdir_name(relative_path, datatype)
+            self.__dict__[subdir] = ParamsFile(path=f, datatype=datatype, subdir=subdir)
+
+    @staticmethod
+    def _pick_subdir_name(relative_path, datatype):
+        """
+        Private function that finds a suitable subdir name.
+        :param relative_path:
+        :param datatype:
+        :return:
+        """
+        split_path = relative_path.strip('/').split('/')
+        subdir = '_'.join(split_path[:-1])
+        subdir = utils.clean_for_namespace(subdir)
+        if not subdir.startswith(datatype):
+            subdir = "{}_{}".format(datatype, subdir)
+        return subdir
 
 
 class ParamsFile:
     """
     Class for parameter files.
-
-    :param path: describes the path to the params file.
-    :param datatype: the parameters belong to.
-    :param parameters: is a dictionary that contains all parameters in the file.
-    :param subdir: is the key that is given by Study class.
-    :param parent: can be used to find the parent instance of this object.
     """
     def __init__(self, path=None, datatype=None, parameters=None, subdir=None, parent=None):
+        """
+        :param path: describes the path to the params file.
+        :param datatype: the parameters belong to.
+        :param parameters: is a dictionary that contains all parameters in the file.
+        :param subdir: is the key that is given by Study class.
+        :param parent: can be used to find the parent instance of this object.
+        """
         if parameters == None:
             parameters = {}
         self.path = path

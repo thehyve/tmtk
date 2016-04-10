@@ -5,20 +5,17 @@ import tmtk
 from .Exceptions import *
 
 
-class Bunch(object):
+def clean_for_namespace(path):
     """
-    Namespace class to allow for dot.<key> autocomplete notation.
+    Converts a path and returns a namespace safe variant. Converts characters that give errors
+    to underscore.
+    :param path: usually a descriptive subdirectory
+    :return: string
     """
-    def __init__(self, a_dict):
-        self.as_dict = a_dict
-        self.__dict__.update(a_dict)
-
-    @staticmethod
-    def clean_for_namespace(value):
-        disallowed = ['/', '-', ' ', '.']
-        for item in disallowed:
-            value = value.replace(item, '_')
-        return value
+    disallowed = ['/', '-', ' ', '.']
+    for item in disallowed:
+        path = path.replace(item, '_')
+    return path
 
 
 def file2df(path=None):

@@ -6,7 +6,7 @@ from .ReadCounts import ReadCounts
 from .SampleMapping import SampleMapping
 
 
-class HighDim(object):
+class HighDim:
     """
     Container class for all High Dimensional data types.
     :param params_list: contains a list with Params objects.

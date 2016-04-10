@@ -3,7 +3,7 @@ import tmtk.utils as utils
 import tmtk
 
 
-class AnnotationBase(object):
+class AnnotationBase:
     """
     Base class for annotation files.
 

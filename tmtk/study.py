@@ -1,24 +1,24 @@
-import glob
 from .utils import *
 from .clinical import *
-from .params import ParamsFile
+from .params import Params
 from .highdim import *
 from .annotation import *
 
 
-class Study(object):
+class Study:
     """
     Describes an entire TranSMART study in ETL.
-
-    :param study_params_path: points to a study.params file at the root of a study.
     """
     def __init__(self, study_params_path=None):
+        """
+        :param study_params_path:
+        """
         if os.path.basename(study_params_path) != 'study.params':
             print('Please give a path to study.params file.')
             raise PathError
         self.params_path = study_params_path
         self.study_folder = os.path.dirname(self.params_path)
-        self.Params = Bunch(self._create_params_list())
+        self.Params = Params(self.study_folder)
 
         # Look for clinical params and create child opbject
         clinical_params = self.find_params_for_datatype(datatypes='clinical')
@@ -50,31 +50,6 @@ class Study(object):
                                    parent=self,
                                    mapping=highdim_map)
 
-    def _create_params_list(self):
-        """
-        Private function finds all parameter files in study subdirectories.
-        """
-        params = {}
-        for f in glob.iglob(os.path.join(self.study_folder, '*/**/*.params'), recursive=True):
-            datatype = os.path.basename(f).split('.params')[0]
-            if 'kettle' in str(f):
-                continue
-            subdir = self._pick_subdir_name(f, datatype)
-            params[subdir] = ParamsFile(path=f, datatype=datatype, subdir=subdir)
-        return params
-
-    def _pick_subdir_name(self, abs_path, datatype):
-        """
-        Private function that finds a suitable subdir name.
-        """
-        relative_dir = abs_path.split(self.study_folder)[1]
-        split_path = relative_dir.strip('/').split('/')
-        subdir = '_'.join(split_path[:-1])
-        subdir = Bunch.clean_for_namespace(subdir)
-        if not subdir.startswith(datatype):
-            subdir = "{}_{}".format(datatype, subdir)
-        return subdir
-
     def find_params_for_datatype(self, datatypes=None):
         """
         :param datatypes: single string datatype or list of strings.
@@ -84,7 +59,7 @@ class Study(object):
             datatypes = [datatypes]
 
         params_list = []
-        for key, params_object in self.Params.as_dict.items():
+        for key, params_object in self.Params.__dict__.items():
             if params_object.datatype in datatypes:
                 params_list.append(params_object)
         return params_list
@@ -100,19 +75,31 @@ class Study(object):
                 annotations.append(params_object)
 
         if not annotations:
-            print('Platform {} not found in study.'.format(platform))
+            utils.print_message_list('Platform {} not found in study.'.format(platform))
 
         elif len(annotations) == 1:
             return annotations[0]
 
         else:
-            print('Duplicate platform objects found for {}: {}').format(platform, annotations)
+            utils.print_message_list('Duplicate platform '
+                                     'objects found for {}: {}').format(platform, annotations)
 
     def __str__(self):
         statement = "Study object: {}".format(self.params_path)
         return statement
 
-    def validate_all(self):
-        for key, params_object in self.Params.as_dict.items():
-            params_object.validate()
+    def validate_all(self, verbosity=1):
+        """
+        Validate all items in this study.
+        :param verbosity: set the verbosity of output, pick 0, 1, or 2.
+        :return: True if everything is okay, else return False.
+        """
+        to_validate = [self.Params.__dict__.items(),
+                       self.Clinical.__dict__.items(),
+                       self.Annotations.__dict__.items(),
+                       self.HighDim.__dict__.items(),
+                       ]
+        for d in to_validate:
+            for key, obj in d:
+                obj.validate(verbosity=verbosity)
 

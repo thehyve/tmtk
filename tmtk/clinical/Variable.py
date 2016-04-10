@@ -1,7 +1,7 @@
 import tmtk.utils as utils
 
 
-class Variable(object):
+class Variable:
     """
     Base class for clinical variables
     """

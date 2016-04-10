@@ -1,4 +1,4 @@
-class WordMapping(object):
+class WordMapping:
     """
     Base Class for word mapping file.
     """
