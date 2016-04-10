@@ -1,9 +1,9 @@
-from .Base import AnnotationBase
-import tmtk.utils as utils
+from .AnnotationBase import AnnotationBase
 from .CNVAnnotation import CNVAnnotation
 from .MicroarrayAnnotation import MicroarrayAnnotation
 from .ProteomicsAnnotation import ProteomicsAnnotation
 from .ReadCountsAnnotation import ReadCountsAnnotation
+import tmtk.utils as utils
 
 
 class Annotations:

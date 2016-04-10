@@ -9,10 +9,10 @@ class ColumnMapping:
     Can be initiated with either a path to column mapping file, or a clinical params file object.
     """
     def __init__(self, params=None):
-        if isinstance(params, tmtk.ParamsFile) and params.datatype == 'clinical':
+        if params and params.is_viable() and params.datatype == 'clinical':
             self.path = os.path.join(params.dirname, params.COLUMN_MAP_FILE)
         else:
-            raise utils.Exceptions.ClassError(type(params), tmtk.ParamsFile)
+            raise utils.Exceptions.ClassError(type(params), tmtk.ClinicalParams)
 
         self.df = utils.file2df(self.path)
 

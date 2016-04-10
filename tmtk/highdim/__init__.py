@@ -1,4 +1,4 @@
-from .Base import HighDimBase
+from .HighDimBase import HighDimBase
 from .CopyNumberVariation import CopyNumberVariation
 from .Expression import Expression
 from .Proteomics import Proteomics

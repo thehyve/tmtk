@@ -1,6 +1,6 @@
 from .utils import *
 from .clinical import *
-from .params import Params
+from .params import *
 from .highdim import *
 from .annotation import *
 

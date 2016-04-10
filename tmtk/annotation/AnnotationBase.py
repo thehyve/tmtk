@@ -6,11 +6,14 @@ import tmtk
 class AnnotationBase:
     """
     Base class for annotation files.
-
-    :param path: path to annotation file.
     """
     def __init__(self, params=None, path=None):
-        if hasattr(params, 'ANNOTATIONS_FILE'):
+        """
+
+        :param params:
+        :param path:
+        """
+        if params and params.is_viable():
             self.path = os.path.join(params.dirname, params.ANNOTATIONS_FILE)
             self.platform = params.__dict__.get('PLATFORM', 'NO_PLATFORM_SPECIFIED')
         elif not os.path.exists(path):
