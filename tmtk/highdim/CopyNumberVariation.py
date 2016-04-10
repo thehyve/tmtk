@@ -6,7 +6,7 @@ class CopyNumberVariation(HighDimBase):
     """
     Base class for copy number variation datatypes (aCGH, qDNAseq)
     """
-    def validate(self):
+    def validate(self, verbosity=2):
         """
         Makes checks to determine whether transmart-batch likes this file.
         Checks whether header contains the <samplecode>.<probability_type>.

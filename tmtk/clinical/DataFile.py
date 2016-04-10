@@ -12,7 +12,7 @@ class DataFile:
     def find_column_datatype(self):
         utils.find_column_datatype(self.df)
 
-    def validate(self):
+    def validate(self, verbosity=2):
         utils.validate_clinical_data(self.df)
 
     def autofill(self):

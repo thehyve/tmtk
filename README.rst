@@ -9,7 +9,7 @@ tmtk
    :target: https://travis-ci.org/borntyping/cookiecutter-pypackage-minimal
    :alt: Latest Travis CI build status
 
-A toolkit for cu ETL curation for the tranSMART data warehouse.
+A toolkit for ETL curation for the tranSMART data warehouse.
 
 Usage
 -----

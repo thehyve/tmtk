@@ -6,7 +6,7 @@ class Expression(HighDimBase):
     """
     Base class for microarray mRNA expression data.
     """
-    def validate(self):
+    def validate(self, verbosity=2):
         """
         Makes checks to determine whether transmart-batch likes this file.
         """

@@ -24,3 +24,6 @@ class ColumnMapping:
 
     def write_to(self):
         utils.df2file(self)
+
+    def validate(self, verbosity=2):
+        pass

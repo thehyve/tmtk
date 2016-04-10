@@ -21,3 +21,5 @@ class Variable:
         values = self.unique_values
         return utils.is_categorical(values)
 
+    def validate(self, verbosity=2):
+        pass

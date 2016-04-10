@@ -6,13 +6,14 @@ class Proteomics(HighDimBase):
     """
     Base class for proteomics data.
     """
-    def validate(self):
+    def validate(self, verbosity=2):
         """
         Makes checks to determine whether transmart-batch likes this file.
         """
         self._validate_header()
 
         if self.annotation_file:
+            # Todo add check that first validates the annotation file.
             biomarker_ids = self.annotation_file.df['probesetID']
             data_series = self.df.ix[:, 0]
             self._find_missing_annotation(annotation_series=biomarker_ids, data_series=data_series)

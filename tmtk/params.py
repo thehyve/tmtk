@@ -75,8 +75,12 @@ class ParamsFile:
     def __str__(self):
         return self.subdir
 
-    def validate(self):
-
+    def validate(self, verbosity=2):
+        """
+        Validate this parameter file.
+        :param verbosity:
+        :return:
+        """
         if self.datatype == 'clinical':
             message = self._validate_clinical()
 
@@ -93,8 +97,8 @@ class ParamsFile:
             message = ['({}) Not implemented in transmart-batch, skipping..'.format(self.datatype)]
 
         if message:
-            print('\nValidating {}'.format(self.path))
-            utils.print_message_list(message)
+            heading = '\nValidating {}'.format(self.path)
+            utils.print_message_list(message, head=heading)
 
     def _validate_clinical(self):
         mandatory = ['COLUMN_MAP_FILE',

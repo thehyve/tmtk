@@ -2,10 +2,10 @@ from .DataFile import *
 from .Variable import *
 from .ColumnMapping import *
 from .WordMapping import *
-import tmtk
+import tmtk.utils as utils
 
 
-class Clinical(object):
+class Clinical:
     """
     Container class for all clinical information.
     """
@@ -14,5 +14,5 @@ class Clinical(object):
         self.WordMapping = WordMapping(params=clinical_params)
 
         for file in self.ColumnMapping.included_datafiles():
-            safe_name = tmtk.Bunch.clean_for_namespace(file)
+            safe_name = utils.clean_for_namespace(file)
             self.__dict__[safe_name] = DataFile(path=os.path.join(clinical_params.dirname, file))

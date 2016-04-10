@@ -8,7 +8,7 @@ setuptools.setup(
     author="Jochem Bijlard",
     author_email="j.bijlard@gmail.com",
 
-    description="A toolkit for cu ETL curation for the tranSMART data warehouse.",
+    description="A toolkit for ETL curation for the tranSMART data warehouse.",
     long_description=open('README.rst').read(),
 
     packages=setuptools.find_packages(),

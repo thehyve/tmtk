@@ -24,7 +24,7 @@ class AnnotationBase:
     def __str__(self):
         return self.platform
 
-    def validate(self):
+    def validate(self, verbosity=2):
         pass
 
 

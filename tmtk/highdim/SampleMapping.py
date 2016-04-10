@@ -46,7 +46,7 @@ class SampleMapping(object):
     def __str__(self):
         return self.path
 
-    def validate(self):
+    def validate(self, verbosity=2):
         """
         Makes checks to determine whether transmart-batch likes this file.
         """

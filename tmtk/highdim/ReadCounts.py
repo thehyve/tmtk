@@ -6,7 +6,7 @@ class ReadCounts(HighDimBase):
     """
     Subclass for ReadCounts.
     """
-    def validate(self):
+    def validate(self, verbosity=2):
         """
         Makes checks to determine whether transmart-batch likes this file.
         Checks header if it contains only <samplecode>.(normalized)readcount.
