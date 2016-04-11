@@ -5,6 +5,7 @@ from tmtk.clinical import *
 from tmtk.annotation import *
 from tmtk.highdim import *
 from tmtk.utils import *
+import tmtk.toolbox as Toolbox
 
 
 __version__ = '0.1.0'
