@@ -25,4 +25,4 @@ class Expression(HighDimBase):
         if header[0] != 'ID_REF':
             message.append('Expected "ID_REF", but got {} for {}'.format(header[0], self.path))
 
-        utils.print_message_list(message)
+        return utils.print_message_list(message)

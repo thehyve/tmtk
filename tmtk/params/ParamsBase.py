@@ -66,9 +66,9 @@ class ParamsBase:
 
     def _process_validation_message(self, message=None):
         """
-
+        This will be replaced by proper logging implementation
         :param message:
-        :return:
+        :return: False if a message has been printed, else return True.
         """
         if message:
             heading = '\nValidating {}'.format(self.path)

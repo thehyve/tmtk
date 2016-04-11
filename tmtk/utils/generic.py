@@ -26,8 +26,6 @@ def file2df(path=None):
     :returns pandas dataframe
     """
     if not os.path.exists(path):
-        print(os.getcwd())
-        print(path)
         print('file2df: File does not exist.')
     df = pd.read_table(path,
                        sep='\t',
