@@ -28,7 +28,7 @@ class AnnotationParams(ParamsBase):
         :return: True if both the platform is set and the annotations file is located,
         else returns False.
         """
-        if self.ANNOTATIONS_FILE and self.PLATFORM:
+        if self.__dict__.get('ANNOTATIONS_FILE', None) and self.__dict__.get('PLATFORM', None):
             file_found = os.path.exists(os.path.join(self.dirname, self.ANNOTATIONS_FILE))
             return file_found
         else:

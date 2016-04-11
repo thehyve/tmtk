@@ -32,7 +32,8 @@ class Params:
             elif datatype == 'tags':
                 correct_instance = globals()['TagsParams']
             else:
-                raise Exception
+                utils.print_message_list('({}) not supported. skipping.'.format(f))
+                continue
 
             relative_path = f.split(study_folder)[1]
             subdir = self._pick_subdir_name(relative_path, datatype)

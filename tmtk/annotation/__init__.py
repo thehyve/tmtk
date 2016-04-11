@@ -26,7 +26,11 @@ class Annotations:
         for p in params_list:
 
             new_instance = globals()[mapping[p.datatype]]
-            af = new_instance(p)
+
+            try:
+                af = new_instance(p)
+            except utils.PathError:
+                continue
 
             annotation_type = p.datatype.split('annotation')[0]
             # Useful because microarrays annotation params have not been renamed yet.

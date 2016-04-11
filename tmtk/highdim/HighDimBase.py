@@ -7,11 +7,14 @@ class HighDimBase:
     """
     Base class for high dimensional data structures.
     """
-    def __init__(self, p, parent=None):
-        self.path = os.path.join(p.dirname, p.DATA_FILE)
+    def __init__(self, p=None, path=None, parent=None):
 
-        if not os.path.exists(self.path):
-            raise utils.PathError(self.path)
+        if p and p.is_viable():
+            self.path = os.path.join(p.dirname, p.DATA_FILE)
+        elif path and os.path.exists(self.path):
+            self.path = path
+        else:
+            raise utils.PathError()
 
         self.df = utils.file2df(self.path)
 

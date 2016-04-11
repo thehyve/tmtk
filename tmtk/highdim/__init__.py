@@ -4,7 +4,7 @@ from .Expression import Expression
 from .Proteomics import Proteomics
 from .ReadCounts import ReadCounts
 from .SampleMapping import SampleMapping
-
+import tmtk.utils as utils
 
 class HighDim:
     """
@@ -22,4 +22,7 @@ class HighDim:
 
         for p in params_list:
             new_instance = globals()[mapping[p.datatype]]
-            self.__dict__[str(p)] = new_instance(p, parent=parent)
+            try:
+                self.__dict__[str(p)] = new_instance(p, parent=parent)
+            except utils.PathError:
+                continue
