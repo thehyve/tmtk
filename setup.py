@@ -3,7 +3,7 @@ import setuptools
 setuptools.setup(
     name="tmtk",
     version="0.1.0",
-    url="https://github.com/borntyping/cookiecutter-pypackage-minimal",
+    url="",
 
     author="Jochem Bijlard",
     author_email="j.bijlard@gmail.com",
@@ -13,7 +13,8 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
 
-    install_requires=['pandas'],
+    install_requires=['pandas',
+                      'rpy2'],
 
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
