@@ -3,7 +3,7 @@ import rpy2.robjects.pandas2ri as pandas2ri
 import os
 
 
-def generate_chromosomal_regions_file(platform_id=None, reference_build='hg19'):
+def generate_chromosomal_regions_file(platform_id=None, reference_build='hg19', **kwargs):
     """
     This creates a new chromosomal regions annotation file.
 
@@ -15,6 +15,8 @@ def generate_chromosomal_regions_file(platform_id=None, reference_build='hg19'):
                     'hg19': 'grch37.ensembl.org',
                     'hg38': 'www.ensembl.org'}
     mart_host = host_mapping[reference_build]
+
+    only_y = kwargs.get('only_y', False)
 
     r_source = robjects.r['source']
     module_location = os.path.dirname(__file__)
@@ -29,7 +31,7 @@ def generate_chromosomal_regions_file(platform_id=None, reference_build='hg19'):
                         '\n\t>biocLite("biomaRt")'
                         )
 
-    new_platform = pandas2ri.ri2py_dataframe(r_query_mart(mart_host, platform_id))
+    new_platform = pandas2ri.ri2py_dataframe(r_query_mart(mart_host, platform_id, only_y))
     return new_platform
 
 

@@ -1,5 +1,5 @@
 
-query_biomart <- function(mart_host, gpl_id){
+query_biomart <- function(mart_host, gpl_id, only_y=FALSE){
 
     # ### Using ensembl on GRCh37 -----------------------------------------------
     library(biomaRt)
@@ -10,6 +10,10 @@ query_biomart <- function(mart_host, gpl_id){
 
     # Only use standard human chromosomes
     normal.chroms <- c(1:22, "X", "Y", "M")
+
+    if (only_y) {
+        normal.chroms = "Y"
+    }
 
     # # Get the coordinates through biomart and merge with platform -------------
     entrez_list <- getBM(attributes = c("chromosome_name", "start_position", "end_position",
