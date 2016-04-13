@@ -1,8 +1,5 @@
 from tmtk.highdim import HighDimBase
 import tmtk.utils as utils
-import tmtk.toolbox as Toolbox
-from tmtk.annotation import CNVAnnotation as CNVAnnotation
-import pandas as pd
 
 
 class CopyNumberVariation(HighDimBase):
@@ -39,17 +36,9 @@ class CopyNumberVariation(HighDimBase):
         utils.print_message_list(message)
 
     def remap_to(self, destination=None):
+        """
 
-        if not self.annotation_file:
-            raise Exception
-
-        if isinstance(destination, CNVAnnotation):
-            destination = destination.df
-        elif not isinstance(destination, pd.DataFrame):
-            raise utils.ClassError(found=type(destination),
-                                   expected='pd.DataFrame, or CNVAnnotation')
-
-        remapped = Toolbox.remap_chromosomal_regions(datafile=self.df,
-                                                     origin_platform=self.annotation_file.df,
-                                                     destination_platform=destination)
-        return remapped
+        :param destination:
+        :return:
+        """
+        return self._remap_to_chromosomal_regions(destination)

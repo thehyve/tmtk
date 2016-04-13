@@ -1,8 +1,7 @@
 from .AnnotationBase import AnnotationBase
-from .CNVAnnotation import CNVAnnotation
+from .ChromosomalRegions import ChromosomalRegions
 from .MicroarrayAnnotation import MicroarrayAnnotation
 from .ProteomicsAnnotation import ProteomicsAnnotation
-from .ReadCountsAnnotation import ReadCountsAnnotation
 import tmtk.utils as utils
 
 

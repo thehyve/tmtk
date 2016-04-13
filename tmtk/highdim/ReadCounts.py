@@ -28,3 +28,10 @@ class ReadCounts(HighDimBase):
         if message:
             utils.print_message_list(message)
 
+    def remap_to(self, destination=None):
+        """
+
+        :param destination:
+        :return:
+        """
+        return self._remap_to_chromosomal_regions(destination)

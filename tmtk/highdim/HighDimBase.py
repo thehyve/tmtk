@@ -1,5 +1,8 @@
 import tmtk.utils as utils
 from .SampleMapping import SampleMapping
+from tmtk.annotation import ChromosomalRegions
+import tmtk.toolbox as Toolbox
+import pandas as pd
 import os
 
 
@@ -70,3 +73,23 @@ class HighDimBase:
                                                              data_series=data_series)
 
         utils.print_message_list(missing_annotations, 'Missing annotations:')
+
+    def _remap_to_chromosomal_regions(self, destination=None):
+        """
+
+        :param destination:
+        :return:
+        """
+        if not self.annotation_file:
+            raise Exception
+
+        if isinstance(destination, ChromosomalRegions):
+            destination = destination.df
+        elif not isinstance(destination, pd.DataFrame):
+            raise utils.ClassError(found=type(destination),
+                                   expected='pd.DataFrame, or ChromosomalRegions')
+
+        remapped = Toolbox.remap_chromosomal_regions(datafile=self.df,
+                                                     origin_platform=self.annotation_file.df,
+                                                     destination_platform=destination)
+        return remapped

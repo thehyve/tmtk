@@ -35,6 +35,10 @@ def remap_chromosomal_regions(origin_platform=None, destination_platform=None, d
     # Add back the region id's
     new_df[segments_region_column] = destination_platform.ix[:, region_origin]
 
+    # Convert flag columns to int
+    if any(flag_columns):
+        new_df[flag_columns] = new_df[flag_columns].applymap(int)
+
     return new_df
 
 
@@ -89,5 +93,5 @@ def return_mean(datafile, mapping, flag_columns=None):
     mean_values = mapped_regions.ix[:, 1:].applymap(float).mean()
     if flag_columns.any() and (len(mapping) > 1):
         mean_values[flag_columns] = (datafile[datafile.ix[:, 0].isin(mapping)][flag_columns]
-                                     ).apply(lambda x: int(pd.value_counts(x)[0]))
+                                     ).apply(lambda x: pd.value_counts(x)[0])
     return mean_values

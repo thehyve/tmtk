@@ -26,8 +26,8 @@ class Study:
             self.Clinical = Clinical(clinical_params[0])
 
         annotation_map = {'microarray_annotation': 'MicroarrayAnnotation',
-                          'acgh_annotation': 'CNVAnnotation',
-                          'rnaseq_annotation': 'ReadCountsAnnotation',
+                          'acgh_annotation': 'ChromosomalRegions',
+                          'rnaseq_annotation': 'ChromosomalRegions',
                           'proteomics_annotation': 'ProteomicsAnnotation',
                           'annotation': 'MicroarrayAnnotation',
                           }
