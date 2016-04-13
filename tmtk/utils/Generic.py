@@ -33,19 +33,25 @@ def file2df(path=None):
     return df
 
 
-def df2file(df=None, path=None):
+def df2file(df=None, path=None, overwrite=False):
     """
     Write a dataframe to file properly
-    :param df
-    :param path
+    :param df:
+    :param path:
+    :param overwrite: False (default) or True.
+
     """
     if not path:
-        raise PathError
-    df.to_csv(path=path,
+        raise PathError(path)
+
+    if not overwrite and os.path.exists(path):
+        raise PathError("{} already exists.")
+
+    df.to_csv(path,
               sep='\t',
               index=False,
               float_format='%.3f')
-    pass
+    print('Written to disk: {}'.format(path))
 
 
 def call_boris(column_mapping=None, port=26747):
