@@ -16,7 +16,8 @@ class HighDimParams(ParamsBase):
                      'MAP_FILENAME',
                      ]
         optional = ['LOG_BASE',
-                    'ALLOW_MISSING_ANNOTATIONS'
+                    'ALLOW_MISSING_ANNOTATIONS',
+                    'SKIP_UNMAPPED_DATA',
                     ]
 
         message = self._check_for_correct_params(mandatory, optional)

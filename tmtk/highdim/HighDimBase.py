@@ -11,8 +11,14 @@ class HighDimBase:
     Base class for high dimensional data structures.
     """
     def __init__(self, p=None, path=None, parent=None):
+        """
 
+        :param p:
+        :param path:
+        :param parent:
+        """
         if p and p.is_viable():
+            self.params = p
             self.path = os.path.join(p.dirname, p.DATA_FILE)
         elif path and os.path.exists(self.path):
             self.path = path
@@ -68,6 +74,10 @@ class HighDimBase:
     def _find_missing_annotation(self, annotation_series=None, data_series=None):
         """
         Checks for missing annotations.
+
+        :param annotation_series:
+        :param data_series:
+        :return:
         """
         missing_annotations = utils.find_missing_annotations(annotation_series=annotation_series,
                                                              data_series=data_series)
