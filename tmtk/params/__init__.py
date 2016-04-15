@@ -6,6 +6,7 @@ from .TagsParams import TagsParams
 import glob
 import os
 import tmtk.utils as utils
+import tmtk.utils.CPrint as CPrint
 
 
 class Params:
@@ -32,7 +33,7 @@ class Params:
             elif datatype == 'tags':
                 correct_instance = globals()['TagsParams']
             else:
-                utils.print_message_list('({}) not supported. skipping.'.format(f))
+                CPrint.info('({}) not supported. skipping.'.format(f))
                 continue
 
             relative_path = f.split(study_folder)[1]
