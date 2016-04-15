@@ -1,5 +1,5 @@
-from IPython.display import display
-
+from IPython.display import display, Audio
+import os
 
 class CPrint:
     def __repr__(self):
@@ -28,6 +28,10 @@ class CPrint:
     def okay(message):
         return display(_Okay(message))
 
+    @staticmethod
+    def fix_everything():
+        return Audio(os.path.join(os.path.dirname(__file__), 'fix_for_all_tm_loading_issues.mp3'), autoplay=True)
+
 
 class _Head(CPrint):
     def __init__(self, m):
@@ -44,17 +48,63 @@ class _Info(CPrint):
 class _Okay(CPrint):
     def __init__(self, m):
         self.term = '\033[92mOkay: {}\033[0m'.format(m)
-        self.html = '<font color="green">&#x2705; {}</font>'.format(m)
+        self.html = '<p><font color="green">&#x2705; {}</font></p>'.format(m)
 
 
 class _Warn(CPrint):
     def __init__(self, m):
         self.term = '\033[93mWarning: {}\033[0m'.format(m)
-        self.html = '<font color="orange">&#9888; {}</font>'.format(m)
+        self.html = '<p><font color="orange">&#9888; {}</font></p>'.format(m)
 
 
 class _Error(CPrint):
     def __init__(self, m):
         self.term = '\033[95m\033[91mError: {}\033[0m'.format(m)
-        self.html = '<font color="red">&#x274C; {}</font>'.format(m)
+        self.html = '<p><font color="red">&#x274C; {}</font></p>'.format(m)
 
+
+class MessageCollector:
+    def __init__(self, verbosity=5):
+        """
+        Collect messages to be printed later by CPrint.
+
+        :param verbosity: integer between 0 and 4, where 0 prints nothing, 1 only errors,
+        2 warnings, 3 _okay messages, and 4 includes _info messages.
+        """
+        self._head = []
+        self._info = []
+        self._okay = []
+        self._warn = []
+        self._error = []
+        self.verbosity = verbosity
+
+    def head(self, message):
+        self._head.append(message)
+
+    def info(self, message):
+        if self.verbosity > 3:
+            self._info.append(message)
+
+    def okay(self, message):
+        if self.verbosity > 2:
+            self._okay.append(message)
+
+    def warn(self, message):
+        if self.verbosity > 1:
+            self._warn.append(message)
+
+    def error(self, message):
+        if self.verbosity > 0:
+            self._error.append(message)
+
+    def flush(self):
+        if any([self._info, self._okay, self._warn, self._error]) and self._head:
+            CPrint.head(self._head[0])
+        if self._error:
+            [CPrint.error(m) for m in self._error]
+        if self._warn:
+            [CPrint.warn(m) for m in self._warn]
+        if self._okay:
+            [CPrint.okay(m) for m in self._okay]
+        if self._info:
+            [CPrint.info(m) for m in self._info]
