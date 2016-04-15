@@ -4,6 +4,7 @@ from tmtk.annotation import ChromosomalRegions
 import tmtk.toolbox as Toolbox
 import pandas as pd
 import os
+import tmtk.utils.CPrint as CPrint
 
 
 class HighDimBase:
@@ -52,26 +53,27 @@ class HighDimBase:
                 sample, count_type = h.rsplit('.', 1)
                 samples.append(sample)
                 if count_type not in allowed:
-                    message.append('Found incorrect header item {}, for {}.\n'.format(h, self.path))
+                    CPrint.error('Found incorrect header item {}, for {}.\n'.format(h, self.path))
 
         sample_checking_dict = utils.check_datafile_header_with_subjects(
             samples, self.sample_mapping_samples)
 
         not_in_datafile = sample_checking_dict['not_in_datafile']
         if not_in_datafile:
-            message.append('Samples not in datafile: {}.\n'.format(not_in_datafile))
+            CPrint.error('Samples not in datafile: {}.\n'.format(not_in_datafile))
 
         not_in_sample_mapping = sample_checking_dict['not_in_sample_mapping']
         if not_in_sample_mapping:
-            message.append('Samples not in mapping file: {}.\n'.format(not_in_sample_mapping))
+            CPrint.warn('Samples not in mapping file: {}.\n'.format(not_in_sample_mapping))
 
         intersection = sample_checking_dict['intersection']
         if intersection:
-            message.append('Intersection of samples: {}.\n'.format(intersection))
+            CPrint.info('Intersection of samples: {}.\n'.format(intersection))
 
         return message
 
-    def _find_missing_annotation(self, annotation_series=None, data_series=None):
+    @staticmethod
+    def _find_missing_annotation(annotation_series=None, data_series=None):
         """
         Checks for missing annotations.
 
