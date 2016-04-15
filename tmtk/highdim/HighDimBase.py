@@ -4,7 +4,7 @@ from tmtk.annotation import ChromosomalRegions
 import tmtk.toolbox as Toolbox
 import pandas as pd
 import os
-import tmtk.utils.CPrint as CPrint
+from tmtk.utils import MessageCollector
 
 
 class HighDimBase:
@@ -37,40 +37,53 @@ class HighDimBase:
             if hasattr(self._parent, 'Annotations'):
                 self.annotation_file = parent.find_annotation(self.platform)
 
-    def _check_header_extensions(self, allowed=None, header=None):
+    @property
+    def header(self):
+        return self.df.columns
+
+    def validate(self, verbosity=2):
         """
-
-        :param allowed: list of items that are allowed as count types. If None, assume only samples.
-        :param header: list of header items to be checked.
-        :return: message list, hopefully empty.
+        Validate high dimensional data object
+        :param verbosity:
+        :return:
         """
-        samples = []
-        message = []
-        for h in header:
-            if not allowed:
-                samples.append(h)
-            else:
-                sample, count_type = h.rsplit('.', 1)
-                samples.append(sample)
-                if count_type not in allowed:
-                    CPrint.error('Found incorrect header item {}, for {}.\n'.format(h, self.path))
+        messages = MessageCollector(verbosity=verbosity)
+        self._validate_header(messages)
+        self._verify_sample_mapping(messages)
 
-        sample_checking_dict = utils.check_datafile_header_with_subjects(
-            samples, self.sample_mapping_samples)
+        if self.annotation_file:
+            # Todo add check that first validates the annotation file.
+            data_series = self.df.ix[:, 0]
+            m = self._find_missing_annotation(annotation_series=self.annotation_file.biomarkers,
+                                              data_series=data_series)
 
-        not_in_datafile = sample_checking_dict['not_in_datafile']
+            messages.warn('Missing annotations found: {}'.format(utils.summarise(m)))
+
+    def _check_header_extensions(self, messages):
+        for h in self.header:
+            count_type = h.rsplit('.', 1)[1]
+            illegal_header_items = []
+            if count_type not in self.allowed_header:
+                illegal_header_items.append(count_type)
+            if illegal_header_items:
+                messages.error('Found illegal header items {}.'.
+                               format(utils.summarise(illegal_header_items)))
+
+    def _verify_sample_mapping(self, messages):
+        samples_verified = utils.check_datafile_header_with_subjects(self.samples,
+                                                                     self.sample_mapping_samples)
+
+        not_in_datafile = samples_verified['not_in_datafile']
         if not_in_datafile:
-            CPrint.error('Samples not in datafile: {}.\n'.format(not_in_datafile))
+            messages.error('Samples not in datafile: {}.'.format(not_in_datafile))
 
-        not_in_sample_mapping = sample_checking_dict['not_in_sample_mapping']
+        not_in_sample_mapping = samples_verified['not_in_sample_mapping']
         if not_in_sample_mapping:
-            CPrint.warn('Samples not in mapping file: {}.\n'.format(not_in_sample_mapping))
+            messages.warn('Samples not in mapping file: {}.'.format(not_in_sample_mapping))
 
-        intersection = sample_checking_dict['intersection']
+        intersection = samples_verified['intersection']
         if intersection:
-            CPrint.info('Intersection of samples: {}.\n'.format(intersection))
-
-        return message
+            messages.info('Intersection of samples: {}.'.format(intersection))
 
     @staticmethod
     def _find_missing_annotation(annotation_series=None, data_series=None):
@@ -84,7 +97,7 @@ class HighDimBase:
         missing_annotations = utils.find_missing_annotations(annotation_series=annotation_series,
                                                              data_series=data_series)
 
-        utils.print_message_list(missing_annotations, 'Missing annotations:')
+        return missing_annotations
 
     def _remap_to_chromosomal_regions(self, destination=None):
         """

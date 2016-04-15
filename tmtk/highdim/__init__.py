@@ -6,6 +6,7 @@ from .ReadCounts import ReadCounts
 from .SampleMapping import SampleMapping
 import tmtk.utils as utils
 
+
 class HighDim:
     """
     Container class for all High Dimensional data types.
