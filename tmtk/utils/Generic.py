@@ -2,10 +2,12 @@ import os
 import webbrowser
 import pandas as pd
 import tmtk
+import random
 from .Exceptions import *
+from IPython import display
 
 
-def clean_for_namespace(path):
+def clean_for_namespace(path) -> str:
     """
     Converts a path and returns a namespace safe variant. Converts characters that give errors
     to underscore.
@@ -16,6 +18,31 @@ def clean_for_namespace(path):
     for item in disallowed:
         path = path.replace(item, '_')
     return path
+
+
+def summarise(iterable=None, max_items: object = 7) -> str:
+    """
+    Takes an iterable and returns a summarized string statement. Picks a random sample
+    if number of items > max_items.
+
+    :param iterable: list or dict to summarise
+    :param max_items: maximum number of items to keep.
+    :return: the items joined as string with end statement.
+    """
+    if not type(iterable) in [list, dict]:
+        return iterable
+    unique_list = set(iterable)
+    n_uniques = len(unique_list)
+    if n_uniques > max_items:
+        unique_list = random.sample(unique_list, max_items)
+        end_statement = "({}) more".format(n_uniques - max_items)
+    else:
+        end_statement = "{}".format(unique_list.pop())
+
+    first_statement = ", ".join(map(str, unique_list))
+
+    m = "{} and {}.".format(first_statement, end_statement)
+    return m
 
 
 def file2df(path=None):
@@ -70,7 +97,8 @@ def call_boris(column_mapping=None, port=26747):
         print("No path to column mapping file or a valid ColumnMapping object given.")
     running_on = 'http://localhost:{}/treeview/{}'.format(port, path)
     print('Launching The Arborist now at {}.'.format(running_on))
-    webbrowser.open(running_on, new=0, autoraise=True)
+    display.display((display.IFrame(str(running_on), width=900, height=1000)))
+    # webbrowser.open(running_on, new=0, autoraise=True)
     arborist.app.run(port=port)
 
 
