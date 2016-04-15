@@ -1,4 +1,4 @@
-from .Generic import (clean_for_namespace, df2file, find_column_datatype,
+from .Generic import (clean_for_namespace, df2file, find_column_datatype, summarise,
                       file2df, get_unique_filename, is_categorical,
                       print_message_list, validate_clinical_data, call_boris)
 from .Exceptions import PathError, ClassError, DatatypeError
