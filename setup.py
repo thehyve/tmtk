@@ -13,7 +13,7 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
 
-    install_requires=['pandas', 'rpy2'],
+    install_requires=['pandas', 'rpy2', 'ipython'],
 
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
