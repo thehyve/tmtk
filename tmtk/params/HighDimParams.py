@@ -4,24 +4,14 @@ import os
 
 
 class HighDimParams(ParamsBase):
-    def validate(self, verbosity=2):
-        """
-        Validate this parameter file.
-        :param verbosity:
-        :return:
-        """
 
-        mandatory = ['DATA_FILE',
-                     'DATA_TYPE',
-                     'MAP_FILENAME',
-                     ]
-        optional = ['LOG_BASE',
-                    'ALLOW_MISSING_ANNOTATIONS',
-                    'SKIP_UNMAPPED_DATA',
-                    ]
+    @property
+    def mandatory(self):
+        return ['DATA_FILE', 'DATA_TYPE', 'MAP_FILENAME']
 
-        message = self._check_for_correct_params(mandatory, optional)
-        return self._process_validation_message(message)
+    @property
+    def optional(self):
+        return ['LOG_BASE', 'ALLOW_MISSING_ANNOTATIONS', 'SKIP_UNMAPPED_DATA']
 
     def is_viable(self):
         """

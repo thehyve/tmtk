@@ -1,5 +1,6 @@
-from IPython.display import display, Audio
+from IPython.display import display
 import os
+
 
 class CPrint:
     def __repr__(self):
@@ -28,15 +29,11 @@ class CPrint:
     def okay(message):
         return display(_Okay(message))
 
-    @staticmethod
-    def fix_everything():
-        return Audio(os.path.join(os.path.dirname(__file__), 'fix_for_all_tm_loading_issues.mp3'), autoplay=True)
-
 
 class _Head(CPrint):
     def __init__(self, m):
         self.term = '\033[1m\033[95m{}\033[0m'.format(m)
-        self.html = '<h2>{}</h2>'.format(m)
+        self.html = '<h3>{}</h3>'.format(m)
 
 
 class _Info(CPrint):
@@ -76,6 +73,7 @@ class MessageCollector:
         self._okay = []
         self._warn = []
         self._error = []
+        self.found_error = False
         self.verbosity = verbosity
 
     def head(self, message):
@@ -94,6 +92,7 @@ class MessageCollector:
             self._warn.append(message)
 
     def error(self, message):
+        self.found_error = True
         if self.verbosity > 0:
             self._error.append(message)
 

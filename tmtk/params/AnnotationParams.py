@@ -4,23 +4,14 @@ import os
 
 
 class AnnotationParams(ParamsBase):
-    def validate(self, verbosity=2):
-        """
-        Validate this parameter file.
-        :param verbosity:
-        :return:
-        """
 
-        mandatory = ['PLATFORM',
-                     'TITLE',
-                     'ANNOTATIONS_FILE'
-                     ]
-        optional = ['ORGANISM',
-                    'GENOME_RELEASE'
-                    ]
+    @property
+    def mandatory(self):
+        return ['PLATFORM', 'TITLE', 'ANNOTATIONS_FILE']
 
-        message = self._check_for_correct_params(mandatory, optional)
-        return self._process_validation_message(message)
+    @property
+    def optional(self):
+        return ['ORGANISM', 'GENOME_RELEASE']
 
     def is_viable(self):
         """

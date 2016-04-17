@@ -4,7 +4,7 @@ import pandas as pd
 import tmtk
 import random
 from .Exceptions import *
-from IPython import display
+from IPython.display import display, Audio
 
 
 def clean_for_namespace(path) -> str:
@@ -20,19 +20,19 @@ def clean_for_namespace(path) -> str:
     return path
 
 
-def summarise(iterable=None, max_items: object = 7) -> str:
+def summarise(list_or_dict=None, max_items: int = 7) -> str:
     """
     Takes an iterable and returns a summarized string statement. Picks a random sample
     if number of items > max_items.
 
-    :param iterable: list or dict to summarise
+    :param list_or_dict: list or dict to summarise
     :param max_items: maximum number of items to keep.
     :return: the items joined as string with end statement.
     """
-    if not type(iterable) in [list, dict]:
-        return iterable
-    unique_list = set(iterable)
+    unique_list = set(list(list_or_dict))
     n_uniques = len(unique_list)
+    if n_uniques == 1:
+        return str(unique_list.pop())
     if n_uniques > max_items:
         unique_list = random.sample(unique_list, max_items)
         end_statement = "({}) more".format(n_uniques - max_items)
@@ -41,7 +41,7 @@ def summarise(iterable=None, max_items: object = 7) -> str:
 
     first_statement = ", ".join(map(str, unique_list))
 
-    m = "{} and {}.".format(first_statement, end_statement)
+    m = "{} and {}".format(first_statement, end_statement)
     return m
 
 
@@ -95,29 +95,11 @@ def call_boris(column_mapping=None, port=26747):
         path = column_mapping
     else:
         print("No path to column mapping file or a valid ColumnMapping object given.")
-    running_on = 'http://localhost:{}/treeview/{}'.format(port, path)
+    running_on = 'http://localhost:{}/treeview/{}'.format(port, os.path.abspath(path))
     print('Launching The Arborist now at {}.'.format(running_on))
     display.display((display.IFrame(str(running_on), width=900, height=1000)))
     # webbrowser.open(running_on, new=0, autoraise=True)
     arborist.app.run(port=port)
-
-
-def print_message_list(message, head=None):
-    """
-    Print a message list or string.
-    :param message: list or string
-    :param head: prints prior to printing message.
-    """
-
-    if message and head:
-        print(head)
-    if isinstance(message, str):
-        print(message)
-    elif isinstance(message, list):
-        for m in message:
-            print(m)
-    else:
-        print("Don't know what to print, got {}.".format(type(message)))
 
 
 def validate_clinical_data(df):
@@ -172,3 +154,8 @@ def get_unique_filename(first_filename):
 
 def is_categorical(values):
     pass
+
+
+def fix_everything():
+    return Audio(os.path.join(os.path.dirname(__file__), 'fix_for_all_tm_loading_issues.mp3'),
+                 autoplay=True)

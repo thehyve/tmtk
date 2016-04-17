@@ -4,22 +4,14 @@ import os
 
 
 class ClinicalParams(ParamsBase):
-    def validate(self, verbosity=2):
-        """
-        Validate this parameter file.
-        :param verbosity:
-        :return:
-        """
 
-        mandatory = ['COLUMN_MAP_FILE',
-                     ]
-        optional = ['WORD_MAP_FILE',
-                    'XTRIAL_FILE',
-                    'TAGS_FILE',
-                    ]
+    @property
+    def mandatory(self):
+        return ['COLUMN_MAP_FILE']
 
-        message = self._check_for_correct_params(mandatory, optional)
-        return self._process_validation_message(message)
+    @property
+    def optional(self):
+        return ['WORD_MAP_FILE', 'XTRIAL_FILE', 'TAGS_FILE']
 
     def is_viable(self):
         """

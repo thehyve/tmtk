@@ -1,10 +1,10 @@
 import os
 import tmtk.utils as utils
-
+from tmtk.utils.CPrint import MessageCollector
 
 class ParamsBase:
     """
-    Class for parameter files.
+    Base class for parameter files.
     """
     def __init__(self, path=None, datatype=None, parameters=None, subdir=None, parent=None):
         """
@@ -41,38 +41,40 @@ class ParamsBase:
     def __str__(self):
         return self.subdir
 
-    def _check_for_correct_params(self, mandatory, optional):
+    def _check_for_correct_params(self, mandatory, optional, messages):
         """
 
         :param mandatory:
         :param optional:
         :return:
         """
-        messages = []
         for param in mandatory:
             value = self.__dict__.get(param, None)
             if not value:
-                messages.append('No {} given.'.format(param))
+                messages.error('No {} given.'.format(param))
 
         for param, value in self.__dict__.items():
             if param.islower():
                 continue
+            messages.info('Detected parameter {}={}.'.format(param, value))
             if param not in mandatory + optional:
-                messages.append('Disallowed param found: {}.'.format(param))
-            elif 'FILE' in param and not os.path.exists(
-                    os.path.join(self.dirname, value)):
-                messages.append('{}={} cannot be found.'.format(param, value))
-        return messages
+                messages.error('Illegal param found: {}.'.format(param))
+            elif 'FILE' in param:
+                if not os.path.exists(os.path.join(self.dirname, value)):
+                    messages.error('{}={} cannot be found.'.format(param, value))
+                else:
+                    messages.okay('{}={} found.'.format(param, value))
 
-    def _process_validation_message(self, message=None):
+    def validate(self, verbosity=2):
         """
-        This will be replaced by proper logging implementation
-        :param message:
-        :return: False if a message has been printed, else return True.
+        Validate this parameter file. Return True if no errors were found in this parameter file.
+        :param verbosity:
+        :return: True or False.
         """
-        if message:
-            heading = '\nValidating {}'.format(self.path)
-            utils.print_message_list(message, head=heading)
-            return False
-        else:
-            return True
+        messages = MessageCollector(verbosity=verbosity)
+
+        messages.head("Validating params file at {}".format(self))
+        self._check_for_correct_params(self.mandatory, self.optional, messages=messages)
+
+        messages.flush()
+        return not messages.found_error

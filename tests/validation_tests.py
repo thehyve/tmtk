@@ -29,6 +29,9 @@ class ValidationTests(unittest.TestCase):
     def test_acgh_highdim_load(self):
         assert type(self.study.HighDim.acgh.df) == pd.DataFrame
 
+    def test_acgh_highdim_validation(self):
+        assert self.study.HighDim.acgh.validate()
+
     def test_proteomics_params_loading(self):
         assert self.study.Params.proteomics.datatype == 'proteomics'
 
@@ -37,6 +40,9 @@ class ValidationTests(unittest.TestCase):
 
     def test_proteomics_highdim_load(self):
         assert type(self.study.HighDim.proteomics.df) == pd.DataFrame
+
+    def test_proteomics_highdim_validation(self):
+        assert self.study.HighDim.proteomics.validate()
 
     def test_clinical_params_loading(self):
         assert self.study.Params.clinical.datatype == 'clinical'
@@ -52,6 +58,9 @@ class ValidationTests(unittest.TestCase):
 
     def test_rnaseq_highdim_load(self):
         assert type(self.study.HighDim.rnaseq.df) == pd.DataFrame
+
+    def test_rnaseq_highdim_validation(self):
+        assert self.study.HighDim.rnaseq.validate()
 
     def test_annotation_params_loading(self):
         assert self.study.Params.annotation_GPL570_bogus_annotation.datatype == 'annotation'
