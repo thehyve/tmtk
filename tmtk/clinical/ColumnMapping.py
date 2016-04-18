@@ -20,7 +20,7 @@ class ColumnMapping:
         return self.df.ix[:, 0].unique()
 
     def call_boris(self):
-        utils.call_boris(self)
+        self.df = utils.call_boris(self)
 
     def write_to(self):
         utils.df2file(self)

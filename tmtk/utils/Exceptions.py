@@ -37,3 +37,7 @@ class PathError(BaseException):
 
     def __str__(self):
         return "{} does not exists.".format(self.found)
+
+
+class NotYetImplemented(BaseException):
+    pass

@@ -3,8 +3,11 @@ import webbrowser
 import pandas as pd
 import tmtk
 import random
+import shutil
 from .Exceptions import *
-from IPython.display import display, Audio
+from IPython.display import display, Audio, IFrame, clear_output
+import tempfile
+from tmtk.utils.CPrint import CPrint
 
 
 def clean_for_namespace(path) -> str:
@@ -53,7 +56,7 @@ def file2df(path=None):
     :returns pandas dataframe
     """
     if not os.path.exists(path):
-        print('file2df: File does not exist.')
+        raise PathError('file2df: File does not exist.')
     df = pd.read_table(path,
                        sep='\t',
                        dtype=object)
@@ -78,28 +81,36 @@ def df2file(df=None, path=None, overwrite=False):
               sep='\t',
               index=False,
               float_format='%.3f')
-    print('Written to disk: {}'.format(path))
 
 
 def call_boris(column_mapping=None, port=26747):
     """
     This function loads the Arborist if it has been properly installed in your environment.
 
-    :param column_mapping has to be either a path to column mapping file or a tmtk.ColumnMapping object.
-    :param port that the server should run on, defaults to 26747 (Boris).
+    :param column_mapping: has to be either a path to column mapping file or a tmtk.ColumnMapping object.
+    :param port: that the server should run on, defaults to 26747 (Boris).
     """
     import arborist
+    new_temp_dir = tempfile.mkdtemp()
+
     if isinstance(column_mapping, tmtk.clinical.ColumnMapping):
         path = column_mapping.path
+        tmp_path = os.path.join(new_temp_dir, 'tmp_col_map.tsv')
+        df2file(column_mapping.df, tmp_path)
     elif os.path.exists(column_mapping):
         path = column_mapping
+        tmp_path = shutil.copy(path, new_temp_dir)
     else:
-        print("No path to column mapping file or a valid ColumnMapping object given.")
-    running_on = 'http://localhost:{}/treeview/{}'.format(port, os.path.abspath(path))
-    print('Launching The Arborist now at {}.'.format(running_on))
-    display.display((display.IFrame(str(running_on), width=900, height=1000)))
-    # webbrowser.open(running_on, new=0, autoraise=True)
+        CPrint.error("No path to column mapping file or a valid ColumnMapping object given.")
+
+    running_on = 'http://localhost:{}/treeview/{}'.format(port, os.path.abspath(tmp_path))
+    display(IFrame(src=running_on, width=900, height=900))
     arborist.app.run(port=port)
+    clear_output()
+    CPrint.okay('Successfully closed The Arborist. The updated column mapping file '
+                'has been returned as a dataframe.')
+    CPrint.warn("Don't forget to save this dataframe to disk if you want to store it.")
+    return file2df(tmp_path)
 
 
 def validate_clinical_data(df):
@@ -120,7 +131,7 @@ def find_column_datatype(df):
     :param df is a dataframe
     :return is a series of categorical and numerical.
     """
-    pass
+    raise NotYetImplemented
 
 
 def get_unique_filename(first_filename):
@@ -153,7 +164,7 @@ def get_unique_filename(first_filename):
 
 
 def is_categorical(values):
-    pass
+    raise NotYetImplemented
 
 
 def fix_everything():
