@@ -1,6 +1,6 @@
 import os
 import tmtk.utils as utils
-
+from tmtk.utils.CPrint import CPrint
 
 class SampleMapping(object):
     """
@@ -52,19 +52,18 @@ class SampleMapping(object):
         """
         pass
 
-    def get_samples(self):
-        """
-        :return: samples in this sample mapping file.
-        """
+    @property
+    def samples(self):
         return list(self.df.ix[:, 3])
 
-    def get_platform(self):
+    @property
+    def platform(self):
         """
         :return: the platform id in this sample mapping file.
         """
         platform_ids = list(self.df.ix[:, 4].unique())
         if len(platform_ids) > 1:
-            print('Found multiple platforms in {}. '
-                  'This might lead to unexpected behaviour.'.format(self.path))
+            CPrint.warn('Found multiple platforms in {}. '
+                        'This might lead to unexpected behaviour.'.format(self.path))
         elif platform_ids:
             return str(platform_ids[0])

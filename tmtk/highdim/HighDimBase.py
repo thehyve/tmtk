@@ -30,8 +30,7 @@ class HighDimBase:
 
         if hasattr(params, 'MAP_FILENAME'):
             self.sample_mapping = SampleMapping(os.path.join(params.dirname, params.MAP_FILENAME))
-            self.sample_mapping_samples = self.sample_mapping.get_samples()
-            self.platform = self.sample_mapping.get_platform()
+            self.platform = self.sample_mapping.platform
 
             self._parent = parent
             if hasattr(self._parent, 'Annotations'):
@@ -41,7 +40,7 @@ class HighDimBase:
     def header(self):
         return self.df.columns
 
-    def validate(self, verbosity=2):
+    def validate(self, verbosity=3):
         """
         Validate high dimensional data object
         :param verbosity:
@@ -78,7 +77,7 @@ class HighDimBase:
 
     def _verify_sample_mapping(self, messages):
         samples_verified = utils.check_datafile_header_with_subjects(self.samples,
-                                                                     self.sample_mapping_samples)
+                                                                     self.sample_mapping.samples)
 
         not_in_datafile = samples_verified['not_in_datafile']
         if not_in_datafile:
