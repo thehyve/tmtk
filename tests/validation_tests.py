@@ -63,16 +63,16 @@ class ValidationTests(unittest.TestCase):
         assert self.study.HighDim.rnaseq.validate()
 
     def test_annotation_params_loading(self):
-        assert self.study.Params.annotation_GPL570_bogus_annotation.datatype == 'annotation'
+        assert self.study.Params.mrna_annotation_GPL570_bogus_annotation.datatype == 'mrna_annotation'
 
     def test_annotation_params_validation(self):
-        assert self.study.Params.annotation_GPL570_bogus_annotation.validate()
+        assert self.study.Params.mrna_annotation_GPL570_bogus_annotation.validate()
 
     def test_annotation_platform_detections(self):
-        assert self.study.Annotations.microarray_GPL570_BOGUS.platform == 'GPL570_BOGUS'
+        assert self.study.Annotations.mrna_GPL570_BOGUS.platform == 'GPL570_BOGUS'
 
     def test_annotation_load(self):
-        assert type(self.study.Annotations.microarray_GPL570_BOGUS.df) == pd.DataFrame
+        assert type(self.study.Annotations.mrna_GPL570_BOGUS.df) == pd.DataFrame
 
 if __name__ == '__main__':
     unittest.main()
