@@ -1,3 +1,4 @@
+GPL_ID	PROBE_NAME	GENES	ENTREZ_IDS	ORGANISM
 GPL570_bogus	1007_s_at	DDR1	780	"Homo sapiens"
 GPL570_bogus	1053_at	RFC2	5982	"Homo sapiens"
 GPL570_bogus	117_at	HSPA6	3310	"Homo sapiens"

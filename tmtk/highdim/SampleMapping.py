@@ -2,6 +2,7 @@ import os
 import tmtk.utils as utils
 from tmtk.utils.CPrint import CPrint
 
+
 class SampleMapping(object):
     """
     Base class for subject sample mapping

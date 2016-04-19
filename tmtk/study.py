@@ -3,6 +3,7 @@ from .clinical import *
 from .params import *
 from .highdim import *
 from .annotation import *
+from tmtk.utils.CPrint import CPrint
 
 
 class Study:
@@ -30,6 +31,7 @@ class Study:
                           'rnaseq_annotation': 'ChromosomalRegions',
                           'proteomics_annotation': 'ProteomicsAnnotation',
                           'annotation': 'MicroarrayAnnotation',
+                          'mrna_annotation': 'MicroarrayAnnotation',
                           }
 
         annotation_params = self.find_params_for_datatype(datatypes=list(annotation_map))
@@ -75,14 +77,13 @@ class Study:
                 annotations.append(params_object)
 
         if not annotations:
-            utils.print_message_list('Platform {} not found in study.'.format(platform))
+            CPrint.warn('Platform {} not found in study.'.format(platform))
 
         elif len(annotations) == 1:
             return annotations[0]
 
         else:
-            utils.print_message_list('Duplicate platform '
-                                     'objects found for {}: {}').format(platform, annotations)
+            CPrint.error('Duplicate platform objects found for {}: {}').format(platform, annotations)
 
     def __str__(self):
         statement = "Study object: {}".format(self.params_path)
