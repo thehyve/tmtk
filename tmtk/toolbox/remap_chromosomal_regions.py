@@ -93,5 +93,5 @@ def return_mean(datafile, mapping, flag_columns=None):
     mean_values = mapped_regions.ix[:, 1:].applymap(float).mean()
     if flag_columns.any() and (len(mapping) > 1):
         mean_values[flag_columns] = (datafile[datafile.ix[:, 0].isin(mapping)][flag_columns]
-                                     ).apply(lambda x: pd.value_counts(x)[0])
+                                     ).apply(lambda x: pd.value_counts(x).index[0])
     return mean_values
