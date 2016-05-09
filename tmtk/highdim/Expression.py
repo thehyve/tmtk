@@ -11,7 +11,7 @@ class Expression(HighDimBase):
         Makes checks to determine whether transmart-batch likes this file.
         """
         if self.header[0] != 'ID_REF':
-            messages.error('Expected "ID_REF", but got {} for {}'.format(self.header[0], self.path))
+            messages.warn('Expected "ID_REF", but got {} for {}'.format(self.header[0], self.path))
 
     @property
     def samples(self):
