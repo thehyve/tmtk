@@ -3,6 +3,7 @@ from .AnnotationParams import AnnotationParams
 from .ClinicalParams import ClinicalParams
 from .HighDimParams import HighDimParams
 from .TagsParams import TagsParams
+from .StudyParams import StudyParams
 import glob
 import os
 import tmtk.utils as utils
@@ -19,19 +20,26 @@ class Params:
         """
         assert os.path.exists(study_folder), 'Params: {} does not exist.'.format(study_folder)
 
-        for f in glob.iglob(os.path.join(study_folder, '*/**/*.params'), recursive=True):
+        param_mapping = {'rnaseq': 'HighDimParams',
+                         'acgh': 'HighDimParams',
+                         'proteomics': 'HighDimParams',
+                         'expression': 'HighDimParams',
+                         'tags': 'TagsParams',
+                         'study': 'StudyParams',
+                         'clinical': 'ClinicalParams',
+                         }
+
+        for f in glob.iglob(os.path.join(study_folder, '**/*.params'), recursive=True):
             datatype = os.path.basename(f).split('.params')[0]
             if 'kettle' in str(f):  # Skip subdirectories that have kettle in the name.
+                CPrint.info('Skipping ({}) because of "kettle"'.format(f))
                 continue
 
-            if datatype in ['rnaseq', 'acgh', 'proteomics', 'expression']:
-                correct_instance = globals()['HighDimParams']
+            params_class = param_mapping.get(datatype, None)
+            if params_class:
+                correct_instance = globals()[params_class]
             elif 'annotation' in datatype:
                 correct_instance = globals()['AnnotationParams']
-            elif datatype == 'clinical':
-                correct_instance = globals()['ClinicalParams']
-            elif datatype == 'tags':
-                correct_instance = globals()['TagsParams']
             else:
                 CPrint.info('({}) not supported. skipping.'.format(f))
                 continue
