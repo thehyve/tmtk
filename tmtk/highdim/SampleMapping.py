@@ -68,3 +68,16 @@ class SampleMapping(object):
                         'This might lead to unexpected behaviour.'.format(self.path))
         elif platform_ids:
             return str(platform_ids[0])
+
+    @property
+    def study_id(self):
+        """
+
+        :return: study_id in sample mapping file
+        """
+        study_ids = list(self.df.ix[:, 0].unique())
+        if len(study_ids) > 1:
+            CPrint.error('Found multiple study_ids found in {}. '
+                         'This is not supported.'.format(self.path))
+        elif study_ids:
+            return str(study_ids[0]).upper()

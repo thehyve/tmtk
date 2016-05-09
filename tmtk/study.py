@@ -104,3 +104,8 @@ class Study:
             for key, obj in d:
                 obj.validate(verbosity=verbosity)
 
+    @property
+    def study_id(self):
+        study_params = self.find_params_for_datatype('study')[0]
+        return study_params.__dict__.get('STUDY_ID')
+

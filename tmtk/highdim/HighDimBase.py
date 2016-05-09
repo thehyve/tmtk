@@ -94,8 +94,14 @@ class HighDimBase:
 
         intersection = samples_verified['intersection']
         if intersection:
-            messages.info('Intersection of samples: {}.'.
-                          format(utils.summarise(intersection)))
+            messages.info('Intersection of samples: {}.'.format(utils.summarise(intersection)))
+
+        if self.sample_mapping.study_id != self._parent.study_id:
+            m = 'Study_id in ({}) does not match ({}) in study.params'.\
+                format(self.sample_mapping.study_id, self._parent.study_id)
+            messages.error(m)
+        else:
+            messages.okay('STUDY_ID as expected from study.params.')
 
     def _find_missing_annotation(self, annotation_series=None, data_series=None, messages=None):
         """
