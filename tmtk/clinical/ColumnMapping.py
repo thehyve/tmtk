@@ -16,11 +16,16 @@ class ColumnMapping:
 
         self.df = utils.file2df(self.path)
 
+    @property
     def included_datafiles(self):
-        return self.df.ix[:, 0].unique()
+        """
+        List of datafiles included in column mapping file.
+        :return: list.
+        """
+        return list(self.df.ix[:, 0].unique())
 
     def call_boris(self):
-        self.df = utils.call_boris(self)
+        self.df = utils.call_boris(self.df)
 
     def write_to(self):
         utils.df2file(self)

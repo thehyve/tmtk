@@ -1,0 +1,21 @@
+{% macro feedbacklist(feedback) -%}
+  {% if feedback['errors'] != [] or feedback['warnings'] != [] or feedback['infos'] != [] %}
+    <ul class="feedback">
+    {% if feedback['errors'] != []%}
+        {% for error in feedback['errors'] %}
+          <li class="error">{{ error }}</li>
+        {% endfor %}
+    {% endif %}
+    {% if feedback['warnings'] != []%}
+        {% for warning in feedback['warnings'] %}
+          <li class="warning">{{ warning }}</li>
+        {% endfor %}
+    {% endif %}
+    {% if feedback['infos'] != []%}
+        {% for info in feedback['infos'] %}
+          <li class="message">{{ info }}</li>
+        {% endfor %}
+    {% endif %}
+    </ul>
+  {% endif %}
+{%- endmacro %}

@@ -1,11 +1,59 @@
 import os
 import re
 import json
+import pandas as pd
+import tmtk
+
+
+def study_to_concept_tree(study_object):
+    """
+
+    :param study_object: tmtk.Study object or ColumnMapping dataframe
+    :return: json string to be interpreted by the JSTree
+    """
+    concept_tree = ConceptTree()
+    if isinstance(study_object, tmtk.Study):
+        col_map_tuples = study_object.Clinical.ColumnMapping.df.apply(get_concept_node, axis=1)
+
+    elif isinstance(study_object, pd.DataFrame):
+        col_map_tuples = study_object.apply(get_concept_node, axis=1)
+
+    else:
+        raise TypeError
+
+    for path, path_id, data_args in col_map_tuples:
+        concept_tree.add_node(path, path_id, categories=None, data_args=data_args)
+
+    return concept_tree.jstree.json_data_string
+
+
+def get_concept_node(x):
+    """
+
+    :param x: row in column mapping dataframe
+    :return:
+    """
+    path = "{}/{}".format(x[1], x[3]).replace('+', '/').replace('\\', 'slash')
+    path_id = "{}__{}".format(x[0], x[2])
+    data_args = {'Filename': x[0],
+                 "Category Code": x[1],
+                 'Column Number': x[2],
+                 "Data Label": x[3],
+                 }
+    return path, path_id, data_args
 
 
 class ConceptTree:
+    """
+    Build a ConceptTree to be used in the graphical tree editor.
 
+    """
     def __init__(self, json_data=None):
+        """
+
+        :param json_data: Optional json data that initiates the ConceptTree object
+        and populates it with ConceptNode objects.
+        """
         self.nodes = []
 
         if json_data:
@@ -32,6 +80,26 @@ class ConceptTree:
     @property
     def jstree(self):
         return JSTree(self.nodes)
+
+    @property
+    def column_mapping_file(self):
+        """
+
+        :return: Column Mapping file based on ConceptTree object.
+        """
+        df = pd.concat([self._extract_column_mapping_row(node) for node in self.nodes], axis=1).T
+        df.columns = ['Filename', 'Path', 'Column', 'Label']
+        return df
+
+    @staticmethod
+    def _extract_column_mapping_row(node):
+        filename = node.data.get('Filename')
+        path = node.path.replace('/', '+')
+        column = node.data.get('Column Number')
+        data_label = node.data.get('Data Label')
+        new_row = pd.Series([filename, path, column, data_label])
+        if all(new_row):
+            return new_row
 
     def _extract_node_list(self, json_data):
         node_list = []

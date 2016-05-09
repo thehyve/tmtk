@@ -1,13 +1,12 @@
 import os
-import webbrowser
 import pandas as pd
-import tmtk
 import random
 import shutil
 from .Exceptions import *
 from IPython.display import display, Audio, IFrame, clear_output
 import tempfile
 from tmtk.utils.CPrint import CPrint
+import tmtk
 
 
 def clean_for_namespace(path) -> str:
@@ -83,34 +82,56 @@ def df2file(df=None, path=None, overwrite=False):
               float_format='%.3f')
 
 
-def call_boris(column_mapping=None, port=26747):
+def call_boris(to_be_shuffled=None, port=26747):
     """
     This function loads the Arborist if it has been properly installed in your environment.
 
-    :param column_mapping: has to be either a path to column mapping file or a tmtk.ColumnMapping object.
+    :param to_be_shuffled: has to be either a tmtk.Study object, a Pandas
+    column mapping dataframe, or a path to column mapping file.
     :param port: that the server should run on, defaults to 26747 (Boris).
     """
-    import arborist
-    new_temp_dir = tempfile.mkdtemp()
+    from tmtk import arborist
 
-    if isinstance(column_mapping, tmtk.clinical.ColumnMapping):
-        path = column_mapping.path
-        tmp_path = os.path.join(new_temp_dir, 'tmp_col_map.tsv')
-        df2file(column_mapping.df, tmp_path)
-    elif os.path.exists(column_mapping):
-        path = column_mapping
-        tmp_path = shutil.copy(path, new_temp_dir)
+    return_df = True
+    if isinstance(to_be_shuffled, pd.DataFrame):
+        pass
+
+    elif isinstance(to_be_shuffled, tmtk.Study):
+        return_df = False
+        raise NotYetImplemented
+
+    elif os.path.exists(to_be_shuffled):
+        to_be_shuffled = file2df(to_be_shuffled)
+        return_df = True
+
     else:
         CPrint.error("No path to column mapping file or a valid ColumnMapping object given.")
 
-    running_on = 'http://localhost:{}/treeview/{}'.format(port, os.path.abspath(tmp_path))
+    new_temp_dir = tempfile.mkdtemp()
+    tmp_json = new_temp_dir + '/tmp_json'
+
+    json_data = arborist.study_to_concept_tree(to_be_shuffled)
+
+    with open(tmp_json, 'w') as f:
+        f.write(json_data)
+
+    running_on = 'http://localhost:{}/treeview/{}'.format(port, os.path.abspath(tmp_json))
+
     display(IFrame(src=running_on, width=900, height=900))
     arborist.app.run(port=port)
+
     clear_output()
     CPrint.okay('Successfully closed The Arborist. The updated column mapping file '
                 'has been returned as a dataframe.')
     CPrint.warn("Don't forget to save this dataframe to disk if you want to store it.")
-    return file2df(tmp_path)
+
+    if return_df:
+        with open(tmp_json, 'r') as f:
+            json_data = f.read()
+
+        col_map_df = arborist.ConceptTree(json_data).column_mapping_file
+        shutil.rmtree(new_temp_dir)
+        return col_map_df
 
 
 def validate_clinical_data(df):

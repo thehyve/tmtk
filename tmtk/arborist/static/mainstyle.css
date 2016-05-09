@@ -1,0 +1,105 @@
+html {
+  margin: 0;
+  padding: 0;
+  font-size: 62.5%;
+}
+body {
+  max-width: 800px;
+  min-width: 300px;
+  margin: 0 auto;
+  padding: 20px 10px;
+  font-size: 14px;
+  font-size: 1.4em;
+  font-family: 'Open Sans', serif;
+}
+h1 {
+  font-size: 1.8em;
+  text-align: center;
+  font-family: 'Droid Serif', serif;
+}
+/* unvisited link */
+a:link {
+    color: #818c3c;
+}
+/* visited link */
+a:visited {
+    color: #25591f;
+}
+/* mouse over link */
+a:hover {
+    color: #72601b;
+}
+/* selected link */
+a:active {
+    color: #593a0e;
+}
+p#breadcrumb {
+  font-family: 'Fjalla One', serif;
+}
+div#content {
+  min-height: 300px;
+}
+div#footer {
+  font-style: italic;
+  text-align: center;
+  padding-top: 5px;
+  font-family: 'Fjalla One', serif;
+  color: #555;
+}
+ul.folderlist {
+  list-style: none;
+  padding-left: 10px;
+}
+ul.folderlist li img {
+  padding: 4px 0px 0px 0px;
+}
+div#treediv {
+  overflow: auto;
+  border: 1px solid silver;
+  min-height: 300px;
+}
+form.blockform label {
+  text-align: right;
+  float: left;
+  width: 200px;
+  padding-right: 5px;
+}
+input[type=text], select {
+  float: left;
+  width: 400px;
+  /* Hackery to get selects to be as wide as input texts... */
+  border:1px solid #aaa;
+  -ms-box-sizing:content-box;
+  -moz-box-sizing:content-box;
+  -webkit-box-sizing:content-box;
+  box-sizing:content-box;
+}
+input[type=text][disabled], select[disabled] {
+  border-color: #eee;
+}
+select {
+  /* With above hackary selects are 2px smaller than input texts */
+  width: 402px;
+}
+fieldset p {
+  clear: both;
+  padding: 5px;
+}
+fieldset input[type=submit] {
+  float: right;
+}
+li.error {
+  background: url('/static/img/message/error.png') no-repeat left top;
+  padding: 0px 0px 0px 20px;
+  list-style: none;
+}
+li.warning {
+  background: url('/static/img/message/warning.png') no-repeat left top;
+  padding: 0px 0px 0px 20px;
+  list-style: none;
+}
+li.message {
+  background: url('/static/img/message/info.png') no-repeat left top;
+  padding: 0px 0px 0px 20px;
+  list-style: none;
+}

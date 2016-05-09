@@ -13,7 +13,7 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
 
-    install_requires=['pandas', 'rpy2', 'ipython'],
+    install_requires=['pandas', 'rpy2', 'ipython', 'flask'],
 
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

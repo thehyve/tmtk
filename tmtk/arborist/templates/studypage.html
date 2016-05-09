@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% import 'macros.html' as macros %}
+
+{% block title %}Study {{study}}{% endblock %}
+{% block content %}
+<p>The information below was found by scanning the <code>.params</code> files corresponding to the datatypes in the folder:<br />
+	'<code>{{ (studiesfolder, study)|path_join }}</code>'.</p>
+	{% for datatype in possible_datatypes %}
+		<h2>{{ datatype|capitalize }} data</h2>
+		<p>{{ macros.feedbacklist(paramsdict[datatype]['feedback']) }}</p>
+		{% if paramsdict[datatype]['exists'] %}
+			<a href="{{ url_for('edit_params', studiesfolder=studiesfolder, study=study, datatype=datatype) }}">Edit {{ datatype }}.params</a>
+
+			{% if paramsdict[datatype]['params'] %}
+				<ul>
+				{% for param in paramsdict[datatype]['params'] %}
+					<li>{{param}}: {{paramsdict[datatype]['params'][param]}}</li>
+					{% if param == 'COLUMN_MAP_FILE' %}
+						<ul><li><a href="{{ url_for('edit_tree', studiesfolder=studiesfolder, study=study) }}">Edit tree</a></li></ul>
+					{% endif %}
+				{% endfor %}
+				</ul>
+			{% endif %}
+
+		{% else %}
+			<a href="{{ url_for('create_params', studiesfolder=studiesfolder, study=study, datatype=datatype) }}">Create {{ datatype }}.params</a>
+		{% endif %}
+
+		{% set docslink = paramsdict[datatype]['docslink'] %}
+
+		<p><a href="https://github.com/thehyve/transmart-batch/blob/master/docs/{{docslink}}.md"
+			 target="_blank">
+			Read the {{docslink}}.params documentation</a></p>
+
+	{% endfor %}
+
+{% endblock %}

@@ -13,6 +13,6 @@ class Clinical:
         self.ColumnMapping = ColumnMapping(params=clinical_params)
         self.WordMapping = WordMapping(params=clinical_params)
 
-        for file in self.ColumnMapping.included_datafiles():
+        for file in self.ColumnMapping.included_datafiles:
             safe_name = utils.clean_for_namespace(file)
             self.__dict__[safe_name] = DataFile(path=os.path.join(clinical_params.dirname, file))

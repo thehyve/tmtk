@@ -1,6 +1,6 @@
 from .utils import *
 from .clinical import *
-from .params import *
+from .params import Params
 from .highdim import *
 from .annotation import *
 from tmtk.utils.CPrint import CPrint

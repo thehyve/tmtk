@@ -14,6 +14,9 @@ class CopyNumberVariation(HighDimBase):
 
         self._check_header_extensions(messages)
 
+    def _validate_data_file(self):
+        self.df.ix[:, 1:].applymap(str.isalpha())
+
     @property
     def samples(self):
         return [h.rsplit('.', 1)[0] for h in self.header[1:]]

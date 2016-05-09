@@ -5,13 +5,29 @@ import os
 
 class StudyParams(ParamsBase):
 
+    docslink = "https://github.com/thehyve/transmart-batch/blob/master/docs/study-params.md"
+
     @property
     def mandatory(self):
-        return ['STUDY_ID']
+        return {'STUDY_ID': {
+                    'default': ('Uppercased parent directory name of the params'
+                                ' file is default.'),
+                    'helptext': 'Identifier of the study.',
+                            }
+                }
 
     @property
     def optional(self):
-        return ['SECURITY_REQUIRED', 'TOP_NODE']
+        return {"TOP_NODE": {
+                    'default': '\(Public|Private) Studies\<STUDY_ID>',
+                    'helptext': 'The study top node.'
+                    },
+                "SECURITY_REQUIRED": {
+                    'possible_values': ['Y', 'N'],
+                    'default': 'N',
+                    'helptext': ('Defines study as Private (Y) or Public (N).')
+                    },
+                }
 
     def is_viable(self):
         """

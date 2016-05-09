@@ -2,6 +2,7 @@ import os
 import tmtk.utils as utils
 from tmtk.utils.CPrint import MessageCollector
 
+
 class ParamsBase:
     """
     Base class for parameter files.
@@ -20,19 +21,8 @@ class ParamsBase:
         self.dirname = os.path.dirname(path)
         self.datatype = datatype
         self._parent = parent
-        with open(self.path, 'r') as f:
-            for line in f.readlines():
-                # Only keep things before a comment character
-                line = line.strip().split('#', 1)[0]
-                if '=' in line:
-                    parameter = line.split('=')
-                    param = parameter[0]
-                    value = parameter[1].strip("\'\"")
-                    if param == 'PLATFORM':
-                        value = value.upper()
-                    if param == 'DATA_FILE_PREFIX':
-                        param = 'DATA_FILE'
-                    self.__dict__[param] = value
+        self.__dict__.update(**self._get_params_from_file())
+
         if subdir:
             self.subdir = subdir
         else:
@@ -40,6 +30,29 @@ class ParamsBase:
 
     def __str__(self):
         return self.subdir
+
+    def _get_params_from_file(self):
+        """
+
+        :param path:
+        :return: dictionary with all variables in file
+        """
+        params_dict = {}
+        with open(self.path, 'r') as f:
+            for line in f.readlines():
+                # Only keep things before a comment character
+                line = line.strip().split('#', 1)[0]
+                if '=' not in line:
+                    continue
+                parameter = line.split('=')
+                param = parameter[0]
+                value = parameter[1].strip("\'\"")
+                if param == 'PLATFORM':
+                    value = value.upper()
+                if param == 'DATA_FILE_PREFIX':
+                    param = 'DATA_FILE'
+                params_dict[param] = value
+        return params_dict
 
     def _check_for_correct_params(self, mandatory, optional, messages):
         """
@@ -57,7 +70,7 @@ class ParamsBase:
             if param.islower():
                 continue
             messages.info('Detected parameter {}={}.'.format(param, value))
-            if param not in mandatory + optional:
+            if param not in mandatory and param not in optional:
                 messages.error('Illegal param found: {}.'.format(param))
             elif 'FILE' in param:
                 if not os.path.exists(os.path.join(self.dirname, value)):
