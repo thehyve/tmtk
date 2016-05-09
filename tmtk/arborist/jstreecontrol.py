@@ -94,9 +94,8 @@ class ConceptTree:
     @staticmethod
     def _extract_column_mapping_row(node):
         filename = node.data.get('Filename')
-        path = node.path.replace('/', '+')
+        path, data_label = node.path.rsplit('+', 1)
         column = node.data.get('Column Number')
-        data_label = node.data.get('Data Label')
         new_row = pd.Series([filename, path, column, data_label])
         if all(new_row):
             return new_row
