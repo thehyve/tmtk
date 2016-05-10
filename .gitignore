@@ -37,3 +37,4 @@ nosetests.xml
 .idea
 
 *.ipynb
+!tmtk/arborist/static/jstree/dist
