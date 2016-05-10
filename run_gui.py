@@ -36,5 +36,5 @@ def try_port(port_number=None):
 try:
     try_port(args.port)
 except OSError:
-    print("Port taken, asking OS for an available port.")
+    print("Port {} taken, asking OS for an available port.".format(args.port))
     try_port()
