@@ -205,5 +205,10 @@ def numeric(x):
 
 
 def fix_everything():
+    """
+    Scans over all the data and indicates which errors have been fixed. This
+    function is great for stress relieve.
+    :return: All your problems fixed by Rick
+    """
     return Audio(os.path.join(os.path.dirname(__file__), 'fix_for_all_tm_loading_issues.mp3'),
                  autoplay=True)
