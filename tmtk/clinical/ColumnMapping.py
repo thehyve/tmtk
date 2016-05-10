@@ -14,7 +14,9 @@ class ColumnMapping:
         else:
             raise utils.Exceptions.ClassError(type(params), tmtk.ClinicalParams)
 
-        self.df = utils.file2df(self.path)
+    @utils.cached_property
+    def df(self):
+        return utils.file2df(self.path)
 
     @property
     def included_datafiles(self):

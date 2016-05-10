@@ -12,19 +12,10 @@ class SampleMapping(object):
             self.path = self.create_sample_mapping(path)
         else:
             self.path = path
-        self.df = utils.file2df(path)
-        
-        self.header = ['STUDY_ID',
-                       'SITE_ID',
-                       'SUBJECT_ID',
-                       'SAMPLE_CD',
-                       'PLATFORM',
-                       'SAMPLE_TYPE',
-                       'TISSUE_TYPE',
-                       'TIME_POINT',
-                       'CATEGORY_CD',
-                       'SOURCE_CD',
-                       ]
+
+    @utils.cached_property
+    def df(self):
+        return utils.file2df(self.path)
 
     @staticmethod
     def create_sample_mapping(path=None):
