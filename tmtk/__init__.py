@@ -1,9 +1,9 @@
 """tmtk - A toolkit for ETL curation for the tranSMART data warehouse."""
 from tmtk.study import Study
 import tmtk.params
-import tmtk.clinical
-import tmtk.annotation
-import tmtk.highdim
+from tmtk.clinical import Clinical
+# import tmtk.annotation
+# import tmtk.highdim
 import tmtk.utils
 import tmtk.toolbox as Toolbox
 import tmtk.arborist

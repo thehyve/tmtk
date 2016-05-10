@@ -55,7 +55,7 @@ def file2df(path=None):
     :returns pandas dataframe
     """
     if not os.path.exists(path):
-        raise PathError('file2df: File does not exist.')
+        raise PathError('File ({}) does not exist.'.format(path))
     df = pd.read_table(path,
                        sep='\t',
                        dtype=object)
@@ -96,6 +96,9 @@ def call_boris(to_be_shuffled=None, port=26747):
     if isinstance(to_be_shuffled, pd.DataFrame):
         pass
 
+    if isinstance(to_be_shuffled, tmtk.Clinical):
+        pass
+
     elif isinstance(to_be_shuffled, tmtk.Study):
         return_df = False
         raise NotYetImplemented
@@ -110,7 +113,7 @@ def call_boris(to_be_shuffled=None, port=26747):
     new_temp_dir = tempfile.mkdtemp()
     tmp_json = new_temp_dir + '/tmp_json'
 
-    json_data = arborist.study_to_concept_tree(to_be_shuffled)
+    json_data = arborist.create_concept_tree(to_be_shuffled)
 
     with open(tmp_json, 'w') as f:
         f.write(json_data)

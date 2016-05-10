@@ -1,6 +1,25 @@
 import tmtk.utils as utils
 
 
+class VariableCollection:
+    def __init__(self):
+        """
+        Collection of Variables. Add datafiles or single variables. Get by variable id_.
+        """
+        self._variables = {}
+
+    def add_datafile(self, datafile):
+        for i in range(1, datafile.df.shape[1] + 1):  # Column mapping is 1 based
+            var = Variable(datafile, i)
+            self.add_variable(var)
+
+    def add_variable(self, variable):
+        self._variables.update({variable.id_: variable})
+
+    def get(self, value):
+        return self._variables.get(value)
+
+
 class Variable:
     """
     Base class for clinical variables
@@ -9,11 +28,11 @@ class Variable:
         self.df = datafile.df
         self.datafile = datafile
         self.column = column
-        # self.concept_path =
+        self._zero_column = column - 1
 
     @property
     def values(self):
-        return self.df.ix[:, self.column]
+        return self.df.ix[:, self._zero_column]
 
     @property
     def unique_values(self):

@@ -24,11 +24,34 @@ class ColumnMapping:
         """
         return list(self.df.ix[:, 0].unique())
 
-    def call_boris(self):
-        self.df = utils.call_boris(self.df)
+    @property
+    def concept_paths(self):
+        return self.df.apply(lambda x: '{}/{}'.format(x[1], x[3]), axis=1)
+
+    @property
+    def ids(self):
+        return self.df.apply(lambda x: '{}__{}'.format(x[0], x[2]), axis=1)
+
+    # def call_boris(self):
+    #     self.df = utils.call_boris(self.df)
 
     def write_to(self):
         utils.df2file(self)
 
     def validate(self, verbosity=2):
         pass
+
+    def get_concept_path(self, var_id):
+        return self.concept_paths[self.ids == var_id].values[0]
+
+    def get_category_cd(self, var_id):
+        return self.df.ix[self.ids == var_id, 1].values[0]
+
+    def get_data_label(self, var_id):
+        return self.df.ix[self.ids == var_id, 3].values[0]
+
+    def get_magic5(self, var_id):
+        return self.df.ix[self.ids == var_id, 4].values[0]
+
+    def get_magic6(self, var_id):
+        return self.df.ix[self.ids == var_id, 5].values[0]

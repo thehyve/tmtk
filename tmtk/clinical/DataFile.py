@@ -11,9 +11,6 @@ class DataFile:
         self.df = utils.file2df(self.path)
         self.name = os.path.basename(path)
 
-    def find_column_datatype(self):
-        utils.find_column_datatype(self.df)
-
     def validate(self, verbosity=2):
         utils.validate_clinical_data(self.df)
 

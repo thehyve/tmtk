@@ -5,7 +5,7 @@ import pandas as pd
 import tmtk
 import tmtk.utils as utils
 
-# Strings conversion for json data
+# Strings conversion for json data: Move to class in utils later
 FILENAME = 'Filename'
 CATEGORY_CODE = 'Category Code'
 COLUMN_NUMBER = 'Column Number'
@@ -14,36 +14,64 @@ MAGIC_5 = 'Data Label Source'
 MAGIC_6 = 'Control Vocab Cd'
 
 
-def study_to_concept_tree(study_object):
+def create_concept_tree(column_object):
     """
 
-    :param study_object: tmtk.Study object or ColumnMapping dataframe
+    :param column_object: tmtk.Study object, tmtk.Clinical object, or ColumnMapping dataframe
     :return: json string to be interpreted by the JSTree
     """
-    concept_tree = ConceptTree()
-    if isinstance(study_object, tmtk.Study):
-        col_map_tuples = study_object.Clinical.ColumnMapping.df.apply(get_concept_node, axis=1)
+    if isinstance(column_object, tmtk.Study):
+        concept_tree = create_tree_from_clinical(column_object.Clinical)
 
-    elif isinstance(study_object, pd.DataFrame):
-        col_map_tuples = study_object.apply(get_concept_node, axis=1)
+    elif isinstance(column_object, pd.DataFrame):
+        concept_tree = create_tree_from_df(column_object)
+
+    elif isinstance(column_object, tmtk.Clinical):
+        concept_tree = create_tree_from_clinical(column_object)
 
     else:
-        raise utils.DatatypeError(type(study_object), "tmtk.Study or pd.DataFrame")
-
-    for path, path_id, data_args in col_map_tuples:
-        concept_tree.add_node(path, path_id, categories=None, data_args=data_args)
+        raise utils.DatatypeError(type(column_object), "tmtk.Study, tmtk.Clinical or pd.DataFrame")
 
     return concept_tree.jstree.json_data_string
 
 
-def get_concept_node(x):
+def create_tree_from_clinical(clinical_object):
+    """
+
+    :param clinical_object:
+    :return:
+    """
+    concept_tree = ConceptTree()
+    for var_id in clinical_object.ColumnMapping.ids:
+        variable, concept_path, data_args = clinical_object.get_variable(var_id)
+
+        categories = list(variable.unique_values) if not variable.is_numeric else None
+        concept_tree.add_node(concept_path, var_id, categories=categories, data_args=data_args)
+    return concept_tree
+
+
+def create_tree_from_df(df):
+    """
+
+    :param df:
+    :return:
+    """
+    concept_tree = ConceptTree()
+    col_map_tuples = df.apply(get_concept_node_from_df, axis=1)
+
+    for concept_path, var_id, data_args in col_map_tuples:
+        concept_tree.add_node(concept_path, var_id, data_args=data_args)
+    return concept_tree
+
+
+def get_concept_node_from_df(x):
     """
 
     :param x: row in column mapping dataframe
     :return:
     """
-    path = "{}/{}".format(x[1], x[3]).replace('+', '/').replace('\\', 'slash')
-    path_id = "{}__{}".format(x[0], x[2])
+    concept_path = "{}/{}".format(x[1], x[3]).replace('+', '/').replace('\\', 'slash')
+    var_id = "{}__{}".format(x[0], x[2])
     data_args = {FILENAME: x[0],
                  CATEGORY_CODE: x[1],
                  COLUMN_NUMBER: x[2],
@@ -51,7 +79,7 @@ def get_concept_node(x):
                  MAGIC_5: x[4],
                  MAGIC_6: x[5],
                  }
-    return path, path_id, data_args
+    return concept_path, var_id, data_args
 
 
 class ConceptTree:
@@ -274,6 +302,7 @@ class JSTree:
 
         for node in concept_nodes:
             curr = self._root
+            node.path = node.path.replace('_', ' ')  # This happens in tranSMART
             sub_paths = re.split('[+/]', node.path)
             data = node.__dict__.get('data', {})
             children = node.__dict__.get('_children', {})

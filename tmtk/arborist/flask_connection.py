@@ -22,7 +22,7 @@ from markupsafe import Markup
 #
 
 from .common import get_feedback_dict
-from .jstreecontrol import study_to_concept_tree
+from .jstreecontrol import create_concept_tree
 from tmtk.study import Study
 from flask import g
 
@@ -417,7 +417,7 @@ def edit_tree(studiesfolder, study):
 
     study_object = get_study_object(os.path.join(studiesfolder, study, 'study.params'))
 
-    concept_tree_json_string = study_to_concept_tree(study_object)
+    concept_tree_json_string = create_concept_tree(study_object)
 
     clinical_datafiles = study_object.Clinical.ColumnMapping.included_datafiles
 
