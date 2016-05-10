@@ -3,6 +3,7 @@ import re
 import json
 import pandas as pd
 import tmtk
+import tmtk.utils as utils
 
 
 def study_to_concept_tree(study_object):
@@ -19,7 +20,7 @@ def study_to_concept_tree(study_object):
         col_map_tuples = study_object.apply(get_concept_node, axis=1)
 
     else:
-        raise TypeError
+        raise utils.DatatypeError(type(study_object), "tmtk.Study or pd.DataFrame")
 
     for path, path_id, data_args in col_map_tuples:
         concept_tree.add_node(path, path_id, categories=None, data_args=data_args)
