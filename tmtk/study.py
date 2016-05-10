@@ -102,7 +102,8 @@ class Study:
                        ]
         for d in to_validate:
             for key, obj in d:
-                obj.validate(verbosity=verbosity)
+                if hasattr(obj, 'validate'):
+                    obj.validate(verbosity=verbosity)
 
     @property
     def study_id(self):
