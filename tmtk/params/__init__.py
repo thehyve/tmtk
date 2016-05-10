@@ -32,7 +32,7 @@ class Params:
         for f in glob.iglob(os.path.join(study_folder, '**/*.params'), recursive=True):
             datatype = os.path.basename(f).split('.params')[0]
             if 'kettle' in str(f):  # Skip subdirectories that have kettle in the name.
-                CPrint.info('Skipping ({}) because of "kettle"'.format(f))
+                CPrint.warn('Skipping ({}) because of "kettle"'.format(f))
                 continue
 
             params_class = param_mapping.get(datatype, None)
@@ -41,7 +41,7 @@ class Params:
             elif 'annotation' in datatype:
                 correct_instance = globals()['AnnotationParams']
             else:
-                CPrint.info('({}) not supported. skipping.'.format(f))
+                CPrint.warn('({}) not supported. skipping.'.format(f))
                 continue
 
             relative_path = f.split(study_folder)[1]
