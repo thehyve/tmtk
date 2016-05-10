@@ -25,14 +25,13 @@ class Variable:
     Base class for clinical variables
     """
     def __init__(self, datafile, column: int = None):
-        self.df = datafile.df
         self.datafile = datafile
         self.column = column
         self._zero_column = column - 1
 
     @property
     def values(self):
-        return self.df.ix[:, self._zero_column]
+        return self.datafile.df.ix[:, self._zero_column]
 
     @property
     def unique_values(self):
