@@ -4,7 +4,6 @@ from tmtk.annotation import ChromosomalRegions
 import tmtk.toolbox as Toolbox
 import pandas as pd
 import os
-from tmtk.utils import MessageCollector
 
 
 class HighDimBase:
@@ -26,8 +25,6 @@ class HighDimBase:
         else:
             raise utils.PathError()
 
-        self.df = utils.file2df(self.path)
-
         if hasattr(params, 'MAP_FILENAME'):
             self.sample_mapping = SampleMapping(os.path.join(params.dirname, params.MAP_FILENAME))
             self.platform = self.sample_mapping.platform
@@ -40,13 +37,17 @@ class HighDimBase:
     def header(self):
         return self.df.columns
 
+    @utils.cached_property
+    def df(self):
+        return utils.file2df(self.path)
+
     def validate(self, verbosity=3):
         """
         Validate high dimensional data object
         :param verbosity:
         :return:
         """
-        messages = MessageCollector(verbosity=verbosity)
+        messages = utils.MessageCollector(verbosity=verbosity)
         messages.head("Validating {}".format(self.params.subdir))
         self._validate_header(messages)
         self._verify_sample_mapping(messages)

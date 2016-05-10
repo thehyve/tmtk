@@ -1,6 +1,5 @@
 import os
 import tmtk.utils as utils
-import tmtk
 
 
 class AnnotationBase:
@@ -22,7 +21,9 @@ class AnnotationBase:
         else:
             raise utils.PathError
 
-        self.df = utils.file2df(self.path)
+    @utils.cached_property
+    def df(self):
+        return utils.file2df(self.path)
 
     def __str__(self):
         return self.platform

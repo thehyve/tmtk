@@ -4,3 +4,4 @@ from .Generic import (clean_for_namespace, df2file, find_column_datatype, summar
 from .Exceptions import PathError, ClassError, DatatypeError, NotYetImplemented
 from .HighDimUtils import find_missing_annotations, check_datafile_header_with_subjects
 from .CPrint import MessageCollector, CPrint
+from .cached_property import cached_property
