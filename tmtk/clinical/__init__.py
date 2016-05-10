@@ -59,16 +59,17 @@ class Clinical:
         :return: tuple of tmtk.clinical.Variable, concept_path
         """
         variable = self.Variables.get(var_id)
-        concept_path = self.ColumnMapping.get_concept_path(var_id)
 
-        filename, column = var_id.rsplit('__', 1)
+        col_map_row = self.ColumnMapping.get_data_args(var_id)
 
-        data_args = {FILENAME: filename,
-                     CATEGORY_CODE: self.ColumnMapping.get_category_cd(var_id),
-                     COLUMN_NUMBER: column,
-                     DATA_LABEL: self.ColumnMapping.get_data_label(var_id),
-                     MAGIC_5: self.ColumnMapping.get_magic5(var_id),
-                     MAGIC_6: self.ColumnMapping.get_magic6(var_id),
+        concept_path = '{}/{}'.format(col_map_row[1], col_map_row[3])
+
+        data_args = {FILENAME: col_map_row[0],
+                     CATEGORY_CODE: col_map_row[1],
+                     COLUMN_NUMBER: col_map_row[2],
+                     DATA_LABEL: col_map_row[3],
+                     MAGIC_5: col_map_row[4],
+                     MAGIC_6: col_map_row[5],
                      }
 
         return variable, concept_path, data_args

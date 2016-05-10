@@ -110,3 +110,5 @@ class Study:
         study_params = self.find_params_for_datatype('study')[0]
         return study_params.__dict__.get('STUDY_ID')
 
+    def call_boris(self):
+        return utils.call_boris(self.Clinical)
