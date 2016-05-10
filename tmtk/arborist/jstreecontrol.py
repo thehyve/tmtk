@@ -40,6 +40,8 @@ def get_concept_node(x):
                  "Category Code": x[1],
                  'Column Number': x[2],
                  "Data Label": x[3],
+                 "Data Label Source": x[4],
+                 "Control Vocab Cd": x[5],
                  }
     return path, path_id, data_args
 
@@ -89,16 +91,20 @@ class ConceptTree:
         :return: Column Mapping file based on ConceptTree object.
         """
         df = pd.concat([self._extract_column_mapping_row(node) for node in self.nodes], axis=1).T
-        df.columns = ['Filename', 'Path', 'Column', 'Label']
+        df.columns = ['Filename', 'CategoryCD', 'ColumnNumber', 'DataLabel','Magic5','Magic6']
         return df
 
     @staticmethod
     def _extract_column_mapping_row(node):
         filename = node.data.get('Filename')
         path, data_label = node.path.rsplit('+', 1)
+        if not data_label:  # Check if data_label has value, otherwise use the path as data_label
+            path, data_label = data_label, path
         column = node.data.get('Column Number')
-        new_row = pd.Series([filename, path, column, data_label])
-        if all(new_row):
+        magic5 = node.data.get('Data Label Source', '')
+        magic6 = node.data.get('Control Vocab Cd', '')
+        new_row = pd.Series([filename, path, column, data_label, magic5, magic6])
+        if all([filename, data_label, column]):
             return new_row
 
     def _extract_node_list(self, json_data):
