@@ -5,6 +5,14 @@ import pandas as pd
 import tmtk
 import tmtk.utils as utils
 
+# Strings conversion for json data
+FILENAME = 'Filename'
+CATEGORY_CODE = 'Category Code'
+COLUMN_NUMBER = 'Column Number'
+DATA_LABEL = 'Data Label'
+MAGIC_5 = 'Data Label Source'
+MAGIC_6 = 'Control Vocab Cd'
+
 
 def study_to_concept_tree(study_object):
     """
@@ -36,12 +44,12 @@ def get_concept_node(x):
     """
     path = "{}/{}".format(x[1], x[3]).replace('+', '/').replace('\\', 'slash')
     path_id = "{}__{}".format(x[0], x[2])
-    data_args = {'Filename': x[0],
-                 "Category Code": x[1],
-                 'Column Number': x[2],
-                 "Data Label": x[3],
-                 "Data Label Source": x[4],
-                 "Control Vocab Cd": x[5],
+    data_args = {FILENAME: x[0],
+                 CATEGORY_CODE: x[1],
+                 COLUMN_NUMBER: x[2],
+                 DATA_LABEL: x[3],
+                 MAGIC_5: x[4],
+                 MAGIC_6: x[5],
                  }
     return path, path_id, data_args
 
@@ -91,18 +99,18 @@ class ConceptTree:
         :return: Column Mapping file based on ConceptTree object.
         """
         df = pd.concat([self._extract_column_mapping_row(node) for node in self.nodes], axis=1).T
-        df.columns = ['Filename', 'CategoryCD', 'ColumnNumber', 'DataLabel','Magic5','Magic6']
+        df.columns = [FILENAME, CATEGORY_CODE, COLUMN_NUMBER, DATA_LABEL, 'Magic5', 'Magic6']
         return df
 
     @staticmethod
     def _extract_column_mapping_row(node):
-        filename = node.data.get('Filename')
+        filename = node.data.get(FILENAME)
         path, data_label = node.path.rsplit('+', 1)
         if not data_label:  # Check if data_label has value, otherwise use the path as data_label
             path, data_label = data_label, path
-        column = node.data.get('Column Number')
-        magic5 = node.data.get('Data Label Source', '')
-        magic6 = node.data.get('Control Vocab Cd', '')
+        column = node.data.get(COLUMN_NUMBER)
+        magic5 = node.data.get(MAGIC_5)
+        magic6 = node.data.get(MAGIC_6)
         new_row = pd.Series([filename, path, column, data_label, magic5, magic6])
         if all([filename, data_label, column]):
             return new_row
@@ -121,26 +129,28 @@ class ConceptTree:
         node_children = node.get('children', [])
         node_text = node['text'].replace(' ', '_')
 
-        if node.get('data', {}).get('Filename'):
-            filename = node['data']['Filename']
+        if node.get('data', {}).get(FILENAME):
+            filename = node['data'][FILENAME]
             category_code = '+'.join(path).replace(' ', '_')
-            column_number = int(node['data']['Column Number'])
+            column_number = int(node['data'][COLUMN_NUMBER])
             data_label = node_text
             concept_path = '+'.join([category_code, node_text])
-            magic_col_5 = node['data'].get('Data Label Source', '')
-            magic_col_6 = node['data'].get('Control Vocab Cd', '')
+            magic_col_5 = node['data'].get(MAGIC_5, '')
+            magic_col_6 = node['data'].get(MAGIC_6, '')
 
             categories = []
             if any([child.get('type') == 'alpha' for child in node_children]):
                 categories = [child['text'] for child in node_children]
 
-            concept_node = ConceptNode(path=concept_path ,
+            concept_node = ConceptNode(path=concept_path,
                                        concept_id=node['li_attr']['id'],
                                        categories=categories,
-                                       data_args={'Filename': filename,
-                                                  'Column Number': column_number,
-                                                  'Data Label': data_label,
-                                                  'Category Code': category_code,
+                                       data_args={FILENAME: filename,
+                                                  COLUMN_NUMBER: column_number,
+                                                  DATA_LABEL: data_label,
+                                                  CATEGORY_CODE: category_code,
+                                                  MAGIC_5: magic_col_5,
+                                                  MAGIC_6: magic_col_6,
                                                   }
                                        )
 
