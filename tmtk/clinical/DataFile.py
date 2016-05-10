@@ -1,4 +1,5 @@
 import tmtk.utils as utils
+import os
 
 
 class DataFile:
@@ -8,6 +9,7 @@ class DataFile:
     def __init__(self, path=None):
         self.path = path
         self.df = utils.file2df(self.path)
+        self.name = os.path.basename(path)
 
     def find_column_datatype(self):
         utils.find_column_datatype(self.df)

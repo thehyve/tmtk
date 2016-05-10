@@ -184,8 +184,24 @@ def get_unique_filename(first_filename):
         return full_filename
 
 
-def is_categorical(values):
-    raise NotYetImplemented
+def is_numeric(values, hard=True):
+    """
+    Olafs functions.py
+    """
+    bool_list = [numeric(value) for value in values]
+
+    if hard:
+        return all(bool_list)
+    else:
+        return sum(bool_list) / len(bool_list)
+
+
+def numeric(x):
+    try:
+        if pd.isnull(x) or (int(x) and float(x)):
+            return True
+    except ValueError:
+        return False
 
 
 def fix_everything():

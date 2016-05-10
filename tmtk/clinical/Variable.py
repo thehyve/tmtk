@@ -5,21 +5,27 @@ class Variable:
     """
     Base class for clinical variables
     """
-    def __init__(self):
-        pass
-        self.unique_values = self.get_unique_values()
+    def __init__(self, datafile, column: int = None):
+        self.df = datafile.df
+        self.datafile = datafile
+        self.column = column
         # self.concept_path =
-        self.is_categorical = self.get_value_type()
 
-    def get_unique_values(self):
-        pass
+    @property
+    def values(self):
+        return self.df.ix[:, self.column]
 
-    def get_value_type(self):
-        """
-        Return True if transmart would consider this to be of categorical datatype.
-        """
-        values = self.unique_values
-        return utils.is_categorical(values)
+    @property
+    def unique_values(self):
+        return self.values.unique()
+
+    @property
+    def id_(self):
+        return "{}__{}".format(self.datafile.name, self.column)
+
+    @property
+    def is_numeric(self):
+        return utils.is_numeric(self.unique_values)
 
     def validate(self, verbosity=2):
         pass
