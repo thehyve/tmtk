@@ -62,7 +62,7 @@ class Clinical:
 
         col_map_row = self.ColumnMapping.get_data_args(var_id)
 
-        concept_path = '{}/{}'.format(col_map_row[1], col_map_row[3])
+        concept_path = '{}\\{}'.format(col_map_row[1], col_map_row[3])
 
         data_args = {FILENAME: col_map_row[0],
                      CATEGORY_CODE: col_map_row[1],

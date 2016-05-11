@@ -28,7 +28,7 @@ class ColumnMapping:
 
     @property
     def concept_paths(self):
-        return self.df.apply(lambda x: '{}/{}'.format(x[1], x[3]), axis=1)
+        return self.df.apply(lambda x: '{}\\{}'.format(x[1], x[3]), axis=1)
 
     @property
     def ids(self):

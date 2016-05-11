@@ -303,7 +303,7 @@ class JSTree:
         for node in concept_nodes:
             curr = self._root
             node.path = node.path.replace('_', ' ')  # This happens in tranSMART
-            sub_paths = re.split('[+/]', node.path)
+            sub_paths = re.split(r'[+\\]', node.path)
             data = node.__dict__.get('data', {})
             children = node.__dict__.get('_children', {})
             node_type = node.__dict__.get('type', 'default')
