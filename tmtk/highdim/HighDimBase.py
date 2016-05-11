@@ -115,15 +115,19 @@ class HighDimBase:
         missing_annotations = utils.find_missing_annotations(annotation_series=annotation_series,
                                                              data_series=data_series)
 
-        if not missing_annotations:
-            return
+        missing_data = utils.find_missing_annotations(annotation_series=data_series,
+                                                             data_series=annotation_series)
 
-        m = 'Missing annotations found: {}'.format(utils.summarise(missing_annotations))
-
-        if self.params.__dict__.get('ALLOW_MISSING_ANNOTATIONS', 'N') == 'Y':
-            messages.warn(m)
-        else:
+        if missing_annotations:
+            m = 'Missing annotations found: {}'.format(utils.summarise(missing_annotations))
             messages.error(m)
+
+        if missing_data:
+            m = 'Missing annotations found: {}'.format(utils.summarise(missing_data))
+            if self.params.__dict__.get('ALLOW_MISSING_ANNOTATIONS', 'N') == 'Y':
+                messages.warn(m)
+            else:
+                messages.error(m)
 
     def _remap_to_chromosomal_regions(self, destination=None):
         """
