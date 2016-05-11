@@ -21,7 +21,7 @@ def create_concept_tree(column_object):
     :return: json string to be interpreted by the JSTree
     """
     if isinstance(column_object, tmtk.Study):
-        concept_tree = create_tree_from_clinical(column_object.Clinical)
+        concept_tree = create_tree_from_study(column_object)
 
     elif isinstance(column_object, pd.DataFrame):
         concept_tree = create_tree_from_df(column_object)
@@ -35,13 +35,35 @@ def create_concept_tree(column_object):
     return concept_tree.jstree.json_data_string
 
 
-def create_tree_from_clinical(clinical_object):
+def create_tree_from_study(study_object, concept_tree=None):
+    """
+
+    :param study_object:
+    :param concept_tree:
+    :return:
+    """
+    if not concept_tree:
+        concept_tree = ConceptTree()
+
+    concept_tree = create_tree_from_clinical(study_object.Clinical, concept_tree)
+
+    for map_file in study_object.HighDim.subject_sample_mappings:
+        for md5, path in map_file.get_concept_paths.items():
+            concept_tree.add_node(path, md5)
+
+    return concept_tree
+
+
+def create_tree_from_clinical(clinical_object, concept_tree=None):
     """
 
     :param clinical_object:
+    :param concept_tree:
     :return:
     """
-    concept_tree = ConceptTree()
+    if not concept_tree:
+        concept_tree = ConceptTree()
+
     for var_id in clinical_object.ColumnMapping.ids:
         variable, concept_path, data_args = clinical_object.get_variable(var_id)
 
@@ -50,12 +72,16 @@ def create_tree_from_clinical(clinical_object):
     return concept_tree
 
 
-def create_tree_from_df(df):
+def create_tree_from_df(df, concept_tree=None):
     """
 
     :param df:
+    :param concept_tree:
     :return:
     """
+    if not concept_tree:
+        concept_tree = ConceptTree()
+
     concept_tree = ConceptTree()
     col_map_tuples = df.apply(get_concept_node_from_df, axis=1)
 

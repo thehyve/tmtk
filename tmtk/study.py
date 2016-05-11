@@ -111,4 +111,4 @@ class Study:
         return study_params.__dict__.get('STUDY_ID')
 
     def call_boris(self):
-        return utils.call_boris(self.Clinical)
+        return utils.call_boris(self)

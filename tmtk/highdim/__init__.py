@@ -27,3 +27,7 @@ class HighDim:
                 self.__dict__[str(p)] = new_instance(p, parent=parent)
             except utils.PathError:
                 continue
+
+    @property
+    def subject_sample_mappings(self):
+        return [x.sample_mapping for k, x in self.__dict__.items() if hasattr(x, 'sample_mapping')]

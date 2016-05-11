@@ -1,6 +1,7 @@
 import os
 import tmtk.utils as utils
 from tmtk.utils.CPrint import CPrint
+import hashlib
 
 
 class SampleMapping(object):
@@ -17,23 +18,41 @@ class SampleMapping(object):
     def df(self):
         return utils.file2df(self.path)
 
+    @property
+    def get_concept_paths(self):
+        """
+        Get all concept paths from file, replaces ATTR1 and ATTR2
+        :return: dictionary with md5 hash values as key and paths as value
+        """
+        paths = self.df.apply(self._find_path, axis=1)
+        md5 = lambda s: hashlib.md5(s.encode('utf-8')).hexdigest()
+        return {md5(p): p for p in paths}
+
     @staticmethod
-    def create_sample_mapping(path=None):
-        """
-        Creates a new sample mapping file and returns the location it has been given.
-        """
-        header = ['STUDY_ID',
-                  'SITE_ID',
-                  'SUBJECT_ID',
-                  'SAMPLE_CD',
-                  'PLATFORM',
-                  'SAMPLE_TYPE',
-                  'TISSUE_TYPE',
-                  'TIME_POINT',
-                  'CATEGORY_CD',
-                  'SOURCE_CD',
-                  ]
-        pass
+    def _find_path(row):
+        category_cd = row.ix[8]
+        category_cd = category_cd.replace('ATTR1', str(row.ix[6]))
+        category_cd = category_cd.replace('ATTR2', str(row.ix[7]))
+        return category_cd
+
+
+    # @staticmethod
+    # def create_sample_mapping(path=None):
+    #     """
+    #     Creates a new sample mapping file and returns the location it has been given.
+    #     """
+    #     header = ['STUDY_ID',
+    #               'SITE_ID',
+    #               'SUBJECT_ID',
+    #               'SAMPLE_CD',
+    #               'PLATFORM',
+    #               'SAMPLE_TYPE',
+    #               'TISSUE_TYPE',
+    #               'TIME_POINT',
+    #               'CATEGORY_CD',
+    #               'SOURCE_CD',
+    #               ]
+    #     pass
 
     def __str__(self):
         return self.path

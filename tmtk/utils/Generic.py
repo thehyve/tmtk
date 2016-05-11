@@ -101,7 +101,6 @@ def call_boris(to_be_shuffled=None, port=26747):
 
     elif isinstance(to_be_shuffled, tmtk.Study):
         return_df = False
-        raise NotYetImplemented
 
     elif os.path.exists(to_be_shuffled):
         to_be_shuffled = file2df(to_be_shuffled)
