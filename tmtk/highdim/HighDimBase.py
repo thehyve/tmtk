@@ -123,7 +123,7 @@ class HighDimBase:
             messages.error(m)
 
         if missing_data:
-            m = 'Missing annotations found: {}'.format(utils.summarise(missing_data))
+            m = 'Data file has less data than annotations: {}'.format(utils.summarise(missing_data))
             if self.params.__dict__.get('ALLOW_MISSING_ANNOTATIONS', 'N') == 'Y':
                 messages.warn(m)
             else:
