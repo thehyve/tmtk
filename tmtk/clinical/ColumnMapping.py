@@ -12,7 +12,7 @@ class ColumnMapping:
         if params and params.is_viable() and params.datatype == 'clinical':
             self.path = os.path.join(params.dirname, params.COLUMN_MAP_FILE)
         else:
-            raise utils.Exceptions.ClassError(type(params), tmtk.ClinicalParams)
+            raise utils.Exceptions.ClassError(type(params), tmtk.params.ClinicalParams)
 
     @utils.cached_property
     def df(self):
@@ -26,9 +26,9 @@ class ColumnMapping:
         """
         return list(self.df.ix[:, 0].unique())
 
-    @property
-    def concept_paths(self):
-        return self.df.apply(lambda x: '{}\\{}'.format(x[1], x[3]), axis=1)
+    # @property
+    # def concept_paths(self):
+    #     return self.df.apply(lambda x: '{}\\{}'.format(x[1], x[3]), axis=1)
 
     @property
     def ids(self):
@@ -44,5 +44,8 @@ class ColumnMapping:
         pass
 
     def get_data_args(self, var_id):
-        row = self.df.ix[self.ids == var_id]
+        filename, column = var_id.rsplit('__', 1)
+        f = self.df.ix[:, 0] == filename
+        c = self.df.ix[:, 2] == column
+        row = self.df.ix[f & c, :]
         return list(row.values[0, :])  # Returns single row as list.
