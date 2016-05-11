@@ -49,7 +49,7 @@ def create_tree_from_study(study_object, concept_tree=None):
 
     for map_file in study_object.HighDim.subject_sample_mappings:
         for md5, path in map_file.get_concept_paths.items():
-            concept_tree.add_node(path, md5)
+            concept_tree.add_node(path, concept_id=md5, node_type='highdim')
 
     return concept_tree
 
@@ -126,7 +126,8 @@ class ConceptTree:
                 json_data = json.loads(json_data)
             self.nodes = self._extract_node_list(json_data)
 
-    def add_node(self, path, concept_id=None, categories: list = None, data_args=None):
+    def add_node(self, path, concept_id=None, node_type=None,
+                 categories: list = None, data_args=None):
         """
         Add ConceptNode object nodes list.
 
@@ -139,6 +140,7 @@ class ConceptTree:
         new_node = ConceptNode(path,
                                concept_id=concept_id,
                                categories=categories,
+                               node_type=node_type,
                                data_args=data_args)
         self.nodes.append(new_node)
 
@@ -222,18 +224,24 @@ class ConceptTree:
 
 
 class ConceptNode:
-    def __init__(self, path, concept_id=None, categories: list = None, data_args=None):
+    def __init__(self, path, concept_id=None, node_type=None,
+                 categories: list = None, data_args=None):
         """
         Object to be put into a list and interpreted by JSTree.
 
         :param path: Concept path for this node.
-        :param id: Unique ID that allows to keep track of a node.
+        :param concept_id: Unique ID that allows to keep track of a node.
         :param categories: a list of values in this categorical concept node.
         If None, this concept node is considered to be numerical.
         :param data_args: Any additional parameters are put a 'data' dictionary.
         """
         self.path = path
         self.concept_id = concept_id
+
+        if node_type:
+            self.type = node_type
+        else:
+            self.type = 'numeric'
 
         if data_args:
             self.data = data_args
@@ -246,9 +254,6 @@ class ConceptNode:
                 self.categories[oid] = cat
                 self._children[oid] = JSNode(cat, oid, type='alpha')
                 self.type = 'categorical'
-
-        else:
-            self.type = 'numeric'
 
     def __repr__(self):
         return self.path
