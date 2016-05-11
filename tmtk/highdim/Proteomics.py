@@ -7,7 +7,7 @@ class Proteomics(HighDimBase):
     """
     Base class for proteomics data.
     """
-    def _validate_header(self, messages=None):
+    def _validate_specifics(self, messages=None):
         """
         Makes checks to determine whether transmart-batch likes this file.
         """

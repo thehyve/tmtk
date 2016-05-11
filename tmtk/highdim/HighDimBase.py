@@ -49,7 +49,7 @@ class HighDimBase:
         """
         messages = utils.MessageCollector(verbosity=verbosity)
         messages.head("Validating {}".format(self.params.subdir))
-        self._validate_header(messages)
+        self._validate_specifics(messages)
         self._verify_sample_mapping(messages)
 
         if self.annotation_file:
@@ -62,19 +62,32 @@ class HighDimBase:
         return not messages.found_error
 
     def _check_header_extensions(self, messages):
+        """
+
+        :param messages:
+        :return: True if nothings wrong.
+        """
+        everything_okay_so_far = True
+        illegal_header_items = []
+
         for h in self.header[1:]:
             try:
                 count_type = h.rsplit('.', 1)[1]
             except IndexError:
                 messages.error('Expected header with dot, but got {}.'.format(h))
+                everything_okay_so_far = False
                 continue
-
-            illegal_header_items = []
+            # Add count_type to illegal items if not allowed.
             if count_type not in self.allowed_header:
                 illegal_header_items.append(count_type)
-            if illegal_header_items:
-                messages.error('Found illegal header items {}.'.
-                               format(utils.summarise(illegal_header_items)))
+
+        # Create list of illegal header items.
+        if illegal_header_items:
+            everything_okay_so_far = False
+            messages.error('Found illegal header items {}.'.
+                           format(utils.summarise(illegal_header_items)))
+
+        return everything_okay_so_far
 
     def _verify_sample_mapping(self, messages):
         samples_verified = utils.check_datafile_header_with_subjects(self.samples,
