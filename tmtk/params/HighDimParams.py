@@ -49,9 +49,15 @@ class HighDimParams(ParamsBase):
                     'possible_values': ['Y', 'N'],
                     'default': 'N',
                     'helptext': ('Allow data in data file that has no associated '
-                                 'when the data set doesn\'t provide data for all '
-                                 'the annotations (here ')
+                                 'samples in subject sample mapping.')
                                        },
+                "PROB_IS_NOT_1": {
+                    'possible_values': ['WARN', 'ERROR'],
+                    'default': 'ERROR',
+                    'helptext': ('For CNV data probabilities are checked. If sum '
+                                 'is not equal to 1, raise either error or give  '
+                                 'a warning.')
+                                },
                 }
 
     def is_viable(self):
