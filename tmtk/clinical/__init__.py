@@ -76,3 +76,8 @@ class Clinical:
 
     def call_boris(self):
         self.ColumnMapping.df = utils.call_boris(self)
+
+    def validate_all(self, verbosity=3):
+        for key, obj in self.__dict__.items():
+            if hasattr(obj, 'validate'):
+                obj.validate(verbosity=verbosity)

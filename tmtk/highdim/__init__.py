@@ -31,3 +31,8 @@ class HighDim:
     @property
     def subject_sample_mappings(self):
         return [x.sample_mapping for k, x in self.__dict__.items() if hasattr(x, 'sample_mapping')]
+
+    def validate_all(self, verbosity=3):
+        for key, obj in self.__dict__.items():
+            if hasattr(obj, 'validate'):
+                obj.validate(verbosity=verbosity)

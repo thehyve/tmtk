@@ -62,3 +62,8 @@ class Params:
         if not subdir.startswith(datatype):
             subdir = "{}_{}".format(datatype, subdir)
         return subdir
+
+    def validate_all(self, verbosity=3):
+        for key, obj in self.__dict__.items():
+            if hasattr(obj, 'validate'):
+                obj.validate(verbosity=verbosity)

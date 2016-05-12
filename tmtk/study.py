@@ -89,21 +89,15 @@ class Study:
         statement = "Study object: {}".format(self.params_path)
         return statement
 
-    def validate_all(self, verbosity=1):
+    def validate_all(self, verbosity=2):
         """
         Validate all items in this study.
         :param verbosity: set the verbosity of output, pick 0, 1, or 2.
         :return: True if everything is okay, else return False.
         """
-        to_validate = [self.Params.__dict__.items(),
-                       self.Clinical.__dict__.items(),
-                       self.Annotations.__dict__.items(),
-                       self.HighDim.__dict__.items(),
-                       ]
-        for d in to_validate:
-            for key, obj in d:
-                if hasattr(obj, 'validate'):
-                    obj.validate(verbosity=verbosity)
+        for key, obj in self.__dict__.items():
+            if hasattr(obj, 'validate_all'):
+                obj.validate_all(verbosity=verbosity)
 
     @property
     def study_id(self):

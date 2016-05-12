@@ -39,3 +39,8 @@ class Annotations:
             platform_key = annotation_type + af.platform
             platform_key = utils.clean_for_namespace(platform_key)
             self.__dict__[platform_key] = af
+
+    def validate_all(self, verbosity=3):
+        for key, obj in self.__dict__.items():
+            if hasattr(obj, 'validate'):
+                obj.validate(verbosity=verbosity)
