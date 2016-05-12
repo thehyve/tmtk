@@ -96,14 +96,14 @@ def get_concept_node_from_df(x):
     :param x: row in column mapping dataframe
     :return:
     """
-    concept_path = "{}/{}".format(x[1], x[3]).replace('+', '/').replace('\\', 'slash')
+    concept_path = "{}+{}".format(x[1], x[3])
     var_id = "{}__{}".format(x[0], x[2])
     data_args = {FILENAME: x[0],
                  CATEGORY_CODE: x[1],
                  COLUMN_NUMBER: x[2],
                  DATA_LABEL: x[3],
-                 MAGIC_5: x[4],
-                 MAGIC_6: x[5],
+                 MAGIC_5: x[4] if len(x) > 4 else None,
+                 MAGIC_6: x[5] if len(x) > 5 else None,
                  }
     return concept_path, var_id, data_args
 
