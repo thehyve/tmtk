@@ -52,7 +52,7 @@ class HighDimBase:
         self._validate_specifics(messages)
         self._verify_sample_mapping(messages)
 
-        if self.annotation_file:
+        if hasattr(self, 'annotation_file'):
             # Todo add check that first validates the annotation file.
             data_series = self.df.ix[:, 0]
             self._find_missing_annotation(annotation_series=self.annotation_file.biomarkers,
