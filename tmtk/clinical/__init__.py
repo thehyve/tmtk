@@ -68,8 +68,8 @@ class Clinical:
                      CATEGORY_CODE: col_map_row[1],
                      COLUMN_NUMBER: col_map_row[2],
                      DATA_LABEL: col_map_row[3],
-                     MAGIC_5: col_map_row[4],
-                     MAGIC_6: col_map_row[5],
+                     MAGIC_5: col_map_row[4] if len(col_map_row) > 4 else None,
+                     MAGIC_6: col_map_row[5] if len(col_map_row) > 5 else None,
                      }
 
         return variable, concept_path, data_args
