@@ -45,7 +45,7 @@ class ColumnMapping:
 
     def get_data_args(self, var_id):
         filename, column = var_id.rsplit('__', 1)
-        f = self.df.ix[:, 0] == filename
-        c = self.df.ix[:, 2] == column
+        f = self.df.ix[:, 0].astype(str) == filename
+        c = self.df.ix[:, 2].astype(str) == column
         row = self.df.ix[f & c, :]
         return list(row.values[0, :])  # Returns single row as list.
