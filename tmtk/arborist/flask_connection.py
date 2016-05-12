@@ -23,8 +23,9 @@ from markupsafe import Markup
 
 from .common import get_feedback_dict
 from .jstreecontrol import create_concept_tree
-from tmtk.study import Study
+# from tmtk.study import Study
 from flask import g
+import tmtk
 
 
 STUDIES_FOLDER = 'studies'

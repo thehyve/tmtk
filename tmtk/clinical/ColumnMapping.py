@@ -1,6 +1,6 @@
 import os
-import tmtk.utils as utils
 import tmtk
+from tmtk import arborist, utils
 
 
 class ColumnMapping:
@@ -35,7 +35,7 @@ class ColumnMapping:
         return self.df.apply(lambda x: '{}__{}'.format(x[0], x[2]), axis=1)
 
     def call_boris(self):
-        self.df = utils.call_boris(self.df)
+        self.df = arborist.call_boris(self.df)
 
     def write_to(self):
         utils.df2file(self)

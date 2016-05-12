@@ -3,7 +3,7 @@ import re
 import json
 import pandas as pd
 import tmtk
-import tmtk.utils as utils
+from tmtk import utils
 
 # Strings conversion for json data: Move to class in utils later
 FILENAME = 'Filename'

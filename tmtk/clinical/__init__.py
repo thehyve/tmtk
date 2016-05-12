@@ -1,8 +1,8 @@
 from .DataFile import DataFile
 from .Variable import VariableCollection
-from .ColumnMapping import *
-from .WordMapping import *
-import tmtk.utils as utils
+from .ColumnMapping import ColumnMapping
+from .WordMapping import WordMapping
+from tmtk import arborist, utils
 import pandas as pd
 import os
 
@@ -75,7 +75,7 @@ class Clinical:
         return variable, concept_path, data_args
 
     def call_boris(self):
-        self.ColumnMapping.df = utils.call_boris(self)
+        self.ColumnMapping.df = arborist.call_boris(self)
 
     def validate_all(self, verbosity=3):
         for key, obj in self.__dict__.items():

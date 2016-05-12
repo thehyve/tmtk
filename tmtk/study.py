@@ -1,9 +1,10 @@
-from .utils import *
-from .clinical import *
+from .clinical import Clinical
 from .params import Params
-from .highdim import *
-from .annotation import *
+from .highdim import HighDim
+from .annotation import Annotations
 from tmtk.utils.CPrint import CPrint
+from tmtk import utils, arborist
+import os
 
 
 class Study:
@@ -105,4 +106,4 @@ class Study:
         return study_params.__dict__.get('STUDY_ID')
 
     def call_boris(self):
-        return utils.call_boris(self)
+        return arborist.call_boris(self)
