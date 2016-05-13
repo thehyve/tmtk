@@ -5,6 +5,7 @@ from .Proteomics import Proteomics
 from .ReadCounts import ReadCounts
 from .SampleMapping import SampleMapping
 import tmtk.utils as utils
+from tmtk.utils.CPrint import CPrint
 
 
 class HighDim:
@@ -36,3 +37,19 @@ class HighDim:
         for key, obj in self.__dict__.items():
             if hasattr(obj, 'validate'):
                 obj.validate(verbosity=verbosity)
+
+    def update_high_dim_paths(self, high_dim_paths):
+        """
+
+        :param high_dim_paths:
+        :return:
+        """
+        changed_dict = {k: path for k, path in high_dim_paths.items() if utils.md5(path) != k}
+        if changed_dict:
+            CPrint.okay('Found ({}) changed concept paths.'.format(len(changed_dict)))
+        else:
+            CPrint.info('No changes found in any HighDim paths.')
+            return
+
+        for ss in self.subject_sample_mappings:
+            ss.update_concept_paths(changed_dict)

@@ -25,34 +25,31 @@ class SampleMapping(object):
         :return: dictionary with md5 hash values as key and paths as value
         """
         paths = self.df.apply(self._find_path, axis=1)
-        md5 = lambda s: hashlib.md5(s.encode('utf-8')).hexdigest()
-        return {md5(p): p for p in paths}
+        return {utils.md5(p): p for p in paths}
 
     @staticmethod
     def _find_path(row):
         category_cd = row.ix[8]
         category_cd = category_cd.replace('ATTR1', str(row.ix[6]))
         category_cd = category_cd.replace('ATTR2', str(row.ix[7]))
+
+        # This replacements happens because jstree needs to show column mapping paths
+        # and these in the same tree. Transmart-batch is inconsistent in his behaviour here.
+        category_cd = category_cd.replace('_', ' ').replace('\\', '+')
+
         return category_cd
 
+    def update_concept_paths(self, path_dict):
+        self.df.ix[:, 8] = self.df.apply(lambda x: self._update_row(x, path_dict), axis=1)
 
-    # @staticmethod
-    # def create_sample_mapping(path=None):
-    #     """
-    #     Creates a new sample mapping file and returns the location it has been given.
-    #     """
-    #     header = ['STUDY_ID',
-    #               'SITE_ID',
-    #               'SUBJECT_ID',
-    #               'SAMPLE_CD',
-    #               'PLATFORM',
-    #               'SAMPLE_TYPE',
-    #               'TISSUE_TYPE',
-    #               'TIME_POINT',
-    #               'CATEGORY_CD',
-    #               'SOURCE_CD',
-    #               ]
-    #     pass
+    def _update_row(self, row, path_dict):
+        current_path = self._find_path(row)
+        current_md5 = utils.md5(current_path)
+        new_path = path_dict.get(current_md5)
+        if new_path:
+            return new_path
+        else:
+            return current_path
 
     def __str__(self):
         return self.path

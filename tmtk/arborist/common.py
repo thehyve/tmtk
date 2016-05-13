@@ -6,11 +6,11 @@ import shutil
 from IPython.display import display, Audio, IFrame, clear_output
 import tempfile
 from tmtk.utils.CPrint import CPrint
-import tmtk
+from tmtk import utils
 from .jstreecontrol import create_concept_tree, ConceptTree
+import tmtk
 
 feedback_categories = ['errors', 'warnings', 'infos']
-
 
 def get_feedback_dict():
     feedback_dict = {}
@@ -54,13 +54,17 @@ def call_boris(to_be_shuffled=None):
     json_data = launch_arborist_gui(json_data)  # Returns modified json_data
 
     if isinstance(to_be_shuffled, tmtk.Study):
-        pass
+        update_study_from_json(study=to_be_shuffled, json_data=json_data)
     else:
         return ConceptTree(json_data).column_mapping_file
 
 
 def launch_arborist_gui(json_data: str):
+    """
 
+    :param json_data:
+    :return:
+    """
     from .flask_connection import app
 
     new_temp_dir = tempfile.mkdtemp()
@@ -89,9 +93,35 @@ def launch_arborist_gui(json_data: str):
 
 
 def get_open_port():
+    """
+    Opens an available port (as given by the OS)
+    :return: the port number
+    """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('', 0))
     s.listen(1)
     port = s.getsockname()[1]
     s.close()
     return port
+
+
+def update_study_from_json(study, json_data):
+    """
+
+    :param study:
+    :param json_data:
+    :return:
+    """
+
+    concept_tree = ConceptTree(json_data)
+    study.Clinical.ColumnMapping.df = concept_tree.column_mapping_file
+
+    high_dim_paths = concept_tree.high_dim_paths
+    if high_dim_paths:
+        study.HighDim.update_high_dim_paths(high_dim_paths)
+
+    CPrint.warn("In case you've have changed categorical variable names (wordmapped)."
+                " These will not be reflected back "
+                "into the study yet.")
+    # Add logic for:
+    # Word Mapping
