@@ -3,7 +3,7 @@ import pandas as pd
 import random
 from .Exceptions import *
 from IPython.display import Audio
-
+import hashlib
 
 def clean_for_namespace(path) -> str:
     """
@@ -56,6 +56,15 @@ def file2df(path=None):
                        sep='\t',
                        dtype=object)
     return df
+
+
+def md5(s: str):
+    """
+    utf-8 encoded md5 hash string of input s
+    :param s: string
+    :return: md5 hash string
+    """
+    return hashlib.md5(s.encode('utf-8')).hexdigest()
 
 
 def df2file(df=None, path=None, overwrite=False):
