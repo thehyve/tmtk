@@ -158,6 +158,16 @@ class ConceptTree:
         df.columns = [FILENAME, CATEGORY_CODE, COLUMN_NUMBER, DATA_LABEL, 'Magic5', 'Magic6']
         return df
 
+    @property
+    def high_dim_paths(self):
+
+        high_dim_paths = {}
+        for node in self.nodes:
+            if node.type == 'highdim':
+                node_path = node.path.replace('_', ' ')
+                high_dim_paths[node.concept_id] = node_path
+        return high_dim_paths
+
     @staticmethod
     def _extract_column_mapping_row(node):
         filename = node.data.get(FILENAME)
@@ -185,14 +195,12 @@ class ConceptTree:
         node_children = node.get('children', [])
         node_text = node['text'].replace(' ', '_')
 
-        if node.get('data', {}).get(FILENAME):
-            filename = node['data'][FILENAME]
+        if node_type in ['numeric', 'categorical', 'highdim']:
             category_code = '+'.join(path).replace(' ', '_')
-            column_number = int(node['data'][COLUMN_NUMBER])
-            data_label = node_text
             concept_path = '+'.join([category_code, node_text])
-            magic_col_5 = node['data'].get(MAGIC_5, '')
-            magic_col_6 = node['data'].get(MAGIC_6, '')
+
+            node['data'].update({CATEGORY_CODE: category_code,
+                                 DATA_LABEL: node_text})
 
             categories = []
             if any([child.get('type') == 'alpha' for child in node_children]):
@@ -201,13 +209,8 @@ class ConceptTree:
             concept_node = ConceptNode(path=concept_path,
                                        concept_id=node['li_attr']['id'],
                                        categories=categories,
-                                       data_args={FILENAME: filename,
-                                                  COLUMN_NUMBER: column_number,
-                                                  DATA_LABEL: data_label,
-                                                  CATEGORY_CODE: category_code,
-                                                  MAGIC_5: magic_col_5,
-                                                  MAGIC_6: magic_col_6,
-                                                  }
+                                       node_type=node_type,
+                                       data_args=node['data']
                                        )
 
             node_list.append(concept_node)
