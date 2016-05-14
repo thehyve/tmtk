@@ -106,4 +106,8 @@ class Study:
         return study_params.__dict__.get('STUDY_ID')
 
     def call_boris(self):
-        return arborist.call_boris(self)
+        arborist.call_boris(self)
+
+    @property
+    def subject_sample_mappings(self):
+        return self.HighDim.subject_sample_mappings if hasattr(self, 'HighDim') else []

@@ -29,10 +29,6 @@ class HighDim:
             except utils.PathError:
                 continue
 
-    @property
-    def subject_sample_mappings(self):
-        return [x.sample_mapping for k, x in self.__dict__.items() if hasattr(x, 'sample_mapping')]
-
     def validate_all(self, verbosity=3):
         for key, obj in self.__dict__.items():
             if hasattr(obj, 'validate'):
@@ -53,3 +49,7 @@ class HighDim:
 
         for ss in self.subject_sample_mappings:
             ss.update_concept_paths(changed_dict)
+
+    @property
+    def subject_sample_mappings(self):
+        return [x.sample_mapping for k, x in self.__dict__.items() if hasattr(x, 'sample_mapping')]

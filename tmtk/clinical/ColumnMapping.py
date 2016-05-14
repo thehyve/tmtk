@@ -26,10 +26,6 @@ class ColumnMapping:
         """
         return list(self.df.ix[:, 0].unique())
 
-    # @property
-    # def concept_paths(self):
-    #     return self.df.apply(lambda x: '{}\\{}'.format(x[1], x[3]), axis=1)
-
     @property
     def ids(self):
         return self.df.apply(lambda x: '{}__{}'.format(x[0], x[2]), axis=1)
@@ -43,9 +39,15 @@ class ColumnMapping:
     def validate(self, verbosity=2):
         pass
 
-    def get_data_args(self, var_id):
+    def select_row(self, var_id):
         filename, column = var_id.rsplit('__', 1)
         f = self.df.ix[:, 0].astype(str) == filename
         c = self.df.ix[:, 2].astype(str) == column
-        row = self.df.ix[f & c, :]
-        return list(row.values[0, :])  # Returns single row as list.
+        if sum(f & c) > 1:
+            raise utils.TooManyValues(sum(f & c), 1, var_id)
+        row = self.df.ix[f & c]
+        return list(row.values[0, :])
+
+    def get_concept_path(self, var_id):
+        row = self.select_row(var_id)
+        return '{}+{}'.format(row[1], row[3])

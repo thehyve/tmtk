@@ -39,5 +39,18 @@ class PathError(BaseException):
         return "{} does not exists.".format(self.found)
 
 
+class TooManyValues(BaseException):
+    """
+    Error raised when not a correct path is given.
+    """
+    def __init__(self, found=None, expected=None, id_=None):
+        self.found = found
+        self.expected = expected
+        self.id_ = id_
+
+    def __str__(self):
+        return "Found {} values for {}, expected {}.".format(self.found, self.expected, self.id_)
+
+
 class NotYetImplemented(BaseException):
     pass

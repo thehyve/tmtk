@@ -47,7 +47,7 @@ def create_tree_from_study(study_object, concept_tree=None):
 
     concept_tree = create_tree_from_clinical(study_object.Clinical, concept_tree)
 
-    for map_file in study_object.HighDim.subject_sample_mappings:
+    for map_file in study_object.subject_sample_mappings:
         for md5, path in map_file.get_concept_paths.items():
             concept_tree.add_node(path, concept_id=md5, node_type='highdim')
 
@@ -65,9 +65,11 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
         concept_tree = ConceptTree()
 
     for var_id in clinical_object.ColumnMapping.ids:
-        variable, concept_path, data_args = clinical_object.get_variable(var_id)
+        variable = clinical_object.get_variable(var_id)
+        concept_path = variable.concept_path
+        data_args = variable.column_map_data
 
-        categories = list(variable.unique_values) if not variable.is_numeric else None
+        categories = variable.word_map_dict if not variable.is_numeric else None
         concept_tree.add_node(concept_path, var_id, categories=categories, data_args=data_args)
     return concept_tree
 
@@ -133,8 +135,9 @@ class ConceptTree:
 
         :param path: Concept path for this node.
         :param concept_id: Unique ID that allows to keep track of a node.
-        :param categories: a list of values in this categorical concept node.
-        If None, this concept node is considered to be numerical.
+        :param categories: a dict of values in this categorical concept node.
+        If None, this concept node is considered to be numerical unless specified otherwise.
+        :param node_type: Explicitly set node type (highdim, numerical, categorical)
         :param data_args: Any additional parameters are put a 'data' dictionary.
         """
         new_node = ConceptNode(path,
@@ -160,13 +163,35 @@ class ConceptTree:
 
     @property
     def high_dim_paths(self):
+        """
+
+        :return:
+        """
 
         high_dim_paths = {}
         for node in self.nodes:
             if node.type == 'highdim':
+                # Underscores are introduced because column mapping and high dim behaviour
+                # is different in transmart-batch. A future ticket might resolve this issue.
                 node_path = node.path.replace('_', ' ')
                 high_dim_paths[node.concept_id] = node_path
         return high_dim_paths
+
+    @property
+    def word_mapping(self):
+
+        all_mappings = [self._extract_word_mapping_dicts(node) for node in self.nodes]
+        # This reduces the nested dictionary to a flat one.
+        flat_mapping = [row for list in all_mappings for row in list]
+        df = pd.concat([pd.Series(row) for row in flat_mapping], axis=1).T
+
+        # Fillna needs to happen because for some reason this expression below
+        # returns True for NaN and NaN, which introduces unnecessary rows in word mapping.
+        # This issue might need to be resolved earlier in the ConceptTree!
+        changed_values = df.fillna('').ix[:, 2] != df.fillna('').ix[:, 3]
+
+        df.columns = [FILENAME, COLUMN_NUMBER, 'Datafile Value', 'Mapping Value']
+        return df[changed_values]
 
     @staticmethod
     def _extract_column_mapping_row(node):
@@ -180,6 +205,18 @@ class ConceptTree:
         new_row = pd.Series([filename, path, column, data_label, magic5, magic6])
         if all([filename, data_label, column]):
             return new_row
+
+    @staticmethod
+    def _extract_word_mapping_dicts(node):
+        filename = node.data.get(FILENAME)
+        column = node.data.get(COLUMN_NUMBER)
+        categories = node.__dict__.get('categories')
+
+        if all([filename, column, categories]):
+            list_of_rows = [[filename, column, k, v] for k, v in categories.items()]
+            return list_of_rows
+        else:
+            return []
 
     def _extract_node_list(self, json_data):
         node_list = []
@@ -202,9 +239,10 @@ class ConceptTree:
             node['data'].update({CATEGORY_CODE: category_code,
                                  DATA_LABEL: node_text})
 
-            categories = []
             if any([child.get('type') == 'alpha' for child in node_children]):
-                categories = [child['text'] for child in node_children]
+                categories = self._get_word_map_dict(node_children)
+            else:
+                categories = {}
 
             concept_node = ConceptNode(path=concept_path,
                                        concept_id=node['li_attr']['id'],
@@ -225,10 +263,19 @@ class ConceptTree:
         else:
             return node_list
 
+    @staticmethod
+    def _get_word_map_dict(node_children):
+        mapping_dict = {}
+        for child in node_children:
+            datafile_value = child['data'].get('datafile_value')
+            mapped_value = child['text']
+            mapping_dict[datafile_value] = mapped_value
+        return mapping_dict
+
 
 class ConceptNode:
     def __init__(self, path, concept_id=None, node_type=None,
-                 categories: list = None, data_args=None):
+                 categories: dict = None, data_args=None):
         """
         Object to be put into a list and interpreted by JSTree.
 
@@ -250,13 +297,16 @@ class ConceptNode:
             self.data = data_args
 
         if categories:
+            assert isinstance(categories, dict), "Expected word mapped dictionary."
             self.categories = {}
             self._children = {}
-            for i, cat in enumerate(categories):
+            for i, datafile_value in enumerate(categories):
                 oid = '{}_{}'.format(self.concept_id, i)
-                self.categories[oid] = cat
-                self._children[oid] = JSNode(cat, oid, type='alpha')
-                self.type = 'categorical'
+                mapped = categories[datafile_value]
+                data_args = {'datafile_value': datafile_value}
+                self.categories[datafile_value] = mapped
+                self._children[oid] = JSNode(mapped, oid, type='alpha', data=data_args)
+            self.type = 'categorical'
 
     def __repr__(self):
         return self.path
@@ -394,7 +444,8 @@ class JSTree:
 
     def _recurse_children(self, children, id_):
         for child in children:
-            if child.get('li_attr', {}).get('id') == id_:  # Check if child has correct 'id' in 'li_attr' subdict.
+            # Check if child has correct 'id' in 'li_attr' subdict.
+            if child.get('li_attr', {}).get('id') == id_:
                 return child
             if child.get('children'):  # If there are children, recurse into nested dictionary
                 node = self._recurse_children(child['children'], id_)
