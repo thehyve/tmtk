@@ -194,7 +194,7 @@ class ConceptTree:
         df.fillna(value=pd.np.nan, inplace=True)
 
         df.columns = [FILENAME, COLUMN_NUMBER, 'Datafile Value', 'Mapping Value']
-        return df[changed_values]
+        return df[changed_values].reset_index(drop=True)
 
     @staticmethod
     def _extract_column_mapping_row(node):
