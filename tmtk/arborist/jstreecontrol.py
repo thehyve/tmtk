@@ -182,13 +182,16 @@ class ConceptTree:
 
         all_mappings = [self._extract_word_mapping_dicts(node) for node in self.nodes]
         # This reduces the nested dictionary to a flat one.
-        flat_mapping = [row for list in all_mappings for row in list]
+        flat_mapping = [row for nest_list in all_mappings for row in nest_list]
         df = pd.concat([pd.Series(row) for row in flat_mapping], axis=1).T
 
         # Fillna needs to happen because for some reason this expression below
         # returns True for NaN and NaN, which introduces unnecessary rows in word mapping.
         # This issue might need to be resolved earlier in the ConceptTree!
         changed_values = df.fillna('').ix[:, 2] != df.fillna('').ix[:, 3]
+
+        # Set None to NaN, else empty fields in dataframes are not recognized (None != NaN)
+        df.fillna(value=pd.np.nan, inplace=True)
 
         df.columns = [FILENAME, COLUMN_NUMBER, 'Datafile Value', 'Mapping Value']
         return df[changed_values]
