@@ -18,7 +18,7 @@ class Study:
         if os.path.basename(study_params_path) != 'study.params':
             print('Please give a path to study.params file.')
             raise utils.PathError
-        self.params_path = study_params_path
+        self.params_path = os.path.abspath(study_params_path)
         self.study_folder = os.path.dirname(self.params_path)
         self.Params = Params(self.study_folder)
 
