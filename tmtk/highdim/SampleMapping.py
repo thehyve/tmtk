@@ -1,10 +1,9 @@
 import os
 import tmtk.utils as utils
 from tmtk.utils.CPrint import CPrint
-import hashlib
 
 
-class SampleMapping(object):
+class SampleMapping(utils.FileBase):
     """
     Base class for subject sample mapping
     """
@@ -13,10 +12,7 @@ class SampleMapping(object):
             self.path = self.create_sample_mapping(path)
         else:
             self.path = path
-
-    @utils.cached_property
-    def df(self):
-        return utils.file2df(self.path)
+        super().__init__()
 
     @property
     def get_concept_paths(self):

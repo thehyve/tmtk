@@ -17,7 +17,7 @@ class Study:
         """
         if os.path.basename(study_params_path) != 'study.params':
             print('Please give a path to study.params file.')
-            raise PathError
+            raise utils.PathError
         self.params_path = study_params_path
         self.study_folder = os.path.dirname(self.params_path)
         self.Params = Params(self.study_folder)
@@ -93,12 +93,33 @@ class Study:
     def validate_all(self, verbosity=2):
         """
         Validate all items in this study.
-        :param verbosity: set the verbosity of output, pick 0, 1, or 2.
+        :param verbosity: set the verbosity of output, pick 0, 1, or 2, 3 or 4.
         :return: True if everything is okay, else return False.
         """
         for key, obj in self.__dict__.items():
             if hasattr(obj, 'validate_all'):
                 obj.validate_all(verbosity=verbosity)
+
+    def files_with_changes(self):
+        """
+        Find dataframes that have changed since they have been loaded
+        """
+        changed = []
+
+        for key, obj in self.__dict__.items():
+            if not hasattr(obj, '__dict__'):
+                continue
+
+            for k, o in obj.__dict__.items():
+                if not hasattr(o, 'df_has_changed'):
+                    continue
+
+                if o.df_has_changed:
+                    CPrint.warn('({}) Dataframe has changed.'.format(o))
+                    changed.append(o)
+                else:
+                    CPrint.info('({}) has not changed.'.format(o))
+        return changed
 
     @property
     def study_id(self):

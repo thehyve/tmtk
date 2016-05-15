@@ -5,6 +5,7 @@ from .Exceptions import *
 from IPython.display import Audio
 import hashlib
 
+
 def clean_for_namespace(path) -> str:
     """
     Converts a path and returns a namespace safe variant. Converts characters that give errors
@@ -43,11 +44,13 @@ def summarise(list_or_dict=None, max_items: int = 7) -> str:
     return m
 
 
-def file2df(path=None):
+def file2df(path=None, hashed=False):
     """
-    Load a file specified by path into a Pandas dataframe.
+    Load a file specified by path into a Pandas dataframe.  If hashed is True, return a
+    a (dataframe, hash) value tuple.
 
     :param path to file to load
+    :param hashed:
     :returns pandas dataframe
     """
     if not os.path.exists(path):
@@ -55,7 +58,11 @@ def file2df(path=None):
     df = pd.read_table(path,
                        sep='\t',
                        dtype=object)
-    return df
+    if hashed:
+        hash_value = hash(df.__bytes__())
+        return df, hash_value
+    else:
+        return df
 
 
 def md5(s: str):

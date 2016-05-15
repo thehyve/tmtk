@@ -23,7 +23,6 @@ from markupsafe import Markup
 
 from .common import get_feedback_dict
 from .jstreecontrol import create_concept_tree
-# from tmtk.study import Study
 from flask import g
 import tmtk
 
@@ -67,7 +66,7 @@ def get_study_object(study_params):
     """
     study_object = g.get('study_object', None)
     if not study_object:
-        g.study_object = Study(study_params)
+        g.study_object = tmtk.Study(study_params)
         study_object = g.study_object
     return study_object
 

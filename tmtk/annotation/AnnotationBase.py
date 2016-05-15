@@ -2,7 +2,7 @@ import os
 import tmtk.utils as utils
 
 
-class AnnotationBase:
+class AnnotationBase(utils.FileBase):
     """
     Base class for annotation files.
     """
@@ -20,10 +20,7 @@ class AnnotationBase:
             self.platform = 'NO_PLATFORM_SPECIFIED'
         else:
             raise utils.PathError
-
-    @utils.cached_property
-    def df(self):
-        return utils.file2df(self.path)
+        super().__init__()
 
     def __str__(self):
         return self.platform

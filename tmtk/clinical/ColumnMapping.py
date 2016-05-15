@@ -3,7 +3,7 @@ import tmtk
 from tmtk import arborist, utils
 
 
-class ColumnMapping:
+class ColumnMapping(utils.FileBase):
     """
     Class with utilities for the column mapping file for clinical data.
     Can be initiated with either a path to column mapping file, or a clinical params file object.
@@ -13,10 +13,8 @@ class ColumnMapping:
             self.path = os.path.join(params.dirname, params.COLUMN_MAP_FILE)
         else:
             raise utils.Exceptions.ClassError(type(params), tmtk.params.ClinicalParams)
-
-    @utils.cached_property
-    def df(self):
-        return utils.file2df(self.path)
+        self._hash_init = None
+        super().__init__()
 
     @property
     def included_datafiles(self):

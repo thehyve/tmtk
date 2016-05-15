@@ -1,11 +1,10 @@
 from tmtk import utils
 import os
-from tmtk.utils import CPrint
 import pandas as pd
 from tmtk.params import ClinicalParams
 
 
-class WordMapping:
+class WordMapping(utils.FileBase):
     """
     Base Class for word mapping file.
     """
@@ -18,21 +17,8 @@ class WordMapping:
             self.path = os.path.join(params.dirname, 'word_mapping_file.txt')
             self.params['WORD_MAP_FILE'] = os.path.basename(self.path)
 
-        self._hash_init = None
         self.params = params
-
-    @utils.cached_property
-    def df(self):
-        if self.path and os.path.exists(self.path):
-            df, self._hash_init = utils.file2df(self.path, hashed=True)
-        else:
-            CPrint.warn("No word mapping detected, creating.")
-            df = self.create_wordmapping_file()
-        return df
-
-    @property
-    def _hash(self):
-        return hash(self.df.__bytes__())
+        super().__init__()
 
     def validate(self, verbosity=2):
         pass
@@ -55,7 +41,7 @@ class WordMapping:
         return mapping_dict
 
     @staticmethod
-    def create_wordmapping_file():
+    def create_df():
         df = pd.DataFrame(dtype=str, columns=['Filename',
                                               'Column Number',
                                               'Datafile Value',

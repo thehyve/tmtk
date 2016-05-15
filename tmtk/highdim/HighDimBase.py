@@ -6,7 +6,7 @@ import pandas as pd
 import os
 
 
-class HighDimBase:
+class HighDimBase(utils.FileBase):
     """
     Base class for high dimensional data structures.
     """
@@ -25,6 +25,8 @@ class HighDimBase:
         else:
             raise utils.PathError()
 
+        super().__init__()
+
         if hasattr(params, 'MAP_FILENAME'):
             self.sample_mapping = SampleMapping(os.path.join(params.dirname, params.MAP_FILENAME))
             self.platform = self.sample_mapping.platform
@@ -32,14 +34,6 @@ class HighDimBase:
             self._parent = parent
             if hasattr(self._parent, 'Annotations'):
                 self.annotation_file = parent.find_annotation(self.platform)
-
-    @property
-    def header(self):
-        return self.df.columns
-
-    @utils.cached_property
-    def df(self):
-        return utils.file2df(self.path)
 
     def validate(self, verbosity=3):
         """

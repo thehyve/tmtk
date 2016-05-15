@@ -74,5 +74,8 @@ class ValidationTests(unittest.TestCase):
     def test_annotation_load(self):
         assert type(self.study.Annotations.mrna_GPL570_BOGUS.df) == pd.DataFrame
 
+    def test_validate_all(self):
+        assert self.study.validate_all(0) == False
+
 if __name__ == '__main__':
     unittest.main()
