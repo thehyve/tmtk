@@ -4,6 +4,8 @@ import json
 import pandas as pd
 import tmtk
 from tmtk import utils
+from tmtk.utils import CPrint
+
 
 # Strings conversion for json data: Move to class in utils later
 FILENAME = 'Filename'
@@ -94,7 +96,7 @@ def create_tree_from_df(df, concept_tree=None):
 
 def get_concept_node_from_df(x):
     """
-
+    This is only used when a the arborist is called from a single DF.
     :param x: row in column mapping dataframe
     :return:
     """
@@ -140,6 +142,12 @@ class ConceptTree:
         :param node_type: Explicitly set node type (highdim, numerical, categorical)
         :param data_args: Any additional parameters are put a 'data' dictionary.
         """
+
+        # Check if node already exists. Give error if its not SUBJ_ID
+        if any([str(node) == path for node in self.nodes if not path.endswith('SUBJ_ID')]):
+            CPrint.error('Trying to add duplicate to ConceptTree: {}\n'
+                         'This fails in the GUI.'.format(path))
+
         new_node = ConceptNode(path,
                                concept_id=concept_id,
                                categories=categories,
@@ -200,8 +208,16 @@ class ConceptTree:
     def _extract_column_mapping_row(node):
         filename = node.data.get(FILENAME)
         path, data_label = node.path.rsplit('+', 1)
-        if not data_label:  # Check if data_label has value, otherwise use the path as data_label
+
+        # Check if data_label has value, otherwise use the path as data_label
+        # Wibo has a use case for pathless variables.
+        if not data_label:
             path, data_label = data_label, path
+
+        # Remove file names from SUBJ_ID, they were added as workaround for unique constraints.
+        if data_label.startswith("SUBJ_ID"):
+            data_label = "SUBJ_ID"
+
         column = node.data.get(COLUMN_NUMBER)
         magic5 = node.data.get(MAGIC_5)
         magic6 = node.data.get(MAGIC_6)
@@ -235,7 +251,7 @@ class ConceptTree:
         node_children = node.get('children', [])
         node_text = node['text'].replace(' ', '_')
 
-        if node_type in ['numeric', 'categorical', 'highdim']:
+        if node_type in ['numeric', 'categorical', 'highdim', 'codeleaf']:
             category_code = '+'.join(path).replace(' ', '_')
             concept_path = '+'.join([category_code, node_text])
 
@@ -290,14 +306,12 @@ class ConceptNode:
         """
         self.path = path
         self.concept_id = concept_id
+        self.data = data_args if data_args else {}
 
         if node_type:
             self.type = node_type
         else:
             self.type = 'numeric'
-
-        if data_args:
-            self.data = data_args
 
         if categories:
             assert isinstance(categories, dict), "Expected word mapped dictionary."
@@ -309,7 +323,13 @@ class ConceptNode:
                 data_args = {'datafile_value': datafile_value}
                 self.categories[datafile_value] = mapped
                 self._children[oid] = JSNode(mapped, oid, type='alpha', data=data_args)
-            self.type = 'categorical'
+
+            self.type = 'codeleaf' if self.path.endswith("SUBJ_ID") else 'categorical'
+
+            # Add filename to SUBJ_ID, this is a work around for unique path constraint.
+            # which does not apply to SUBJ_ID.
+            if self.type == 'codeleaf':
+                self.path += ' ({})'.format(self.data.get(FILENAME))
 
     def __repr__(self):
         return self.path
@@ -352,6 +372,8 @@ class JSNode:
         self.__dict__['text'] = path
 
     def json_data(self):
+        #  This function introduces unique path constraint (annoying for SUBJ_ID)
+        #  Might be worth it to improve functionality here, for the meta data tags.
         children = [self.children[k].json_data() for k in self.children]
         output = {}
         for k in self.__dict__:
@@ -408,6 +430,9 @@ class JSTree:
                 curr = curr.children[sub_path]
 
     def __repr__(self):
+        """
+        This outputs the tree to terminal as class representation.
+        """
         return self.pretty()
 
     def pretty(self, root=None, depth=0, spacing=2):
@@ -441,24 +466,3 @@ class JSTree:
         :return: Returns the json_data properly formatted as string.
         """
         return json.dumps(self.json_data)
-
-    def find_node(self, id_):
-        return self._recurse_children(self.json_data, id_)
-
-    def _recurse_children(self, children, id_):
-        for child in children:
-            # Check if child has correct 'id' in 'li_attr' subdict.
-            if child.get('li_attr', {}).get('id') == id_:
-                return child
-            if child.get('children'):  # If there are children, recurse into nested dictionary
-                node = self._recurse_children(child['children'], id_)
-                if node:  # Only return if recursion returns something
-                    return node
-
-    def update_node(self, id_, subkey=None, **kwargs):
-        node = self.find_node(id_)
-        if node:
-            if subkey:
-                node[subkey].update(**kwargs)
-            else:
-                node.update(**kwargs)
