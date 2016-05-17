@@ -13,7 +13,6 @@ class ColumnMapping(utils.FileBase):
             self.path = os.path.join(params.dirname, params.COLUMN_MAP_FILE)
         else:
             raise utils.Exceptions.ClassError(type(params), tmtk.params.ClinicalParams)
-        self._hash_init = None
         super().__init__()
 
     @property
