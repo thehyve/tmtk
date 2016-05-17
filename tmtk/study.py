@@ -2,6 +2,7 @@ from .clinical import Clinical
 from .params import Params
 from .highdim import HighDim
 from .annotation import Annotations
+from .tags import MetaDataTags
 from tmtk.utils.CPrint import CPrint
 from tmtk import utils, arborist
 import os
@@ -52,6 +53,11 @@ class Study:
             self.HighDim = HighDim(params_list=highdim_params,
                                    parent=self,
                                    mapping=highdim_map)
+
+        tags_params = self.find_params_for_datatype(datatypes='tags')
+        if tags_params:
+            self.Tags = MetaDataTags(params=tags_params[0],
+                                     parent=self)
 
     def find_params_for_datatype(self, datatypes=None):
         """
@@ -132,3 +138,8 @@ class Study:
     @property
     def subject_sample_mappings(self):
         return self.HighDim.subject_sample_mappings if hasattr(self, 'HighDim') else []
+
+    @property
+    def concept_tree(self):
+        return arborist.create_tree_from_study(self)
+
