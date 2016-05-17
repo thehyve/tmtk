@@ -21,7 +21,7 @@ class ArboristTests(unittest.TestCase):
         pass
 
     def test_study_load(self):
-        assert self.study.params_path == 'studies/valid_study/study.params'
+        assert self.study.params_path
 
     def test_create_json_string(self):
         assert tmtk.arborist.create_concept_tree(self.study)

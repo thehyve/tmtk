@@ -324,12 +324,13 @@ class ConceptNode:
                 self.categories[datafile_value] = mapped
                 self._children[oid] = JSNode(mapped, oid, type='alpha', data=data_args)
 
-            self.type = 'codeleaf' if self.path.endswith("SUBJ_ID") else 'categorical'
+            self.type = 'categorical'
 
-            # Add filename to SUBJ_ID, this is a work around for unique path constraint.
-            # which does not apply to SUBJ_ID.
-            if self.type == 'codeleaf':
-                self.path += ' ({})'.format(self.data.get(FILENAME))
+        # Add filename to SUBJ_ID, this is a work around for unique path constraint.
+        # which should not apply to SUBJ_ID.
+        if self.path.endswith("SUBJ_ID"):
+            self.type = 'codeleaf'
+            self.path += ' ({})'.format(self.data.get(FILENAME))
 
     def __repr__(self):
         return self.path
@@ -372,17 +373,12 @@ class JSNode:
         self.__dict__['text'] = path
 
     def json_data(self):
-        #  This function introduces unique path constraint (annoying for SUBJ_ID)
-        #  Might be worth it to improve functionality here, for the meta data tags.
         children = [self.children[k].json_data() for k in self.children]
         output = {}
-        for k in self.__dict__:
-            if 'children' == k:
+        for k, v in self.__dict__.items():
+            if k == 'children':
                 continue
-            if isinstance(self.__dict__[k], dict):
-                output[k] = self.__dict__[k]
-            else:
-                output[k] = self.__dict__[k]
+            output[k] = v
         if len(children):
             output['children'] = children
         return output
@@ -417,6 +413,7 @@ class JSTree:
             children = node.__dict__.get('_children', {})
             node_type = node.__dict__.get('type', 'default')
 
+            # the sub paths below cause uniqueness constraint
             for i, sub_path in enumerate(sub_paths):
                 if sub_path not in curr.children:
                     if i == len(sub_paths) - 1:  # Arrived at leaf
