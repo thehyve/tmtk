@@ -18,46 +18,71 @@
 
   <div id="treediv"></div>
 
-	<p><button id="save">Save column mapping file</button></p>
-	<p id="feedbacksave"></p>
-
-  <form id="datanodedetails" class="blockform">
+      <form id="datanodedetails" class="blockform" >
 		<fieldset>
 			<legend>Data node details</legend>
-			<p>
-				<label for="datalabel">Data Label</label>
-				<input type="text" name="datalabel" required />
-			</p>
-			<p>
+            <p>
 				<label for="nodetype">Node type</label>
-				<select name="nodetype">
+				<select name="nodetype" disabled="true">
 					<option value="default">Folder</option>
 					<option value="numeric">Numerical</option>
-					<option value="alpha">Categorical</option>
+					<option value="alpha">Categorical Value</option>
+					<option value="tag">Metadata tag</option>
+					<option value="categorical">Categorical</option>
 					<option value="highdim">High-dimensional</option>
 					<option value="codeleaf">Special concept</option>
 				</select>
 			</p>
-			<p>
+            <p class="label">
+				<label for="datalabel">Label</label>
+				<input type="text" name="datalabel" required />
+			</p>
+			<p hidden class="clinicaldata">
 				<label for="filename">Filename</label>
-				<input class="clinicaldata" type="text" name="filename" />
+				<input disabled type="text" name="filename" />
 			</p>
-			<p>
+			<p hidden class="clinicaldata">
 				<label for="columnnumber">Column Number</label>
-				<input class="clinicaldata" type="text" name="columnnumber" />
+				<input disabled type="text" name="columnnumber" />
 			</p>
-			<p>
-				<label for="datalabelsource">Data Label Source</label>
-				<input class="clinicaldata" type="text" name="datalabelsource" />
+			<p hidden class="clinicaldata" >
+				<label for="datalabelsource">Magic #5 </label>
+				<input type="text" name="datalabelsource" />
 			</p>
-			<p>
-				<label for="controlvocabcd">Control Vocab Cd</label>
-				<input class="clinicaldata" type="text" name="controlvocabcd" />
+			<p hidden class="clinicaldata" >
+				<label for="controlvocabcd">Magic #6</label>
+				<input type="text" name="controlvocabcd" />
 			</p>
+
+            <div hidden id="tagbox" class="tagdata">
+                <!--Here should come some code that lets you add tags dynamically-->
+                <p>
+                <input type="text" name="tag_tit1" />
+				<input type="text" name="tag_desc1" />
+                <input type="number" name="tag_weight1"  min="1" max="10" />
+                </p><p>
+                <input type="text" name="tag_tit2" />
+				<input type="text" name="tag_desc2" />
+                <input type="number" name="tag_weight2"  min="1" max="10" />
+                </p><p>
+                <input type="text" name="tag_tit3" />
+				<input type="text" name="tag_desc3" />
+                <input type="number" name="tag_weight3"  min="1" max="10" />
+                </p><p>
+                <input type="text" name="tag_tit4" />
+				<input type="text" name="tag_desc4" />
+                <input type="number" name="tag_weight4"  min="1" max="10" />
+                </p>
+            </div>
+
+
 			<input type="submit" value="Apply changes" />
 			<span style="float: right; padding-right: 5px;" id="feedback"></span>
 		</fieldset>
 	</form>
+
+    <p><button id="save">Save column mapping file</button></p>
+        <p id="feedbacksave"></p>
 
 	<script src="/static/jstree/dist/jstree.min.js"></script>
 
@@ -72,6 +97,41 @@
 				method: "POST",
 				contentType: "application/json",
 				url: "{{ url_for('save_columnsfile', studiesfolder=studiesfolder, study=study) }}",
+				data: tree
+			})
+			.done(function( msg ) {
+				console.log( "Data Saved: " + msg.feedback.infos );
+				document.getElementById("feedbacksave").innerHTML = '<ul class="feedback" id="feedbacklist"></ul>';
+        for (i = 0; i < msg.feedback.errors.length; i++) {
+            $( "#feedbacklist" ).append( "<li class='error'>"+msg.feedback.errors[i]+"</li>" );
+        }
+        for (i = 0; i < msg.feedback.warnings.length; i++) {
+            $( "#feedbacklist" ).append( "<li class='warning'>"+msg.feedback.warnings[i]+"</li>" );
+        }
+        for (i = 0; i < msg.feedback.infos.length; i++) {
+            $( "#feedbacklist" ).append( "<li class='message'>"+msg.feedback.infos[i]+"</li>" );
+        }
+			})
+      .fail(function() {
+        document.getElementById("feedbacksave").innerHTML = '<ul class="feedback" id="feedbacklist"></ul>';
+        $( "#feedbacklist" ).append( "<li class='error'>Error encountered in saving column mapping file</li>" );
+      });
+
+			return false;
+		});
+	});
+
+	var node;
+
+	$(function() {
+		$('button#embeded_return').bind('click', function() {
+			var v = $('#treediv').jstree(true).get_json()
+			var tree = JSON.stringify(v);
+
+			$.ajax({
+				method: "POST",
+				contentType: "application/json",
+				url: "{{ url_for('shutdown', mapfile=studiesfolder) }}",
 				data: tree
 			})
 			.done(function( msg ) {
@@ -122,11 +182,19 @@
 	});
 
 	function enableRightFields(type){
-		if (type != 'default') {
-			$('.clinicaldata').prop('disabled', false);
-		} else {
-			$('.clinicaldata').prop('disabled', true);
-		}
+		if (type == 'numeric' | type == 'categorical'){
+            $('.label').prop('hidden', false);
+			$('.clinicaldata').prop('hidden', false);
+			$('.tagdata').prop('hidden', true);
+        } else if (type == 'tag'){
+            $('.tagdata').prop('hidden', false);
+            $('.clinicaldata').prop('hidden', true);
+            $('.label').prop('hidden', true);
+        } else {
+            $('.label').prop('hidden', false);
+            $('.tagdata').prop('hidden', true);
+            $('.clinicaldata').prop('hidden', true);
+        }
 	}
 
 	function feedback(string, error) {
@@ -163,6 +231,24 @@
 			if (typeof node.data['Control Vocab Cd'] !== 'undefined') {
 				$( "input[name='controlvocabcd']" ).val(node.data['Control Vocab Cd']);
 			}
+            if (typeof node.data['tags'] !== 'undefined') {
+
+                var counter = 0;
+
+                for (var key in node.data.tags) {
+                    if (node.data.tags.hasOwnProperty(key)) {
+                        counter++
+                        var c = counter.toString()
+                        var tit =  '[name="' + 'tag_tit' + c + '"]'
+                        var desc = '[name="' + 'tag_desc' + c + '"]'
+                        var weight = '[name="' + 'tag_weight' + c + '"]'
+                        $( tit ).val(key);
+                        $( desc ).val(node.data.tags[key][0]);
+                        $( weight ).val(node.data.tags[key][1]);
+
+                    }
+                }
+		    }
 		}
 	})
 	// create the instance
@@ -183,7 +269,13 @@
 		"types" : {
 			"default" : {
 				"icon" : "/static/img/tree/folder.gif",
-				"valid_children" : ["alpha", "numeric", "highdim", "codeleaf", "default", "categorical"]
+				"valid_children" : ["alpha",
+									"numeric",
+									"highdim",
+									"codeleaf",
+									"default",
+									"categorical",
+									"tag"]
 			},
 			"study" : {
 				"icon" : "/static/img/tree/study.png",
@@ -191,24 +283,28 @@
 			},
 			"alpha" : {
 				"icon" : "/static/img/tree/alpha.gif",
-				"valid_children" : "none"
+				"valid_children" : ["tag"]
 			},
 			"categorical" : {
-			    "max_depth" : "1",
+			    "max_depth" : "2",
 				"icon" : "/static/img/tree/folder.gif",
-				"valid_children" : "alpha"
+				"valid_children" : ["alpha", "tag"]
 			},
 			"numeric" : {
 				"icon" : "/static/img/tree/numeric.gif",
-				"valid_children" : "none"
+				"valid_children" : ["tag"]
 			},
 			"highdim" : {
 				"icon" : "/static/img/tree/dna_icon.png",
+				"valid_children" : ["tag"]
+			},
+			"tag" : {
+				"icon" : "/static/img/tree/tag_icon.png",
 				"valid_children" : "none"
 			},
 			"codeleaf" : {
 				"icon" : "/static/img/tree/code.png",
-				"valid_children" : "none"
+				"valid_children" : ["alpha", "tag"]
 			},
 		},
 		'sort': function (a, b) {
@@ -216,12 +312,16 @@
 				return -1;
 			} else if ((this.get_type(a) != 'default') && (this.get_type(b) == 'default')) {
 				return 1;
+			} else if ((this.get_type(a) == 'tag') && (this.get_type(b) != 'tag')) {
+				return -1;
+			} else if ((this.get_type(a) != 'tag') && (this.get_type(b) == 'tag')) {
+				return 1;
 			} else {
 				return this.get_text(a) > this.get_text(b) ? 1 : -1;
 			}
 		},
-		"plugins" : [ "dnd", "sort", "contextmenu", "types" ]
+		"plugins" : [ "dnd", "sort", "contextmenu", "types", "unique", "wholerow" ]
 	});
 
 	</script>
-	{% endblock %}
+{% endblock %}

@@ -14,6 +14,7 @@ COLUMN_NUMBER = 'Column Number'
 DATA_LABEL = 'Data Label'
 MAGIC_5 = 'Data Label Source'
 MAGIC_6 = 'Control Vocab Cd'
+TAGS = 'Tags'
 
 
 def create_concept_tree(column_object):
@@ -52,6 +53,12 @@ def create_tree_from_study(study_object, concept_tree=None):
     for map_file in study_object.subject_sample_mappings:
         for md5, path in map_file.get_concept_paths.items():
             concept_tree.add_node(path, concept_id=md5, node_type='highdim')
+
+    if hasattr(study_object, 'Tags'):
+        for path, tags_dict in study_object.Tags.get_tags():
+            path_in_tree = "{}+{}".format(path, TAGS)
+            data_args = {'tags': tags_dict}
+            concept_tree.add_node(path_in_tree, node_type='tag', data_args=data_args)
 
     return concept_tree
 
@@ -204,6 +211,18 @@ class ConceptTree:
         df.columns = [FILENAME, COLUMN_NUMBER, 'Datafile Value', 'Mapping Value']
         return df[changed_values].reset_index(drop=True)
 
+    @property
+    def tags_file(self):
+        all_mappings = [self._extract_node_tags(node) for node in self.nodes]
+
+        # This reduces the nested dictionary to a flat one.
+        flat_mapping = [row for nest_list in all_mappings for row in nest_list]
+        df = pd.concat([pd.Series(row) for row in flat_mapping], axis=1).T
+
+        df.columns = ['Concept Path', 'Title', 'Description', 'Weight']
+        return df
+
+
     @staticmethod
     def _extract_column_mapping_row(node):
         filename = node.data.get(FILENAME)
@@ -226,12 +245,25 @@ class ConceptTree:
             return new_row
 
     @staticmethod
+    def _extract_node_tags(node):
+        list_of_rows = []
+        tags_dict = node.data.get('tags', {})
+        if tags_dict:
+            # Strip last node (Meta data tags node label
+            path = node.path.rsplit('+', 1)[0]
+            for title, desc_weight in tags_dict.items():
+                description, weight = desc_weight
+                list_of_rows.append([path, title, description, weight])
+        return list_of_rows
+
+    @staticmethod
     def _extract_word_mapping_dicts(node):
         filename = node.data.get(FILENAME)
         column = node.data.get(COLUMN_NUMBER)
         categories = node.__dict__.get('categories')
 
         if all([filename, column, categories]):
+            # Return a list of lists(rows)
             list_of_rows = [[filename, column, k, v] for k, v in categories.items()]
             return list_of_rows
         else:
@@ -250,6 +282,16 @@ class ConceptTree:
         node_type = node.get('type', 'default')
         node_children = node.get('children', [])
         node_text = node['text'].replace(' ', '_')
+
+        # Check if node has metadata tag child, adds it to node list.
+        meta_tag = self._get_meta_data_tags(node_children)
+        if meta_tag:
+            tag_path = path + [node_text, TAGS]
+            tag_path = '+'.join(tag_path)
+            concept_node = ConceptNode(path=tag_path,
+                                       node_type='tag',
+                                       data_args=meta_tag['data'])
+            node_list.append(concept_node)
 
         if node_type in ['numeric', 'categorical', 'highdim', 'codeleaf']:
             category_code = '+'.join(path).replace(' ', '_')
@@ -290,6 +332,17 @@ class ConceptTree:
             mapped_value = child['text']
             mapping_dict[datafile_value] = mapped_value
         return mapping_dict
+
+    @staticmethod
+    def _get_meta_data_tags(node_children):
+        """
+        Returns tag node if it is in children has it.
+        :param node_children:
+        :return:
+        """
+        for child in node_children:
+            if child.get('type') == 'tag':
+                return child
 
 
 class ConceptNode:

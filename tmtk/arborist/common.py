@@ -131,6 +131,7 @@ def update_study_from_json(study, json_data):
     concept_tree = ConceptTree(json_data)
     study.Clinical.ColumnMapping.df = concept_tree.column_mapping_file
     study.Clinical.WordMapping.df = concept_tree.word_mapping
+    study.Tags.df = concept_tree.tags_file
 
     high_dim_paths = concept_tree.high_dim_paths
     if high_dim_paths:

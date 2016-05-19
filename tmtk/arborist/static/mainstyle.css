@@ -54,9 +54,10 @@ ul.folderlist li img {
   padding: 4px 0px 0px 0px;
 }
 div#treediv {
-  overflow: auto;
+  overflow: scroll;
   border: 1px solid silver;
   min-height: 300px;
+  max-height: 450px;
 }
 form.blockform label {
   text-align: right;
@@ -66,9 +67,9 @@ form.blockform label {
 }
 input[type=text], select {
   float: left;
-  width: 400px;
+  width: 275px;
   /* Hackery to get selects to be as wide as input texts... */
-  border:1px solid #aaa;
+  border:1px solid silver;
   -ms-box-sizing:content-box;
   -moz-box-sizing:content-box;
   -webkit-box-sizing:content-box;
@@ -79,7 +80,7 @@ input[type=text][disabled], select[disabled] {
 }
 select {
   /* With above hackary selects are 2px smaller than input texts */
-  width: 402px;
+  width: 277px;
 }
 fieldset p {
   clear: both;
@@ -103,3 +104,6 @@ li.message {
   padding: 0px 0px 0px 20px;
   list-style: none;
 }
+.tag_title {
+  width: 200px:
+  }

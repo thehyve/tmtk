@@ -17,9 +17,9 @@ class MetaDataTags(utils.FileBase):
     def tag_paths(self):
         """
         paths in file, replaces back slashes for '+', strips leading and trailing '+' and
-        converts spaces to underscores.
+        converts spaces to underscores.  This needs to be refactored in clinical data.
         """
-        return self.df.ix[:, 0].apply(lambda x: x.replace('\\', '+').strip('+').replace(' ', '_'))
+        return self.df.ix[:, 0].apply(lambda x: self._convert_path(x))
 
     @property
     def invalid_paths(self):
@@ -31,6 +31,22 @@ class MetaDataTags(utils.FileBase):
             if not any([(p + '+').startswith(tag_path + '+') for p in study_paths]):
                 invalid.append(tag_path)
         return invalid
+
+    @staticmethod
+    def _convert_path(x):
+        return x.replace('\\', '+').strip('+').replace(' ', '_')
+
+    def get_tags(self):
+        """
+        generator that gets tags from tags file.
+        :return: tuples (<path>, <title>, <description>)
+        """
+
+        for path in set(self.tag_paths):
+            associated_tags = self.tag_paths == path
+            tags_dict = {}
+            self.df[associated_tags].apply(lambda x: tags_dict.update({x[1]: (x[2], x[3])}), axis=1)
+            yield path, tags_dict
 
     def validate(self, verbosity=2):
 
