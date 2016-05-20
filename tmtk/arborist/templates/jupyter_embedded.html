@@ -68,21 +68,21 @@
             <div hidden id="tagbox" class="tagdata">
                 <!--Here should come some code that lets you add tags dynamically-->
                 <p>
-                <input type="text" name="tag_tit1" />
-				<input type="text" name="tag_desc1" />
-                <input type="number" name="tag_weight1"  min="1" max="10" />
+                    <input type="text" name="tag_tit1" class="tag_title" />
+                    <input type="text" name="tag_desc1" class="tag_desc" />
+                    <input type="number" name="tag_weight1"  min="1" max="10" class="tag_weight" />
                 </p><p>
-                <input type="text" name="tag_tit2" />
-				<input type="text" name="tag_desc2" />
-                <input type="number" name="tag_weight2"  min="1" max="10" />
+                    <input type="text" name="tag_tit2" class="tag_title"/>
+                    <input type="text" name="tag_desc2" class="tag_desc" />
+                    <input type="number" name="tag_weight2"  min="1" max="10" class="tag_weight" />
                 </p><p>
-                <input type="text" name="tag_tit3" />
-				<input type="text" name="tag_desc3" />
-                <input type="number" name="tag_weight3"  min="1" max="10" />
+                    <input type="text" name="tag_tit3" class="tag_title" />
+                    <input type="text" name="tag_desc3" class="tag_desc" />
+                    <input type="number" name="tag_weight3"  min="1" max="10" class="tag_weight" />
                 </p><p>
-                <input type="text" name="tag_tit4" />
-				<input type="text" name="tag_desc4" />
-                <input type="number" name="tag_weight4"  min="1" max="10" />
+                    <input type="text" name="tag_tit4" class="tag_title" />
+                    <input type="text" name="tag_desc4" class="tag_desc" />
+                    <input type="number" name="tag_weight4"  min="1" max="10" class="tag_weight" />
                 </p>
             </div>
 
@@ -171,7 +171,15 @@
 	$("form#datanodedetails").submit(function (e) {
 		e.preventDefault();
 
-		if (typeof node != 'undefined') {
+        if (node.type == 'tag') {
+            for (i = 1; i < 5; i++) {
+                var title  = $( "input[name='tag_tit" + i  + "']"         ).val();
+                var desc   = $( "input[name='tag_desc" + i  + "']"         ).val();
+                var weight = $( "input[name='tag_weight" + i  + "']"         ).val();
+                node.data.tags[title] = [desc, weight]
+                if (updated) {feedback("Successfully applied", false)}
+            }
+		} else if (typeof node != 'undefined') {
 
 			var text = $( "input[name='datalabel']" ).val();
 			var updated = $("#treediv").jstree('rename_node', node , text );
@@ -330,7 +338,7 @@
 				return this.get_text(a) > this.get_text(b) ? 1 : -1;
 			}
 		},
-		"plugins" : [ "dnd", "sort", "contextmenu", "types", "unique" ]
+		"plugins" : [ "dnd", "sort", "contextmenu", "types", "unique", "wholerow"]
 	});
 
 	</script>

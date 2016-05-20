@@ -104,6 +104,6 @@ li.message {
   padding: 0px 0px 0px 20px;
   list-style: none;
 }
-.tag_title {
-  width: 200px:
-  }
+input[type=text].tag_title {
+  width: 40px;
+}
