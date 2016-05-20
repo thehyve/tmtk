@@ -34,7 +34,7 @@ class MetaDataTags(utils.FileBase):
 
     @staticmethod
     def _convert_path(x):
-        return x.replace('\\', '+').strip('+').replace(' ', '_')
+        return x.replace('\\', '+').strip('+')
 
     def get_tags(self):
         """
