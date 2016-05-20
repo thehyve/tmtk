@@ -31,9 +31,7 @@ class SampleMapping(utils.FileBase):
 
         # This replacements happens because jstree needs to show column mapping paths
         # and these in the same tree. Transmart-batch is inconsistent in his behaviour here.
-        category_cd = category_cd.replace('_', ' ').replace('\\', '+')
-
-        return category_cd
+        return category_cd.replace('\\', '+').strip('+')
 
     def update_concept_paths(self, path_dict):
         self.df.ix[:, 8] = self.df.apply(lambda x: self._update_row(x, path_dict), axis=1)
