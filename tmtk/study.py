@@ -29,7 +29,7 @@ class Study:
             self.Clinical = Clinical(clinical_params[0])
 
         annotation_map = {'microarray_annotation': 'MicroarrayAnnotation',
-                          'acgh_annotation': 'ChromosomalRegions',
+                          'cnv_annotation': 'ChromosomalRegions',
                           'rnaseq_annotation': 'ChromosomalRegions',
                           'proteomics_annotation': 'ProteomicsAnnotation',
                           'annotation': 'MicroarrayAnnotation',
@@ -43,7 +43,7 @@ class Study:
                                            mapping=annotation_map)
 
         highdim_map = {'rnaseq': 'ReadCounts',
-                       'acgh': 'CopyNumberVariation',
+                       'cnv': 'CopyNumberVariation',
                        'expression': 'Expression',
                        'proteomics': 'Proteomics',
                        }
