@@ -21,7 +21,7 @@ class Params:
         assert os.path.exists(study_folder), 'Params: {} does not exist.'.format(study_folder)
 
         param_mapping = {'rnaseq': 'HighDimParams',
-                         'acgh': 'HighDimParams',
+                         'cnv': 'HighDimParams',
                          'proteomics': 'HighDimParams',
                          'expression': 'HighDimParams',
                          'tags': 'TagsParams',
