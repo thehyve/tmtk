@@ -61,7 +61,12 @@ class Variable:
 
     @property
     def concept_path(self):
-        return self.parent.ColumnMapping.get_concept_path(self.id_)
+        """
+        Returns concept converted as expected in transmart
+        :return:
+        """
+        cp = self.parent.ColumnMapping.get_concept_path(self.id_)
+        return cp.replace('_', ' ').replace('\\', '+').strip('+')
 
     @property
     def column_map_data(self):
