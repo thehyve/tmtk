@@ -56,6 +56,8 @@ def create_tree_from_study(study_object, concept_tree=None):
 
     if hasattr(study_object, 'Tags'):
         for path, tags_dict in study_object.Tags.get_tags():
+            # Add TAGS string to path name, TAGS will be subnode of the concept
+            # that has the meta data.
             path_in_tree = "{}+{}".format(path, TAGS)
             data_args = {'tags': tags_dict}
             concept_tree.add_node(path_in_tree, node_type='tag', data_args=data_args)
@@ -75,11 +77,33 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
 
     for var_id in clinical_object.ColumnMapping.ids:
         variable = clinical_object.get_variable(var_id)
-        concept_path = variable.concept_path
         data_args = variable.column_map_data
+        concept_path = variable.concept_path
+        categories = variable.word_map_dict if not variable.is_numeric else {}
 
-        categories = variable.word_map_dict if not variable.is_numeric else None
-        concept_tree.add_node(concept_path, var_id, categories=categories, data_args=data_args)
+        # Add filename to SUBJ_ID, this is a work around for unique path constraint.
+        # which does not apply to SUBJ_ID.
+        if concept_path.endswith("SUBJ ID"):
+            concept_path = concept_path.replace("SUBJ ID", "SUBJ_ID")
+            node_type = 'codeleaf'
+            concept_path += ' ({})'.format(data_args.get(FILENAME))
+        elif categories:
+            node_type = 'categorical'
+        else:
+            node_type = 'numeric'
+
+        # Add categorical values to concept tree (if any)
+        for i, datafile_value in enumerate(categories):
+            oid = '{}_{}'.format(var_id, i)
+            mapped = categories[datafile_value]
+            categorical_path = "{}+{}".format(concept_path, mapped)
+            concept_tree.add_node(categorical_path, oid,
+                                  node_type='alpha',
+                                  data_args={'datafile_value': datafile_value})
+
+        concept_tree.add_node(concept_path, var_id,
+                              node_type=node_type, data_args=data_args)
+
     return concept_tree
 
 
@@ -135,29 +159,27 @@ class ConceptTree:
         if json_data:
             if type(json_data) == str:
                 json_data = json.loads(json_data)
-            self.nodes = self._extract_node_list(json_data)
+            self._extract_node_list(json_data)
 
-    def add_node(self, path, concept_id=None, node_type=None,
-                 categories: list = None, data_args=None):
+    def add_node(self, path, concept_id=None, node_type=None, data_args=None):
         """
         Add ConceptNode object nodes list.
 
         :param path: Concept path for this node.
         :param concept_id: Unique ID that allows to keep track of a node.
-        :param categories: a dict of values in this categorical concept node.
+        # :param categories: a dict of values in this categorical concept node.
         If None, this concept node is considered to be numerical unless specified otherwise.
         :param node_type: Explicitly set node type (highdim, numerical, categorical)
         :param data_args: Any additional parameters are put a 'data' dictionary.
         """
 
-        # Check if node already exists. Give error if its not SUBJ_ID
-        if any([str(node) == path for node in self.nodes if not path.endswith('SUBJ_ID')]):
+        # Check if node already exists.
+        if any([str(node) == path for node in self.nodes]):
             CPrint.error('Trying to add duplicate to ConceptTree: {}\n'
                          'This fails in the GUI.'.format(path))
 
         new_node = ConceptNode(path,
                                concept_id=concept_id,
-                               categories=categories,
                                node_type=node_type,
                                data_args=data_args)
         self.nodes.append(new_node)
@@ -186,19 +208,14 @@ class ConceptTree:
         high_dim_paths = {}
         for node in self.nodes:
             if node.type == 'highdim':
-                # Underscores are introduced because column mapping and high dim behaviour
-                # is different in transmart-batch. A future ticket might resolve this issue.
-                node_path = node.path.replace('_', ' ')
-                high_dim_paths[node.concept_id] = node_path
+                high_dim_paths[node.concept_id] = node.path
         return high_dim_paths
 
     @property
     def word_mapping(self):
 
-        all_mappings = [self._extract_word_mapping_dicts(node) for node in self.nodes]
-        # This reduces the nested dictionary to a flat one.
-        flat_mapping = [row for nest_list in all_mappings for row in nest_list]
-        df = pd.concat([pd.Series(row) for row in flat_mapping], axis=1).T
+        all_mappings = [self._extract_word_mapping_row(node) for node in self.nodes]
+        df = pd.concat(all_mappings, axis=1).T
 
         # Fillna needs to happen because for some reason this expression below
         # returns True for NaN and NaN, which introduces unnecessary rows in word mapping.
@@ -222,11 +239,14 @@ class ConceptTree:
         df.columns = ['Concept Path', 'Title', 'Description', 'Weight']
         return df
 
-
     @staticmethod
     def _extract_column_mapping_row(node):
+        if node.type not in ['numeric', 'categorical', 'codeleaf']:
+            return
+
         filename = node.data.get(FILENAME)
-        path, data_label = node.path.rsplit('+', 1)
+        full_path = node.path.replace(' ', '_')
+        path, data_label = full_path.rsplit('+', 1)
 
         # Check if data_label has value, otherwise use the path as data_label
         # Wibo has a use case for pathless variables.
@@ -249,89 +269,67 @@ class ConceptTree:
         list_of_rows = []
         tags_dict = node.data.get('tags', {})
         if tags_dict:
-            # Strip last node (Meta data tags node label
+            # Strip last node (Meta data tags node label)
             path = node.path.rsplit('+', 1)[0]
+            # Tag paths need to start with slash
+            path = '\\' + path.replace('+', '\\')
             for title, desc_weight in tags_dict.items():
                 description, weight = desc_weight
                 list_of_rows.append([path, title, description, weight])
         return list_of_rows
 
     @staticmethod
-    def _extract_word_mapping_dicts(node):
-        filename = node.data.get(FILENAME)
-        column = node.data.get(COLUMN_NUMBER)
-        categories = node.__dict__.get('categories')
-
-        if all([filename, column, categories]):
-            # Return a list of lists(rows)
-            list_of_rows = [[filename, column, k, v] for k, v in categories.items()]
-            return list_of_rows
-        else:
-            return []
+    def _extract_word_mapping_row(node):
+        if node.type == 'alpha':
+            var_id = node.concept_id.rsplit('_', 1)[0]
+            filename, column = var_id.rsplit('__', 1)
+            datafile_value = node.data.get('datafile_value')
+            mapped_value = node.path.rsplit('+', 1)[1]
+            return pd.Series([filename, column, datafile_value, mapped_value])
 
     def _extract_node_list(self, json_data):
-        node_list = []
         path = []
 
         for node in json_data:
-            node_list = self._get_children(node, node_list, path)
+            self._get_children(node, path)
 
-        return node_list
-
-    def _get_children(self, node, node_list, path):
+    def _get_children(self, node, path):
         node_type = node.get('type', 'default')
         node_children = node.get('children', [])
-        node_text = node['text'].replace(' ', '_')
+        node_text = node['text']
 
         # Check if node has metadata tag child, adds it to node list.
         meta_tag = self._get_meta_data_tags(node_children)
         if meta_tag:
             tag_path = path + [node_text, TAGS]
             tag_path = '+'.join(tag_path)
-            concept_node = ConceptNode(path=tag_path,
-                                       node_type='tag',
-                                       data_args=meta_tag['data'])
-            node_list.append(concept_node)
+            self.add_node(path=tag_path,
+                          node_type='tag',
+                          data_args=meta_tag['data'])
 
-        if node_type in ['numeric', 'categorical', 'highdim', 'codeleaf']:
-            category_code = '+'.join(path).replace(' ', '_')
+        if node_type in ['numeric', 'categorical', 'highdim', 'codeleaf', 'alpha']:
+            category_code = '+'.join(path)
             concept_path = '+'.join([category_code, node_text])
 
             node['data'].update({CATEGORY_CODE: category_code,
                                  DATA_LABEL: node_text})
 
-            if any([child.get('type') == 'alpha' for child in node_children]):
-                categories = self._get_word_map_dict(node_children)
-            else:
-                categories = {}
+            self.add_node(path=concept_path,
+                          concept_id=node['li_attr']['id'],
+                          node_type=node_type,
+                          data_args=node['data']
+                          )
 
-            concept_node = ConceptNode(path=concept_path,
-                                       concept_id=node['li_attr']['id'],
-                                       categories=categories,
-                                       node_type=node_type,
-                                       data_args=node['data']
-                                       )
-
-            node_list.append(concept_node)
-            return node_list
+            # If there are any alpha children, add them to ConceptTree
+            for alpha in [c for c in node_children if c.get('type') == 'alpha']:
+                path_to_categorical = path + [node['text']]
+                self._get_children(alpha, path_to_categorical)
 
         elif node_type == 'default':
             path = path + [node['text']]
 
             for child in node_children:
-                node_list = self._get_children(child, node_list, path)
-            return node_list
-        else:
-            return node_list
-
-    @staticmethod
-    def _get_word_map_dict(node_children):
-        mapping_dict = {}
-        for child in node_children:
-            datafile_value = child['data'].get('datafile_value')
-            mapped_value = child['text']
-            mapping_dict[datafile_value] = mapped_value
-        return mapping_dict
+                self._get_children(child, path)
 
     @staticmethod
     def _get_meta_data_tags(node_children):
@@ -346,8 +344,7 @@ class ConceptTree:
 
 
 class ConceptNode:
-    def __init__(self, path, concept_id=None, node_type=None,
-                 categories: dict = None, data_args=None):
+    def __init__(self, path, concept_id=None, node_type='numeric', data_args=None):
         """
         Object to be put into a list and interpreted by JSTree.
 
@@ -360,30 +357,7 @@ class ConceptNode:
         self.path = path
         self.concept_id = concept_id
         self.data = data_args if data_args else {}
-
-        if node_type:
-            self.type = node_type
-        else:
-            self.type = 'numeric'
-
-        if categories:
-            assert isinstance(categories, dict), "Expected word mapped dictionary."
-            self.categories = {}
-            self._children = {}
-            for i, datafile_value in enumerate(categories):
-                oid = '{}_{}'.format(self.concept_id, i)
-                mapped = categories[datafile_value]
-                data_args = {'datafile_value': datafile_value}
-                self.categories[datafile_value] = mapped
-                self._children[oid] = JSNode(mapped, oid, type='alpha', data=data_args)
-
-            self.type = 'categorical'
-
-        # Add filename to SUBJ_ID, this is a work around for unique path constraint.
-        # which should not apply to SUBJ_ID.
-        if self.path.endswith("SUBJ_ID"):
-            self.type = 'codeleaf'
-            self.path += ' ({})'.format(self.data.get(FILENAME))
+        self.type = node_type
 
     def __repr__(self):
         return self.path
@@ -460,7 +434,6 @@ class JSTree:
 
         for node in concept_nodes:
             curr = self._root
-            node.path = node.path.replace('_', ' ')  # This happens in tranSMART
             sub_paths = re.split(r'[+\\]', node.path)
             data = node.__dict__.get('data', {})
             children = node.__dict__.get('_children', {})
