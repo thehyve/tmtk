@@ -12,7 +12,7 @@ class Study:
     """
     Describes an entire TranSMART study in ETL.
     """
-    def __init__(self, study_params_path=None):
+    def __init__(self, study_params_path=None, minimal=False):
         """
         :param study_params_path:
         """
@@ -22,6 +22,9 @@ class Study:
         self.params_path = os.path.abspath(study_params_path)
         self.study_folder = os.path.dirname(self.params_path)
         self.Params = Params(self.study_folder)
+
+        if minimal:
+            return
 
         # Look for clinical params and create child opbject
         clinical_params = self.find_params_for_datatype(datatypes='clinical')
