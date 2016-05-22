@@ -58,17 +58,17 @@ app.jinja_env.lstrip_blocks = True
 app.jinja_env.filters['path_join'] = lambda paths: os.path.join(*paths)
 
 
-def get_study_object(study_params):
-    """
-    Load study into memory the first time, it will be shared through flask.g space.
-    :param study_params: path to study.params file.
-    :return: tmtk.Study object
-    """
-    study_object = g.get('study_object', None)
-    if not study_object:
-        g.study_object = tmtk.Study(study_params)
-        study_object = g.study_object
-    return study_object
+# def get_study_object(study_params):
+#     """
+#     Load study into memory the first time, it will be shared through flask.g space.
+#     :param study_params: path to study.params file.
+#     :return: tmtk.Study object
+#     """
+#     study_object = g.get('study_object', None)
+#     if not study_object:
+#         g.study_object = tmtk.Study(study_params)
+#         study_object = g.study_object
+#     return study_object
 
 
 def add_slash_if_not_windows(url_path):
@@ -195,7 +195,9 @@ def studies_overview(studiesfolder):
 @app.route('/folder/<folderpath:studiesfolder>/s/<study>/')
 def study_page(studiesfolder, study):
 
-    study_object = get_study_object(os.path.join(studiesfolder, study, 'study.params'))
+    # study_object = get_study_object(os.path.join(studiesfolder, study, 'study.params'))
+    study_params_path = os.path.join(studiesfolder, study, 'study.params')
+    study_object = tmtk.Study(study_params_path, minimal=True)
 
     paramsdict = {}
 
@@ -415,7 +417,9 @@ def edit_tree(studiesfolder, study):
     #
     # concept_tree_json_string = json.dumps(tree_array)
 
-    study_object = get_study_object(os.path.join(studiesfolder, study, 'study.params'))
+    study_params_path = os.path.join(studiesfolder, study, 'study.params')
+
+    study_object = tmtk.Study(study_params_path)
 
     concept_tree_json_string = create_concept_tree(study_object)
 
