@@ -3,13 +3,13 @@
 
 {% block title %}Study {{study}}{% endblock %}
 {% block content %}
-<p>The information below was found by scanning the <code>.params</code> files corresponding to the datatypes in the folder:<br />
+<p>The information below was found by scanning for <code>.params</code> files corresponding to the datatypes in the folder:<br />
 	'<code>{{ (studiesfolder, study)|path_join }}</code>'.</p>
 	{% for datatype in possible_datatypes %}
 		<h2>{{ datatype|capitalize }} data</h2>
 		<p>{{ macros.feedbacklist(paramsdict[datatype]['feedback']) }}</p>
 		{% if paramsdict[datatype]['exists'] %}
-			<a href="{{ url_for('edit_params', studiesfolder=studiesfolder, study=study, datatype=datatype) }}">Edit {{ datatype }}.params</a>
+			<!--<a href="{{ url_for('edit_params', studiesfolder=studiesfolder, study=study, datatype=datatype) }}">Edit {{ datatype }}.params</a>-->
 
 			{% if paramsdict[datatype]['params'] %}
 				<ul>
@@ -28,9 +28,9 @@
 
 		{% set docslink = paramsdict[datatype]['docslink'] %}
 
-		<p><a href="https://github.com/thehyve/transmart-batch/blob/master/docs/{{docslink}}.md"
+		<p><a href="{{ docslink }}"
 			 target="_blank">
-			Read the {{docslink}}.params documentation</a></p>
+			Read the docs.</a></p>
 
 	{% endfor %}
 
