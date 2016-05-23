@@ -1,0 +1,5 @@
+Filename	Column Number	Original Data Value	New Data Values
+Cell-line_clinical.txt	7	Caucasian	WORDMAPPED_CAUCASIAN
+Cell-line_clinical.txt	7		No Information
+Cell-line_clinical.txt	8	50	Vijftig
+
