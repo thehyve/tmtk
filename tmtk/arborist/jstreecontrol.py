@@ -275,6 +275,10 @@ class ConceptTree:
             path = '\\' + path.replace('+', '\\')
             for title, desc_weight in tags_dict.items():
                 description, weight = desc_weight
+
+                if not all([title, description, weight]):
+                    continue
+
                 list_of_rows.append([path, title, description, weight])
         return list_of_rows
 
