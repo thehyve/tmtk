@@ -8,6 +8,10 @@ Usage
 Installation
 ------------
 
+Please try:
+
+python3 setup.py develop
+
 Requirements
 ^^^^^^^^^^^^
 
