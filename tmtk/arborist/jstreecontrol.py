@@ -234,9 +234,15 @@ class ConceptTree:
 
         # This reduces the nested dictionary to a flat one.
         flat_mapping = [row for nest_list in all_mappings for row in nest_list]
-        df = pd.concat([pd.Series(row) for row in flat_mapping], axis=1).T
 
-        df.columns = ['Concept Path', 'Title', 'Description', 'Weight']
+        column_names = ['Concept Path', 'Title', 'Description', 'Weight']
+
+        try:
+            df = pd.concat([pd.Series(row) for row in flat_mapping], axis=1).T
+            df.columns = column_names
+        except ValueError:  # This happens when there are no tags in the file
+            df = pd.DataFrame(columns=column_names)
+
         return df
 
     @staticmethod
