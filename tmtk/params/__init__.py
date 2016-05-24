@@ -27,6 +27,7 @@ class Params:
                          'tags': 'TagsParams',
                          'study': 'StudyParams',
                          'clinical': 'ClinicalParams',
+                         'mirna': 'HighDimParams'
                          }
 
         for f in glob.iglob(os.path.join(study_folder, '**/*.params'), recursive=True):

@@ -37,6 +37,7 @@ class Study:
                           'proteomics_annotation': 'ProteomicsAnnotation',
                           'annotation': 'MicroarrayAnnotation',
                           'mrna_annotation': 'MicroarrayAnnotation',
+                          'mirna_annotation': 'MirnaAnnotation',
                           }
 
         annotation_params = self.find_params_for_datatype(datatypes=list(annotation_map))
@@ -49,6 +50,7 @@ class Study:
                        'cnv': 'CopyNumberVariation',
                        'expression': 'Expression',
                        'proteomics': 'Proteomics',
+                       'mirna': 'Mirna',
                        }
 
         highdim_params = self.find_params_for_datatype(datatypes=list(highdim_map))
