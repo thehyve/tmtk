@@ -68,7 +68,7 @@ class SampleMapping(utils.FileBase):
             CPrint.warn('Found multiple platforms in {}. '
                         'This might lead to unexpected behaviour.'.format(self.path))
         elif platform_ids:
-            return str(platform_ids[0])
+            return str(platform_ids[0]).upper()
 
     @property
     def study_id(self):
