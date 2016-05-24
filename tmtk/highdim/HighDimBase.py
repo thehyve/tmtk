@@ -47,10 +47,13 @@ class HighDimBase(utils.FileBase):
         self._verify_sample_mapping(messages)
 
         if hasattr(self, 'annotation_file'):
-            # Todo add check that first validates the annotation file.
-            data_series = self.df.ix[:, 0]
-            self._find_missing_annotation(annotation_series=self.annotation_file.biomarkers,
-                                          data_series=data_series, messages=messages)
+            if not self.annotation_file:
+                messages.error('No annotation file found for {}.'.format(self.platform))
+            else:
+                messages.info('Annotation file found for {}, checking...'.format(self.platform))
+                data_series = self.df.ix[:, 0]
+                self._find_missing_annotation(annotation_series=self.annotation_file.biomarkers,
+                                              data_series=data_series, messages=messages)
 
         messages.flush()
         return not messages.found_error
