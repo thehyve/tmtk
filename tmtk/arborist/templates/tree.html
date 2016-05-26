@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
 {% block title %}TranSMART tree{% endblock %}
 {% block head %}
-    {{ super() }}
-		<link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css" />
+  {{ super() }}
+  <link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css"/>
 {% endblock %}
 {% block content %}
   <h2>Data files</h2>
@@ -10,84 +10,97 @@
     {% for clinicaldatafile in clinicaldatafiles %}
     <li>{{ clinicaldatafile }}</li>
     {% endfor %}
-    <li><form action="{{ url_for('add_datafile', studiesfolder=studiesfolder, study=study) }}" method=post enctype=multipart/form-data>
-      <input type=file name=file>
-  		<input type=submit value="Add new datafile">
-  	</form></li>
+    <li>
+      <form
+          action="{{ url_for('add_datafile', studiesfolder=studiesfolder, study=study) }}"
+          method=post enctype=multipart/form-data>
+        <input type=file name=file>
+        <input type=submit value="Add new datafile">
+      </form>
+    </li>
   </ul>
 
   <div id="treeanddetails">
-  <div id="treediv"></div>
-  <div id="details">
-      <form id="datanodedetails" class="blockform" >
-		<fieldset>
-			<legend>Data node details</legend>
+    <div id="treediv"></div>
+    <div id="details">
+      <form id="datanodedetails" class="blockform">
+        <fieldset>
+          <legend>Data node details</legend>
+          <p>
+            <label for="nodetype">Node type</label>
+            <select name="nodetype" disabled="true">
+              <option value="default">Folder</option>
+              <option value="numeric">Numerical</option>
+              <option value="alpha">Categorical Value</option>
+              <option value="tag">Metadata tag</option>
+              <option value="categorical">Categorical</option>
+              <option value="highdim">High-dimensional</option>
+              <option value="codeleaf">Special concept</option>
+            </select>
+          </p>
+          <p class="label">
+            <label for="datalabel">Label</label>
+            <input type="text" name="datalabel" required/>
+          </p>
+          <p hidden class="clinicaldata">
+            <label for="filename">Filename</label>
+            <input disabled type="text" name="filename"/>
+          </p>
+          <p hidden class="clinicaldata">
+            <label for="columnnumber">Column Number</label>
+            <input disabled type="text" name="columnnumber"/>
+          </p>
+          <p hidden class="clinicaldata">
+            <label for="datalabelsource">Magic #5 </label>
+            <input type="text" name="datalabelsource"/>
+          </p>
+          <p hidden class="clinicaldata">
+            <label for="controlvocabcd">Magic #6</label>
+            <input type="text" name="controlvocabcd"/>
+          </p>
+
+          <div hidden id="tagbox" class="tagdata">
+            <!--Here should come some code that lets you add tags dynamically-->
             <p>
-				<label for="nodetype">Node type</label>
-				<select name="nodetype" disabled="true">
-					<option value="default">Folder</option>
-					<option value="numeric">Numerical</option>
-					<option value="alpha">Categorical Value</option>
-					<option value="tag">Metadata tag</option>
-					<option value="categorical">Categorical</option>
-					<option value="highdim">High-dimensional</option>
-					<option value="codeleaf">Special concept</option>
-				</select>
-			</p>
-            <p class="label">
-				<label for="datalabel">Label</label>
-				<input type="text" name="datalabel" required />
-			</p>
-			<p hidden class="clinicaldata">
-				<label for="filename">Filename</label>
-				<input disabled type="text" name="filename" />
-			</p>
-			<p hidden class="clinicaldata">
-				<label for="columnnumber">Column Number</label>
-				<input disabled type="text" name="columnnumber" />
-			</p>
-			<p hidden class="clinicaldata" >
-				<label for="datalabelsource">Magic #5 </label>
-				<input type="text" name="datalabelsource" />
-			</p>
-			<p hidden class="clinicaldata" >
-				<label for="controlvocabcd">Magic #6</label>
-				<input type="text" name="controlvocabcd" />
-			</p>
-
-            <div hidden id="tagbox" class="tagdata">
-                <!--Here should come some code that lets you add tags dynamically-->
-                <p>
-                    <input type="text" name="tag_tit1" class="tag_title" />
-                    <input type="text" name="tag_desc1" class="tag_desc" />
-                    <input type="number" name="tag_weight1"  min="1" max="10" class="tag_weight" />
-                </p><p>
-                    <input type="text" name="tag_tit2" class="tag_title"/>
-                    <input type="text" name="tag_desc2" class="tag_desc" />
-                    <input type="number" name="tag_weight2"  min="1" max="10" class="tag_weight" />
-                </p><p>
-                    <input type="text" name="tag_tit3" class="tag_title" />
-                    <input type="text" name="tag_desc3" class="tag_desc" />
-                    <input type="number" name="tag_weight3"  min="1" max="10" class="tag_weight" />
-                </p><p>
-                    <input type="text" name="tag_tit4" class="tag_title" />
-                    <input type="text" name="tag_desc4" class="tag_desc" />
-                    <input type="number" name="tag_weight4"  min="1" max="10" class="tag_weight" />
-                </p>
-            </div>
+              <input type="text" name="tag_tit1" class="tag_title"/>
+              <input type="text" name="tag_desc1" class="tag_desc"/>
+              <input type="number" name="tag_weight1" min="1" max="10"
+                     class="tag_weight"/>
+            </p>
+            <p>
+              <input type="text" name="tag_tit2" class="tag_title"/>
+              <input type="text" name="tag_desc2" class="tag_desc"/>
+              <input type="number" name="tag_weight2" min="1" max="10"
+                     class="tag_weight"/>
+            </p>
+            <p>
+              <input type="text" name="tag_tit3" class="tag_title"/>
+              <input type="text" name="tag_desc3" class="tag_desc"/>
+              <input type="number" name="tag_weight3" min="1" max="10"
+                     class="tag_weight"/>
+            </p>
+            <p>
+              <input type="text" name="tag_tit4" class="tag_title"/>
+              <input type="text" name="tag_desc4" class="tag_desc"/>
+              <input type="number" name="tag_weight4" min="1" max="10"
+                     class="tag_weight"/>
+            </p>
+          </div>
 
 
-			<input type="submit" value="Apply changes" />
-			<span style="float: right; padding-right: 5px;" id="feedback"></span>
-		</fieldset>
-	</form>
-	</div>
-	</div>
+          <input type="submit" value="Apply changes"/>
+          <span style="float: right; padding-right: 5px;" id="feedback"></span>
+        </fieldset>
+      </form>
+    </div>
+  </div>
 
-    <p><button id="save">Save column mapping file</button></p>
-        <p id="feedbacksave"></p>
+  <p>
+    <button id="save">Save column mapping file</button>
+  </p>
+  <p id="feedbacksave"></p>
 
-	<script src="/static/jstree/dist/jstree.min.js"></script>
+  <script src="/static/jstree/dist/jstree.min.js"></script>
 
   <script type="application/javascript">
     var treeData = {{ json | safe }};
