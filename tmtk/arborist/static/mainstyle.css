@@ -45,6 +45,7 @@ div#footer {
   padding-top: 5px;
   font-family: 'Fjalla One', serif;
   color: #555;
+  float: none;
 }
 ul.folderlist {
   list-style: none;
@@ -53,11 +54,15 @@ ul.folderlist {
 ul.folderlist li img {
   padding: 4px 0px 0px 0px;
 }
+div#treeanddetails {
+  overflow: auto;
+}
 div#treediv {
   overflow: scroll;
   border: 1px solid silver;
-  min-height: 300px;
-  max-height: 450px;
+  height: 300px;
+  width: 400px;
+  float: left;
 }
 form.blockform label {
   text-align: right;
