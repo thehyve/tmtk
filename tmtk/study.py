@@ -1,3 +1,5 @@
+import os
+import json
 from .clinical import Clinical
 from .params import Params
 from .highdim import HighDim
@@ -5,7 +7,6 @@ from .annotation import Annotations
 from .tags import MetaDataTags
 from tmtk.utils.CPrint import CPrint
 from tmtk import utils, arborist
-import os
 
 
 class Study:
@@ -147,4 +148,15 @@ class Study:
     @property
     def concept_tree(self):
         return arborist.create_tree_from_study(self)
+
+    def update_from_treefile(self, treefile):
+        """
+        Give path to a treefile (from Boris as a Service or otherwise) and update the current
+        study to match made changes.
+        :param treefile:
+        :return:
+        """
+        with open(treefile, 'r') as f:
+            json_data = json.loads(f.read())
+            arborist.update_study_from_json(self, json_data)
 
