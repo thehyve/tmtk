@@ -91,3 +91,22 @@ class ParamsBase:
 
         messages.flush()
         return not messages.found_error
+
+    def write_to(self, path):
+        """
+        Writes parameter file to path
+        :return:
+        """
+
+        def _write_dict(f, d):
+            for param, d in d.items():
+                value = self.__dict__.get(param)
+                if value:
+                    row = '{}={}  # {}\n'.format(param, value, d.get('helptext'))
+                    f.write(row)
+
+        with open(path, 'w') as f:
+            f.write('### Mandatory\n')
+            _write_dict(f, self.mandatory)
+            f.write('\n### Optional\n')
+            _write_dict(f, self.optional)
