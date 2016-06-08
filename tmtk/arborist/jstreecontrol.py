@@ -499,3 +499,7 @@ class JSTree:
         :return: Returns the json_data properly formatted as string.
         """
         return json.dumps(self.json_data)
+
+    def to_clipboard(self):
+        pd.DataFrame.to_clipboard(self.json_data_string)
+
