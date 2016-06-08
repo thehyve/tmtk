@@ -9,15 +9,17 @@ class WordMapping(utils.FileBase):
     Base Class for word mapping file.
     """
     def __init__(self, params=None):
+
+        self.params = params
+
         if not isinstance(params, ClinicalParams):
             raise utils.Exceptions.ClassError(type(params))
         elif params.__dict__.get('WORD_MAP_FILE'):
             self.path = os.path.join(params.dirname, params.WORD_MAP_FILE)
         else:
             self.path = os.path.join(params.dirname, 'word_mapping_file.txt')
-            self.params['WORD_MAP_FILE'] = os.path.basename(self.path)
+            self.params.__dict__['WORD_MAP_FILE'] = os.path.basename(self.path)
 
-        self.params = params
         super().__init__()
 
     def validate(self, verbosity=2):
