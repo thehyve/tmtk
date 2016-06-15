@@ -78,7 +78,7 @@ def launch_arborist_gui(json_data: str):
 
     port = get_open_port()
     running_on = 'http://localhost:{}/treeview/{}'.format(port, os.path.abspath(tmp_json))
-    display(IFrame(src=running_on, width=900, height=900))
+    display(IFrame(src=running_on, width=900, height=450))
 
     app.run(port=port)
     clear_output()
