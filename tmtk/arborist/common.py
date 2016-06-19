@@ -1,34 +1,13 @@
 import socket
 import os
 import pandas as pd
-import random
 import shutil
-from IPython.display import display, Audio, IFrame, clear_output
+from IPython.display import display, IFrame, clear_output
 import tempfile
 from tmtk.utils.CPrint import CPrint
 from tmtk import utils
 from .jstreecontrol import create_concept_tree, ConceptTree
 import tmtk
-
-feedback_categories = ['errors', 'warnings', 'infos']
-
-def get_feedback_dict():
-    feedback_dict = {}
-    for feedback_category in feedback_categories:
-        feedback_dict[feedback_category] = []
-    return feedback_dict
-
-
-def merge_feedback_dicts(*args):
-    feedback_dict = get_feedback_dict()
-    for arg in args:
-        for feedback_category in feedback_categories:
-            if feedback_category in arg:
-                feedback_dict[feedback_category] += arg[feedback_category]
-            else:
-                msg = "Feedback category {} missing.".format(feedback_category)
-                raise Exception(msg)
-    return feedback_dict
 
 
 def call_boris(to_be_shuffled=None):
@@ -78,7 +57,7 @@ def launch_arborist_gui(json_data: str):
 
     port = get_open_port()
     running_on = 'http://localhost:{}/treeview/{}'.format(port, os.path.abspath(tmp_json))
-    display(IFrame(src=running_on, width=900, height=450))
+    display(IFrame(src=running_on, width=950, height=600))
 
     app.run(port=port)
     clear_output()

@@ -1,39 +1,41 @@
-// Send tree JSON to Python and create links to exorted files
-$(function () {
-  $('button#save').bind('click', function () {
+
+// Add jstree json to the submit form as hidden parameter.
+$("#edit_form").submit( function(eventObj) {
     var v = $('#treediv').jstree(true).get_json()
     var tree = JSON.stringify(v);
-
-    $.ajax({
-          method: "POST",
-          contentType: "application/json",
-          url: "{{ url_for('save_columnsfile', studiesfolder=studiesfolder, study=study) }}",
-          data: tree
-        })
-        .done(function (msg) {
-          console.log("Data Saved: " + msg.feedback.infos);
-          document.getElementById("feedbacksave").innerHTML = '<ul class="feedback" id="feedbacklist"></ul>';
-          for (i = 0; i < msg.feedback.errors.length; i++) {
-            $("#feedbacklist").append("<li class='error'>" + msg.feedback.errors[i] + "</li>");
-          }
-          for (i = 0; i < msg.feedback.warnings.length; i++) {
-            $("#feedbacklist").append("<li class='warning'>" + msg.feedback.warnings[i] + "</li>");
-          }
-          for (i = 0; i < msg.feedback.infos.length; i++) {
-            $("#feedbacklist").append("<li class='message'>" + msg.feedback.infos[i] + "</li>");
-          }
-        })
-        .fail(function () {
-          document.getElementById("feedbacksave").innerHTML = '<ul class="feedback" id="feedbacklist"></ul>';
-          $("#feedbacklist").append("<li class='error'>Error encountered in saving column mapping file</li>");
-        });
-
-    return false;
-  });
+    $('<input />').attr('type', 'hidden')
+        .attr('name', 'json')
+        .attr('id', 'id_json')
+        .attr('value', tree)
+        .appendTo('#edit_form');
+    return true;
 });
+
+// use the download function to download a treefile with the name of the study. HTML5 stuff.
+$('button#download').click( function (obj) {
+    var v = $('#treediv').jstree(true).get_json()
+    var tree = JSON.stringify(v);
+    download(study_name.toString() + '.treefile', tree)
+});
+
+function download(filename, text) {
+    var pom = document.createElement('a');
+    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    pom.setAttribute('download', filename);
+
+    if (document.createEvent) {
+        var event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        pom.dispatchEvent(event);
+    }
+    else {
+        pom.click();
+    }
+}
 
 var node;
 
+// Keep this for the embedded return from Jupyter Notebooks
 $(function () {
   $('button#embeded_return').bind('click', function () {
     var v = $('#treediv').jstree(true).get_json()
@@ -42,21 +44,8 @@ $(function () {
     $.ajax({
           method: "POST",
           contentType: "application/json",
-          url: "{{ url_for('shutdown', mapfile=studiesfolder) }}",
+          url: shutdown_url,
           data: tree
-        })
-        .done(function (msg) {
-          console.log("Data Saved: " + msg.feedback.infos);
-          document.getElementById("feedbacksave").innerHTML = '<ul class="feedback" id="feedbacklist"></ul>';
-          for (i = 0; i < msg.feedback.errors.length; i++) {
-            $("#feedbacklist").append("<li class='error'>" + msg.feedback.errors[i] + "</li>");
-          }
-          for (i = 0; i < msg.feedback.warnings.length; i++) {
-            $("#feedbacklist").append("<li class='warning'>" + msg.feedback.warnings[i] + "</li>");
-          }
-          for (i = 0; i < msg.feedback.infos.length; i++) {
-            $("#feedbacklist").append("<li class='message'>" + msg.feedback.infos[i] + "</li>");
-          }
         })
         .fail(function () {
           document.getElementById("feedbacksave").innerHTML = '<ul class="feedback" id="feedbacklist"></ul>';
@@ -159,12 +148,14 @@ function customMenu(node) {
           text: 'Tags',
           data: { // This is added to prevent GUI error for Filename
             'Filename': '',
+            'tags': {},
           }
         }
         inst.create_node(obj, tag_specs, "last", function (new_node) {
 
           setTimeout(function () {
-            inst.selected(new_node);
+            inst.deselect_all();
+            inst.select_node(new_node);
           }, 0);
         });
       }
@@ -267,7 +258,7 @@ $('#treediv')
 
       "types": {
         "default": {
-          "icon": "/static/img/tree/folder.gif",
+          "icon": "/static/images/tree/folder.gif",
           "valid_children": ["alpha",
             "numeric",
             "highdim",
@@ -277,32 +268,32 @@ $('#treediv')
             "tag"]
         },
         "study": {
-          "icon": "/static/img/tree/study.png",
+          "icon": "/static/images/tree/study.png",
           "valid_children": "all"
         },
         "alpha": {
-          "icon": "/static/img/tree/alpha.gif",
+          "icon": "/static/images/tree/alpha.gif",
           "valid_children": ["tag"]
         },
         "categorical": {
           "max_depth": "2",
-          "icon": "/static/img/tree/folder.gif",
+          "icon": "/static/images/tree/folder.gif",
           "valid_children": ["alpha", "tag"]
         },
         "numeric": {
-          "icon": "/static/img/tree/numeric.gif",
+          "icon": "/static/images/tree/numeric.gif",
           "valid_children": ["tag"]
         },
         "highdim": {
-          "icon": "/static/img/tree/dna_icon.png",
+          "icon": "/static/images/tree/dna_icon.png",
           "valid_children": ["tag"]
         },
         "tag": {
-          "icon": "/static/img/tree/tag_icon.png",
+          "icon": "/static/images/tree/tag_icon.png",
           "valid_children": "none"
         },
         "codeleaf": {
-          "icon": "/static/img/tree/code.png",
+          "icon": "/static/images/tree/code.png",
           "valid_children": ["alpha", "tag"]
         },
       },
