@@ -83,10 +83,10 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
 
         # Add filename to SUBJ_ID, this is a work around for unique path constraint.
         # which does not apply to SUBJ_ID.
-        if concept_path.endswith("SUBJ ID"):
+        if concept_path.endswith(("SUBJ ID", "OMIT")):
             concept_path = concept_path.replace("SUBJ ID", "SUBJ_ID")
             node_type = 'codeleaf'
-            concept_path += ' ({})'.format(data_args.get(FILENAME))
+            concept_path += ' ({})'.format(var_id)
         elif categories:
             node_type = 'categorical'
         else:
@@ -262,6 +262,10 @@ class ConceptTree:
         # Remove file names from SUBJ_ID, they were added as workaround for unique constraints.
         if data_label.startswith("SUBJ_ID"):
             data_label = "SUBJ_ID"
+
+        # Remove variable ID from OMIT variables.
+        if data_label.startswith("OMIT"):
+            data_label = "OMIT"
 
         column = node.data.get(COLUMN_NUMBER)
         magic5 = node.data.get(MAGIC_5)

@@ -72,7 +72,14 @@ $("form#datanodedetails").submit(function (e) {
 
     var text = $("input[name='datalabel']").val();
     var updated = $("#treediv").jstree('rename_node', node, text);
+
     var type = $("select[name='nodetype']").val();
+
+    // If the node text starts with OMIT, change the type (and icon)
+    if (text.startsWith("OMIT") & (type == 'categorical' | type == 'numeric')) {
+        type = 'codeleaf';
+    }
+
     $("#treediv").jstree('set_type', node, type);
     enableRightFields(type);
 
@@ -93,7 +100,7 @@ $("form#datanodedetails").submit(function (e) {
 });
 
 function enableRightFields(type) {
-  if (type == 'numeric' | type == 'categorical') {
+  if (type == 'numeric' | type == 'categorical' | type == 'codeleaf') {
     $('.label').prop('hidden', false);
     $('.clinicaldata').prop('hidden', false);
     $('.tagdata').prop('hidden', true);
