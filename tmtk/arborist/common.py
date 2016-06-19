@@ -2,6 +2,7 @@ import socket
 import os
 import pandas as pd
 import shutil
+from threading import Thread
 from IPython.display import display, IFrame, clear_output
 import tempfile
 from tmtk.utils.CPrint import CPrint
@@ -49,17 +50,24 @@ def launch_arborist_gui(json_data: str):
     """
     from .flask_connection import app
 
+    # Create a thread for the GUI app and start it.
+    port = get_open_port()
+    app_thread = Thread(target=app.run, kwargs={'port': port})
+    app_thread.start()
+
     new_temp_dir = tempfile.mkdtemp()
     tmp_json = new_temp_dir + '/tmp_json'
 
     with open(tmp_json, 'w') as f:
         f.write(json_data)
 
-    port = get_open_port()
     running_on = 'http://localhost:{}/treeview/{}'.format(port, os.path.abspath(tmp_json))
     display(IFrame(src=running_on, width=950, height=600))
 
-    app.run(port=port)
+    # Wait for the GUI app to be killed by user button input
+    app_thread.join()
+
+    # Clear output from Jupyter Notebook cell
     clear_output()
 
     CPrint.okay('Successfully closed The Arborist. The updated column mapping file '
