@@ -2,6 +2,7 @@ import socket
 import os
 import pandas as pd
 import shutil
+import time
 from threading import Thread
 from IPython.display import display, IFrame, clear_output
 import tempfile
@@ -62,6 +63,10 @@ def launch_arborist_gui(json_data: str):
         f.write(json_data)
 
     running_on = 'http://localhost:{}/treeview/{}'.format(port, os.path.abspath(tmp_json))
+
+    # Add wait for 0.5 second to give flask time to launch
+    time.sleep(0.25)
+
     display(IFrame(src=running_on, width=950, height=600))
 
     # Wait for the GUI app to be killed by user button input
