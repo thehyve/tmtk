@@ -75,14 +75,6 @@ $("form#datanodedetails").submit(function (e) {
 
     var type = $("select[name='nodetype']").val();
 
-    // If the node text starts with OMIT, change the type (and icon)
-    if (text.startsWith("OMIT") & (type == 'categorical' | type == 'numeric')) {
-        type = 'codeleaf';
-    }
-
-    $("#treediv").jstree('set_type', node, type);
-    enableRightFields(type);
-
     if (typeof node.data == 'undefined') {
       node.data = {}
     }
@@ -93,6 +85,18 @@ $("form#datanodedetails").submit(function (e) {
     node.data['Control Vocab Cd'] = $("input[name='controlvocabcd']").val();
     if (updated) {
       feedback("Successfully applied", false)
+
+      // If the node text starts with OMIT, change the type (and icon)
+      if (text.startsWith(('SUBJ_ID', 'OMIT')) & (type == 'categorical' | type == 'numeric')) {
+        type = 'codeleaf';
+      // If changed from SUBJ_ID or OMIT to regular, change type back to original
+      } else if (type == 'codeleaf' & !text.startsWith(('SUBJ_ID', 'OMIT'))) {
+        type = node.data['ctype'];
+      }
+
+      $("#treediv").jstree('set_type', node, type);
+      enableRightFields(type);
+
     }
   } else {
     feedback("No node selected", true)

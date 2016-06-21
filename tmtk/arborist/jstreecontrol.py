@@ -81,16 +81,15 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
         concept_path = variable.concept_path
         categories = variable.word_map_dict if not variable.is_numeric else {}
 
-        # Add filename to SUBJ_ID, this is a work around for unique path constraint.
-        # which does not apply to SUBJ_ID.
+        # Store node type in `data` so it can be changed back after renaming OMIT
+        node_type = 'categorical' if categories else 'numeric'
+        data_args.update({'ctype': node_type})
+
+        # Add filename to SUBJ_ID and OMIT, this is a work around for unique path constraint.
         if concept_path.endswith(("SUBJ ID", "OMIT")):
             concept_path = concept_path.replace("SUBJ ID", "SUBJ_ID")
             node_type = 'codeleaf'
             concept_path += ' ({})'.format(var_id)
-        elif categories:
-            node_type = 'categorical'
-        else:
-            node_type = 'numeric'
 
         # Add categorical values to concept tree (if any)
         for i, datafile_value in enumerate(categories):
@@ -117,7 +116,6 @@ def create_tree_from_df(df, concept_tree=None):
     if not concept_tree:
         concept_tree = ConceptTree()
 
-    concept_tree = ConceptTree()
     col_map_tuples = df.apply(get_concept_node_from_df, axis=1)
 
     for concept_path, var_id, data_args in col_map_tuples:
