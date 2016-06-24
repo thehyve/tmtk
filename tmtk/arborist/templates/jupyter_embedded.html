@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="height: 100%!important;">
+<!--<html lang="en">-->
 <head>
     <link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css" />
+    <link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css">
     <link rel="stylesheet" href="/static/mainstyle.css" />
 </head>
 <body>
+
+<!-- Here starts shared code between BaaS and Jupyter embedded template. -->
 
    <div id="treeanddetails">
     <div id="treediv"></div>
@@ -12,75 +16,52 @@
       <form id="datanodedetails" class="blockform">
         <fieldset>
           <legend>Data node details</legend>
-          <ul>
-            <select name="nodetype" disabled="true">
-              <option value="default">Folder</option>
-              <option value="numeric">Numerical</option>
-              <option value="alpha">Categorical Value</option>
-              <option value="tag">Metadata tag</option>
-              <option value="categorical">Categorical</option>
-              <option value="highdim">High-dimensional</option>
-              <option value="codeleaf">Special concept</option>
-            </select>
+            <ul>
+              <span class="clinicaldata" hidden>File: <span id="filename"></span>
+                (<span id="columnnumber"></span>)
+              </span>
+              <br>Type: <span id="nodetype"></span>
           </ul>
-          <ul class="label">
-            <label for="datalabel">Label</label>
-            <input type="text" name="datalabel"/>
-          </ul>
-          <ul hidden class="clinicaldata">
-            <label for="filename">Filename</label>
-            <input disabled type="text" name="filename"/>
-          </ul>
-          <ul hidden class="clinicaldata">
-            <label for="columnnumber">Column Number</label>
-            <input disabled type="text" name="columnnumber"/>
-          </ul>
-          <ul hidden class="clinicaldata">
-            <label for="datalabelsource">Magic #5 </label>
-            <input type="text" name="datalabelsource"/>
-          </ul>
-          <ul hidden class="clinicaldata">
-            <label for="controlvocabcd">Magic #6</label>
-            <input type="text" name="controlvocabcd"/>
-          </ul>
+
+          <table width="100%">
+              <tr class="label">
+                <td style="padding-right: 45px;"> Label</td>
+                <td width="90%"><input style="width:inherit;" class="form-control form-control-sm" type="text" id="datalabel"/></td>
+              </tr>
+              <tr hidden class="clinicaldata">
+                <td>Magic #5</td>
+                <td width="90%"><input style="width:inherit;" class="form-control form-control-sm" type="text" id="datalabelsource"/></td>
+              </tr>
+              <tr hidden class="clinicaldata">
+                <td>Magic #6</td>
+                <td width="90%"><input style="width:inherit;" class="form-control form-control-sm" type="text" id="controlvocabcd"/></td>
+              </tr>
+          </table>
 
           <div hidden id="tagbox" class="tagdata">
-            <!--Here should come some code that lets you add tags dynamically-->
-            <ul>
-              <input type="text" name="tag_tit1" class="tag_title"/>
-              <input type="text" name="tag_desc1" class="tag_desc"/>
-              <input type="number" name="tag_weight1" min="1" max="10" value="3"
-                     class="tag_weight"/>
-            </ul>
-            <ul>
-              <input type="text" name="tag_tit2" class="tag_title"/>
-              <input type="text" name="tag_desc2" class="tag_desc"/>
-              <input type="number" name="tag_weight2" min="1" max="10" value="3"
-                     class="tag_weight"/>
-            </ul>
-            <ul>
-              <input type="text" name="tag_tit3" class="tag_title"/>
-              <input type="text" name="tag_desc3" class="tag_desc"/>
-              <input type="number" name="tag_weight3" min="1" max="10" value="3"
-                     class="tag_weight"/>
-            </ul>
-            <ul>
-              <input type="text" name="tag_tit4" class="tag_title"/>
-              <input type="text" name="tag_desc4" class="tag_desc"/>
-              <input type="number" name="tag_weight4" min="1" max="10" value="3"
-                     class="tag_weight"/>
-            </ul>
+
+            <table id="tagtable" width=99%">
+              <colgroup>
+                 <col span="1" style="width: 18%;">
+                 <col span="1" style="width: 70%;">
+                 <col span="1" style="width: 12%;">
+              </colgroup>
+              <tbody id="tagtable-body"></tbody>
+            </table>
+
+            <button type="button" class="btn btn-sm btn-secondary" id="add_tag" style="margin-top: 5px;"> <img src="/static/images/add_tag.png"></button>
           </div>
         </fieldset>
-        <br>
-        <input type="submit" value="Apply changes" style="width: 250px;"/>
-        <span style="float: center; padding-right: 5px;" id="feedback">
-
-        </span>
+          <hr>
+        <input type="submit" class="btn btn-secondary" value="Apply changes" style="width: 150px;"/>
+        <span style="float: center; padding-right: 5px;" id="feedback"></span>
       </form>
+
+<!-- End of shared code. -->
+
       <div id="bottom-btns">
-              <button type="button" id="embeded_return">Return to Jupyter</button>
-              <span id="feedbacksave"></span>
+        <button type="button" class="btn btn-sm btn-success" style="float: right; margin-right: 10px;" id="embeded_return">Return to Jupyter</button>
+        <br><span id="feedbacksave"></span>
       </div>
     </div>
   </div>

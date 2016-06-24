@@ -33,7 +33,7 @@ function download(filename, text) {
     }
 }
 
-var node;
+//var node;
 
 // Keep this for the embedded return from Jupyter Notebooks
 $(function () {
@@ -56,33 +56,48 @@ $(function () {
   });
 });
 
-var node;
+// Button to check if tag table is filled and if so add new tag
+$('button#add_tag').click( function (obj) {
+    var empty = $('#tagtable-body').find("input").filter(function() {
+        return this.value === "";
+    });
+    if (empty.length) {
+        feedback("First fill all fields.", true)
+    } else {
+        createTagRow()
+    }
+});
 
 $("form#datanodedetails").submit(function (e) {
   e.preventDefault();
   if (node.type == 'tag') {
 
-    for (i = 1; i < 5; i++) {
-      var title = $("input[name='tag_tit" + i + "']").val();
-      var desc = $("input[name='tag_desc" + i + "']").val();
-      var weight = $("input[name='tag_weight" + i + "']").val();
-      node.data.tags[title] = [desc, weight]
+    // Reset tags object to clear all existing tags
+    node.data.tags = {};
+    var rowCount = $("#tagtable-body tr").length;
+
+    for (i = 1; i <= rowCount; i++) {
+      var title = $("#tagname_" + i).val();
+      var desc = $("#tagdesc_" + i).val();
+      var weight = $("#tagweight_" + i).val();
+      // If title and description are present, store it to the tags.
+      if (title !== "" & desc !== ""){
+        node.data.tags[title] = [desc, weight]
+      }
     }
   } else if (typeof node != 'undefined') {
 
-    var text = $("input[name='datalabel']").val();
+    var text = $("#datalabel").val();
     var updated = $("#treediv").jstree('rename_node', node, text);
-
-    var type = $("select[name='nodetype']").val();
 
     if (typeof node.data == 'undefined') {
       node.data = {}
     }
 
-    node.data['Filename'] = $("input[name='filename']").val();
-    node.data['Column Number'] = $("input[name='columnnumber']").val();
-    node.data['Data Label Source'] = $("input[name='datalabelsource']").val();
-    node.data['Control Vocab Cd'] = $("input[name='controlvocabcd']").val();
+    node.data['Data Label Source'] = $("#datalabelsource").val();
+    node.data['Control Vocab Cd'] = $("#controlvocabcd").val();
+    var type = node.type
+
     if (updated) {
       feedback("Successfully applied", false)
 
@@ -207,6 +222,42 @@ function customMenu(node) {
   return items;
 }
 
+function createTagRow(){
+    // Add new row to tags table and return the row number
+    var rowCount = $("#tagtable-body tr").length;
+    var counter = rowCount + 1;
+
+    var title_id = 'tagname_' + counter;
+    var desc_id = 'tagdesc_' + counter;
+    var weight_id = 'tagweight_' + counter;
+
+    var some_style = ' class="form-control form-control-sm" style="width: 100%; "'
+
+    var tdInput = '<input type="text" '+some_style+' placeholder="Title..." id="' + title_id + '" />';
+    var tdDesc = '<input type="text" '+some_style+' placeholder="Description..." id="' + desc_id + '" />';
+    var tdWeight = '<input type="number" class="form-control form-control-sm"  min="1" max="10" value="3" id="' + weight_id +'" />';
+
+    var tr = $('<tr></tr>')
+        .append('<td>'+tdInput+'</td>')
+        .append('<td>'+tdDesc+'</td>')
+        .append('<td>'+tdWeight+'</td>');
+
+    $('#tagtable-body').append(tr);
+
+    return counter
+}
+
+function prettyType(label){
+    var keymap = {default : 'Folder',
+                  numeric : 'Numerical',
+                  alpha : 'Categorical Value',
+                  categorical : 'Categorical',
+                  tag : 'Metadata tags',
+                  highdim : 'High-dimensional',
+                  codeleaf : 'Special concept',
+                 };
+    return keymap[label]
+}
 
 // Create the tree
 $('#treediv')
@@ -214,39 +265,41 @@ $('#treediv')
     .on('select_node.jstree', function (e, data) {
       node = data.instance.get_node(data.selected[0]);
       $("form#datanodedetails")[0].reset();
-      $("input[name='datalabel']").val(node.text);
-      $("select[name='nodetype']").val(node.type);
+      $("#datalabel").val(node.text);
+      $("#nodetype").text(prettyType(node.type));
 
       enableRightFields(node.type);
 
       if (typeof node.data !== 'undefined') {
-        $("input[name='filename']").val(node.data['Filename']);
-        $("input[name='columnnumber']").val(node.data['Column Number']);
+        $("#filename").text(node.data['Filename']);
+        $("#columnnumber").text(node.data['Column Number']);
         if (typeof node.data['Data Label Source'] !== 'undefined') {
-          $("input[name='datalabelsource']").val(node.data['Data Label Source']);
+          $("#datalabelsource").val(node.data['Data Label Source']);
         }
         if (typeof node.data['Control Vocab Cd'] !== 'undefined') {
-          $("input[name='controlvocabcd']").val(node.data['Control Vocab Cd']);
+          $("#controlvocabcd").val(node.data['Control Vocab Cd']);
         }
 
-        // This (ugly) way to add multiple tags to 'tags' dictionary in 'data'
+        // This way to add multiple tags to 'tags' dictionary in 'data'
         if (typeof node.data['tags'] !== 'undefined') {
-
-          var counter = 0;
-
+          // Clear the existing tag table
+          $('#tagtable-body').empty();
+          // Populate tags
           for (var key in node.data.tags) {
             if (node.data.tags.hasOwnProperty(key)) {
-              counter++
-              var c = counter.toString()
-              var tit = '[name="' + 'tag_tit' + c + '"]'
-              var desc = '[name="' + 'tag_desc' + c + '"]'
-              var weight = '[name="' + 'tag_weight' + c + '"]'
-              $(tit).val(key);
-              $(desc).val(node.data.tags[key][0]);
-              $(weight).val(node.data.tags[key][1]);
+                counter = createTagRow();
 
+                var title_id = 'tagname_' + counter;
+                var desc_id = 'tagdesc_' + counter;
+                var weight_id = 'tagweight_' + counter;
+
+                $('#' + title_id).val(key);
+                $('#' + desc_id).val(node.data.tags[key][0]);
+                $('#' + weight_id).val(node.data.tags[key][1]);
             }
           }
+          // Add single empty row
+          createTagRow();
         }
       }
     })
@@ -265,6 +318,7 @@ $('#treediv')
           return true;
         }
       },
+      "unique": {case_sensitive : true},
       "contextmenu": {items: customMenu},
 
       "types": {
