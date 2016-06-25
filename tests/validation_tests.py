@@ -20,17 +20,17 @@ class ValidationTests(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_acgh_params_loading(self):
-        assert self.study.Params.acgh.datatype == 'acgh'
+    def test_cnv_params_loading(self):
+        assert self.study.Params.cnv.datatype == 'cnv'
 
-    def test_acgh_params_validation(self):
-        assert self.study.Params.acgh.validate()
+    def test_cnv_params_validation(self):
+        assert self.study.Params.cnv.validate()
 
-    def test_acgh_highdim_load(self):
-        assert type(self.study.HighDim.acgh.df) == pd.DataFrame
+    def test_cnv_highdim_load(self):
+        assert type(self.study.HighDim.cnv.df) == pd.DataFrame
 
-    def test_acgh_highdim_validation(self):
-        assert self.study.HighDim.acgh.validate()
+    def test_cnv_highdim_validation(self):
+        assert self.study.HighDim.cnv.validate()
 
     def test_proteomics_params_loading(self):
         assert self.study.Params.proteomics.datatype == 'proteomics'
