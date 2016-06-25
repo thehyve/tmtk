@@ -6,7 +6,7 @@ from .TagsParams import TagsParams
 from .StudyParams import StudyParams
 import glob
 import os
-import tmtk.utils as utils
+from .. import utils
 import tmtk.utils.CPrint as CPrint
 
 

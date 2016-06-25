@@ -1,7 +1,8 @@
-from tmtk import utils
 import os
 import pandas as pd
-from tmtk.params import ClinicalParams
+
+from .. import utils
+from ..params import ClinicalParams
 
 
 class WordMapping(utils.FileBase):
@@ -23,7 +24,13 @@ class WordMapping(utils.FileBase):
         super().__init__()
 
     def validate(self, verbosity=2):
-        pass
+        messages = utils.MessageCollector(verbosity)
+
+        if self.df.shape[1] != 4:
+            messages.error("Wordmapping file does not have 4 columns!")
+
+        messages.flush()
+        return not messages.found_error
 
     def get_word_map(self, var_id):
         """

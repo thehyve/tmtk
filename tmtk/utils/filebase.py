@@ -11,10 +11,10 @@ class FileBase:
 
     @cached_property
     def df(self):
-        if self.path and os.path.exists(self.path):
+        if self.path and os.path.exists(self.path) and self.tabs_in_first_line():
             df, self._hash_init = file2df(self.path, hashed=True)
         else:
-            CPrint.warn("No dataframe found on disk for {}, creating.".format(self))
+            CPrint.warn("No valid file found on disk for {}, creating dataframe.".format(self))
             df = self.create_df()
         return df
 
@@ -32,3 +32,11 @@ class FileBase:
 
     def __repr__(self):
         return self.path
+
+    def tabs_in_first_line(self):
+        with open(self.path, 'r') as file:
+            has_tab = '\t' in file.readline()
+
+        if has_tab:
+            return True
+        CPrint.warn('{} is invalid as it contains no tabs on first line.'.format(self))
