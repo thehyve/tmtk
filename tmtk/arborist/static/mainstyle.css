@@ -58,10 +58,10 @@ li.message {
 }
 input#search_box{
   position: absolute;
-  align: right;
-  top: 15px;
-  right: calc(40% + 15px);
-  width: 15%;
+  margin-top: 15px;
+  margin-right: 15px;
+  right: 100%;
+  width: 40%;
   z-index: 99;
 }
 .jstree-default .jstree-search {
