@@ -56,3 +56,16 @@ li.message {
 ::-webkit-scrollbar {
     display: none;
 }
+input#search_box{
+  position: absolute;
+  align: right;
+  top: 15px;
+  right: calc(40% + 15px);
+  width: 15%;
+  z-index: 99;
+}
+.jstree-default .jstree-search {
+  font-style: italic;
+  color: #5cb85c;
+  font-weight: bold;
+}

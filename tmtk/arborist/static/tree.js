@@ -259,6 +259,17 @@ function prettyType(label){
     return keymap[label]
 }
 
+$(function () {
+  var to = false;
+  $('#search_box').keyup(function () {
+    if(to) { clearTimeout(to); }
+    to = setTimeout(function () {
+      var v = $('#search_box').val();
+      $('#treediv').jstree(true).search(v);
+    }, 250);
+  });
+});
+
 // Create the tree
 $('#treediv')
 // listen for event
@@ -375,5 +386,5 @@ $('#treediv')
           return this.get_text(a) > this.get_text(b) ? 1 : -1;
         }
       },
-      "plugins": ["dnd", "sort", "contextmenu", "types", "unique", "wholerow"]
+      "plugins": ["dnd", "sort", "contextmenu", "types", "unique", "wholerow", "search"]
     });
