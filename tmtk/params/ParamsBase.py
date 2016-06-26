@@ -1,6 +1,5 @@
 import os
-import tmtk.utils as utils
-from tmtk.utils.CPrint import MessageCollector
+from ..utils.CPrint import MessageCollector
 
 
 class ParamsBase:
@@ -15,13 +14,15 @@ class ParamsBase:
         :param subdir: is the key that is given by Study class.
         :param parent: can be used to find the parent instance of this object.
         """
-        if not parameters:
-            parameters = {}
+
         self.path = path
         self.dirname = os.path.dirname(path)
         self.datatype = datatype
         self._parent = parent
-        self.__dict__.update(**self._get_params_from_file())
+        if not parameters:
+            self.__dict__.update(**self._get_params_from_file())
+        else:
+            self.__dict__.update(**parameters)
 
         if subdir:
             self.subdir = subdir

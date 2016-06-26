@@ -5,7 +5,7 @@ from .params import Params
 from .highdim import HighDim
 from .annotation import Annotations
 from .tags import MetaDataTags
-from tmtk.utils.CPrint import CPrint
+from .utils import CPrint
 from tmtk import utils, arborist
 
 
@@ -27,7 +27,7 @@ class Study:
         if minimal:
             return
 
-        # Look for clinical params and create child opbject
+        # Look for clinical params and create child object
         clinical_params = self.find_params_for_datatype(datatypes='clinical')
         if len(clinical_params) == 1:
             self.Clinical = Clinical(clinical_params[0])
@@ -75,8 +75,12 @@ class Study:
 
         params_list = []
         for key, params_object in self.Params.__dict__.items():
-            if params_object.datatype in datatypes:
-                params_list.append(params_object)
+            try:
+                if params_object.datatype in datatypes:
+                    params_list.append(params_object)
+            except AttributeError:
+                pass
+
         return params_list
 
     def find_annotation(self, platform=None):
@@ -160,3 +164,12 @@ class Study:
             json_data = json.loads(f.read())
             arborist.update_study_from_json(self, json_data)
 
+    def add_metadata(self):
+        if hasattr(self, 'Tags'):
+            CPrint.okay("Study metadata tags found.")
+            return
+
+        params_path = os.path.join(self.study_folder, 'tags', 'tags.params')
+        self.Params.add_params(params_path, parameters={'TAGS_FILE': 'tags.txt'})
+        tag_param = self.find_params_for_datatype('tags')[0]
+        self.Tags = MetaDataTags(params=tag_param, parent=self)

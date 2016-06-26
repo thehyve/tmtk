@@ -1,9 +1,10 @@
 import os
 import tmtk
-from tmtk import arborist, utils
+from ..arborist import call_boris
+from ..utils import FileBase, Exceptions, df2file
 
 
-class ColumnMapping(utils.FileBase):
+class ColumnMapping(FileBase):
     """
     Class with utilities for the column mapping file for clinical data.
     Can be initiated with either a path to column mapping file, or a clinical params file object.
@@ -12,7 +13,7 @@ class ColumnMapping(utils.FileBase):
         if params and params.is_viable() and params.datatype == 'clinical':
             self.path = os.path.join(params.dirname, params.COLUMN_MAP_FILE)
         else:
-            raise utils.Exceptions.ClassError(type(params), tmtk.params.ClinicalParams)
+            raise Exceptions.ClassError(type(params), tmtk.params.ClinicalParams)
         super().__init__()
 
     @property
@@ -28,10 +29,10 @@ class ColumnMapping(utils.FileBase):
         return self.df.apply(lambda x: '{}__{}'.format(x[0], x[2]), axis=1)
 
     def call_boris(self):
-        self.df = arborist.call_boris(self.df)
+        self.df = call_boris(self.df)
 
     def write_to(self):
-        utils.df2file(self)
+        df2file(self)
 
     def validate(self, verbosity=2):
         pass
@@ -41,7 +42,7 @@ class ColumnMapping(utils.FileBase):
         f = self.df.ix[:, 0].astype(str) == filename
         c = self.df.ix[:, 2].astype(str) == column
         if sum(f & c) > 1:
-            raise utils.TooManyValues(sum(f & c), 1, var_id)
+            raise Exceptions.TooManyValues(sum(f & c), 1, var_id)
         row = self.df.ix[f & c]
         return list(row.values[0, :])
 

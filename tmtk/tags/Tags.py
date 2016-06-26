@@ -1,7 +1,7 @@
-
-from tmtk import utils
+import pandas as pd
 import os
-import tmtk
+from .. import utils
+from ..params import TagsParams
 
 
 class MetaDataTags(utils.FileBase):
@@ -9,7 +9,7 @@ class MetaDataTags(utils.FileBase):
         if params and params.is_viable() and params.datatype == 'tags':
             self.path = os.path.join(params.dirname, params.TAGS_FILE)
         else:
-            raise utils.Exceptions.ClassError(type(params), tmtk.params.TagsParams)
+            raise utils.Exceptions.ClassError(type(params), TagsParams)
 
         self.parent = parent
         super().__init__()
@@ -64,3 +64,11 @@ class MetaDataTags(utils.FileBase):
                          format(len(self.tag_paths)))
 
         message.flush()
+
+    @staticmethod
+    def create_df():
+        df = pd.DataFrame(dtype=str, columns=['Concept Path',
+                                              'Title',
+                                              'Description',
+                                              'Weight'])
+        return df

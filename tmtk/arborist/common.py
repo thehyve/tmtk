@@ -6,8 +6,10 @@ import time
 from threading import Thread
 from IPython.display import display, IFrame, clear_output
 import tempfile
-from tmtk.utils.CPrint import CPrint
-from tmtk import utils
+
+from ..utils import CPrint
+from .. import utils
+
 from .jstreecontrol import create_concept_tree, ConceptTree
 import tmtk
 
@@ -21,7 +23,7 @@ def call_boris(to_be_shuffled=None):
     """
 
     if isinstance(to_be_shuffled, str) and os.path.exists(to_be_shuffled):
-        to_be_shuffled = file2df(to_be_shuffled)
+        to_be_shuffled = utils.file2df(to_be_shuffled)
         return_df = True
 
     if isinstance(to_be_shuffled, (pd.DataFrame, tmtk.Clinical, tmtk.Study)):
@@ -123,7 +125,12 @@ def update_study_from_json(study, json_data):
     concept_tree = ConceptTree(json_data)
     study.Clinical.ColumnMapping.df = concept_tree.column_mapping_file
     study.Clinical.WordMapping.df = concept_tree.word_mapping
-    study.Tags.df = concept_tree.tags_file
+
+    # Some checks for whether to create Tags in the study.
+    ct_tags = concept_tree.tags_file
+    if hasattr(study, 'Tags') or ct_tags.shape[0]:
+        study.add_metadata()
+        study.Tags.df = concept_tree.tags_file
 
     high_dim_paths = concept_tree.high_dim_paths
     if high_dim_paths:

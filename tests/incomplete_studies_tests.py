@@ -1,10 +1,5 @@
 import tmtk
-import os
 import unittest
-import tempfile
-import shutil
-import re
-import pandas as pd
 
 
 class IncompletenessTests(unittest.TestCase):
@@ -33,6 +28,15 @@ class IncompletenessTests(unittest.TestCase):
 
     def test_create_json_string(self):
         assert tmtk.arborist.create_concept_tree(self.study)
+
+    def test_update_study_from_json(self):
+        json_data = tmtk.arborist.create_concept_tree(self.study)
+        tmtk.arborist.update_study_from_json(self.study, json_data)
+
+    def test_create_tags(self):
+        self.study.add_metadata()
+        assert self.study.Params.tags.is_viable()
+        assert self.study.Tags.df.shape == (0, 4)
 
 if __name__ == '__main__':
     unittest.main()
