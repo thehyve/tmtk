@@ -5,11 +5,14 @@ class TagsParams(ParamsBase):
 
     @property
     def mandatory(self):
-        return ['TAGS_FILE']
+        return {'TAGS_FILE': {
+                    'helptext': 'Points to the tags file.'
+                    }
+                }
 
     @property
     def optional(self):
-        return []
+        return {}
 
     def is_viable(self):
         """

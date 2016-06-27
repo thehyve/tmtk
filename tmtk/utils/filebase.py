@@ -1,4 +1,4 @@
-from tmtk.utils import cached_property, file2df, CPrint
+from tmtk.utils import cached_property, file2df, df2file, CPrint
 import os
 
 
@@ -40,3 +40,17 @@ class FileBase:
         if has_tab:
             return True
         CPrint.warn('{} is invalid as it contains no tabs on first line.'.format(self))
+
+    def write_to(self, path, overwrite=False):
+        """
+        Wrapper for tmtk.utils.df2file().
+        :param path: path to write file to.
+        :param overwrite: write over existing files in the filesystem)
+        """
+        df2file(self.df, path, overwrite=overwrite)
+
+    def save(self):
+        """
+        Overwrite the original file with the current dataframe.
+        """
+        self.write_to(self.path, overwrite=True)

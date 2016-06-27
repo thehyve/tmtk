@@ -1,5 +1,4 @@
 from tmtk.params import ParamsBase
-import tmtk.utils as utils
 import os
 
 
@@ -7,11 +6,28 @@ class AnnotationParams(ParamsBase):
 
     @property
     def mandatory(self):
-        return ['PLATFORM', 'TITLE', 'ANNOTATIONS_FILE']
+        return {'PLATFORM': {
+                    'helptext': 'Short identifier for platform.'
+                    },
+                'TITLE': {
+                    'helptext': 'Platform description.'
+                    },
+                'ANNOTATIONS_FILE': {
+                    'variable_type': 'filename',
+                    'helptext': 'Points to the annotations file.'
+                    }
+                }
 
     @property
     def optional(self):
-        return ['ORGANISM', 'GENOME_RELEASE']
+        return {'ORGANISM': {
+                    'helptext': 'Usually Homo sapiens.'
+                    },
+                'GENOME_RELEASE': {
+                    'helptext': 'Something like hg19 or hg38.  Only required when'
+                                ' genomic coordinates are provided in the file.'
+                    },
+                }
 
     def is_viable(self):
         """

@@ -159,10 +159,3 @@ class HighDimBase(utils.FileBase):
                                                      destination_platform=destination)
         return remapped
 
-    def write_to(self, path, **kwargs):
-        """
-        Wrapper for tmtk.utils.df2file().
-        :param path:
-        :param kwargs:
-        """
-        utils.df2file(self.df, path, **kwargs)

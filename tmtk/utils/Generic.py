@@ -86,7 +86,9 @@ def df2file(df=None, path=None, overwrite=False):
         raise PathError(path)
 
     if not overwrite and os.path.exists(path):
-        raise PathError("{} already exists.")
+        raise PathError("{} already exists. Consider setting `overwrite=True`".format(path))
+
+    os.makedirs(os.path.dirname(path), exist_ok=True)
 
     df.to_csv(path,
               sep='\t',

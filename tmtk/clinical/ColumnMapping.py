@@ -1,7 +1,7 @@
 import os
 import tmtk
 from ..arborist import call_boris
-from ..utils import FileBase, Exceptions, df2file
+from ..utils import FileBase, Exceptions
 
 
 class ColumnMapping(FileBase):
@@ -30,9 +30,6 @@ class ColumnMapping(FileBase):
 
     def call_boris(self):
         self.df = call_boris(self.df)
-
-    def write_to(self):
-        df2file(self)
 
     def validate(self, verbosity=2):
         pass

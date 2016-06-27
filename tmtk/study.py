@@ -122,20 +122,34 @@ class Study:
         """
         changed = []
 
+        for obj in self.get_objects_with_prop('df_has_changed'):
+            if obj.df_has_changed:
+                CPrint.warn('({}) Dataframe has changed.'.format(obj))
+                changed.append(obj)
+            else:
+                CPrint.info('({}) has not changed.'.format(obj))
+        return changed
+
+    def get_objects_with_prop(self, prop: all):
+        """
+        Search for objects with a certain property.
+        :param prop: string equal to the property name.
+        :return:
+        """
         for key, obj in self.__dict__.items():
+            if hasattr(obj, prop):
+                yield obj
+
             if not hasattr(obj, '__dict__'):
                 continue
 
             for k, o in obj.__dict__.items():
-                if not hasattr(o, 'df_has_changed'):
-                    continue
+                if hasattr(o, 'sample_mapping'):
+                    if hasattr(o.sample_mapping, prop):
+                        yield o.sample_mapping
 
-                if o.df_has_changed:
-                    CPrint.warn('({}) Dataframe has changed.'.format(o))
-                    changed.append(o)
-                else:
-                    CPrint.info('({}) has not changed.'.format(o))
-        return changed
+                if hasattr(o, prop):
+                    yield o
 
     @property
     def study_id(self):
@@ -173,3 +187,21 @@ class Study:
         self.Params.add_params(params_path, parameters={'TAGS_FILE': 'tags.txt'})
         tag_param = self.find_params_for_datatype('tags')[0]
         self.Tags = MetaDataTags(params=tag_param, parent=self)
+
+    def save_to(self, root_dir, overwrite=False):
+        """
+        Write this study to a new directory on file system.
+        :param root_dir: a
+        :param overwrite: set this to True to overwrite existing files.
+        :return:
+        """
+        if not os.path.exists(root_dir) or not os.path.isdir(root_dir):
+            os.makedirs(root_dir)
+
+        for obj in self.get_objects_with_prop('path'):
+            # Strip sub_path from leading slash, as os.path.join() will think its an absolute path
+            sub_path = obj.path.split(self.study_folder)[1].strip('/')
+            new_path = os.path.join(root_dir, sub_path)
+            CPrint.info("Writing file to {}".format(new_path))
+            obj.write_to(new_path, overwrite=overwrite)
+

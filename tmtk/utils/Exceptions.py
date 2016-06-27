@@ -36,7 +36,7 @@ class PathError(BaseException):
         self.found = found
 
     def __str__(self):
-        return "{} does not exists.".format(self.found)
+        return "{}.".format(self.found)
 
 
 class TooManyValues(BaseException):

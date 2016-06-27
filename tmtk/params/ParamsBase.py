@@ -1,4 +1,5 @@
 import os
+from ..utils import PathError
 from ..utils.CPrint import MessageCollector
 
 
@@ -32,6 +33,9 @@ class ParamsBase:
     def __str__(self):
         return self.subdir
 
+    def __repr__(self):
+        return self.path
+
     def _get_params_from_file(self):
         """
 
@@ -42,7 +46,8 @@ class ParamsBase:
         with open(self.path, 'r') as f:
             for line in f.readlines():
                 # Only keep things before a comment character
-                line = line.strip().split('#', 1)[0]
+                line = line.split('#', 1)[0]
+                line = line.strip()
                 if '=' not in line:
                     continue
                 parameter = line.split('=')
@@ -93,10 +98,9 @@ class ParamsBase:
         messages.flush()
         return not messages.found_error
 
-    def write_to(self, path):
+    def write_to(self, path, overwrite=False):
         """
-        Writes parameter file to path
-        :return:
+        Writes parameter file to path.
         """
 
         def _write_dict(f, d):
@@ -106,8 +110,22 @@ class ParamsBase:
                     row = '{}={}  # {}\n'.format(param, value, d.get('helptext'))
                     f.write(row)
 
+        if not path:
+            raise PathError(path)
+
+        if not overwrite and os.path.exists(path):
+            raise PathError("{} already exists. Consider setting `overwrite=True`".format(self.path))
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
         with open(path, 'w') as f:
             f.write('### Mandatory\n')
             _write_dict(f, self.mandatory)
             f.write('\n### Optional\n')
             _write_dict(f, self.optional)
+
+    def save(self):
+        """
+        Overwrite the original file with the current parameters.
+        """
+        self.write_to(self.path, overwrite=True)
