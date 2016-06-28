@@ -13,6 +13,9 @@ class FileBase:
     def df(self):
         if self.path and os.path.exists(self.path) and self.tabs_in_first_line():
             df, self._hash_init = file2df(self.path, hashed=True)
+            # Give a class a _df_mods method to make specific modifications before load
+            if hasattr(self, '_df_mods'):
+                df = self._df_mods(df)
         else:
             CPrint.warn("No valid file found on disk for {}, creating dataframe.".format(self))
             df = self.create_df()

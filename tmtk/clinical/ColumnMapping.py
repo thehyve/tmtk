@@ -46,3 +46,12 @@ class ColumnMapping(FileBase):
     def get_concept_path(self, var_id):
         row = self.select_row(var_id)
         return '{}+{}'.format(row[1], row[3])
+
+    @staticmethod
+    def _df_mods(df):
+        """
+        df_mods applies modifications to the dataframe before it is cached.
+        :return:
+        """
+        df.fillna("", inplace=True)
+        return df
