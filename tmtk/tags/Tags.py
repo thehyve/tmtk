@@ -25,7 +25,7 @@ class MetaDataTags(utils.FileBase):
     @property
     def invalid_paths(self):
         invalid = []
-        study_paths = [node.path for node in self.parent.concept_tree.nodes]
+        study_paths = [node.path for node in self.parent.concept_tree.nodes if node.type != 'tag']
         for tag_path in self.tag_paths:
             # Add "+" to both paths comparing so tag_path only matches if a complete node
             # is matched, as "Cell-line+Characteristics" starts with "Cell-line+Char"
