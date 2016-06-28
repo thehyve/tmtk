@@ -112,9 +112,8 @@ class Study:
         :param verbosity: set the verbosity of output, pick 0, 1, or 2, 3 or 4.
         :return: True if everything is okay, else return False.
         """
-        for key, obj in self.__dict__.items():
-            if hasattr(obj, 'validate_all'):
-                obj.validate_all(verbosity=verbosity)
+        for obj in self.get_objects_with_prop('validate'):
+            obj.validate(verbosity=verbosity)
 
     def files_with_changes(self):
         """
@@ -134,22 +133,20 @@ class Study:
         """
         Search for objects with a certain property.
         :param prop: string equal to the property name.
-        :return:
+        :return: generator with
         """
-        for key, obj in self.__dict__.items():
-            if hasattr(obj, prop):
-                yield obj
 
-            if not hasattr(obj, '__dict__'):
-                continue
+        recursion_items = ['parent', '_parent', 'obj']
 
-            for k, o in obj.__dict__.items():
-                if hasattr(o, 'sample_mapping'):
-                    if hasattr(o.sample_mapping, prop):
-                        yield o.sample_mapping
+        def iterate_items(d, prop):
+            for key, obj in d.items():
+                if hasattr(obj, '__dict__') and key not in recursion_items:
+                    yield from iterate_items(obj.__dict__, prop)
 
-                if hasattr(o, prop):
-                    yield o
+                if hasattr(obj, prop):
+                    yield obj
+
+        return {i for i in iterate_items(self.__dict__, prop)}
 
     @property
     def study_id(self):
