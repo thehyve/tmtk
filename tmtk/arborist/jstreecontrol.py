@@ -15,6 +15,7 @@ DATA_LABEL = 'Data Label'
 MAGIC_5 = 'Data Label Source'
 MAGIC_6 = 'Control Vocab Cd'
 TAGS = 'Tags'
+CONCEPT_TYPE = 'Concept Type'
 
 
 def create_concept_tree(column_object):
@@ -95,6 +96,7 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
         for i, datafile_value in enumerate(categories):
             oid = '{}_{}'.format(var_id, i)
             mapped = categories[datafile_value]
+            mapped = mapped if not pd.isnull(mapped) else ''
             categorical_path = "{}+{}".format(concept_path, mapped)
             concept_tree.add_node(categorical_path, oid,
                                   node_type='alpha',
@@ -137,6 +139,7 @@ def get_concept_node_from_df(x):
                  DATA_LABEL: x[3],
                  MAGIC_5: x[4] if len(x) > 4 else None,
                  MAGIC_6: x[5] if len(x) > 5 else None,
+                 CONCEPT_TYPE: x[6] if len(x) > 6 else None,
                  }
     return concept_path, var_id, data_args
 
@@ -193,7 +196,7 @@ class ConceptTree:
         :return: Column Mapping file based on ConceptTree object.
         """
         df = pd.concat([self._extract_column_mapping_row(node) for node in self.nodes], axis=1).T
-        df.columns = [FILENAME, CATEGORY_CODE, COLUMN_NUMBER, DATA_LABEL, 'Magic5', 'Magic6']
+        df.columns = [FILENAME, CATEGORY_CODE, COLUMN_NUMBER, DATA_LABEL, 'Magic5', 'Magic6', CONCEPT_TYPE]
         return df
 
     @property
@@ -268,7 +271,8 @@ class ConceptTree:
         column = node.data.get(COLUMN_NUMBER)
         magic5 = node.data.get(MAGIC_5)
         magic6 = node.data.get(MAGIC_6)
-        new_row = pd.Series([filename, path, column, data_label, magic5, magic6])
+        concept_type = node.data.get(CONCEPT_TYPE)
+        new_row = pd.Series([filename, path, column, data_label, magic5, magic6, concept_type])
         if all([filename, data_label, column]):
             return new_row
 

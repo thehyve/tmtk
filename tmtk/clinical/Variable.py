@@ -1,5 +1,6 @@
-import tmtk.utils as utils
+import pandas as pd
 
+from .. import utils
 
 FILENAME = 'Filename'
 CATEGORY_CODE = 'Category Code'
@@ -7,6 +8,7 @@ COLUMN_NUMBER = 'Column Number'
 DATA_LABEL = 'Data Label'
 MAGIC_5 = 'Data Label Source'
 MAGIC_6 = 'Control Vocab Cd'
+CONCEPT_TYPE = 'Concept Type'
 
 
 class VariableCollection:
@@ -57,7 +59,7 @@ class Variable:
 
     @property
     def is_numeric(self):
-        return utils.is_numeric(self.mapped_values)
+        return utils.is_numeric(self.mapped_values) and not self.forced_categorical
 
     @property
     def concept_path(self):
@@ -77,6 +79,7 @@ class Variable:
                      DATA_LABEL: row[3],
                      MAGIC_5: row[4] if len(row) > 4 else None,
                      MAGIC_6: row[5] if len(row) > 5 else None,
+                     CONCEPT_TYPE: row[6] if len(row) > 6 else None,
                      }
         return data_args
 
@@ -93,6 +96,10 @@ class Variable:
     @property
     def mapped_values(self):
         return [v for k, v in self.word_map_dict.items()]
+
+    @property
+    def forced_categorical(self):
+        return self.column_map_data.get(CONCEPT_TYPE) == 'CATEGORICAL'
 
     def validate(self, verbosity=2):
         pass
