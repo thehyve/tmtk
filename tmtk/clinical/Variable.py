@@ -62,6 +62,10 @@ class Variable:
         return utils.is_numeric(self.mapped_values) and not self.forced_categorical
 
     @property
+    def is_empty(self):
+        return not any([pd.notnull(x) for x in self.unique_values])
+
+    @property
     def concept_path(self):
         """
         Returns concept converted as expected in transmart

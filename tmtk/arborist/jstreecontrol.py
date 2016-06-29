@@ -82,8 +82,12 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
         concept_path = variable.concept_path
         categories = variable.word_map_dict if not variable.is_numeric else {}
 
+        if categories:
+            node_type = 'categorical'
+        else:
+            node_type = 'empty' if variable.is_empty else 'numeric'
+
         # Store node type in `data` so it can be changed back after renaming OMIT
-        node_type = 'categorical' if categories else 'numeric'
         data_args.update({'ctype': node_type})
 
         # Add filename to SUBJ_ID and OMIT, this is a work around for unique path constraint.
@@ -248,7 +252,7 @@ class ConceptTree:
 
     @staticmethod
     def _extract_column_mapping_row(node):
-        if node.type not in ['numeric', 'categorical', 'codeleaf']:
+        if node.type not in ['numeric', 'categorical', 'codeleaf', 'empty']:
             return
 
         filename = node.data.get(FILENAME)
@@ -323,7 +327,7 @@ class ConceptTree:
                           node_type='tag',
                           data_args=meta_tag['data'])
 
-        if node_type in ['numeric', 'categorical', 'highdim', 'codeleaf', 'alpha']:
+        if node_type in ['numeric', 'categorical', 'highdim', 'codeleaf', 'alpha', 'empty']:
             category_code = '+'.join(path)
             concept_path = '+'.join([category_code, node_text])
 

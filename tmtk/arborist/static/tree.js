@@ -102,7 +102,7 @@ $("form#datanodedetails").submit(function (e) {
       feedback("Successfully applied", false)
 
       // If the node text starts with OMIT, change the type (and icon)
-      if (text.startsWith(('SUBJ_ID', 'OMIT')) & (type == 'categorical' | type == 'numeric')) {
+      if (text.startsWith(('SUBJ_ID', 'OMIT')) & (type == 'categorical' | type == 'numeric' | type == 'empty')) {
         type = 'codeleaf';
       // If changed from SUBJ_ID or OMIT to regular, change type back to original
       } else if (type == 'codeleaf' & !text.startsWith(('SUBJ_ID', 'OMIT'))) {
@@ -119,7 +119,7 @@ $("form#datanodedetails").submit(function (e) {
 });
 
 function enableRightFields(type) {
-  if (type == 'numeric' | type == 'categorical' | type == 'codeleaf') {
+  if (type == 'numeric' | type == 'categorical' | type == 'codeleaf' | type == 'empty' ) {
     $('.label').prop('hidden', false);
     $('.clinicaldata').prop('hidden', false);
     $('.tagdata').prop('hidden', true);
@@ -255,6 +255,7 @@ function prettyType(label){
                   tag : 'Metadata tags',
                   highdim : 'High-dimensional',
                   codeleaf : 'Special concept',
+                  empty: 'Empty node',
                  };
     return keymap[label]
 }
@@ -266,7 +267,7 @@ $(function () {
     to = setTimeout(function () {
       var v = $('#search_box').val();
       $('#treediv').jstree(true).search(v);
-    }, 250);
+    }, 400);
   });
 });
 
@@ -335,26 +336,16 @@ $('#treediv')
       "types": {
         "default": {
           "icon": "/static/images/tree/folder.gif",
-          "valid_children": ["alpha",
-            "numeric",
-            "highdim",
-            "codeleaf",
-            "default",
-            "categorical",
-            "tag"]
         },
         "study": {
           "icon": "/static/images/tree/study.png",
-          "valid_children": "all"
         },
         "alpha": {
           "icon": "/static/images/tree/alpha.gif",
           "valid_children": ["tag"]
         },
         "categorical": {
-          "max_depth": "2",
           "icon": "/static/images/tree/folder.gif",
-          "valid_children": ["alpha", "tag"]
         },
         "numeric": {
           "icon": "/static/images/tree/numeric.gif",
@@ -363,6 +354,9 @@ $('#treediv')
         "highdim": {
           "icon": "/static/images/tree/dna_icon.png",
           "valid_children": ["tag"]
+        },
+        "empty": {
+          "icon": "/static/images/tree/empty.png",
         },
         "tag": {
           "icon": "/static/images/tree/tag_icon.png",
