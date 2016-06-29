@@ -160,7 +160,8 @@ def is_numeric(values, hard=True):
 
 def numeric(x):
     try:
-        if x != 'inf' and (pd.isnull(x) or float(x)):
+        if x != 'inf':
+            float(x)
             return True
     except ValueError:
         return False
