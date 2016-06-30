@@ -107,7 +107,7 @@ class ParamsBase:
             for param, d in d.items():
                 value = self.__dict__.get(param)
                 if value:
-                    row = '{}={}  # {}\n'.format(param, value, d.get('helptext'))
+                    row = '# {}\n{}={}\n'.format(d.get('helptext'), param, value)
                     f.write(row)
 
         if not path:
