@@ -1,8 +1,7 @@
 
 // Add jstree json to the submit form as hidden parameter.
 $("#edit_form").submit( function(eventObj) {
-    var v = $('#treediv').jstree(true).get_json()
-    var tree = JSON.stringify(v);
+    var tree = stringTree();
     $('<input />').attr('type', 'hidden')
         .attr('name', 'json')
         .attr('id', 'id_json')
@@ -13,14 +12,14 @@ $("#edit_form").submit( function(eventObj) {
 
 // use the download function to download a treefile with the name of the study. HTML5 stuff.
 $('button#download').click( function (obj) {
-    var v = $('#treediv').jstree(true).get_json()
-    var tree = JSON.stringify(v);
-    download(study_name.toString() + '.treefile', tree)
+    var tree = stringTree();
+    serveDownload(study_name.toString() + '.treefile', tree)
 });
 
-function download(filename, text) {
+function serveDownload(filename, text) {
     var pom = document.createElement('a');
-    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    var url = URL.createObjectURL( new Blob( [text], {type:'text/plain'} ) );
+    pom.setAttribute('href', url);
     pom.setAttribute('download', filename);
 
     if (document.createEvent) {
@@ -33,13 +32,10 @@ function download(filename, text) {
     }
 }
 
-//var node;
-
 // Keep this for the embedded return from Jupyter Notebooks
 $(function () {
   $('button#embeded_return').bind('click', function () {
-    var v = $('#treediv').jstree(true).get_json()
-    var tree = JSON.stringify(v);
+    var tree = stringTree();
 
     $.ajax({
           method: "POST",
@@ -55,6 +51,23 @@ $(function () {
     return false;
   });
 });
+
+// Gets a minimal string version of the current tree
+function stringTree(){
+    var v = $('#treediv').jstree(true).get_json('#', {'no_state': true});
+    var tree = JSON.stringify(v, replacer);
+    return tree;
+}
+
+// This function is used by JSON.stringify to exclude unnecessary nodes.
+function replacer(key, value) {
+    var skipped = ['icon', 'li_attr', 'a_attr'];
+    if ($.inArray(key, skipped) > -1 |
+            (key == 'type' & value == 'default')) {
+        return undefined;
+    }
+    return value;
+}
 
 // Button to check if tag table is filled and if so add new tag
 $('button#add_tag').click( function (obj) {

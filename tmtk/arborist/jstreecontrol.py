@@ -335,9 +335,9 @@ class ConceptTree:
                                  DATA_LABEL: node_text})
 
             self.add_node(path=concept_path,
-                          concept_id=node['li_attr']['id'],
+                          concept_id=node.get('id'),
                           node_type=node_type,
-                          data_args=node['data']
+                          data_args=node.get('data', {}),
                           )
 
             # If there are any alpha children, add them to ConceptTree
