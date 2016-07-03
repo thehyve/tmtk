@@ -1,5 +1,7 @@
 import os
 import json
+from IPython.display import HTML
+
 from .clinical import Clinical
 from .params import Params
 from .highdim import HighDim
@@ -153,6 +155,11 @@ class Study:
         study_params = self.find_params_for_datatype('study')[0]
         return study_params.__dict__.get('STUDY_ID')
 
+    @property
+    def study_name(self):
+        study_params = self.find_params_for_datatype('study')[0]
+        return study_params.__dict__.get('TOP_NODE', '').split('\\')[-1]
+
     def call_boris(self):
         arborist.call_boris(self)
 
@@ -174,6 +181,29 @@ class Study:
         with open(treefile, 'r') as f:
             json_data = json.loads(f.read())
             arborist.update_study_from_json(self, json_data)
+
+    def update_from_baas(self, url, username=None):
+        """
+        Give url to a tree in BaaS.
+        :param url: url that has both the study and version of a tree in BaaS (e.g.
+                (e.g. http://transmart-arborist.thehyve.nl/trees/study-name/1/~edit/)
+        :param username: if no username is given, you will be prompted for one.
+        """
+        json_data = arborist.get_json_from_baas(url, username)
+        arborist.update_study_from_json(self, json_data)
+
+    def publish_to_baas(self, url, study_name=None, username=None):
+        """
+        Publishes a tree on a Boris as a Service instance.
+        :param url: url to a instance (e.g. http://transmart-arborist.thehyve.nl/).
+        :param study_name: a nice name.
+        :param username: if no username is given, you will be prompted for one.
+        :return: the url that points to the study you've just uploaded.
+        """
+        study_name = study_name or self.study_name or input('Enter study name:')
+        json_data = self.concept_tree.jstree.json_data_string
+        new_url = arborist.publish_to_baas(url, json_data, study_name, username)
+        return HTML('<a target="_blank" href="{l}">{l}</a>'.format(l=new_url))
 
     def add_metadata(self):
         if hasattr(self, 'Tags'):
