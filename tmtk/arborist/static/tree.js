@@ -276,17 +276,27 @@ function prettyType(label){
 $(function () {
   var to = false;
   $('#search_box').keyup(function () {
+    $("#search_spinner").show();
+    var v = $('#search_box').val();
     if(to) { clearTimeout(to); }
     to = setTimeout(function () {
-      var v = $('#search_box').val();
       $('#treediv').jstree(true).search(v);
     }, 400);
+    if(!v.length){
+        $("#search_spinner").hide();
+    }
   });
 });
 
 // Create the tree
 $('#treediv')
 // listen for event
+    .on('loaded.jstree', function() {
+      $("#search_spinner").hide();
+      })
+    .on('search.jstree', function() {
+      $("#search_spinner").hide();
+      })
     .on('select_node.jstree', function (e, data) {
       node = data.instance.get_node(data.selected[0]);
       $("form#datanodedetails")[0].reset();

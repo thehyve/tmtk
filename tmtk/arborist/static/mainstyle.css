@@ -64,6 +64,14 @@ input#search_box{
   width: 40%;
   z-index: 99;
 }
+#search_spinner{
+  position: absolute;
+  margin-top: 24px;
+  margin-right: 25px;
+  right: 100%;
+  width: 20px;
+  z-index: 99;
+}
 .jstree-default .jstree-search {
   font-style: italic;
   color: #5cb85c;
