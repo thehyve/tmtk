@@ -91,7 +91,7 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
             categorical_path = "{}+{}".format(concept_path, mapped)
             concept_tree.add_node(categorical_path, oid,
                                   node_type='alpha',
-                                  data_args={'datafile_value': datafile_value})
+                                  data_args={Mappings.df_value_s: datafile_value})
 
         concept_tree.add_node(concept_path, var_id,
                               node_type=node_type, data_args=data_args)
@@ -126,7 +126,9 @@ def get_concept_node_from_df(x):
     var_id = "{}__{}".format(x[0], x[2])
 
     data_args = {}
-    for i, s in enumerate(Mappings.column_mapping_header):
+    for i, s in enumerate(Mappings.column_mapping_s):
+        if s in [Mappings.cat_cd_s, Mappings.data_label_s]:
+            continue
         data_args.update({s: x[i] if len(x) > i else None})
     return concept_path, var_id, data_args
 
@@ -237,7 +239,7 @@ class ConceptTree:
     def _extract_column_mapping_row(node):
         if node.type not in ['numeric', 'categorical', 'codeleaf', 'empty']:
             return
-        filename = node.data.get(Mappings.filename)
+        filename = node.data.get(Mappings.filename_s)
         full_path = node.path.replace(' ', '_')
         path, data_label = full_path.rsplit('+', 1)
 
@@ -254,10 +256,10 @@ class ConceptTree:
         if data_label.startswith("OMIT"):
             data_label = "OMIT"
 
-        column = node.data.get(Mappings.col_num)
-        magic5 = node.data.get(Mappings.magic_5)
-        magic6 = node.data.get(Mappings.magic_6)
-        concept_type = node.data.get(Mappings.concept_type)
+        column = node.data.get(Mappings.col_num_s)
+        magic5 = node.data.get(Mappings.magic_5_s)
+        magic6 = node.data.get(Mappings.magic_6_s)
+        concept_type = node.data.get(Mappings.concept_type_s)
         new_row = pd.Series([filename, path, column, data_label, magic5, magic6, concept_type])
         if all([filename, data_label, column]):
             return new_row
@@ -285,7 +287,7 @@ class ConceptTree:
         if node.type == 'alpha':
             var_id = node.concept_id.rsplit('_', 1)[0]
             filename, column = var_id.rsplit('__', 1)
-            datafile_value = node.data.get('datafile_value')
+            datafile_value = node.data.get(Mappings.df_value_s)
             mapped_value = node.path.rsplit('+', 1)[1]
             return pd.Series([filename, column, datafile_value, mapped_value])
 
@@ -313,8 +315,8 @@ class ConceptTree:
             category_code = '+'.join(path)
             concept_path = '+'.join([category_code, node_text])
 
-            node['data'].update({Mappings.cat_cd: category_code,
-                                 Mappings.data_label: node_text})
+            # node['data'].update({Mappings.cat_cd_s: category_code,
+            #                      Mappings.data_label_s: node_text})
 
             self.add_node(path=concept_path,
                           concept_id=node.get('id'),

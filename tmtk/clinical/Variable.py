@@ -72,7 +72,9 @@ class Variable:
         row = self.parent.ColumnMapping.select_row(self.id_)
 
         data_args = {}
-        for i, s in enumerate(Mappings.column_mapping_header):
+        for i, s in enumerate(Mappings.column_mapping_s):
+            if s in [Mappings.cat_cd_s, Mappings.data_label_s]:
+                continue
             data_args.update({s: row[i] if len(row) > i else None})
         return data_args
 
