@@ -6,3 +6,4 @@ from .HighDimUtils import find_missing_annotations, check_datafile_header_with_s
 from .CPrint import MessageCollector, CPrint
 from werkzeug.utils import cached_property  # Instead of port, use werkzeugs cached property
 from .filebase import FileBase
+from .mappings import Mappings

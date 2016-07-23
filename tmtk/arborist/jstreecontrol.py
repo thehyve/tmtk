@@ -1,21 +1,8 @@
-import os
 import re
 import json
 import pandas as pd
 import tmtk
-from tmtk import utils
-from tmtk.utils import CPrint
-
-
-# Strings conversion for json data: Move to class in utils later
-FILENAME = 'Filename'
-CATEGORY_CODE = 'Category Code'
-COLUMN_NUMBER = 'Column Number'
-DATA_LABEL = 'Data Label'
-MAGIC_5 = 'Data Label Source'
-MAGIC_6 = 'Control Vocab Cd'
-TAGS = 'Tags'
-CONCEPT_TYPE = 'Concept Type'
+from ..utils import CPrint, Mappings, Exceptions
 
 
 def create_concept_tree(column_object):
@@ -34,7 +21,7 @@ def create_concept_tree(column_object):
         concept_tree = create_tree_from_clinical(column_object)
 
     else:
-        raise utils.DatatypeError(type(column_object), "tmtk.Study, tmtk.Clinical or pd.DataFrame")
+        raise Exceptions.DatatypeError(type(column_object), "tmtk.Study, tmtk.Clinical or pd.DataFrame")
 
     return concept_tree.jstree.json_data_string
 
@@ -59,7 +46,7 @@ def create_tree_from_study(study_object, concept_tree=None):
         for path, tags_dict in study_object.Tags.get_tags():
             # Add TAGS string to path name, TAGS will be subnode of the concept
             # that has the meta data.
-            path_in_tree = "{}+{}".format(path, TAGS)
+            path_in_tree = "{}+{}".format(path, Mappings.tags_node_name)
             data_args = {'tags': tags_dict}
             concept_tree.add_node(path_in_tree, node_type='tag', data_args=data_args)
 
@@ -137,14 +124,10 @@ def get_concept_node_from_df(x):
     """
     concept_path = "{}+{}".format(x[1], x[3])
     var_id = "{}__{}".format(x[0], x[2])
-    data_args = {FILENAME: x[0],
-                 CATEGORY_CODE: x[1],
-                 COLUMN_NUMBER: x[2],
-                 DATA_LABEL: x[3],
-                 MAGIC_5: x[4] if len(x) > 4 else None,
-                 MAGIC_6: x[5] if len(x) > 5 else None,
-                 CONCEPT_TYPE: x[6] if len(x) > 6 else None,
-                 }
+
+    data_args = {}
+    for i, s in enumerate(Mappings.column_mapping_header):
+        data_args.update({s: x[i] if len(x) > i else None})
     return concept_path, var_id, data_args
 
 
@@ -200,7 +183,7 @@ class ConceptTree:
         :return: Column Mapping file based on ConceptTree object.
         """
         df = pd.concat([self._extract_column_mapping_row(node) for node in self.nodes], axis=1).T
-        df.columns = [FILENAME, CATEGORY_CODE, COLUMN_NUMBER, DATA_LABEL, 'Magic5', 'Magic6', CONCEPT_TYPE]
+        df.columns = Mappings.column_mapping_header
         return df
 
     @property
@@ -230,7 +213,7 @@ class ConceptTree:
         # Set None to NaN, else empty fields in dataframes are not recognized (None != NaN)
         df.fillna(value=pd.np.nan, inplace=True)
 
-        df.columns = [FILENAME, COLUMN_NUMBER, 'Datafile Value', 'Mapping Value']
+        df.columns = Mappings.word_mapping_header
         return df[changed_values].reset_index(drop=True)
 
     @property
@@ -240,7 +223,7 @@ class ConceptTree:
         # This reduces the nested dictionary to a flat one.
         flat_mapping = [row for nest_list in all_mappings for row in nest_list]
 
-        column_names = ['Concept Path', 'Title', 'Description', 'Weight']
+        column_names = Mappings.tags_header
 
         try:
             df = pd.concat([pd.Series(row) for row in flat_mapping], axis=1).T
@@ -254,8 +237,7 @@ class ConceptTree:
     def _extract_column_mapping_row(node):
         if node.type not in ['numeric', 'categorical', 'codeleaf', 'empty']:
             return
-
-        filename = node.data.get(FILENAME)
+        filename = node.data.get(Mappings.filename)
         full_path = node.path.replace(' ', '_')
         path, data_label = full_path.rsplit('+', 1)
 
@@ -272,10 +254,10 @@ class ConceptTree:
         if data_label.startswith("OMIT"):
             data_label = "OMIT"
 
-        column = node.data.get(COLUMN_NUMBER)
-        magic5 = node.data.get(MAGIC_5)
-        magic6 = node.data.get(MAGIC_6)
-        concept_type = node.data.get(CONCEPT_TYPE)
+        column = node.data.get(Mappings.col_num)
+        magic5 = node.data.get(Mappings.magic_5)
+        magic6 = node.data.get(Mappings.magic_6)
+        concept_type = node.data.get(Mappings.concept_type)
         new_row = pd.Series([filename, path, column, data_label, magic5, magic6, concept_type])
         if all([filename, data_label, column]):
             return new_row
@@ -321,7 +303,7 @@ class ConceptTree:
         # Check if node has metadata tag child, adds it to node list.
         meta_tag = self._get_meta_data_tags(node_children)
         if meta_tag:
-            tag_path = path + [node_text, TAGS]
+            tag_path = path + [node_text, Mappings.tags_node_name]
             tag_path = '+'.join(tag_path)
             self.add_node(path=tag_path,
                           node_type='tag',
@@ -331,8 +313,8 @@ class ConceptTree:
             category_code = '+'.join(path)
             concept_path = '+'.join([category_code, node_text])
 
-            node['data'].update({CATEGORY_CODE: category_code,
-                                 DATA_LABEL: node_text})
+            node['data'].update({Mappings.cat_cd: category_code,
+                                 Mappings.data_label: node_text})
 
             self.add_node(path=concept_path,
                           concept_id=node.get('id'),
@@ -411,10 +393,7 @@ class JSNode:
         if self.data:
             del kwargs['data']
 
-        if oid is not None:
-            li_attr = kwargs.get('li_attr', {})
-            li_attr['id'] = oid
-            kwargs['li_attr'] = li_attr
+        self.__dict__.update(id=oid)
 
         self.__dict__.update(**kwargs)
         self.__dict__['text'] = path

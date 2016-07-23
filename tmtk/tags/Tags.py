@@ -1,15 +1,15 @@
 import pandas as pd
 import os
-from .. import utils
+from ..utils import Exceptions, FileBase, MessageCollector, summarise, Mappings
 from ..params import TagsParams
 
 
-class MetaDataTags(utils.FileBase):
+class MetaDataTags(FileBase):
     def __init__(self, params=None, parent=None):
         if params and params.is_viable() and params.datatype == 'tags':
             self.path = os.path.join(params.dirname, params.TAGS_FILE)
         else:
-            raise utils.Exceptions.ClassError(type(params), TagsParams)
+            raise Exceptions.ClassError(type(params), TagsParams)
 
         self.parent = parent
         super().__init__()
@@ -51,14 +51,14 @@ class MetaDataTags(utils.FileBase):
 
     def validate(self, verbosity=2):
 
-        message = utils.MessageCollector(verbosity=verbosity)
+        message = MessageCollector(verbosity=verbosity)
         message.head("Validating Tags:")
         invalid = self.invalid_paths
 
         if invalid:
             message.error("Tags ({}) found that cannot map to tree: ({})."
                           " You might want to call_boris() to fix them.".
-                          format(len(invalid), utils.summarise(invalid)))
+                          format(len(invalid), summarise(invalid)))
         else:
             message.okay("No tags found that do not map to tree. Total number of tags: {}".
                          format(len(self.tag_paths)))
@@ -67,8 +67,5 @@ class MetaDataTags(utils.FileBase):
 
     @staticmethod
     def create_df():
-        df = pd.DataFrame(dtype=str, columns=['Concept Path',
-                                              'Title',
-                                              'Description',
-                                              'Weight'])
+        df = pd.DataFrame(dtype=str, columns=Mappings.tags_header)
         return df

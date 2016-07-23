@@ -1,11 +1,11 @@
 import os
 import pandas as pd
 
-from .. import utils
+from ..utils import FileBase, Exceptions, Mappings, MessageCollector
 from ..params import ClinicalParams
 
 
-class WordMapping(utils.FileBase):
+class WordMapping(FileBase):
     """
     Base Class for word mapping file.
     """
@@ -14,7 +14,7 @@ class WordMapping(utils.FileBase):
         self.params = params
 
         if not isinstance(params, ClinicalParams):
-            raise utils.Exceptions.ClassError(type(params))
+            raise Exceptions.ClassError(type(params))
         elif params.__dict__.get('WORD_MAP_FILE'):
             self.path = os.path.join(params.dirname, params.WORD_MAP_FILE)
         else:
@@ -24,7 +24,7 @@ class WordMapping(utils.FileBase):
         super().__init__()
 
     def validate(self, verbosity=2):
-        messages = utils.MessageCollector(verbosity)
+        messages = MessageCollector(verbosity)
 
         if self.df.shape[1] != 4:
             messages.error("Wordmapping file does not have 4 columns!")
@@ -52,10 +52,7 @@ class WordMapping(utils.FileBase):
 
     @staticmethod
     def create_df():
-        df = pd.DataFrame(dtype=str, columns=['Filename',
-                                              'Column Number',
-                                              'Datafile Value',
-                                              'Mapping Value'])
+        df = pd.DataFrame(dtype=str, columns=Mappings.word_mapping_header)
         return df
 
     @staticmethod

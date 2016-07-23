@@ -1,7 +1,9 @@
 import os
-import tmtk
+import pandas as pd
+
 from ..arborist import call_boris
-from ..utils import FileBase, Exceptions
+from ..utils import FileBase, Exceptions, Mappings
+from ..params import ClinicalParams
 
 
 class ColumnMapping(FileBase):
@@ -10,10 +12,16 @@ class ColumnMapping(FileBase):
     Can be initiated with either a path to column mapping file, or a clinical params file object.
     """
     def __init__(self, params=None):
-        if params and params.is_viable() and params.datatype == 'clinical':
+
+        self.params = params
+
+        if not isinstance(params, ClinicalParams):
+            raise Exceptions.ClassError(type(params))
+        elif params.__dict__.get('COLUMN_MAP_FILE'):
             self.path = os.path.join(params.dirname, params.COLUMN_MAP_FILE)
         else:
-            raise Exceptions.ClassError(type(params), tmtk.params.ClinicalParams)
+            self.path = os.path.join(params.dirname, 'column_mapping_file.txt')
+            self.params.__dict__['COLUMN_MAP_FILE'] = os.path.basename(self.path)
         super().__init__()
 
     @property
@@ -27,6 +35,11 @@ class ColumnMapping(FileBase):
     @property
     def ids(self):
         return self.df.apply(lambda x: '{}__{}'.format(x[0], x[2]), axis=1)
+
+    @staticmethod
+    def create_df():
+        df = pd.DataFrame(dtype=str, columns=Mappings.column_mapping_header)
+        return df
 
     def call_boris(self):
         self.df = call_boris(self.df)

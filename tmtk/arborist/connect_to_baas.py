@@ -1,8 +1,7 @@
 import requests
 import getpass
 from urllib.parse import urlparse
-from ..utils import CPrint
-from ..utils import PathError
+from ..utils import CPrint, PathError
 
 
 def get_instance_url(url):
@@ -39,7 +38,7 @@ def start_session(url, username):
                   'password': password,
                   'csrfmiddlewaretoken': client.cookies['csrftoken']}
     r = client.post(auth_url, data=login_data, headers={'Referer': auth_url})
-    if not r.text.find(username) != -1 or not r.status_code == 200:
+    if r.text.find(username) == -1 or not r.status_code == 200:
         raise Exception('Could not login.')
     return client
 
