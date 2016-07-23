@@ -107,8 +107,8 @@ $("form#datanodedetails").submit(function (e) {
       node.data = {}
     }
 
-    node.data['Data Label Source'] = $("#datalabelsource").val();
-    node.data['Control Vocab Cd'] = $("#controlvocabcd").val();
+    node.data['m5'] = $("#magic5").val();
+    node.data['m6'] = $("#magic6").val();
     var type = node.type
 
     if (updated) {
@@ -186,7 +186,7 @@ function customMenu(node) {
           type: 'tag',
           text: 'Tags',
           data: { // This is added to prevent GUI error for Filename
-            'Filename': '',
+            'fn': '',
             'tags': {},
           }
         }
@@ -306,13 +306,13 @@ $('#treediv')
       enableRightFields(node.type);
 
       if (typeof node.data !== 'undefined') {
-        $("#filename").text(node.data['Filename']);
-        $("#columnnumber").text(node.data['Column Number']);
-        if (typeof node.data['Data Label Source'] !== 'undefined') {
-          $("#datalabelsource").val(node.data['Data Label Source']);
+        $("#filename").text(node.data['fn']);
+        $("#columnnumber").text(node.data['col']);
+        if (typeof node.data['m5'] !== 'undefined') {
+          $("#magic5").val(node.data['m5']);
         }
-        if (typeof node.data['Control Vocab Cd'] !== 'undefined') {
-          $("#controlvocabcd").val(node.data['Control Vocab Cd']);
+        if (typeof node.data['m6'] !== 'undefined') {
+          $("#magic6").val(node.data['m6']);
         }
 
         // This way to add multiple tags to 'tags' dictionary in 'data'
