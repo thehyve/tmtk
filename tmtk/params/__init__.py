@@ -7,22 +7,13 @@ from .HighDimParams import HighDimParams
 from .TagsParams import TagsParams
 from .StudyParams import StudyParams
 from .. import utils
-from ..utils import CPrint
+from ..utils import CPrint, Mappings
 
 
 class Params:
     """
     Container class for all params files, called by Study to locate all params files.
     """
-    param_mapping = {'rnaseq': 'HighDimParams',
-                     'cnv': 'HighDimParams',
-                     'proteomics': 'HighDimParams',
-                     'expression': 'HighDimParams',
-                     'tags': 'TagsParams',
-                     'study': 'StudyParams',
-                     'clinical': 'ClinicalParams',
-                     'mirna': 'HighDimParams'
-                     }
 
     def __init__(self, study_folder=None):
         """
@@ -63,7 +54,7 @@ class Params:
         :return:
         """
         datatype = os.path.basename(path).split('.params')[0]
-        params_class = self.param_mapping.get(datatype)
+        params_class = Mappings.params.get(datatype)
         if params_class:
             correct_instance = globals()[params_class]
         elif 'annotation' in datatype:

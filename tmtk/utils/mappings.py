@@ -63,3 +63,29 @@ class Mappings:
                    tags_title,
                    tags_description,
                    tags_weight]
+
+    params = {'rnaseq': 'HighDimParams',
+              'cnv': 'HighDimParams',
+              'proteomics': 'HighDimParams',
+              'expression': 'HighDimParams',
+              'tags': 'TagsParams',
+              'study': 'StudyParams',
+              'clinical': 'ClinicalParams',
+              'mirna': 'HighDimParams',
+              }
+
+    annotations = {'microarray_annotation': 'MicroarrayAnnotation',
+                   'cnv_annotation': 'ChromosomalRegions',
+                   'rnaseq_annotation': 'ChromosomalRegions',
+                   'proteomics_annotation': 'ProteomicsAnnotation',
+                   'annotation': 'MicroarrayAnnotation',
+                   'mrna_annotation': 'MicroarrayAnnotation',
+                   'mirna_annotation': 'MirnaAnnotation',
+                   }
+
+    highdim = {'rnaseq': 'ReadCounts',
+               'cnv': 'CopyNumberVariation',
+               'expression': 'Expression',
+               'proteomics': 'Proteomics',
+               'mirna': 'Mirna',
+               }

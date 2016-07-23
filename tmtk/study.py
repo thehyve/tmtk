@@ -7,7 +7,7 @@ from .params import Params
 from .highdim import HighDim
 from .annotation import Annotations
 from .tags import MetaDataTags
-from .utils import CPrint
+from .utils import CPrint, Mappings
 from tmtk import utils, arborist
 
 
@@ -34,33 +34,17 @@ class Study:
         if len(clinical_params) == 1:
             self.Clinical = Clinical(clinical_params[0])
 
-        annotation_map = {'microarray_annotation': 'MicroarrayAnnotation',
-                          'cnv_annotation': 'ChromosomalRegions',
-                          'rnaseq_annotation': 'ChromosomalRegions',
-                          'proteomics_annotation': 'ProteomicsAnnotation',
-                          'annotation': 'MicroarrayAnnotation',
-                          'mrna_annotation': 'MicroarrayAnnotation',
-                          'mirna_annotation': 'MirnaAnnotation',
-                          }
-
-        annotation_params = self.find_params_for_datatype(datatypes=list(annotation_map))
+        annotation_params = self.find_params_for_datatype(datatypes=list(Mappings.annotations))
         if annotation_params:
             self.Annotations = Annotations(annotation_params,
                                            parent=self,
-                                           mapping=annotation_map)
+                                           mapping=Mappings.annotations)
 
-        highdim_map = {'rnaseq': 'ReadCounts',
-                       'cnv': 'CopyNumberVariation',
-                       'expression': 'Expression',
-                       'proteomics': 'Proteomics',
-                       'mirna': 'Mirna',
-                       }
-
-        highdim_params = self.find_params_for_datatype(datatypes=list(highdim_map))
+        highdim_params = self.find_params_for_datatype(datatypes=list(Mappings.highdim))
         if highdim_params:
             self.HighDim = HighDim(params_list=highdim_params,
                                    parent=self,
-                                   mapping=highdim_map)
+                                   mapping=Mappings.highdim)
 
         tags_params = self.find_params_for_datatype(datatypes='tags')
         if tags_params:
