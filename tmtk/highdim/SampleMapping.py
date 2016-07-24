@@ -1,9 +1,9 @@
 import os
-import tmtk.utils as utils
-from tmtk.utils.CPrint import CPrint
+
+from ..utils import CPrint, FileBase, md5, path_converter
 
 
-class SampleMapping(utils.FileBase):
+class SampleMapping(FileBase):
     """
     Base class for subject sample mapping
     """
@@ -21,24 +21,22 @@ class SampleMapping(utils.FileBase):
         :return: dictionary with md5 hash values as key and paths as value
         """
         paths = self.df.apply(self._find_path, axis=1)
-        return {utils.md5(p): p for p in paths}
+        return {md5(p): p for p in paths}
 
     @staticmethod
     def _find_path(row):
-        category_cd = row.ix[8]
-        category_cd = category_cd.replace('ATTR1', str(row.ix[6]))
-        category_cd = category_cd.replace('ATTR2', str(row.ix[7]))
+        cp = row.ix[8]
+        cp = cp.replace('ATTR1', str(row.ix[6]))
+        cp = cp.replace('ATTR2', str(row.ix[7]))
 
-        # This replacements happens because jstree needs to show column mapping paths
-        # and these in the same tree. Transmart-batch is inconsistent in his behaviour here.
-        return category_cd.replace('\\', '+').strip('+')
+        return path_converter(cp)
 
     def update_concept_paths(self, path_dict):
         self.df.ix[:, 8] = self.df.apply(lambda x: self._update_row(x, path_dict), axis=1)
 
     def _update_row(self, row, path_dict):
         current_path = self._find_path(row)
-        current_md5 = utils.md5(current_path)
+        current_md5 = md5(current_path)
         new_path = path_dict.get(current_md5)
         if new_path:
             return new_path

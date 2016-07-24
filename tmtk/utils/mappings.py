@@ -89,3 +89,5 @@ class Mappings:
                'proteomics': 'Proteomics',
                'mirna': 'Mirna',
                }
+
+    path_delim = '|'

@@ -1,8 +1,7 @@
-import re
 import json
 import pandas as pd
 import tmtk
-from ..utils import CPrint, Mappings, Exceptions
+from ..utils import CPrint, Mappings, Exceptions, path_join
 
 
 def create_concept_tree(column_object):
@@ -46,7 +45,7 @@ def create_tree_from_study(study_object, concept_tree=None):
         for path, tags_dict in study_object.Tags.get_tags():
             # Add TAGS string to path name, TAGS will be subnode of the concept
             # that has the meta data.
-            path_in_tree = "{}+{}".format(path, Mappings.tags_node_name)
+            path_in_tree = path_join(path, Mappings.tags_node_name)
             data_args = {'tags': tags_dict}
             concept_tree.add_node(path_in_tree, node_type='tag', data_args=data_args)
 
@@ -88,7 +87,7 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
             oid = '{}_{}'.format(var_id, i)
             mapped = categories[datafile_value]
             mapped = mapped if not pd.isnull(mapped) else ''
-            categorical_path = "{}+{}".format(concept_path, mapped)
+            categorical_path = path_join(concept_path, mapped)
             concept_tree.add_node(categorical_path, oid,
                                   node_type='alpha',
                                   data_args={Mappings.df_value_s: datafile_value})
@@ -122,7 +121,7 @@ def get_concept_node_from_df(x):
     :param x: row in column mapping dataframe
     :return:
     """
-    concept_path = "{}+{}".format(x[1], x[3])
+    concept_path = path_join(x[1], x[3])
     var_id = "{}__{}".format(x[0], x[2])
 
     data_args = {}
@@ -241,7 +240,7 @@ class ConceptTree:
             return
         filename = node.data.get(Mappings.filename_s)
         full_path = node.path.replace(' ', '_')
-        path, data_label = full_path.rsplit('+', 1)
+        path, data_label = full_path.rsplit(Mappings.path_delim, 1)
 
         # Check if data_label has value, otherwise use the path as data_label
         # Wibo has a use case for pathless variables.
@@ -270,9 +269,9 @@ class ConceptTree:
         tags_dict = node.data.get('tags', {})
         if tags_dict:
             # Strip last node (Meta data tags node label)
-            path = node.path.rsplit('+', 1)[0]
+            path = node.path.rsplit(Mappings.path_delim, 1)[0]
             # Tag paths need to start with slash
-            path = '\\' + path.replace('+', '\\')
+            path = '\\' + path.replace(Mappings.path_delim, '\\')
             for title, desc_weight in tags_dict.items():
                 description, weight = desc_weight
 
@@ -288,7 +287,7 @@ class ConceptTree:
             var_id = node.concept_id.rsplit('_', 1)[0]
             filename, column = var_id.rsplit('__', 1)
             datafile_value = node.data.get(Mappings.df_value_s)
-            mapped_value = node.path.rsplit('+', 1)[1]
+            mapped_value = node.path.rsplit(Mappings.path_delim, 1)[1]
             return pd.Series([filename, column, datafile_value, mapped_value])
 
     def _extract_node_list(self, json_data):
@@ -305,15 +304,13 @@ class ConceptTree:
         # Check if node has metadata tag child, adds it to node list.
         meta_tag = self._get_meta_data_tags(node_children)
         if meta_tag:
-            tag_path = path + [node_text, Mappings.tags_node_name]
-            tag_path = '+'.join(tag_path)
+            tag_path = path_join(*path, node_text, Mappings.tags_node_name)
             self.add_node(path=tag_path,
                           node_type='tag',
                           data_args=meta_tag['data'])
 
         if node_type in ['numeric', 'categorical', 'highdim', 'codeleaf', 'alpha', 'empty']:
-            category_code = '+'.join(path)
-            concept_path = '+'.join([category_code, node_text])
+            concept_path = path_join(*path, node_text)
 
             # node['data'].update({Mappings.cat_cd_s: category_code,
             #                      Mappings.data_label_s: node_text})
@@ -435,7 +432,8 @@ class JSTree:
 
         for node in concept_nodes:
             curr = self._root
-            sub_paths = re.split(r'[+\\]', node.path)
+            # sub_paths = re.split(r'[+\\]', node.path)
+            sub_paths = node.path.split(Mappings.path_delim)
             data = node.__dict__.get('data', {})
             children = node.__dict__.get('_children', {})
             node_type = node.__dict__.get('type', 'default')

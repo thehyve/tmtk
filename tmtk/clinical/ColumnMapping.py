@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 from ..arborist import call_boris
-from ..utils import FileBase, Exceptions, Mappings
+from ..utils import FileBase, Exceptions, Mappings, path_converter, path_join
 from ..params import ClinicalParams
 
 
@@ -58,7 +58,8 @@ class ColumnMapping(FileBase):
 
     def get_concept_path(self, var_id):
         row = self.select_row(var_id)
-        return '{}+{}'.format(row[1], row[3])
+        cp = path_join(row[1], row[3])
+        return path_converter(cp)
 
     @staticmethod
     def _df_mods(df):

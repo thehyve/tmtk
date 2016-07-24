@@ -47,7 +47,7 @@ class WordMapping(FileBase):
         if sum(f & c):
             # fill dict with col3 as key and col4 as value
             sub_df = self.df.ix[f & c]
-            sub_df.apply(lambda x: mapping_dict.update({x[2]: x[3].replace('+', '&')}), axis=1)
+            sub_df.apply(lambda x: mapping_dict.update({x[2]: x[3]}), axis=1)
         return mapping_dict
 
     @staticmethod

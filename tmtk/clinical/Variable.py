@@ -1,7 +1,6 @@
 import pandas as pd
 
-from .. import utils
-from ..utils import Mappings
+from ..utils import Mappings, path_converter, is_numeric
 
 
 class VariableCollection:
@@ -48,11 +47,11 @@ class Variable:
 
     @property
     def is_numeric_in_datafile(self):
-        return utils.is_numeric(self.unique_values)
+        return is_numeric(self.unique_values)
 
     @property
     def is_numeric(self):
-        return utils.is_numeric(self.mapped_values) and not self.forced_categorical
+        return is_numeric(self.mapped_values) and not self.forced_categorical
 
     @property
     def is_empty(self):
@@ -65,7 +64,8 @@ class Variable:
         :return:
         """
         cp = self.parent.ColumnMapping.get_concept_path(self.id_)
-        return cp.replace('_', ' ').replace('\\', '+').strip('+')
+        cp = path_converter(cp)
+        return cp.replace('_', ' ')
 
     @property
     def column_map_data(self):

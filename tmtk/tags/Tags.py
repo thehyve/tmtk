@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from ..utils import Exceptions, FileBase, MessageCollector, summarise, Mappings
+from ..utils import Exceptions, FileBase, MessageCollector, summarise, Mappings, path_converter
 from ..params import TagsParams
 
 
@@ -17,8 +17,7 @@ class MetaDataTags(FileBase):
     @property
     def tag_paths(self):
         """
-        paths in file, replaces back slashes for '+', strips leading and trailing '+' and
-        converts spaces to underscores.  This needs to be refactored in clinical data.
+        Return tag paths delimited by the path_converter.
         """
         return self.df.ix[:, 0].apply(lambda x: self._convert_path(x))
 
@@ -29,13 +28,14 @@ class MetaDataTags(FileBase):
         for tag_path in self.tag_paths:
             # Add "+" to both paths comparing so tag_path only matches if a complete node
             # is matched, as "Cell-line+Characteristics" starts with "Cell-line+Char"
-            if not any([(p + '+').startswith(tag_path + '+') for p in study_paths]):
+            if not any([(p + Mappings.path_delim).startswith(tag_path + Mappings.path_delim) for p in study_paths]):
                 invalid.append(tag_path)
         return invalid
 
     @staticmethod
     def _convert_path(x):
-        return x.replace('\\', '+').strip('+').strip()
+        x = path_converter(x)
+        return x.strip()
 
     def get_tags(self):
         """

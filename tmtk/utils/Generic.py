@@ -1,9 +1,12 @@
 import os
 import pandas as pd
 import random
-from .Exceptions import *
 from IPython.display import Audio
 import hashlib
+import re
+
+from .Exceptions import *
+from .mappings import Mappings
 
 
 def clean_for_namespace(path) -> str:
@@ -175,3 +178,27 @@ def fix_everything():
     """
     return Audio(os.path.join(os.path.dirname(__file__), 'fix_for_all_tm_loading_issues.mp3'),
                  autoplay=True)
+
+
+def path_converter(path, delimiter=None):
+    """
+    Convert paths by creating delimiters of backslash "\" and "+" sign, additionally converting
+    underscores "_" to a single space.
+    :param path: concept path
+    :param delimiter: delimiter for paths, defaults to Mappings.path_delim
+    :return: delimited path
+    """
+
+    if not delimiter:
+        delimiter = Mappings.path_delim
+
+    path = re.sub(r'[\\+]', delimiter, path)
+    return path.strip(delimiter)
+
+
+def path_join(*args):
+    """
+    :param args:
+    :return:
+    """
+    return Mappings.path_delim.join(args)
