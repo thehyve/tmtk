@@ -90,4 +90,4 @@ class Mappings:
                'mirna': 'Mirna',
                }
 
-    path_delim = '|'
+    path_delim = '\u2215'  # Mathematical division sign

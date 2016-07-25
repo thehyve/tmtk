@@ -93,6 +93,8 @@ def df2file(df=None, path=None, overwrite=False):
 
     os.makedirs(os.path.dirname(path), exist_ok=True)
 
+    df.replace(Mappings.path_delim, '\\\\', inplace=True, regex=True)
+
     df.to_csv(path,
               sep='\t',
               index=False,
