@@ -240,12 +240,9 @@ class ConceptTree:
             return
         filename = node.data.get(Mappings.filename_s)
         full_path = node.path.replace(' ', '_')
-        path, data_label = full_path.rsplit(Mappings.path_delim, 1)
 
-        # Check if data_label has value, otherwise use the path as data_label
-        # Wibo has a use case for pathless variables.
-        if not data_label:
-            path, data_label = data_label, path
+        *path, data_label = full_path.rsplit(Mappings.path_delim, 1)
+        path = path[0] if path else '/'
 
         # Remove file names from SUBJ_ID, they were added as workaround for unique constraints.
         if data_label.startswith("SUBJ_ID"):
