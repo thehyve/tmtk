@@ -29,10 +29,11 @@ class Study:
         if minimal:
             return
 
+        self.Clinical = None
         # Look for clinical params and create child object
         clinical_params = self.find_params_for_datatype(datatypes='clinical')
-        if len(clinical_params) == 1:
-            self.Clinical = Clinical(clinical_params[0])
+        if clinical_params:
+            self.add_clinical(clinical_params[0])
 
         annotation_params = self.find_params_for_datatype(datatypes=list(Mappings.annotations))
         if annotation_params:
@@ -207,7 +208,7 @@ class Study:
         :return:
         """
         if not os.path.exists(root_dir) or not os.path.isdir(root_dir):
-            os.makedirs(root_dir)
+            os.makedirs(root_dir, exist_ok=True)
 
         for obj in self.get_objects_with_prop('path'):
             # Strip sub_path from leading slash, as os.path.join() will think its an absolute path
@@ -216,3 +217,15 @@ class Study:
             CPrint.info("Writing file to {}".format(new_path))
             obj.write_to(new_path, overwrite=overwrite)
 
+    def add_clinical(self, clinical_params):
+        """
+        Add clinical data to a study object.
+        :param clinical_params:
+        :return:
+        """
+        if clinical_params.datatype != 'clinical':
+            CPrint.error('Expected clinical params, but got {} params.'.format(clinical_params))
+        elif self.Clinical:
+            CPrint.error('Trying to add Clinical, but already there.')
+        else:
+            self.Clinical = Clinical(clinical_params)

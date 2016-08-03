@@ -1,4 +1,6 @@
 import os
+import glob
+
 from ..utils import PathError
 from ..utils.CPrint import MessageCollector
 
@@ -7,28 +9,26 @@ class ParamsBase:
     """
     Base class for parameter files.
     """
-    def __init__(self, path=None, datatype=None, parameters=None, subdir=None, parent=None):
+    def __init__(self, path=None, parameters=None, subdir=None, parent=None):
         """
         :param path: describes the path to the params file.
-        :param datatype: the parameters belong to.
-        :param parameters: is a dictionary that contains all parameters in the file.
+        :param parameters: a dictionary you can provide to setup the parameter file.
         :param subdir: is the key that is given by Study class.
         :param parent: can be used to find the parent instance of this object.
         """
 
         self.path = path
         self.dirname = os.path.dirname(path)
-        self.datatype = datatype
+        self.datatype = os.path.basename(path).split('.params')[0]
         self._parent = parent
-        if not parameters:
+        self.subdir = subdir
+
+        if parameters:
+            self.__dict__.update(**parameters)
+        elif os.path.exists(self.path):
             self.__dict__.update(**self._get_params_from_file())
         else:
-            self.__dict__.update(**parameters)
-
-        if subdir:
-            self.subdir = subdir
-        else:
-            self.subdir = self.path
+            self.update()
 
     def __str__(self):
         return self.subdir
@@ -129,3 +129,45 @@ class ParamsBase:
         Overwrite the original file with the current parameters.
         """
         self.write_to(self.path, overwrite=True)
+
+    def update(self):
+        """
+        Iterate over parameters to change them.
+        :return:
+        """
+        print('  '.join(['='*10, str(self) + ' params', '='*10]))
+        for param, d in {**self.mandatory, **self.optional}.items():
+            current = self.__dict__.get(param)
+            default = d.get('default')
+            is_file = 'FILE' in param
+
+            print('Updating:  {}'.format(param), end='')
+            if current:
+                print('={}.'.format(current))
+            elif default:
+                print('={} (default).'.format(default))
+            else:
+                print(' (not set)')
+
+            print('Helptext:  {}'.format(d.get('helptext')))
+
+            if is_file:
+                files_in_dir = [os.path.basename(f) for f in
+                                glob.glob(os.path.join(self.dirname, '*')) if not os.path.isdir(f)]
+                for i, f in enumerate(files_in_dir):
+                    print('-    {}. {}'.format(i, f))
+
+            new_setting = input('Change to:  ')
+
+            if is_file:
+                try:
+                    choice = int(new_setting)
+                    new_setting = files_in_dir[choice]
+                except (ValueError, IndexError):
+                    pass
+
+            if new_setting and new_setting != current:
+                print('Updating! ({}={})'.format(param, new_setting))
+                self.__dict__[param] = new_setting
+
+            print('-' * 20)

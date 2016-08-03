@@ -2,8 +2,9 @@ import os
 import pandas as pd
 
 from ..arborist import call_boris
-from ..utils import FileBase, Exceptions, Mappings, path_converter, path_join
+from ..utils import FileBase, Exceptions, Mappings, path_converter, path_join, CPrint
 from ..params import ClinicalParams
+from .DataFile import DataFile
 
 
 class ColumnMapping(FileBase):
@@ -47,14 +48,27 @@ class ColumnMapping(FileBase):
     def validate(self, verbosity=2):
         pass
 
-    def select_row(self, var_id):
+    def select_row(self, var_id, **kwargs):
+        """
+        Select row based on var_id
+        :param var_id:
+        :param kwargs:
+        :return:
+        """
         filename, column = var_id.rsplit('__', 1)
-        f = self.df.ix[:, 0].astype(str) == filename
-        c = self.df.ix[:, 2].astype(str) == column
-        if sum(f & c) > 1:
-            raise Exceptions.TooManyValues(sum(f & c), 1, var_id)
-        row = self.df.ix[f & c]
-        return list(row.values[0, :])
+
+        try:
+            rows = self.df.loc[filename, column]
+
+            if isinstance(rows, pd.Series):
+                return list(rows)
+            elif isinstance(rows, pd.DataFrame):
+                raise Exceptions.TooManyValues(rows.shape[0], 1, var_id)
+
+        except KeyError:
+            if not kwargs.get('_final'):
+                self.build_index()
+                return self.select_row(var_id, _final=True)
 
     def get_concept_path(self, var_id):
         row = self.select_row(var_id)
@@ -69,3 +83,24 @@ class ColumnMapping(FileBase):
         """
         df.fillna("", inplace=True)
         return df
+
+    def build_index(self):
+        self.df.set_index(list(self.df.columns[[0, 2]]), drop=False, inplace=True)
+
+    def append_from_datafile(self, datafile):
+        """
+        Appends the column mapping file with rows based on datafile column names.
+        :param datafile: tmtk.clinical.Datafile object.
+        """
+
+        if not isinstance(datafile, DataFile):
+            raise TypeError(datafile)
+
+        cols_min_four = [""] * (self.df.shape[1] - 4)
+        for i, name in enumerate(datafile.df.columns, 1):
+            var_id = '{}__{}'.format(datafile.name, i)
+            if self.select_row(var_id):
+                CPrint.warn("Skipping {!r}, already in column mapping file.".format(var_id))
+                continue
+
+            self.df.loc[len(self.df)] = [datafile.name, datafile.name, str(i), name] + cols_min_four

@@ -1,9 +1,10 @@
+import pandas as pd
+import os
+
 import tmtk.utils as utils
 from .SampleMapping import SampleMapping
 from tmtk.annotation import ChromosomalRegions
-import tmtk.toolbox as Toolbox
-import pandas as pd
-import os
+from ..toolbox import remap_chromosomal_regions
 
 
 class HighDimBase(utils.FileBase):
@@ -154,8 +155,8 @@ class HighDimBase(utils.FileBase):
             raise utils.ClassError(found=type(destination),
                                    expected='pd.DataFrame, or ChromosomalRegions')
 
-        remapped = Toolbox.remap_chromosomal_regions(datafile=self.df,
-                                                     origin_platform=self.annotation_file.df,
-                                                     destination_platform=destination)
+        remapped = remap_chromosomal_regions(datafile=self.df,
+                                             origin_platform=self.annotation_file.df,
+                                             destination_platform=destination)
         return remapped
 

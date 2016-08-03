@@ -111,15 +111,15 @@ def validate_clinical_data(df):
     pass
 
 
-def find_column_datatype(df):
+def find_fully_unique_columns(df):
     """
-    This function takes a dataframe and determines the whether transmart will interpret it as:
-    categorical or numerical.
+    Check if a pd.DataFrame contains a fully unique column (SUBJ_ID candidate).
+    :param df: pd.DataFrame
+    :return: list of names of unique columns
+    """
 
-    :param df is a dataframe
-    :return is a series of categorical and numerical.
-    """
-    raise NotYetImplemented
+    unique_cols = df.apply(lambda x: len(x.unique()) == len(df))
+    return list(df.columns[unique_cols])
 
 
 def get_unique_filename(first_filename):
@@ -151,16 +151,14 @@ def get_unique_filename(first_filename):
         return full_filename
 
 
-def is_numeric(values, hard=True):
+def is_numeric(values):
     """
     Olafs functions.py
     """
-    bool_list = [numeric(value) for value in values]
-
-    if hard:
-        return all(bool_list)
-    else:
-        return sum(bool_list) / len(bool_list)
+    for v in values:
+        if not numeric(v):
+            return False
+    return True
 
 
 def numeric(x):

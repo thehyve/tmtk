@@ -1,5 +1,4 @@
 import tmtk.utils as utils
-import os
 
 
 class DataFile(utils.FileBase):
@@ -8,7 +7,6 @@ class DataFile(utils.FileBase):
     """
     def __init__(self, path=None):
         self.path = path
-        self.name = os.path.basename(path)
         super().__init__()
 
     def validate(self, verbosity=2):

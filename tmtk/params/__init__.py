@@ -34,7 +34,8 @@ class Params:
         :param datatype:
         :return:
         """
-        split_path = relative_path.strip('/').split('/')
+        normalised_path = os.path.normpath(relative_path)
+        split_path = normalised_path.strip(os.sep).split(os.sep)
         subdir = '_'.join(split_path[:-1])
         subdir = utils.clean_for_namespace(subdir)
         if not subdir.startswith(datatype):
@@ -51,7 +52,22 @@ class Params:
         Add a new parameter file to the Params object.
         :param path: a path to a parameter file.
         :param parameters: add dict here with parameters if you want to create a new parameter file.
-        :return:
+        """
+        datatype = os.path.basename(path).rsplit('.params', 1)[0]
+        relative_path = path.split(self._study_folder)[1]
+        subdir = self._pick_subdir_name(relative_path, datatype)
+
+        params = self.create_params(path, parameters, subdir=subdir)
+        self.__dict__[subdir] = params
+
+    @staticmethod
+    def create_params(path, parameters=None, subdir=None):
+        """
+        Create a new parameter file object.
+        :param path: a path to a parameter file.
+        :param parameters: add dict here with parameters if you want to create a new parameter file.
+        :param subdir: subdir is used as string representation.
+        :return: parameter file object.
         """
         datatype = os.path.basename(path).split('.params')[0]
         params_class = Mappings.params.get(datatype)
@@ -63,9 +79,4 @@ class Params:
             CPrint.warn('({}) not supported. skipping.'.format(path))
             return
 
-        relative_path = path.split(self._study_folder)[1]
-        subdir = self._pick_subdir_name(relative_path, datatype)
-        self.__dict__[subdir] = correct_instance(path=path,
-                                                 datatype=datatype,
-                                                 subdir=subdir,
-                                                 parameters=parameters)
+        return correct_instance(path=path, parameters=parameters, subdir=subdir)

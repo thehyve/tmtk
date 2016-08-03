@@ -8,8 +8,8 @@ class Mappings:
     cat_cd = 'Category Code'
     col_num = 'Column Number'
     data_label = 'Data Label'
-    magic_5 = 'Data Label Source'
-    magic_6 = 'Control Vocab Cd'
+    magic_5 = 'Magic 5th'
+    magic_6 = 'Magic 6th'
     concept_type = 'Concept Type'
 
     # Tags

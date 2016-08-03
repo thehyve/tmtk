@@ -1,5 +1,6 @@
-from tmtk.utils import cached_property, file2df, df2file, CPrint
 import os
+
+from tmtk.utils import cached_property, file2df, df2file, CPrint
 
 
 class FileBase:
@@ -32,6 +33,14 @@ class FileBase:
     @property
     def header(self):
         return self.df.columns
+
+    @property
+    def name(self):
+        return os.path.basename(self.path)
+
+    @name.setter
+    def name(self, value):
+        self.path = os.path.join(os.path.dirname(self.path), value)
 
     def __repr__(self):
         return self.path

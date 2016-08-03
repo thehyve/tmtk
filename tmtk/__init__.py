@@ -1,12 +1,13 @@
 """tmtk - A toolkit for ETL curation for the tranSMART data warehouse."""
-from tmtk.study import Study
-from tmtk.clinical import Clinical
+from .study import Study
+from .clinical import Clinical
 import tmtk.utils
-import tmtk.toolbox as Toolbox
 import tmtk.arborist
 import tmtk.params
 # import tmtk.annotation
 # import tmtk.highdim
+import tmtk.toolbox as Toolbox
+from .toolbox import wizard
 
 __version__ = '0.1.0'
 __author__ = 'Jochem Bijlard <j.bijlard@gmail.com>'

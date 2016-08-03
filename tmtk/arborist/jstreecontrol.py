@@ -144,6 +144,7 @@ class ConceptTree:
         and populates it with ConceptNode objects.
         """
         self.nodes = []
+        self.paths = set()
 
         if json_data:
             if type(json_data) == str:
@@ -163,7 +164,7 @@ class ConceptTree:
         """
 
         # Check if node already exists.
-        if any([str(node) == path for node in self.nodes]):
+        if path in self.paths:
             CPrint.error('Trying to add duplicate to ConceptTree: {}\n'
                          'This fails in the GUI.'.format(path))
 
@@ -172,6 +173,7 @@ class ConceptTree:
                                node_type=node_type,
                                data_args=data_args)
         self.nodes.append(new_node)
+        self.paths.add(new_node.path)
 
     @property
     def jstree(self):
@@ -358,6 +360,9 @@ class ConceptNode:
         self.type = node_type
 
     def __repr__(self):
+        return self.path
+
+    def __str__(self):
         return self.path
 
 

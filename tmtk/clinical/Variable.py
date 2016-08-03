@@ -8,19 +8,16 @@ class VariableCollection:
         """
         Collection of Variables. Add datafiles or single variables. Get by variable id_.
         """
-        self._variables = {}
         self.parent = clinical_parent
 
-    def add_datafile(self, datafile):
-        for i in range(1, datafile.df.shape[1] + 1):  # Column mapping is 1 based
-            var = Variable(datafile, i, self.parent)
-            self.add_variable(var)
-
-    def add_variable(self, variable):
-        self._variables.update({variable.id_: variable})
-
     def get(self, value):
-        return self._variables.get(value)
+        df_name, column = value.rsplit('__', 1)
+        datafile = self.parent.get_datafile(df_name)
+        return Variable(datafile, int(column), self.parent)
+
+    @property
+    def all(self):
+        return self.parent.ColumnMapping.ids
 
 
 class Variable:
@@ -55,7 +52,10 @@ class Variable:
 
     @property
     def is_empty(self):
-        return not any([pd.notnull(x) for x in self.unique_values])
+        for x in self.unique_values:
+            if pd.notnull(x):
+                return False
+        return True
 
     @property
     def concept_path(self):

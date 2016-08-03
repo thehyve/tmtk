@@ -32,23 +32,34 @@ class WordMapping(FileBase):
         messages.flush()
         return not messages.found_error
 
-    def get_word_map(self, var_id):
+    def get_word_map(self, var_id, **kwargs):
         """
 
         Returns dict with value in data, and mapped value
         :param var_id:
         :return:
         """
+        filename, column = var_id.rsplit('__', 1)
         mapping_dict = {}
 
-        filename, column = var_id.rsplit('__', 1)
-        f = self.df.ix[:, 0].astype(str) == filename
-        c = self.df.ix[:, 1].astype(str) == column
-        if sum(f & c):
-            # fill dict with col3 as key and col4 as value
-            sub_df = self.df.ix[f & c]
-            sub_df.apply(lambda x: mapping_dict.update({x[2]: x[3]}), axis=1)
-        return mapping_dict
+        try:
+            rows = self.df.loc[filename, column]
+
+            if isinstance(rows, pd.Series):
+                mapping_dict.update({rows[2]: rows[3]})
+            elif isinstance(rows, pd.DataFrame):
+                rows.apply(lambda x: mapping_dict.update({x[2]: x[3]}), axis=1)
+
+        except KeyError:
+            if not kwargs.get('_final'):
+                self.build_index()
+                mapping_dict = self.get_word_map(var_id, _final=True)
+
+        finally:
+            return mapping_dict
+
+    def build_index(self):
+        self.df.set_index(list(self.df.columns[[0, 1]]), drop=False, inplace=True)
 
     @staticmethod
     def create_df():
