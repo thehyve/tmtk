@@ -207,6 +207,8 @@ class Study:
         :param overwrite: set this to True to overwrite existing files.
         :return:
         """
+        root_dir = os.path.expanduser(root_dir)
+
         if not os.path.exists(root_dir) or not os.path.isdir(root_dir):
             os.makedirs(root_dir, exist_ok=True)
 
