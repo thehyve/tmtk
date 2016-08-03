@@ -20,7 +20,7 @@ class Clinical:
         self.params = clinical_params
 
         for file in self.ColumnMapping.included_datafiles:
-            clinical_data_path = os.path.join(file)
+            clinical_data_path = os.path.join(self.params.dirname, file)
             self.add_datafile(clinical_data_path)
 
     def add_datafile(self, filename, dataframe=None):
@@ -42,15 +42,18 @@ class Clinical:
                 file_path = os.path.join(self.params.dirname, filename)
             assert os.path.exists(file_path), PathError(file_path)
             datafile = DataFile(file_path)
-            datafile.df  # Force load df
 
-        datafile.path = os.path.join(self.params.dirname, filename)
+            # Check if file is in de clinical directory
+            if not os.path.dirname(os.path.abspath(filename)) == self.params.dirname:
+                datafile.df  # Force load df
+
+        datafile.path = os.path.join(self.params.dirname, os.path.basename(filename))
 
         while self.get_datafile(datafile.name):
-            new_name = input("Filename {!r} already taken, try again.".format(datafile.name))
+            new_name = input("Filename {!r} already taken, try again.  ".format(datafile.name))
             datafile.name = new_name or datafile.name  # Checking for empty string input
 
-        CPrint.okay('Adding {!r} as clinical datafile to study.  '.format(datafile.name))
+        CPrint.okay('Adding {!r} as clinical datafile to study.'.format(datafile.name))
 
         safe_name = clean_for_namespace(datafile.name)
         self.__dict__[safe_name] = datafile
