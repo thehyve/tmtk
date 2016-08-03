@@ -1,6 +1,4 @@
-from tmtk.params import ParamsBase
-import tmtk.utils as utils
-import os
+from .ParamsBase import ParamsBase
 
 
 class StudyParams(ParamsBase):

@@ -1,4 +1,4 @@
-from tmtk.annotation import AnnotationBase
+from .AnnotationBase import AnnotationBase
 
 
 class MirnaAnnotation(AnnotationBase):

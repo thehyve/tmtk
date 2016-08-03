@@ -1,4 +1,4 @@
-from tmtk.highdim import HighDimBase
+from .HighDimBase import HighDimBase
 
 
 class Mirna(HighDimBase):

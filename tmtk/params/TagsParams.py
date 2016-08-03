@@ -1,4 +1,4 @@
-from ..params import ParamsBase
+from .ParamsBase import ParamsBase
 
 
 class TagsParams(ParamsBase):

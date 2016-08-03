@@ -1,4 +1,4 @@
-from tmtk.params import ParamsBase
+from .ParamsBase import ParamsBase
 import os
 
 

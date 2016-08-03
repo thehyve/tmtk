@@ -1,6 +1,4 @@
-from tmtk.highdim import HighDimBase
-import tmtk.utils as utils
-from tmtk.utils import MessageCollector
+from .HighDimBase import HighDimBase
 
 
 class Proteomics(HighDimBase):

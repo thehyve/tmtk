@@ -1,5 +1,6 @@
-from tmtk.annotation import AnnotationBase
+from .AnnotationBase import AnnotationBase
 from tmtk.utils.CPrint import CPrint
+
 
 class ProteomicsAnnotation(AnnotationBase):
     """

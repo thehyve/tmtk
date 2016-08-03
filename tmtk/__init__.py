@@ -6,7 +6,7 @@ import tmtk.arborist
 import tmtk.params
 # import tmtk.annotation
 # import tmtk.highdim
-import tmtk.toolbox as Toolbox
+import tmtk.toolbox
 from .toolbox import wizard
 
 __version__ = '0.1.0'
