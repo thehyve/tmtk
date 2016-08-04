@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 import tmtk
+from tqdm import tqdm
 from ..utils import CPrint, Mappings, Exceptions, path_join
 
 
@@ -62,7 +63,15 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
     if not concept_tree:
         concept_tree = ConceptTree()
 
-    for var_id in clinical_object.ColumnMapping.ids:
+    column_map_ids = clinical_object.ColumnMapping.ids
+    no_bar = True if len(column_map_ids) < 200 else False
+
+    for var_id in tqdm(clinical_object.ColumnMapping.ids,
+                       bar_format='{l_bar}{bar} | {n_fmt}/{total_fmt} nodes ready, {rate_fmt}',
+                       unit=' nodes',
+                       leave=False,
+                       dynamic_ncols=True,
+                       disable=no_bar):
         variable = clinical_object.get_variable(var_id)
         data_args = variable.column_map_data
         concept_path = variable.concept_path

@@ -4,3 +4,4 @@ ipython
 flask
 jupyter
 requests
+tqdm

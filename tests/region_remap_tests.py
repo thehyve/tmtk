@@ -24,13 +24,13 @@ class RemappingTests(unittest.TestCase):
         assert self.study.params_path
 
     # def test_create_annotation_file(self):
-    #     new_anno = tmtk.Toolbox.generate_chromosomal_regions_file(platform_id='given_gpl_id',
+    #     new_anno = tmtk.toolbox.generate_chromosomal_regions_file(platform_id='given_gpl_id',
     #                                                               reference_build='hg38',
     #                                                               only_y=True)
     #     assert new_anno.GPL_ID[1] == 'given_gpl_id'
 
     def test_remap_functionality(self):
-        remapped = tmtk.Toolbox.remap_chromosomal_regions(
+        remapped = tmtk.toolbox.remap_chromosomal_regions(
             datafile=self.study.HighDim.rnaseq.df,
             destination_platform=self.study.Annotations.cnv_ACGH_ANNOT.df,
             origin_platform=self.study.Annotations.rnaseq_RNASEQ_ANNOT.df
