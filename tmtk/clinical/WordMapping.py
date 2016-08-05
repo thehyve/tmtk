@@ -72,6 +72,5 @@ class WordMapping(FileBase):
         df_mods applies modifications to the dataframe before it is cached.
         :return:
         """
-        df.fillna("", inplace=True)
         df.ix[:, 1] = df.ix[:, 1].astype(int)
         return df

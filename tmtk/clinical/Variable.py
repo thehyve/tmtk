@@ -41,7 +41,7 @@ class Variable:
 
     @property
     def unique_values(self):
-        return [i if pd.notnull(i) else '' for i in self.values.unique()]
+        return self.values.unique()
 
     @property
     def id_(self):
