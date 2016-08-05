@@ -1,9 +1,5 @@
-import os
 import tmtk
 import unittest
-import tempfile
-import shutil
-import re
 import pandas as pd
 
 

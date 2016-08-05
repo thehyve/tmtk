@@ -1,10 +1,5 @@
 import tmtk
-import os
 import unittest
-import tempfile
-import shutil
-import re
-import pandas as pd
 
 
 class ArboristTests(unittest.TestCase):
@@ -24,7 +19,12 @@ class ArboristTests(unittest.TestCase):
         assert self.study.params_path
 
     def test_create_json_string(self):
-        assert tmtk.arborist.create_concept_tree(self.study)
+        assert self.study.Clinical.WordMapping.df.shape == (2, 4)
+        json_data = tmtk.arborist.create_concept_tree(self.study)
+        json_data = json_data.replace('"text": "SW48"', '"text": "SW48_MAPPED"')
+        tmtk.arborist.update_study_from_json(self.study, json_data)
+        assert self.study.Clinical.WordMapping.df.shape == (3, 4)
+        assert '"text": "SW48_MAPPED"' in self.study.concept_tree.jstree.json_data_string
 
 if __name__ == '__main__':
     unittest.main()

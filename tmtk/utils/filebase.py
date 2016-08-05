@@ -1,6 +1,7 @@
 import os
+import pandas as pd
 
-from tmtk.utils import cached_property, file2df, df2file, CPrint
+from . import cached_property, file2df, df2file, CPrint
 
 
 class FileBase:
@@ -10,16 +11,45 @@ class FileBase:
     def __init__(self):
         self._hash_init = None
 
+    # The df property is setup like this so dataframe are only loaded from disk on first request.
+    # Upon load self._df_mods will be performed if this method has been defined.  After first
+    # reading from disk, the results are cached and df will just return the pd.DataFrame.
     @cached_property
-    def df(self):
+    def _df(self):
         if self.path and os.path.exists(self.path) and self.tabs_in_first_line():
             df, self._hash_init = file2df(self.path, hashed=True)
-            # Give a class a _df_mods method to make specific modifications before load
-            if hasattr(self, '_df_mods'):
-                df = self._df_mods(df)
         else:
             CPrint.warn("No valid file found on disk for {}, creating dataframe.".format(self))
             df = self.create_df()
+        df = self._df_processing(df)
+        return df
+
+    @property
+    def df(self):
+        return self._df
+
+    @df.setter
+    def df(self, value):
+        if not isinstance(value, pd.DataFrame):
+            raise TypeError('Expected pd.DataFrame object.')
+        value = self._df_processing(value)
+        self._hash_init = self._hash_init or 1
+        self._df = value
+
+    def _df_processing(self, df):
+        """
+        Gives df post load modifications
+        :param df:
+        :return: modified dataframe
+        """
+        try:
+            df = self._df_mods(df)
+        except AttributeError:
+            pass
+        try:
+            df = self.build_index(df)
+        except AttributeError:
+            pass
         return df
 
     @property

@@ -10,10 +10,15 @@ class VariableCollection:
         """
         self.parent = clinical_parent
 
-    def get(self, value):
-        df_name, column = value.rsplit('__', 1)
+    def get(self, var_id):
+        """
+        Return a Variable object based on var_id.
+        :param var_id:
+        :return:
+        """
+        df_name, column = var_id
         datafile = self.parent.get_datafile(df_name)
-        return Variable(datafile, int(column), self.parent)
+        return Variable(datafile, column, self.parent)
 
     @property
     def all(self):
@@ -24,7 +29,7 @@ class Variable:
     """
     Base class for clinical variables
     """
-    def __init__(self, datafile, column: int = None, clinical_parent=None):
+    def __init__(self, datafile, column: int =None, clinical_parent=None):
         self.datafile = datafile
         self.column = column
         self._zero_column = column - 1
@@ -36,11 +41,11 @@ class Variable:
 
     @property
     def unique_values(self):
-        return self.values.unique()
+        return [i if pd.notnull(i) else '' for i in self.values.unique()]
 
     @property
     def id_(self):
-        return "{}__{}".format(self.datafile.name, self.column)
+        return self.datafile.name, self.column
 
     @property
     def is_numeric_in_datafile(self):
@@ -94,7 +99,7 @@ class Variable:
 
     @property
     def forced_categorical(self):
-        return self.column_map_data.get(Mappings.concept_type) == 'CATEGORICAL'
+        return self.column_map_data.get(Mappings.concept_type_s) == 'CATEGORICAL'
 
     def validate(self, verbosity=2):
         pass

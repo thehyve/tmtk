@@ -60,16 +60,13 @@ class Clinical:
             CPrint.okay('Adding {!r} as clinical datafile to study.'.format(datafile.name))
             self.ColumnMapping.append_from_datafile(datafile)
 
-    def get_variable(self, var_id: str):
+    def get_variable(self, var_id: tuple):
         """
-        Give var_id (<filename>__<column>, e.g. 'Cell-line-data__3' and get concept path
-        and variable object.
-        :param var_id: string <filename>__<column>
+        Give a var_id tuple and return the Variable
+        :param var_id: tuple (filename, column number)
         :return: a tmtk.clinical.Variable
         """
-        variable = self.Variables.get(var_id)
-
-        return variable
+        return self.Variables.get(var_id)
 
     def call_boris(self):
         arborist.call_boris(self)

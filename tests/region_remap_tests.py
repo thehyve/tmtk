@@ -1,10 +1,5 @@
 import tmtk
-import os
 import unittest
-import tempfile
-import shutil
-import re
-import pandas as pd
 
 
 class RemappingTests(unittest.TestCase):

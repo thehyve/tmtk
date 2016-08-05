@@ -35,7 +35,8 @@ class ColumnMapping(FileBase):
 
     @property
     def ids(self):
-        return self.df.apply(lambda x: '{}__{}'.format(x[0], x[2]), axis=1)
+        self.build_index()
+        return self.df.index
 
     @staticmethod
     def create_df():
@@ -48,27 +49,20 @@ class ColumnMapping(FileBase):
     def validate(self, verbosity=2):
         pass
 
-    def select_row(self, var_id, **kwargs):
+    def select_row(self, var_id):
         """
         Select row based on var_id
         :param var_id:
         :param kwargs:
         :return:
         """
-        filename, column = var_id.rsplit('__', 1)
 
-        try:
-            rows = self.df.loc[filename, column]
+        rows = self.df.loc[var_id]
 
-            if isinstance(rows, pd.Series):
-                return list(rows)
-            elif isinstance(rows, pd.DataFrame):
-                raise Exceptions.TooManyValues(rows.shape[0], 1, var_id)
-
-        except KeyError:
-            if not kwargs.get('_final'):
-                self.build_index()
-                return self.select_row(var_id, _final=True)
+        if isinstance(rows, pd.Series):
+            return list(rows)
+        elif isinstance(rows, pd.DataFrame):
+            raise Exceptions.TooManyValues(rows.shape[0], 1, var_id)
 
     def get_concept_path(self, var_id):
         row = self.select_row(var_id)
@@ -82,10 +76,14 @@ class ColumnMapping(FileBase):
         :return:
         """
         df.fillna("", inplace=True)
+        df.ix[:, 2] = df.ix[:, 2].astype(int)
         return df
 
-    def build_index(self):
-        self.df.set_index(list(self.df.columns[[0, 2]]), drop=False, inplace=True)
+    def build_index(self, df=None):
+        if not isinstance(df, pd.DataFrame):
+            df = self.df
+        df.set_index(list(df.columns[[0, 2]]), drop=False, inplace=True)
+        return df
 
     def append_from_datafile(self, datafile):
         """
@@ -98,9 +96,11 @@ class ColumnMapping(FileBase):
 
         cols_min_four = [""] * (self.df.shape[1] - 4)
         for i, name in enumerate(datafile.df.columns, 1):
-            var_id = '{}__{}'.format(datafile.name, i)
+            var_id = (datafile.name, i)
             if self.select_row(var_id):
                 CPrint.warn("Skipping {!r}, already in column mapping file.".format(var_id))
                 continue
 
-            self.df.loc[len(self.df)] = [datafile.name, datafile.name, str(i), name] + cols_min_four
+            self.df.loc[var_id] = [datafile.name, datafile.name, i, name] + cols_min_four
+
+        self.build_index()

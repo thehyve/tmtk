@@ -93,7 +93,7 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
 
         # Add categorical values to concept tree (if any)
         for i, datafile_value in enumerate(categories):
-            oid = '{}_{}'.format(var_id, i)
+            oid = var_id + (i, )
             mapped = categories[datafile_value]
             mapped = mapped if not pd.isnull(mapped) else ''
             categorical_path = path_join(concept_path, mapped)
@@ -131,7 +131,7 @@ def get_concept_node_from_df(x):
     :return:
     """
     concept_path = path_join(x[1], x[3])
-    var_id = "{}__{}".format(x[0], x[2])
+    var_id = (x[0], x[2])
 
     data_args = {}
     for i, s in enumerate(Mappings.column_mapping_s):
@@ -292,8 +292,7 @@ class ConceptTree:
     @staticmethod
     def _extract_word_mapping_row(node):
         if node.type == 'alpha':
-            var_id = node.concept_id.rsplit('_', 1)[0]
-            filename, column = var_id.rsplit('__', 1)
+            filename, column, c = node.concept_id
             datafile_value = node.data.get(Mappings.df_value_s)
             mapped_value = node.path.rsplit(Mappings.path_delim, 1)[1]
             return pd.Series([filename, column, datafile_value, mapped_value])
@@ -320,11 +319,10 @@ class ConceptTree:
         if node_type in ['numeric', 'categorical', 'highdim', 'codeleaf', 'alpha', 'empty']:
             concept_path = path_join(*path, node_text)
 
-            # node['data'].update({Mappings.cat_cd_s: category_code,
-            #                      Mappings.data_label_s: node_text})
+            concept_id = self._str_to_tuple_var_id(node.get('id'))
 
             self.add_node(path=concept_path,
-                          concept_id=node.get('id'),
+                          concept_id=concept_id,
                           node_type=node_type,
                           data_args=node.get('data', {}),
                           )
@@ -350,6 +348,20 @@ class ConceptTree:
         for child in node_children:
             if child.get('type') == 'tag':
                 return child
+
+    def _str_to_tuple_var_id(self, var_id: str):
+        """
+        Converts var_ids from JStree into tuples that Python wants.
+        :param var_id: string
+        :return: tuple or md5 hash.
+        """
+        if not var_id or len(var_id) == 32:  # md5 hashed concept path
+            return var_id
+        elif '__' in var_id:
+            l = var_id.rsplit('__', 1)
+            if '_' in l[1]:
+                l += l.pop(1).split('_')
+            return tuple(l)
 
 
 class ConceptNode:
@@ -453,8 +465,9 @@ class JSTree:
             for i, sub_path in enumerate(sub_paths):
                 if sub_path not in curr.children:
                     if i == len(sub_paths) - 1:  # Arrived at leaf
+                        oid = self._tuple_to_str_var_id(node.concept_id)
                         curr.children[sub_path] = JSNode(sub_path,
-                                                         oid=node.concept_id,
+                                                         oid=oid,
                                                          data=data,
                                                          children=children,
                                                          type=node_type)
@@ -498,8 +511,32 @@ class JSTree:
 
         :return: Returns the json_data properly formatted as string.
         """
-        return json.dumps(self.json_data)
+        return json.dumps(self.json_data, cls=MyEncoder)
 
     def to_clipboard(self):
         pd.DataFrame.to_clipboard(self.json_data_string)
 
+    def _tuple_to_str_var_id(self, var_id):
+        """
+        Convert a python var_id (tuple) to a string that is to go to JStree.
+        MD5 sums of highdim data are passed through.
+        :param var_id: Python var_id
+        :return: Returns a string.
+        """
+        if not var_id:
+            return None
+        elif len(var_id) == 2:
+            return '{}__{}'.format(*var_id)
+        elif len(var_id) == 3:
+            return '{}__{}_{}'.format(*var_id)
+        else:
+            return var_id
+
+
+class MyEncoder(json.JSONEncoder):
+    """ Overwriting the standard JSON Encoder to treat numpy ints as native ints."""
+    def default(self, obj):
+        if isinstance(obj, pd.np.int64):
+            return int(obj)
+        else:
+            return super(MyEncoder, self).default(obj)
