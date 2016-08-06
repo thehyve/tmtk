@@ -1,5 +1,3 @@
-import pandas as pd
-
 from ..utils import Mappings, path_converter, is_numeric
 
 
@@ -24,6 +22,9 @@ class VariableCollection:
     def all(self):
         return self.parent.ColumnMapping.ids
 
+    def get_all(self):
+        return {var_id: self.get(var_id) for var_id in self.all}
+
 
 class Variable:
     """
@@ -34,6 +35,10 @@ class Variable:
         self.column = column
         self._zero_column = column - 1
         self.parent = clinical_parent
+
+    def __repr__(self):
+        return '{}: {}'.format(self.__class__.__name__,
+                               self.concept_path)
 
     @property
     def values(self):
@@ -49,18 +54,24 @@ class Variable:
 
     @property
     def is_numeric_in_datafile(self):
-        return is_numeric(self.unique_values)
+        try:
+            list(map(float, self.values))
+            return True
+        except ValueError:
+            return False
 
     @property
     def is_numeric(self):
-        return is_numeric(self.mapped_values) and not self.forced_categorical
+        if self.forced_categorical:
+            return False
+        if not self.is_in_wordmap and self.is_numeric_in_datafile:
+            return True
+        else:
+            return is_numeric(self.mapped_values)
 
     @property
     def is_empty(self):
-        for x in self.unique_values:
-            if pd.notnull(x):
-                return False
-        return True
+        return not self.values.any(skipna=True)
 
     @property
     def concept_path(self):
@@ -78,10 +89,12 @@ class Variable:
 
         data_args = {}
         for i, s in enumerate(Mappings.column_mapping_s):
-            if s in [Mappings.cat_cd_s, Mappings.data_label_s]:
-                continue
             data_args.update({s: row[i] if len(row) > i else None})
         return data_args
+
+    @property
+    def data_label(self):
+        return self.column_map_data.get(Mappings.data_label_s)
 
     @property
     def word_map_dict(self):
@@ -103,3 +116,7 @@ class Variable:
 
     def validate(self, verbosity=2):
         pass
+
+    @property
+    def is_in_wordmap(self):
+        return bool(len(self.parent.WordMapping.get_word_map(self.id_)))

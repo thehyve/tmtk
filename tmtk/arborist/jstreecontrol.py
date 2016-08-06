@@ -74,8 +74,12 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
                        disable=no_bar):
         variable = clinical_object.get_variable(var_id)
         data_args = variable.column_map_data
+
+        # Don't need these, they're in the tree.
+        for k in [Mappings.cat_cd_s, Mappings.data_label_s]:
+            data_args.pop(k)
         concept_path = variable.concept_path
-        categories = variable.word_map_dict if not variable.is_numeric else {}
+        categories = {} if variable.is_numeric else variable.word_map_dict
 
         if categories:
             node_type = 'categorical'
