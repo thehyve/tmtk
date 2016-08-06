@@ -83,6 +83,7 @@ class ColumnMapping(FileBase):
         if not isinstance(df, pd.DataFrame):
             df = self.df
         df.set_index(list(df.columns[[0, 2]]), drop=False, inplace=True)
+        df.sortlevel(inplace=True)
         return df
 
     def append_from_datafile(self, datafile):

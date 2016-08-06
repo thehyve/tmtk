@@ -58,7 +58,8 @@ class WordMapping(FileBase):
     def build_index(self, df=None):
         if not isinstance(df, pd.DataFrame):
             df = self.df
-        df.set_index(list(df.columns[[0, 1]]), drop=False, inplace=True)
+        df.set_index(list(df.columns[[0, 1, 2]]), drop=False, inplace=True)
+        df.sortlevel(inplace=True)
         return df
 
     @staticmethod
