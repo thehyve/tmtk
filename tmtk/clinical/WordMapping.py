@@ -39,26 +39,20 @@ class WordMapping(FileBase):
         :param var_id:
         :return:
         """
-        mapping_dict = {}
-
-        try:
+        if var_id in self.df.index:
             rows = self.df.loc[var_id]
+            if isinstance(rows, pd.DataFrame):
+                return dict(zip(rows.ix[:, 2], rows.ix[:, 3]))
+            else:
+                return {rows[2]: rows[3]}
 
-            if isinstance(rows, pd.Series):
-                mapping_dict.update({rows[2]: rows[3]})
-            elif isinstance(rows, pd.DataFrame):
-                rows.apply(lambda x: mapping_dict.update({x[2]: x[3]}), axis=1)
-
-        except KeyError:
-            pass
-
-        finally:
-            return mapping_dict
+        else:
+            return {}
 
     def build_index(self, df=None):
         if not isinstance(df, pd.DataFrame):
             df = self.df
-        df.set_index(list(df.columns[[0, 1, 2]]), drop=False, inplace=True)
+        df.set_index(list(df.columns[[0, 1]]), drop=False, inplace=True)
         df.sortlevel(inplace=True)
         return df
 

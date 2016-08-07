@@ -37,8 +37,9 @@ class Variable:
         self.parent = clinical_parent
 
     def __repr__(self):
-        return '{}: {}'.format(self.__class__.__name__,
-                               self.concept_path)
+        return '{} {!r}: {}'.format(self.__class__.__name__,
+                                    self.id_,
+                                    self.concept_path)
 
     @property
     def values(self):
@@ -103,8 +104,10 @@ class Variable:
         values are what they will be mapped to (through word mapping file)
         :return: dict
         """
-        word_map = self.parent.WordMapping.get_word_map(self.id_)
-        return {v: word_map.get(v, v) for v in self.unique_values}
+        values = self.values
+        d = dict(zip(values, values))
+        d.update(self.parent.WordMapping.get_word_map(self.id_))
+        return d
 
     @property
     def mapped_values(self):
@@ -119,4 +122,4 @@ class Variable:
 
     @property
     def is_in_wordmap(self):
-        return bool(len(self.parent.WordMapping.get_word_map(self.id_)))
+        return self.id_ in self.parent.WordMapping.df.index
