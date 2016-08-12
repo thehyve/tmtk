@@ -53,9 +53,15 @@ class FolderPathConverter(BaseConverter):
 
 app.url_map.converters['folderpath'] = FolderPathConverter
 
+
 @app.template_filter('urlencode')
 def urlencode_filter(s):
-    ''' Necessary addition to Jinja2 filters, to escape chars for in url '''
+    """
+    Necessary addition to Jinja2 filters, to escape chars for in url.
+
+    :param s:
+    :return:
+    """
     if type(s) == 'Markup':
         s = s.unescape()
     s = s.encode('utf8')
@@ -68,7 +74,6 @@ def urlencode_filter(s):
 
 @app.route('/treeview/<folderpath:tmp_json>')
 def treeview(tmp_json):
-
     with open(tmp_json, 'r') as f:
         treejson = f.read()
 
@@ -94,4 +99,3 @@ def shutdown_server():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
-

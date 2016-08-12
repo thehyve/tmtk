@@ -6,6 +6,7 @@ class AnnotationBase(utils.FileBase):
     """
     Base class for annotation files.
     """
+
     def __init__(self, params=None, path=None):
         """
 
@@ -14,7 +15,7 @@ class AnnotationBase(utils.FileBase):
         """
         if params and params.is_viable():
             self.path = os.path.join(params.dirname, params.ANNOTATIONS_FILE)
-            self.platform = params.__dict__.get('PLATFORM', 'NO_PLATFORM_SPECIFIED')
+            self.platform = params.get('PLATFORM')
         elif path and os.path.exists(path):
             self.path = path
             self.platform = 'NO_PLATFORM_SPECIFIED'
@@ -27,6 +28,3 @@ class AnnotationBase(utils.FileBase):
 
     def validate(self, verbosity=2):
         pass
-
-
-

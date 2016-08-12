@@ -3,7 +3,6 @@ import unittest
 
 
 class ArboristTests(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.study = tmtk.Study('studies/valid_study/study.params')
@@ -25,6 +24,7 @@ class ArboristTests(unittest.TestCase):
         tmtk.arborist.update_study_from_json(self.study, json_data)
         assert self.study.Clinical.WordMapping.df.shape == (3, 4)
         assert '"text": "SW48_MAPPED"' in self.study.concept_tree.jstree.json_data_string
+
 
 if __name__ == '__main__':
     unittest.main()

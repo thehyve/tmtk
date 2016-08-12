@@ -8,6 +8,7 @@ from ..params import StudyParams as _StudyParams
 def create_study(path):
     """
     Start a study object by pointing by giving a folder that contains clinical data files only.
+
     :param path: path to folder with files.
     :return: study object.
     """
@@ -55,6 +56,7 @@ def _base_dir(path):
 def _clinical_param_or_none(study):
     """
     Return study clinical params if it exists, else returns None.
+
     :param study: study object
     :return: params object or None
     """
@@ -87,4 +89,3 @@ def _select_files(path, text):
         print('Selected files: {}'.format([_os.path.basename(f) for f in set(selected_files)]))
 
     return selected_files
-

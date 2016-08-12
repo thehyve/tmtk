@@ -3,7 +3,6 @@ import unittest
 
 
 class IncompletenessTests(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.study = tmtk.Study('studies/incomplete/study.params')
@@ -37,6 +36,7 @@ class IncompletenessTests(unittest.TestCase):
         self.study.add_metadata()
         assert self.study.Params.tags.is_viable()
         assert self.study.Tags.df.shape == (0, 4)
+
 
 if __name__ == '__main__':
     unittest.main()

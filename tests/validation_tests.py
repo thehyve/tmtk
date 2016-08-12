@@ -4,7 +4,6 @@ import pandas as pd
 
 
 class ValidationTests(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.study = tmtk.Study('studies/valid_study/study.params')
@@ -72,6 +71,7 @@ class ValidationTests(unittest.TestCase):
 
     def test_validate_all(self):
         assert not self.study.validate_all(0)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -7,6 +7,7 @@ class SampleMapping(FileBase):
     """
     Base class for subject sample mapping
     """
+
     def __init__(self, path=None):
         if not os.path.exists(path):
             self.path = self.create_sample_mapping(path)
@@ -17,7 +18,8 @@ class SampleMapping(FileBase):
     @property
     def get_concept_paths(self):
         """
-        Get all concept paths from file, replaces ATTR1 and ATTR2
+        Get all concept paths from file, replaces ATTR1 and ATTR2.
+
         :return: dictionary with md5 hash values as key and paths as value
         """
         paths = self.df.apply(self._find_path, axis=1)
@@ -48,7 +50,7 @@ class SampleMapping(FileBase):
 
     def validate(self, verbosity=2):
         """
-        Makes checks to determine whether transmart-batch likes this file.
+        Checks whether transmart-batch likes this file.
         """
         pass
 

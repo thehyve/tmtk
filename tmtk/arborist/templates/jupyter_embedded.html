@@ -2,75 +2,88 @@
 <html lang="en" style="height: 100%!important;">
 <!--<html lang="en">-->
 <head>
-    <link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css" />
-    <link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css">
-    <link rel="stylesheet" href="/static/mainstyle.css" />
+    <link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css"/>
+    <link rel="stylesheet"
+          href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/mainstyle.css"/>
 </head>
 <body>
 
 <!-- Here starts shared code between BaaS and Jupyter embedded template. -->
 
-   <div id="treeanddetails">
+<div id="treeanddetails">
     <div id="treediv"></div>
     <div id="details">
-        <input class="form-control form-control" type="text" id="search_box" placeholder="Search here..."/>
+        <input class="form-control form-control" type="text" id="search_box"
+               placeholder="Search here..."/>
         <img id="search_spinner" src="/static/images/spin.svg">
-      <form id="datanodedetails" class="blockform">
-        <fieldset>
-          <legend>Data node details</legend>
-            <ul>
+        <form id="datanodedetails" class="blockform">
+            <fieldset>
+                <legend>Data node details</legend>
+                <ul>
               <span class="clinicaldata" hidden>File: <span id="filename"></span>
                 (<span id="columnnumber"></span>)
               </span>
-              <br>Type: <span id="nodetype"></span>
-          </ul>
+                    <br>Type: <span id="nodetype"></span>
+                </ul>
 
-          <table width="100%">
-              <tr class="label">
-                <td style="padding-right: 45px;"> Label</td>
-                <td width="90%"><input style="width:inherit;" class="form-control form-control-sm" type="text" id="datalabel"/></td>
-              </tr>
-              <tr hidden class="clinicaldata">
-                <td>Magic #5</td>
-                <td width="90%"><input style="width:inherit;" class="form-control form-control-sm" type="text" id="magic5"/></td>
-              </tr>
-              <tr hidden class="clinicaldata">
-                <td>Magic #6</td>
-                <td width="90%"><input style="width:inherit;" class="form-control form-control-sm" type="text" id="magic6"/></td>
-              </tr>
-          </table>
+                <table width="100%">
+                    <tr class="label">
+                        <td style="padding-right: 45px;"> Label</td>
+                        <td width="90%"><input style="width:inherit;"
+                                               class="form-control form-control-sm" type="text"
+                                               id="datalabel"/></td>
+                    </tr>
+                    <tr hidden class="clinicaldata">
+                        <td>Magic #5</td>
+                        <td width="90%"><input style="width:inherit;"
+                                               class="form-control form-control-sm" type="text"
+                                               id="magic5"/></td>
+                    </tr>
+                    <tr hidden class="clinicaldata">
+                        <td>Magic #6</td>
+                        <td width="90%"><input style="width:inherit;"
+                                               class="form-control form-control-sm" type="text"
+                                               id="magic6"/></td>
+                    </tr>
+                </table>
 
-          <div hidden id="tagbox" class="tagdata">
+                <div hidden id="tagbox" class="tagdata">
 
-            <table id="tagtable" width=99%">
-              <colgroup>
-                 <col span="1" style="width: 18%;">
-                 <col span="1" style="width: 70%;">
-                 <col span="1" style="width: 12%;">
-              </colgroup>
-              <tbody id="tagtable-body"></tbody>
-            </table>
+                    <table id="tagtable" width=99%">
+                        <colgroup>
+                            <col span="1" style="width: 18%;">
+                            <col span="1" style="width: 70%;">
+                            <col span="1" style="width: 12%;">
+                        </colgroup>
+                        <tbody id="tagtable-body"></tbody>
+                    </table>
 
-            <button type="button" class="btn btn-sm btn-secondary" id="add_tag" style="margin-top: 5px;"> <img src="/static/images/add_tag.png"></button>
-          </div>
-        </fieldset>
-          <hr>
-        <input type="submit" class="btn btn-secondary" value="Apply changes" style="width: 150px;"/>
-        <span style="float: center; padding-right: 5px;" id="feedback"></span>
-      </form>
+                    <button type="button" class="btn btn-sm btn-secondary" id="add_tag"
+                            style="margin-top: 5px;"><img src="/static/images/add_tag.png"></button>
+                </div>
+            </fieldset>
+            <hr>
+            <input type="submit" class="btn btn-secondary" value="Apply changes"
+                   style="width: 150px;"/>
+            <span style="float: center; padding-right: 5px;" id="feedback"></span>
+        </form>
 
-<!-- End of shared code. -->
+        <!-- End of shared code. -->
 
-      <div id="bottom-btns">
-        <button type="button" class="btn btn-sm btn-success" style="float: right; margin-right: 10px;" id="embeded_return">Return to Jupyter</button>
-        <br><span id="feedbacksave"></span>
-      </div>
+        <div id="bottom-btns">
+            <button type="button" class="btn btn-sm btn-success"
+                    style="float: right; margin-right: 10px;" id="embeded_return">Return to Jupyter
+            </button>
+            <br><span id="feedbacksave"></span>
+        </div>
     </div>
-  </div>
+</div>
 
 <script type="application/javascript">
     var treeData = {{ json | safe }};
     var shutdown_url = "{{ url_for('shutdown', treefile=treefile) }}";
+
 </script>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>

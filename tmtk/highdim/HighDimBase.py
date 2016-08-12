@@ -11,6 +11,7 @@ class HighDimBase(utils.FileBase):
     """
     Base class for high dimensional data structures.
     """
+
     def __init__(self, params=None, path=None, parent=None):
         """
 
@@ -39,8 +40,9 @@ class HighDimBase(utils.FileBase):
     def validate(self, verbosity=3):
         """
         Validate high dimensional data object
-        :param verbosity:
-        :return:
+
+        :param verbosity: set the verbosity of output, pick 0, 1, 2, 3 or 4.
+        :return: True if everything is okay, else return False.
         """
         messages = utils.MessageCollector(verbosity=verbosity)
         messages.head("Validating {}".format(self.params.subdir))
@@ -62,7 +64,7 @@ class HighDimBase(utils.FileBase):
     def _check_header_extensions(self, messages):
         """
 
-        :param messages:
+        :param messages: message collector.
         :return: True if nothings wrong.
         """
         everything_okay_so_far = True
@@ -99,7 +101,7 @@ class HighDimBase(utils.FileBase):
         not_in_sample_mapping = samples_verified['not_in_sample_mapping']
         if not_in_sample_mapping:
             m = 'Samples not in mapping file: {}.'.format(utils.summarise(not_in_sample_mapping))
-            if self.params.__dict__.get('SKIP_UNMAPPED_DATA', 'N') == 'Y':
+            if self.params.get('SKIP_UNMAPPED_DATA', 'N') == 'Y':
                 messages.warn(m)
             else:
                 messages.error(m)
@@ -109,7 +111,7 @@ class HighDimBase(utils.FileBase):
             messages.info('Intersection of samples: {}.'.format(utils.summarise(intersection)))
 
         if self.sample_mapping.study_id != self._parent.study_id:
-            m = 'Study_id in ({}) does not match ({}) in study.params'.\
+            m = 'Study_id in ({}) does not match ({}) in study.params'. \
                 format(self.sample_mapping.study_id, self._parent.study_id)
             messages.error(m)
         else:
@@ -127,7 +129,7 @@ class HighDimBase(utils.FileBase):
                                                              data_series=data_series)
 
         missing_data = utils.find_missing_annotations(annotation_series=data_series,
-                                                             data_series=annotation_series)
+                                                      data_series=annotation_series)
 
         if missing_annotations:
             m = 'Missing annotations found: {}'.format(utils.summarise(missing_annotations))
@@ -135,7 +137,7 @@ class HighDimBase(utils.FileBase):
 
         if missing_data:
             m = 'Data file has less data than annotations: {}'.format(utils.summarise(missing_data))
-            if self.params.__dict__.get('ALLOW_MISSING_ANNOTATIONS', 'N') == 'Y':
+            if self.params.get('ALLOW_MISSING_ANNOTATIONS', 'N') == 'Y':
                 messages.warn(m)
             else:
                 messages.error(m)
@@ -159,4 +161,3 @@ class HighDimBase(utils.FileBase):
                                              origin_platform=self.annotation_file.df,
                                              destination_platform=destination)
         return remapped
-

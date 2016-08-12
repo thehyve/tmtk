@@ -21,7 +21,8 @@ def create_concept_tree(column_object):
         concept_tree = create_tree_from_clinical(column_object)
 
     else:
-        raise Exceptions.DatatypeError(type(column_object), "tmtk.Study, tmtk.Clinical or pd.DataFrame")
+        raise Exceptions.DatatypeError(type(column_object),
+                                       "tmtk.Study, tmtk.Clinical or pd.DataFrame")
 
     return concept_tree.jstree.json_data_string
 
@@ -65,14 +66,14 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
 
     column_map_ids = clinical_object.ColumnMapping.ids
     no_bar = True if len(column_map_ids) < 200 else False
+    bar_format = '{l_bar}{bar} | {n_fmt}/{total_fmt} nodes ready, {rate_fmt}'
 
-    for var_id in tqdm(clinical_object.ColumnMapping.ids,
-                       bar_format='{l_bar}{bar} | {n_fmt}/{total_fmt} nodes ready, {rate_fmt}',
-                       unit=' nodes',
-                       leave=False,
-                       dynamic_ncols=True,
-                       disable=no_bar):
-        variable = clinical_object.get_variable(var_id)
+    for var_id, variable in tqdm(clinical_object.all_variables.items(),
+                                 bar_format=bar_format,
+                                 unit=' nodes',
+                                 leave=False,
+                                 dynamic_ncols=True,
+                                 disable=no_bar):
         data_args = variable.column_map_data
 
         # Don't need these, they're in the tree.
@@ -97,7 +98,7 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
 
         # Add categorical values to concept tree (if any)
         for i, datafile_value in enumerate(categories):
-            oid = var_id + (i, )
+            oid = var_id + (i,)
             mapped = categories[datafile_value]
             mapped = mapped if not pd.isnull(mapped) else ''
             categorical_path = path_join(concept_path, mapped)
@@ -131,6 +132,7 @@ def create_tree_from_df(df, concept_tree=None):
 def get_concept_node_from_df(x):
     """
     This is only used when a the arborist is called from a single DF.
+
     :param x: row in column mapping dataframe
     :return:
     """
@@ -150,6 +152,7 @@ class ConceptTree:
     Build a ConceptTree to be used in the graphical tree editor.
 
     """
+
     def __init__(self, json_data=None):
         """
 
@@ -170,8 +173,6 @@ class ConceptTree:
 
         :param path: Concept path for this node.
         :param concept_id: Unique ID that allows to keep track of a node.
-        # :param categories: a dict of values in this categorical concept node.
-        If None, this concept node is considered to be numerical unless specified otherwise.
         :param node_type: Explicitly set node type (highdim, numerical, categorical)
         :param data_args: Any additional parameters are put a 'data' dictionary.
         """
@@ -256,7 +257,7 @@ class ConceptTree:
         filename = node.data.get(Mappings.filename_s)
         full_path = node.path.replace(' ', '_')
 
-        *path, data_label = full_path.rsplit(Mappings.path_delim, 1)
+        *path, data_label = full_path.rsplit(Mappings.PATH_DELIM, 1)
         path = path[0] if path else '/'
 
         # Remove file names from SUBJ_ID, they were added as workaround for unique constraints.
@@ -281,9 +282,9 @@ class ConceptTree:
         tags_dict = node.data.get('tags', {})
         if tags_dict:
             # Strip last node (Meta data tags node label)
-            path = node.path.rsplit(Mappings.path_delim, 1)[0]
+            path = node.path.rsplit(Mappings.PATH_DELIM, 1)[0]
             # Tag paths need to start with slash
-            path = '\\' + path.replace(Mappings.path_delim, '\\')
+            path = '\\' + path.replace(Mappings.PATH_DELIM, '\\')
             for title, desc_weight in tags_dict.items():
                 description, weight = desc_weight
 
@@ -298,7 +299,7 @@ class ConceptTree:
         if node.type == 'alpha':
             filename, column, c = node.concept_id
             datafile_value = node.data.get(Mappings.df_value_s)
-            mapped_value = node.path.rsplit(Mappings.path_delim, 1)[1]
+            mapped_value = node.path.rsplit(Mappings.PATH_DELIM, 1)[1]
             return pd.Series([filename, column, datafile_value, mapped_value])
 
     def _extract_node_list(self, json_data):
@@ -441,6 +442,7 @@ class JSTree:
     An immutable dictionary-like object that converts a list of "paths"
     into a tree structure suitable for jQuery's jsTree.
     """
+
     def __init__(self, concept_nodes):
         """
         Take a list of paths and put them into a tree.  Paths with the same prefix should
@@ -460,7 +462,7 @@ class JSTree:
         for node in concept_nodes:
             curr = self._root
             # sub_paths = re.split(r'[+\\]', node.path)
-            sub_paths = node.path.split(Mappings.path_delim)
+            sub_paths = node.path.split(Mappings.PATH_DELIM)
             data = node.__dict__.get('data', {})
             children = node.__dict__.get('_children', {})
             node_type = node.__dict__.get('type', 'default')
@@ -539,6 +541,7 @@ class JSTree:
 
 class MyEncoder(json.JSONEncoder):
     """ Overwriting the standard JSON Encoder to treat numpy ints as native ints."""
+
     def default(self, obj):
         if isinstance(obj, pd.np.int64):
             return int(obj)

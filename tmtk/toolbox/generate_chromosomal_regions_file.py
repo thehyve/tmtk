@@ -34,5 +34,3 @@ def generate_chromosomal_regions_file(platform_id=None, reference_build='hg19', 
 
     new_platform = pandas2ri.ri2py_dataframe(r_query_mart(mart_host, platform_id, only_y))
     return new_platform
-
-

@@ -10,53 +10,65 @@ from .DataFile import DataFile
 class ColumnMapping(FileBase):
     """
     Class with utilities for the column mapping file for clinical data.
-    Can be initiated with either a path to column mapping file, or a clinical params file object.
+    Can be initiated with by giving a clinical params file object.
     """
-    def __init__(self, params=None):
 
+    def __init__(self, params=None):
+        """
+        Initialize by giving a parameter object.
+
+        :param params: `ClinicalParams` object.
+        """
         self.params = params
 
         if not isinstance(params, ClinicalParams):
             raise Exceptions.ClassError(type(params))
-        elif params.__dict__.get('COLUMN_MAP_FILE'):
+        elif params.get('COLUMN_MAP_FILE'):
             self.path = os.path.join(params.dirname, params.COLUMN_MAP_FILE)
         else:
             self.path = os.path.join(params.dirname, 'column_mapping_file.txt')
-            self.params.__dict__['COLUMN_MAP_FILE'] = os.path.basename(self.path)
+            self.params['COLUMN_MAP_FILE'] = os.path.basename(self.path)
         super().__init__()
 
     @property
     def included_datafiles(self):
-        """
-        List of datafiles included in column mapping file.
-        :return: list.
-        """
+        """List of datafiles included in column mapping file."""
         return list(self.df.ix[:, 0].unique())
 
     @property
     def ids(self):
+        """A list of variable identifier tuples."""
         self.build_index()
-        return self.df.index
+        return list(self.df.index)
 
-    @staticmethod
-    def create_df():
+    def create_df(self):
+        """
+        Create `pd.DataFrame` with a correct header.
+
+        :return: `pd.DataFrame`.
+        """
         df = pd.DataFrame(dtype=str, columns=Mappings.column_mapping_header)
+        df = self._df_mods(df)
+        df = self.build_index(df)
         return df
 
     def call_boris(self):
+        """
+        Use The Arborist to modify only information in the column mapping file.
+        """
         self.df = call_boris(self.df)
 
     def validate(self, verbosity=2):
         pass
 
-    def select_row(self, var_id):
+    def select_row(self, var_id: tuple):
         """
-        Select row based on var_id
-        :param var_id:
-        :param kwargs:
-        :return:
-        """
+        Select row based on variable identifier tuple.  Raises exception if
+        variable is not in this column mapping.
 
+        :param var_id: tuple of filename and column number.
+        :return: list of items in selected row.
+        """
         rows = self.df.loc[var_id]
 
         if isinstance(rows, pd.Series):
@@ -64,7 +76,13 @@ class ColumnMapping(FileBase):
         elif isinstance(rows, pd.DataFrame):
             raise Exceptions.TooManyValues(rows.shape[0], 1, var_id)
 
-    def get_concept_path(self, var_id):
+    def get_concept_path(self, var_id: tuple):
+        """
+        Return concept path for given variable identifier tuple.
+
+        :param var_id: tuple of filename and column number.
+        :return str: concept path for this variable.
+        """
         row = self.select_row(var_id)
         cp = path_join(row[1], row[3])
         return path_converter(cp)
@@ -72,14 +90,23 @@ class ColumnMapping(FileBase):
     @staticmethod
     def _df_mods(df):
         """
-        df_mods applies modifications to the dataframe before it is cached.
-        :return:
+        _df_mods applies modifications to the dataframe before it is cached.
+
+        :param df: `pd.DataFrame`.
+        :return: `pd.DataFrame`.
         """
         df.fillna("", inplace=True)
         df.ix[:, 2] = df.ix[:, 2].astype(int)
         return df
 
     def build_index(self, df=None):
+        """
+        Build index for the column mapping dataframe.  If `pd.DataFrame`
+        (optional) is given, modify and return that.
+
+        :param df: `pd.DataFrame`.
+        :return: `pd.DataFrame`.
+        """
         if not isinstance(df, pd.DataFrame):
             df = self.df
         df.set_index(list(df.columns[[0, 2]]), drop=False, inplace=True)
@@ -89,7 +116,8 @@ class ColumnMapping(FileBase):
     def append_from_datafile(self, datafile):
         """
         Appends the column mapping file with rows based on datafile column names.
-        :param datafile: tmtk.clinical.Datafile object.
+
+        :param datafile: `tmtk.DataFile` object.
         """
 
         if not isinstance(datafile, DataFile):
@@ -98,10 +126,10 @@ class ColumnMapping(FileBase):
         cols_min_four = [""] * (self.df.shape[1] - 4)
         for i, name in enumerate(datafile.df.columns, 1):
             var_id = (datafile.name, i)
-            if self.select_row(var_id):
+            try:
+                self.select_row(var_id)
                 CPrint.warn("Skipping {!r}, already in column mapping file.".format(var_id))
-                continue
-
-            self.df.loc[var_id] = [datafile.name, datafile.name, i, name] + cols_min_four
+            except KeyError:
+                self.df.loc[i] = [datafile.name, datafile.name, i, name] + cols_min_four
 
         self.build_index()

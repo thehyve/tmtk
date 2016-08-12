@@ -1,10 +1,3 @@
-from .HighDimBase import HighDimBase
-from .CopyNumberVariation import CopyNumberVariation
-from .Expression import Expression
-from .Proteomics import Proteomics
-from .ReadCounts import ReadCounts
-from .Mirna import Mirna
-from .SampleMapping import SampleMapping
 import tmtk.utils as utils
 from tmtk.utils.CPrint import CPrint
 
@@ -12,19 +5,16 @@ from tmtk.utils.CPrint import CPrint
 class HighDim:
     """
     Container class for all High Dimensional data types.
+
     :param params_list: contains a list with Params objects.
-    :param mapping: dictionary that that points params to the right Subclass.
-    e.g. {'rnaseq': 'ReadCounts'}.
     """
-    def __init__(self, params_list=None, parent=None, mapping=None):
+
+    def __init__(self, params_list=None, parent=None):
         assert type(params_list) == list, \
             'Expected list with annotation params, but got {}.'.format(type(params_list))
-        assert type(mapping) == dict, \
-            'Expected dict with annotation params identifiers and corresponding class names, ' \
-            'but got {}.'.format(type(mapping))
 
         for p in params_list:
-            new_instance = globals()[mapping[p.datatype]]
+            new_instance = utils.Mappings.get_highdim(p.datatype)
             try:
                 self.__dict__[str(p)] = new_instance(p, parent=parent)
             except utils.PathError:
@@ -37,9 +27,9 @@ class HighDim:
 
     def update_high_dim_paths(self, high_dim_paths):
         """
+        Update sample mapping if path has been changed.
 
-        :param high_dim_paths:
-        :return:
+        :param high_dim_paths: dictionary with paths and old concept paths.
         """
         changed_dict = {k: path for k, path in high_dim_paths.items() if utils.md5(path) != k}
         if changed_dict:

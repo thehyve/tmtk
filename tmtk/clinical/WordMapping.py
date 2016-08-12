@@ -7,15 +7,21 @@ from ..params import ClinicalParams
 
 class WordMapping(FileBase):
     """
-    Base Class for word mapping file.
+    Class representing the word mapping file.
     """
+
     def __init__(self, params=None):
+        """
+        Initialize by giving a params object.
+
+        :param params: `tmtk.ClinicalParams`.
+        """
 
         self.params = params
 
         if not isinstance(params, ClinicalParams):
             raise Exceptions.ClassError(type(params))
-        elif params.__dict__.get('WORD_MAP_FILE'):
+        elif params.get('WORD_MAP_FILE'):
             self.path = os.path.join(params.dirname, params.WORD_MAP_FILE)
         else:
             self.path = os.path.join(params.dirname, 'word_mapping_file.txt')
@@ -34,10 +40,11 @@ class WordMapping(FileBase):
 
     def get_word_map(self, var_id):
         """
+        Return dict with value in data file, and the mapped value
+        as keyword-value pairs.
 
-        Returns dict with value in data, and mapped value
-        :param var_id:
-        :return:
+        :param var_id: tuple of filename and column number.
+        :return: dict.
         """
         if var_id in self.df.index:
             rows = self.df.loc[var_id]
@@ -50,22 +57,37 @@ class WordMapping(FileBase):
             return {}
 
     def build_index(self, df=None):
+        """
+        Build and sort multi-index for dataframe based on filename and
+        column number columns. If no df parameter is not set, build index
+        for self.df.
+
+        :param df: `pd.DataFrame`.
+        :return: `pd.DataFrame`.
+        """
         if not isinstance(df, pd.DataFrame):
             df = self.df
         df.set_index(list(df.columns[[0, 1]]), drop=False, inplace=True)
         df.sortlevel(inplace=True)
         return df
 
-    @staticmethod
-    def create_df():
+    def create_df(self):
+        """
+        Create `pd.DataFrame` with a correct header.
+
+        :return: `pd.DataFrame`.
+        """
         df = pd.DataFrame(dtype=str, columns=Mappings.word_mapping_header)
+        df = self.build_index(df)
         return df
 
     @staticmethod
     def _df_mods(df):
         """
-        df_mods applies modifications to the dataframe before it is cached.
-        :return:
+        _df_mods applies modifications to the dataframe before it is cached.
+
+        :param df: `pd.DataFrame`.
+        :return: `pd.DataFrame`.
         """
         df.ix[:, 1] = df.ix[:, 1].astype(int)
         return df

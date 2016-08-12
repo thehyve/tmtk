@@ -28,7 +28,9 @@ class MetaDataTags(FileBase):
         for tag_path in self.tag_paths:
             # Add "+" to both paths comparing so tag_path only matches if a complete node
             # is matched, as "Cell-line+Characteristics" starts with "Cell-line+Char"
-            if not any([(p + Mappings.path_delim).startswith(tag_path + Mappings.path_delim) for p in study_paths]):
+            if not any(
+                    [(p + Mappings.PATH_DELIM).startswith(tag_path + Mappings.PATH_DELIM) for p in
+                     study_paths]):
                 invalid.append(tag_path)
         return invalid
 
@@ -40,6 +42,7 @@ class MetaDataTags(FileBase):
     def get_tags(self):
         """
         generator that gets tags from tags file.
+
         :return: tuples (<path>, <title>, <description>)
         """
 

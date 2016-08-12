@@ -1,11 +1,11 @@
 from .HighDimBase import HighDimBase
-import tmtk.utils as utils
 
 
 class Expression(HighDimBase):
     """
     Base class for microarray mRNA expression data.
     """
+
     def _validate_specifics(self, messages):
         """
         Makes checks to determine whether transmart-batch likes this file.

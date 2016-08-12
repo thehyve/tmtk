@@ -5,6 +5,7 @@ class ReadCounts(HighDimBase):
     """
     Subclass for ReadCounts.
     """
+
     def _validate_specifics(self, messages):
         """
         Makes checks to determine whether transmart-batch likes this file.

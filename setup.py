@@ -3,7 +3,7 @@ import setuptools
 setuptools.setup(
     name="tmtk",
     version="0.1.0",
-    url="",
+    url="https://www.github.com/thehyve/tmtk/",
 
     author="Jochem Bijlard",
     author_email="j.bijlard@gmail.com",
@@ -13,13 +13,18 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
 
-    install_requires=['pandas', 'rpy2', 'ipython', 'flask', 'jupyter', 'requests', 'tqdm'],
+    install_requires=['pandas',
+                      'rpy2',
+                      'ipython',
+                      'flask',
+                      'jupyter',
+                      'requests',
+                      'tqdm',
+                      ],
 
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
 )

@@ -46,8 +46,9 @@ def start_session(url, username):
 def get_json_from_baas(url, username=None):
     """
     Get a json file from a Boris as a Service instance.
+
     :param url: url should study name and version.
-            (e.g. http://transmart-arborist.thehyve.nl/trees/study-name/1/~edit/).
+        (e.g. http://transmart-arborist.thehyve.nl/trees/study-name/1/~edit/).
     :param username: if no username is given, you will be prompted for one.
     :return: the JSON string from BaaS.
     """
@@ -62,7 +63,8 @@ def get_json_from_baas(url, username=None):
 def publish_to_baas(url, json, study_name, username=None):
     """
     Publishes a tree on a Boris as a Service instance.
-    :param url: url to a instance (e.g. http://transmart-arborist.thehyve.nl/).
+
+    :param url: url to a BaaS instance.
     :param json: the stringified json you want to publish.
     :param study_name: a nice name.
     :param username: if no username is given, you will be prompted for one.

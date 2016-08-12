@@ -2,13 +2,12 @@ from .ParamsBase import ParamsBase
 
 
 class TagsParams(ParamsBase):
-
     @property
     def mandatory(self):
         return {'TAGS_FILE': {
-                    'helptext': 'Points to the tags file.'
-                    }
-                }
+            'helptext': 'Points to the tags file.'
+        }
+        }
 
     @property
     def optional(self):
@@ -19,8 +18,7 @@ class TagsParams(ParamsBase):
 
         :return: True if both the column mapping file is located, else returns False.
         """
-        if self.__dict__.get('TAGS_FILE', None):
+        if self.get('TAGS_FILE'):
             return True
         else:
             return False
-

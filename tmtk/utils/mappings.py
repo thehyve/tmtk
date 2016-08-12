@@ -35,6 +35,9 @@ class Mappings:
     df_value_s = 'dfv'
     map_value_s = 'map'
 
+    # Path delimeter used for paths.
+    PATH_DELIM = '\u2215'  # Mathematical division sign
+
     column_mapping_header = [filename,
                              cat_cd,
                              col_num,
@@ -64,30 +67,91 @@ class Mappings:
                    tags_description,
                    tags_weight]
 
-    params = {'rnaseq': 'HighDimParams',
-              'cnv': 'HighDimParams',
-              'proteomics': 'HighDimParams',
-              'expression': 'HighDimParams',
-              'tags': 'TagsParams',
-              'study': 'StudyParams',
-              'clinical': 'ClinicalParams',
-              'mirna': 'HighDimParams',
-              }
+    @staticmethod
+    def get_params(dtype=None):
+        """
+        Return mapping for params classes.  Return only for datatype
+        if dtype is set.  Else return full map.
 
-    annotations = {'microarray_annotation': 'MicroarrayAnnotation',
-                   'cnv_annotation': 'ChromosomalRegions',
-                   'rnaseq_annotation': 'ChromosomalRegions',
-                   'proteomics_annotation': 'ProteomicsAnnotation',
-                   'annotation': 'MicroarrayAnnotation',
-                   'mrna_annotation': 'MicroarrayAnnotation',
-                   'mirna_annotation': 'MirnaAnnotation',
-                   }
+        :param dtype: optional datatype (e.g. cnv)
+        :return: dict with mapping, or class.
+        """
+        from ..params.HighDimParams import HighDimParams
+        from ..params.TagsParams import TagsParams
+        from ..params.StudyParams import StudyParams
+        from ..params.ClinicalParams import ClinicalParams
+        from ..params.AnnotationParams import AnnotationParams
 
-    highdim = {'rnaseq': 'ReadCounts',
-               'cnv': 'CopyNumberVariation',
-               'expression': 'Expression',
-               'proteomics': 'Proteomics',
-               'mirna': 'Mirna',
-               }
+        map_d = {'rnaseq': HighDimParams,
+                 'rnaseq_annotation': AnnotationParams,
+                 'cnv': HighDimParams,
+                 'cnv_annotation': AnnotationParams,
+                 'proteomics': HighDimParams,
+                 'proteomics_annotation': AnnotationParams,
+                 'expression': HighDimParams,
+                 'mrna_annotation': AnnotationParams,
+                 'tags': TagsParams,
+                 'study': StudyParams,
+                 'clinical': ClinicalParams,
+                 'mirna': HighDimParams,
+                 'mirna_annotation': AnnotationParams,
+                 }
 
-    path_delim = '\u2215'  # Mathematical division sign
+        if dtype:
+            return map_d[dtype]
+        else:
+            return map_d
+
+    @staticmethod
+    def get_annotations(dtype=None):
+        """
+        Return mapping for annotations classes.  Return only for datatype
+        if dtype is set.  Else return full map.
+
+        :param dtype: optional datatype (e.g. cnv_annotation)
+        :return: dict with mapping, or class.
+        """
+        from ..annotation.ChromosomalRegions import ChromosomalRegions
+        from ..annotation.MicroarrayAnnotation import MicroarrayAnnotation
+        from ..annotation.ProteomicsAnnotation import ProteomicsAnnotation
+        from ..annotation.MirnaAnnotation import MirnaAnnotation
+
+        map_d = {'microarray_annotation': MicroarrayAnnotation,
+                 'cnv_annotation': ChromosomalRegions,
+                 'rnaseq_annotation': ChromosomalRegions,
+                 'proteomics_annotation': ProteomicsAnnotation,
+                 'annotation': MicroarrayAnnotation,
+                 'mrna_annotation': MicroarrayAnnotation,
+                 'mirna_annotation': MirnaAnnotation,
+                 }
+
+        if dtype:
+            return map_d[dtype]
+        else:
+            return map_d
+
+    @staticmethod
+    def get_highdim(dtype=None):
+        """
+        Return mapping for high dimensional classes.  Return only for datatype
+        if dtype is set.  Else return full map.
+
+        :param dtype: optional datatype (e.g. cnv)
+        :return: dict with mapping, or class.
+        """
+        from ..highdim.CopyNumberVariation import CopyNumberVariation
+        from ..highdim.ReadCounts import ReadCounts
+        from ..highdim.Expression import Expression
+        from ..highdim.Mirna import Mirna
+        from ..highdim.Proteomics import Proteomics
+
+        map_d = {'rnaseq': ReadCounts,
+                 'cnv': CopyNumberVariation,
+                 'expression': Expression,
+                 'proteomics': Proteomics,
+                 'mirna': Mirna,
+                 }
+        if dtype:
+            return map_d[dtype]
+        else:
+            return map_d

@@ -1,6 +1,5 @@
 from .Generic import (clean_for_namespace, df2file, find_fully_unique_columns, summarise,
-                      file2df, get_unique_filename, is_numeric, fix_everything,
-                      validate_clinical_data, md5, path_converter, path_join)
+                      file2df, is_numeric, fix_everything, md5, path_converter, path_join)
 from .Exceptions import PathError, ClassError, DatatypeError, NotYetImplemented, TooManyValues
 from .HighDimUtils import find_missing_annotations, check_datafile_header_with_subjects
 from .CPrint import MessageCollector, CPrint

@@ -6,7 +6,8 @@ class CopyNumberVariation(HighDimBase):
     """
     Base class for copy number variation datatypes (aCGH, qDNAseq)
     """
-    def _validate_specifics(self,  messages):
+
+    def _validate_specifics(self, messages):
         """
         Makes checks to determine whether transmart-batch likes this file.
         Checks whether header contains the <samplecode>.<probability_type>.
@@ -53,13 +54,14 @@ class CopyNumberVariation(HighDimBase):
             if any(not_near_1):
                 everything_okay = False
                 bad_samples.append(sample)
-                [bad_regions.append(x) for x in self.df.ix[not_near_1, 0]]  # Adds region ids to list.
+                [bad_regions.append(x) for x in
+                 self.df.ix[not_near_1, 0]]  # Adds region ids to list.
 
         if not everything_okay:
             m = 'Samples ({}) where have regions where CNV probabilities do not approximate 1. ' \
                 'Regions: {}.'.format(utils.summarise(bad_samples), utils.summarise(bad_regions))
 
-            if self.params.__dict__.get('PROB_IS_NOT_1', 'ERROR') == 'WARN':
+            if self.params.get('PROB_IS_NOT_1', 'ERROR') == 'WARN':
                 messages.warn(m)
             else:
                 messages.error(m)

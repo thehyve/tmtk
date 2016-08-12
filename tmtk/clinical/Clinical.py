@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 from .DataFile import DataFile
-from .Variable import VariableCollection
+from .Variable import Variable
 from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
 from ..utils import CPrint, PathError, clean_for_namespace
@@ -11,12 +11,17 @@ from .. import arborist
 
 class Clinical:
     """
-    Container class for all clinical information.
+    Container class for all clinical data related objects, i.e. the column
+    mapping, word mapping, and clinical data files.
+
+    This object has methods that add data files, and for lookups of clinical
+    files and variables.
     """
+
     def __init__(self, clinical_params):
         self.ColumnMapping = ColumnMapping(params=clinical_params)
         self.WordMapping = WordMapping(params=clinical_params)
-        self.Variables = VariableCollection(clinical_parent=self)
+        # self.Variables = VariableCollection(clinical_parent=self)
         self.params = clinical_params
 
         for file in self.ColumnMapping.included_datafiles:
@@ -25,10 +30,10 @@ class Clinical:
 
     def add_datafile(self, filename, dataframe=None):
         """
-        Add a clinical data file.
-        :param filename: filename of file in clinical directory
-        :param dataframe: if given, add pd.DataFrame to study.
-        :return:
+        Add a clinical data file to study.
+
+        :param filename: path to file or filename of file in clinical directory.
+        :param dataframe: if given, add `pd.DataFrame` to study.
         """
 
         if isinstance(dataframe, pd.DataFrame):
@@ -51,7 +56,7 @@ class Clinical:
 
         while self.get_datafile(datafile.name):
             new_name = input("Filename {!r} already taken, try again.  ".format(datafile.name))
-            datafile.name = new_name or datafile.name  # Checking for empty string input
+            datafile.name = new_name if not new_name == '' else datafile.name
 
         safe_name = clean_for_namespace(datafile.name)
         self.__dict__[safe_name] = datafile
@@ -62,13 +67,27 @@ class Clinical:
 
     def get_variable(self, var_id: tuple):
         """
-        Give a var_id tuple and return the Variable
-        :param var_id: tuple (filename, column number)
-        :return: a tmtk.clinical.Variable
+        Return a Variable object based on variable id.
+
+        :param var_id: tuple of filename and column number.
+        :return: `tmtk.Variable`.
         """
-        return self.Variables.get(var_id)
+        df_name, column = var_id
+        datafile = self.get_datafile(df_name)
+        return Variable(datafile, column, self)
+
+    @property
+    def all_variables(self):
+        """
+        Dictionary where {`var_id`: `tmtk.Variable`} for all variables in
+        the column mapping file.
+        """
+        return {var_id: self.get_variable(var_id) for var_id in self.ColumnMapping.ids}
 
     def call_boris(self):
+        """
+        Use The Arborist to modify only information in the column and word mapping files.
+        """
         arborist.call_boris(self)
 
     def validate_all(self, verbosity=3):
@@ -76,13 +95,27 @@ class Clinical:
             if hasattr(obj, 'validate'):
                 obj.validate(verbosity=verbosity)
 
-    def get_datafile(self, name):
+    def get_datafile(self, name: str):
         """
-        Find datafile object by filename
-        :param name: name of file
-        :return: DataFile object
+        Find datafile object by filename.
+
+        :param name: name of file.
+        :return: `tmtk.DataFile` object.
         """
         for key, obj in self.__dict__.items():
             if isinstance(obj, DataFile):
                 if obj.name == name:
                     return obj
+
+    def __hash__(self):
+        """
+        Calculate hash for in memory pd.DataFrame objects.  The sum of these hashes
+        is returned.
+
+        :return: sum of hashes.
+        """
+        hashes = 0
+        for key, obj in self.__dict__.items():
+            if hasattr(obj, 'df'):
+                hashes += hash(obj)
+        return hashes

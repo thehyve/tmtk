@@ -3,7 +3,6 @@ import unittest
 
 
 class RemappingTests(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.study = tmtk.Study('studies/remap/study.params')
@@ -44,6 +43,7 @@ class RemappingTests(unittest.TestCase):
         highdim_cnv = self.study.HighDim.cnv
         chrom_regions = self.study.Annotations.rnaseq_RNASEQ_ANNOT
         assert all(highdim_cnv.remap_to(chrom_regions) == highdim_cnv.remap_to(chrom_regions.df))
+
 
 if __name__ == '__main__':
     unittest.main()

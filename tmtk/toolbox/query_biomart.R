@@ -1,4 +1,3 @@
-
 query_biomart <- function(mart_host, gpl_id, only_y=FALSE){
 
     # ### Using ensembl on GRCh37 -----------------------------------------------
@@ -18,9 +17,9 @@ query_biomart <- function(mart_host, gpl_id, only_y=FALSE){
     # # Get the coordinates through biomart and merge with platform -------------
     entrez_list <- getBM(attributes = c("chromosome_name", "start_position", "end_position",
                                         "band", 'hgnc_symbol','entrezgene'),
-                            filter = 'chromosome_name',
-                            values = normal.chroms,
-                            mart = mart)
+                         filter = 'chromosome_name',
+                         values = normal.chroms,
+                         mart = mart)
 
     # Only keep entries with both HGNC symbol and Entrez gene ID
     entrez_list <- entrez_list[which(!is.na(entrez_list$entrezgene) & entrez_list$hgnc_symbol != ''),]
@@ -56,6 +55,6 @@ verify_biomart_install <- function(){
         biocLite("biomaRt")
         return("INSTALLED")
     } else {
-    return("INSTALLED")
+        return("INSTALLED")
     }
 }

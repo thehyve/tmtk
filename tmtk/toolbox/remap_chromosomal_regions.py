@@ -1,12 +1,10 @@
 import pandas as pd
-import numpy as np
 
 
 def remap_chromosomal_regions(origin_platform=None, destination_platform=None, datafile=None,
                               flag_indicator='.flag', to_dest=2, start_dest=3, end_dest=4,
                               region_dest=1, chr_origin=2, start_origin=3, end_origin=4,
                               region_origin=1, region_data=0):
-
     dest_regions = destination_platform.ix[:, [to_dest, start_dest, end_dest]]
     dest_regions = _convert_xy_to_int(dest_regions)
 

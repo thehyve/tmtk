@@ -8,6 +8,7 @@ class FileBase:
     """
     Super class with shared utilities for file objects.
     """
+
     def __init__(self):
         self._hash_init = None
 
@@ -17,15 +18,17 @@ class FileBase:
     @cached_property
     def _df(self):
         if self.path and os.path.exists(self.path) and self.tabs_in_first_line():
-            df, self._hash_init = file2df(self.path, hashed=True)
+            df = file2df(self.path)
         else:
             CPrint.warn("No valid file found on disk for {}, creating dataframe.".format(self))
             df = self.create_df()
         df = self._df_processing(df)
+        self._hash_init = hash(df.__bytes__())
         return df
 
     @property
     def df(self):
+        """The pd.DataFrame for this file object."""
         return self._df
 
     @df.setter
@@ -39,7 +42,8 @@ class FileBase:
     def _df_processing(self, df):
         """
         Gives df post load modifications
-        :param df:
+
+        :param df: the `pd.DataFrame`
         :return: modified dataframe
         """
         try:
@@ -52,13 +56,12 @@ class FileBase:
             pass
         return df
 
-    @property
-    def _hash(self):
+    def __hash__(self):
         return hash(self.df.__bytes__())
 
     @property
     def df_has_changed(self):
-        return not self._hash == self._hash_init
+        return not hash(self) == self._hash_init
 
     @property
     def header(self):
@@ -76,6 +79,7 @@ class FileBase:
         return self.path
 
     def tabs_in_first_line(self):
+        """Check if file is tab delimited."""
         with open(self.path, 'r') as file:
             has_tab = '\t' in file.readline()
 
@@ -85,14 +89,13 @@ class FileBase:
 
     def write_to(self, path, overwrite=False):
         """
-        Wrapper for tmtk.utils.df2file().
+        Wrapper for :func:`tmtk.utils.df2file()`.
+
         :param path: path to write file to.
         :param overwrite: write over existing files in the filesystem)
         """
         df2file(self.df, path, overwrite=overwrite)
 
     def save(self):
-        """
-        Overwrite the original file with the current dataframe.
-        """
+        """Overwrite the original file with the current dataframe."""
         self.write_to(self.path, overwrite=True)

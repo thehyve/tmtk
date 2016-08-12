@@ -2,9 +2,10 @@ class ClassError(BaseException):
     """
     Error raised when unexpected class is found.
 
-    :param found is the Object class of found
-    :param expected is the required Object class.
+    :param found: is the Object class of found
+    :param expected: is the required Object class
     """
+
     def __init__(self, found=None, expected=None):
         self.found = found
         self.expected = expected
@@ -17,9 +18,10 @@ class DatatypeError(BaseException):
     """
     Error raised when incorrect datatype is found.
 
-    :param found is the datatype of object.
-    :param expected is the required datatype.
+    :param found: is the datatype of object
+    :param expected: is the required datatype
     """
+
     def __init__(self, found=None, expected=None):
         self.found = found
         self.expected = expected
@@ -29,9 +31,8 @@ class DatatypeError(BaseException):
 
 
 class PathError(BaseException):
-    """
-    Error raised when not a correct path is given.
-    """
+    """Error raised when an incorrect path is given."""
+
     def __init__(self, found=None):
         self.found = found
 
@@ -40,9 +41,8 @@ class PathError(BaseException):
 
 
 class TooManyValues(BaseException):
-    """
-    Error raised when not a correct path is given.
-    """
+    """Error raised when too many values are found."""
+
     def __init__(self, found=None, expected=None, id_=None):
         self.found = found
         self.expected = expected

@@ -19,7 +19,7 @@ def call_boris(to_be_shuffled=None):
     This function loads the Arborist if it has been properly installed in your environment.
 
     :param to_be_shuffled: has to be either a tmtk.Study object, a Pandas
-    column mapping dataframe, or a path to column mapping file.
+        column mapping dataframe, or a path to column mapping file.
     """
 
     if isinstance(to_be_shuffled, str) and os.path.exists(to_be_shuffled):
@@ -91,7 +91,8 @@ def launch_arborist_gui(json_data: str):
 
 def get_open_port():
     """
-    Opens an available port (as given by the OS)
+    Open an available port (as given by the OS) and return it.
+
     :return: the port number
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

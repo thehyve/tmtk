@@ -13,6 +13,7 @@ def clean_for_namespace(path) -> str:
     """
     Converts a path and returns a namespace safe variant. Converts characters that give errors
     to underscore.
+
     :param path: usually a descriptive subdirectory
     :return: string
     """
@@ -47,30 +48,26 @@ def summarise(list_or_dict=None, max_items: int = 7) -> str:
     return m
 
 
-def file2df(path=None, hashed=False):
+def file2df(path=None):
     """
     Load a file specified by path into a Pandas dataframe.  If hashed is True, return a
     a (dataframe, hash) value tuple.
 
-    :param path to file to load
-    :param hashed:
-    :returns pandas dataframe
+    :param path: to file to load
+    :return: `pd.DataFrame`
     """
     if not os.path.exists(path):
         raise PathError('File ({}) does not exist.'.format(path))
     df = pd.read_table(path,
                        sep='\t',
                        dtype=object)
-    if hashed:
-        hash_value = hash(df.__bytes__())
-        return df, hash_value
-    else:
-        return df
+    return df
 
 
 def md5(s: str):
     """
-    utf-8 encoded md5 hash string of input s
+    utf-8 encoded md5 hash string of input s.
+
     :param s: string
     :return: md5 hash string
     """
@@ -79,11 +76,12 @@ def md5(s: str):
 
 def df2file(df=None, path=None, overwrite=False):
     """
-    Write a dataframe to file properly
-    :param df:
-    :param path:
-    :param overwrite: False (default) or True.
+    Write a dataframe to file safely.  Does not overwrite existing files
+    automatically. This function converts concept path delimiters.
 
+    :param df: `pd.DataFrame`
+    :param path: path to write to
+    :param overwrite: False (default) or True
     """
     if not path:
         raise PathError(path)
@@ -93,7 +91,7 @@ def df2file(df=None, path=None, overwrite=False):
 
     os.makedirs(os.path.dirname(path), exist_ok=True)
 
-    df.replace(Mappings.path_delim, '\\\\', inplace=True, regex=True)
+    df.replace(Mappings.PATH_DELIM, '\\\\', inplace=True, regex=True)
 
     df.to_csv(path,
               sep='\t',
@@ -101,20 +99,11 @@ def df2file(df=None, path=None, overwrite=False):
               float_format='%.3f')
 
 
-def validate_clinical_data(df):
-    """
-    This function takes a dataframe and checks whether transmart-batch can load this.
-
-    :param df is a dataframe.
-    :return True if passed, else tries to return error message.
-    """
-    pass
-
-
 def find_fully_unique_columns(df):
     """
-    Check if a pd.DataFrame contains a fully unique column (SUBJ_ID candidate).
-    :param df: pd.DataFrame
+    Check if a dataframe contains a fully unique column (SUBJ_ID candidate).
+
+    :param df: `pd.DataFrame`
     :return: list of names of unique columns
     """
 
@@ -122,38 +111,11 @@ def find_fully_unique_columns(df):
     return list(df.columns[unique_cols])
 
 
-def get_unique_filename(first_filename):
-    """
-    Olafs functions.py
-    """
-    if not os.path.exists(first_filename):
-        return first_filename
-
-    postfix = None
-    version = 1
-    directory = os.path.dirname(first_filename)
-    filename = os.path.basename(first_filename)
-    parts = filename.split(".")
-    if len(parts) > 1:
-        postfix = "."+parts[-1]
-        name = ".".join(parts[:-1])
-    else:
-        name = filename
-
-    new_filename = "{}_{!s}{!s}".format(name, version, postfix)
-    full_filename = os.path.join(directory, new_filename)
-
-    while os.path.exists(full_filename):
-        version += 1
-        new_filename = "{}_{!s}{!s}".format(name, version, postfix)
-        full_filename = os.path.join(directory, new_filename)
-    else:
-        return full_filename
-
-
 def is_numeric(values):
     """
-    Olafs functions.py
+    Check if list of values are numeric.
+
+    :param values: iterable
     """
     for v in values:
         if not numeric(v):
@@ -174,6 +136,7 @@ def fix_everything():
     """
     Scans over all the data and indicates which errors have been fixed. This
     function is great for stress relieve.
+
     :return: All your problems fixed by Rick
     """
     return Audio(os.path.join(os.path.dirname(__file__), 'fix_for_all_tm_loading_issues.mp3'),
@@ -184,13 +147,14 @@ def path_converter(path, delimiter=None):
     """
     Convert paths by creating delimiters of backslash "\" and "+" sign, additionally converting
     underscores "_" to a single space.
+
     :param path: concept path
     :param delimiter: delimiter for paths, defaults to Mappings.path_delim
     :return: delimited path
     """
 
     if not delimiter:
-        delimiter = Mappings.path_delim
+        delimiter = Mappings.PATH_DELIM
 
     path = re.sub(r'[\\+]', delimiter, path)
     return path.strip(delimiter)
@@ -198,7 +162,9 @@ def path_converter(path, delimiter=None):
 
 def path_join(*args):
     """
-    :param args:
-    :return:
+    Join items with the used path delimiter.
+
+    :param args: path items
+    :return: path as string
     """
-    return Mappings.path_delim.join(args)
+    return Mappings.PATH_DELIM.join(args)
