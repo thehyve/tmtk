@@ -1,6 +1,8 @@
 import glob
 import os
 
+from pathlib import Path
+
 from .. import utils
 from ..utils import CPrint, Mappings
 
@@ -20,8 +22,8 @@ class Params:
 
         self._study_folder = study_folder
 
-        for path in glob.iglob(os.path.join(study_folder, '**/*.params'), recursive=True):
-            self.add_params(path)
+        for path in Path(study_folder).glob('**/*.params'):
+            self.add_params(str(path))
 
     @staticmethod
     def _pick_subdir_name(relative_path, datatype):

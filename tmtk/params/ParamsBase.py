@@ -1,7 +1,7 @@
 import os
 import glob
 
-from ..utils import PathError
+from ..utils import PathError, merge_two_dicts
 from ..utils.CPrint import MessageCollector
 
 
@@ -146,7 +146,7 @@ class ParamsBase:
     def update(self):
         """Iterate over parameters to change them interactively."""
         print('  '.join(['=' * 10, str(self) + ' params', '=' * 10]))
-        for param, d in {**self.mandatory, **self.optional}.items():
+        for param, d in merge_two_dicts(self.mandatory, self.optional).items():
             current = self.get(param)
             default = d.get('default')
             is_file = 'FILE' in param

@@ -316,13 +316,15 @@ class ConceptTree:
         # Check if node has metadata tag child, adds it to node list.
         meta_tag = self._get_meta_data_tags(node_children)
         if meta_tag:
-            tag_path = path_join(*path, node_text, Mappings.tags_node_name)
+            full_path = path + [node_text, Mappings.tags_node_name]
+            tag_path = path_join(*full_path)
             self.add_node(path=tag_path,
                           node_type='tag',
                           data_args=meta_tag['data'])
 
         if node_type in ['numeric', 'categorical', 'highdim', 'codeleaf', 'alpha', 'empty']:
-            concept_path = path_join(*path, node_text)
+            full_path = path + [node_text]
+            concept_path = path_join(*full_path)
 
             concept_id = self._str_to_tuple_var_id(node.get('id'))
 
