@@ -1,4 +1,18 @@
 import setuptools
+import os
+
+required_packages = ['pandas',
+                     'rpy2',
+                     'ipython',
+                     'flask',
+                     'jupyter',
+                     'requests',
+                     'tqdm',
+                     ]
+
+if os.environ.get('READTHEDOCS') == 'True':
+    for p in ['pandas', 'rpy2']:
+        required_packages.remove(p)
 
 setuptools.setup(
     name="tmtk",
@@ -13,14 +27,7 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
 
-    install_requires=['pandas',
-                      'rpy2',
-                      'ipython',
-                      'flask',
-                      'jupyter',
-                      'requests',
-                      'tqdm',
-                      ],
+    install_requires=required_packages,
 
     classifiers=[
         'Programming Language :: Python',
