@@ -69,7 +69,7 @@ class ColumnMapping(FileBase):
         :param var_id: tuple of filename and column number.
         :return: list of items in selected row.
         """
-        rows = self.df.loc[var_id]
+        rows = self.df.loc[tuple(var_id)]
 
         if isinstance(rows, pd.Series):
             return list(rows)

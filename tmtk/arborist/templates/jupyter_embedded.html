@@ -21,10 +21,15 @@
             <fieldset>
                 <legend>Data node details</legend>
                 <ul>
-              <span class="clinicaldata" hidden>File: <span id="filename"></span>
-                (<span id="columnnumber"></span>)
-              </span>
-                    <br>Type: <span id="nodetype"></span>
+                    Type: <span id="nodetype"></span>
+
+                    <span class="clinicaldata" hidden>
+                        <br>File: <span id="filename"></span>(<span id="columnnumber"></span>)
+                    </span>
+
+                    <span class="dfv" hidden>
+                        <br>Datafile Value: <span id="datafile_value"></span>
+                    </span>
                 </ul>
 
                 <table width="100%">
@@ -59,8 +64,6 @@
                         <tbody id="tagtable-body"></tbody>
                     </table>
 
-                    <button type="button" class="btn btn-sm btn-secondary" id="add_tag"
-                            style="margin-top: 5px;"><img src="/static/images/add_tag.png"></button>
                 </div>
             </fieldset>
             <hr>

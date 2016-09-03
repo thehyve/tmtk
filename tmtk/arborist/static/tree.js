@@ -70,16 +70,17 @@ function replacer(key, value) {
 }
 
 // Button to check if tag table is filled and if so add new tag
-$('button#add_tag').click( function (obj) {
+function add_tags_feedback (obj) {
     var empty = $('#tagtable-body').find("input").filter(function() {
         return this.value === "";
     });
     if (empty.length) {
-        feedback("First fill all fields.", true)
+        feedback("Fill all fields to add new row.", true);
     } else {
-        createTagRow()
+        createTagRow();
+        feedback("Tags added.", false);
     }
-});
+};
 
 $("form#datanodedetails").submit(function (e) {
   e.preventDefault();
@@ -95,9 +96,10 @@ $("form#datanodedetails").submit(function (e) {
       var weight = $("#tagweight_" + i).val();
       // If title and description are present, store it to the tags.
       if (title !== "" & desc !== ""){
-        node.data.tags[title] = [desc, weight]
+        node.data.tags[title] = [desc, weight];
+        }
       }
-    }
+    add_tags_feedback()
   } else if (typeof node != 'undefined') {
 
     var text = $("#datalabel").val();
@@ -109,21 +111,23 @@ $("form#datanodedetails").submit(function (e) {
 
     node.data['m5'] = $("#magic5").val();
     node.data['m6'] = $("#magic6").val();
-    var type = node.type
+    var type = node.type;
 
     if (updated) {
-      feedback("Successfully applied", false)
+      feedback("Successfully applied", false);
+      var is_special = ['SUBJ_ID', 'OMIT'].indexOf(text) > -1;
 
       // If the node text starts with OMIT, change the type (and icon)
-      if (text.startsWith(('SUBJ_ID', 'OMIT')) & (type == 'categorical' | type == 'numeric' | type == 'empty')) {
+      if (is_special & (['categorical', 'numeric', 'empty'].indexOf(type) > -1 )) {
         type = 'codeleaf';
       // If changed from SUBJ_ID or OMIT to regular, change type back to original
-      } else if (type == 'codeleaf' & !text.startsWith(('SUBJ_ID', 'OMIT'))) {
+      } else if ((type == 'codeleaf') & (!is_special)) {
         type = node.data['ctype'];
       }
 
       $("#treediv").jstree('set_type', node, type);
-      enableRightFields(type);
+      $("#treediv").jstree('deselect_all');
+      $("#treediv").jstree('select_node', node);
 
     }
   } else {
@@ -136,14 +140,18 @@ function enableRightFields(type) {
     $('.label').prop('hidden', false);
     $('.clinicaldata').prop('hidden', false);
     $('.tagdata').prop('hidden', true);
+    $('.dfv').prop('hidden', true);
   } else if (type == 'tag') {
     $('.tagdata').prop('hidden', false);
     $('.clinicaldata').prop('hidden', true);
     $('.label').prop('hidden', true);
+    $('.dfv').prop('hidden', true);
   } else {
     $('.label').prop('hidden', false);
     $('.tagdata').prop('hidden', true);
     $('.clinicaldata').prop('hidden', true);
+    $('.dfv').prop('hidden', true);
+
   }
 }
 
@@ -199,14 +207,6 @@ function customMenu(node) {
         });
       }
     },
-    renameItem: { // The "rename" menu item
-      label: "Rename",
-      action: function (data) {
-        var inst = $.jstree.reference(data.reference),
-            obj = inst.get_node(data.reference);
-        inst.edit(obj);
-      }
-    },
     deleteItem: { // The "delete" menu item
       label: "Delete",
       action: function (data) {
@@ -222,16 +222,6 @@ function customMenu(node) {
     }
   };
 
-  /* // Select here what options to show for which nodes to show what options.
-   if (node.data.file) {
-   delete items.createItem;
-   }
-
-   else{
-   delete items.deleteItem;
-   delete items.renameItem;
-   }
-   */
   return items;
 }
 
@@ -257,19 +247,21 @@ function createTagRow(){
 
     $('#tagtable-body').append(tr);
 
+    $('#' + title_id).focus()
+
     return counter
 }
 
+var keymap = {default : 'Folder',
+              numeric : 'Numerical',
+              alpha : 'Categorical Value',
+              categorical : 'Categorical',
+              tag : 'Metadata tags',
+              highdim : 'High-dimensional',
+              codeleaf : 'Special concept',
+              empty: 'Empty node',
+             };
 function prettyType(label){
-    var keymap = {default : 'Folder',
-                  numeric : 'Numerical',
-                  alpha : 'Categorical Value',
-                  categorical : 'Categorical',
-                  tag : 'Metadata tags',
-                  highdim : 'High-dimensional',
-                  codeleaf : 'Special concept',
-                  empty: 'Empty node',
-                 };
     return keymap[label]
 }
 
@@ -313,6 +305,10 @@ $('#treediv')
         }
         if (typeof node.data['m6'] !== 'undefined') {
           $("#magic6").val(node.data['m6']);
+        }
+        if ((node.type == 'alpha') && (node.data['dfv'] !== node.text)) {
+          $('.dfv').prop('hidden', false);
+          $("#datafile_value").text(node.data['dfv']);
         }
 
         // This way to add multiple tags to 'tags' dictionary in 'data'
@@ -391,17 +387,23 @@ $('#treediv')
         },
       },
       'sort': function (a, b) {
-        if ((this.get_type(a) == 'tag') && (this.get_type(b) != 'tag')) {
+        var type_a = this.get_type(a);
+        var type_b = this.get_type(b);
+
+        var a_folder = ['default', 'categorical'].indexOf(type_a) > -1;
+        var b_folder = ['default', 'categorical'].indexOf(type_b) > -1;
+
+        if ((type_a == 'tag') && (type_b != 'tag')) {
           return -1;
-        } else if ((this.get_type(a) != 'tag') && (this.get_type(b) == 'tag')) {
+        } else if ((type_a != 'tag') && (type_b == 'tag')) {
           return 1;
-        } else if ((this.get_type(a) == 'default') && (this.get_type(b) != 'default')) {
+        } else if (a_folder && !b_folder) {
           return -1;
-        } else if ((this.get_type(a) != 'default') && (this.get_type(b) == 'default')) {
+        } else if (!a_folder && b_folder) {
           return 1;
         } else {
           return this.get_text(a) > this.get_text(b) ? 1 : -1;
         }
       },
-      "plugins": ["dnd", "sort", "contextmenu", "types", "unique", "wholerow", "search"]
+      "plugins": ["dnd", "sort", "contextmenu", "types", "wholerow", "search"]
     });

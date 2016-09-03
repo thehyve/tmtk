@@ -3,6 +3,7 @@ import pandas as pd
 import tmtk
 from tqdm import tqdm
 from ..utils import CPrint, Mappings, Exceptions, path_join
+from ..clinical.Variable import VarID
 
 
 def create_concept_tree(column_object):
@@ -41,15 +42,18 @@ def create_tree_from_study(study_object, concept_tree=None):
 
     for map_file in study_object.subject_sample_mappings:
         for md5, path in map_file.get_concept_paths.items():
-            concept_tree.add_node(path, concept_id=md5, node_type='highdim')
+            concept_tree.add_node(path, var_id=md5, node_type='highdim')
 
     if hasattr(study_object, 'Tags'):
-        for path, tags_dict in study_object.Tags.get_tags():
+        for i, (path, tags_dict) in enumerate(study_object.Tags.get_tags()):
             # Add TAGS string to path name, TAGS will be subnode of the concept
             # that has the meta data.
             path_in_tree = path_join(path, Mappings.tags_node_name)
             data_args = {'tags': tags_dict}
-            concept_tree.add_node(path_in_tree, node_type='tag', data_args=data_args)
+            concept_tree.add_node(path_in_tree,
+                                  var_id="tags_id_{}".format(i),
+                                  node_type='tag',
+                                  data_args=data_args)
 
     return concept_tree
 
@@ -91,14 +95,13 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
         data_args.update({'ctype': node_type})
 
         # Add filename to SUBJ_ID and OMIT, this is a work around for unique path constraint.
-        if concept_path.endswith(("SUBJ ID", "OMIT")):
+        if variable.data_label in {"SUBJ_ID", "OMIT"}:
             concept_path = concept_path.replace("SUBJ ID", "SUBJ_ID")
             node_type = 'codeleaf'
-            concept_path += ' ({})'.format(var_id)
 
         # Add categorical values to concept tree (if any)
         for i, datafile_value in enumerate(categories):
-            oid = var_id + (i,)
+            oid = var_id.create_category(i + 1)
             mapped = categories[datafile_value]
             mapped = mapped if not pd.isnull(mapped) else ''
             categorical_path = path_join(concept_path, mapped)
@@ -167,23 +170,23 @@ class ConceptTree:
                 json_data = json.loads(json_data)
             self._extract_node_list(json_data)
 
-    def add_node(self, path, concept_id=None, node_type=None, data_args=None):
+    def add_node(self, path, var_id=None, node_type=None, data_args=None):
         """
         Add ConceptNode object nodes list.
 
         :param path: Concept path for this node.
-        :param concept_id: Unique ID that allows to keep track of a node.
+        :param var_id: Unique ID that allows to keep track of a node.
         :param node_type: Explicitly set node type (highdim, numerical, categorical)
         :param data_args: Any additional parameters are put a 'data' dictionary.
         """
 
         # Check if node already exists.
-        if path in self.paths:
-            CPrint.error('Trying to add duplicate to ConceptTree: {}\n'
-                         'This fails in the GUI.'.format(path))
+        if path in self.paths and node_type not in {'alpha', 'codeleaf'}:
+            CPrint.warn('Trying to add duplicate to ConceptTree: {}\n'
+                        'This might fail in the GUI.'.format(path))
 
         new_node = ConceptNode(path,
-                               concept_id=concept_id,
+                               var_id=var_id,
                                node_type=node_type,
                                data_args=data_args)
         self.nodes.append(new_node)
@@ -213,7 +216,7 @@ class ConceptTree:
         high_dim_paths = {}
         for node in self.nodes:
             if node.type == 'highdim':
-                high_dim_paths[node.concept_id] = node.path
+                high_dim_paths[node.var_id] = node.path
         return high_dim_paths
 
     @property
@@ -252,7 +255,7 @@ class ConceptTree:
 
     @staticmethod
     def _extract_column_mapping_row(node):
-        if node.type not in ['numeric', 'categorical', 'codeleaf', 'empty']:
+        if node.type not in {'numeric', 'categorical', 'codeleaf', 'empty'}:
             return
         filename = node.data.get(Mappings.filename_s)
         full_path = node.path.replace(' ', '_')
@@ -297,7 +300,7 @@ class ConceptTree:
     @staticmethod
     def _extract_word_mapping_row(node):
         if node.type == 'alpha':
-            filename, column, c = node.concept_id
+            filename, column, c = node.var_id
             datafile_value = node.data.get(Mappings.df_value_s)
             mapped_value = node.path.rsplit(Mappings.PATH_DELIM, 1)[1]
             return pd.Series([filename, column, datafile_value, mapped_value])
@@ -312,78 +315,36 @@ class ConceptTree:
         node_type = node.get('type', 'default')
         node_children = node.get('children', [])
         node_text = node['text']
+        node_path = path + [node_text]
 
-        # Check if node has metadata tag child, adds it to node list.
-        meta_tag = self._get_meta_data_tags(node_children)
-        if meta_tag:
-            full_path = path + [node_text, Mappings.tags_node_name]
-            tag_path = path_join(*full_path)
-            self.add_node(path=tag_path,
-                          node_type='tag',
-                          data_args=meta_tag['data'])
+        if node_type != 'default':
 
-        if node_type in ['numeric', 'categorical', 'highdim', 'codeleaf', 'alpha', 'empty']:
-            full_path = path + [node_text]
-            concept_path = path_join(*full_path)
+            concept_path = path_join(*node_path)
 
-            concept_id = self._str_to_tuple_var_id(node.get('id'))
+            var_id = VarID(node.get('id')) if node_type != 'tag' else None
 
             self.add_node(path=concept_path,
-                          concept_id=concept_id,
+                          var_id=var_id,
                           node_type=node_type,
                           data_args=node.get('data', {}),
                           )
 
-            # If there are any alpha children, add them to ConceptTree
-            for alpha in [c for c in node_children if c.get('type') == 'alpha']:
-                path_to_categorical = path + [node['text']]
-                self._get_children(alpha, path_to_categorical)
-
-        elif node_type == 'default':
-            path = path + [node['text']]
-
-            for child in node_children:
-                self._get_children(child, path)
-
-    @staticmethod
-    def _get_meta_data_tags(node_children):
-        """
-        Returns tag node if it is in children has it.
-        :param node_children:
-        :return:
-        """
         for child in node_children:
-            if child.get('type') == 'tag':
-                return child
-
-    def _str_to_tuple_var_id(self, var_id: str):
-        """
-        Converts var_ids from JStree into tuples that Python wants.
-        :param var_id: string
-        :return: tuple or md5 hash.
-        """
-        if not var_id or len(var_id) == 32:  # md5 hashed concept path
-            return var_id
-        elif '__' in var_id:
-            l = var_id.rsplit('__', 1)
-            if '_' in l[1]:
-                l += l.pop(1).split('_')
-            return tuple(l)
+            self._get_children(child, node_path)
 
 
 class ConceptNode:
-    def __init__(self, path, concept_id=None, node_type='numeric', data_args=None):
+    def __init__(self, path, var_id=None, node_type='numeric', data_args=None):
         """
         Object to be put into a list and interpreted by JSTree.
 
         :param path: Concept path for this node.
-        :param concept_id: Unique ID that allows to keep track of a node.
-        :param categories: a list of values in this categorical concept node.
-        If None, this concept node is considered to be numerical.
+        :param var_id: Unique ID that allows to keep track of a node.
+        :param node_type: If None, this concept node is considered to be numerical.
         :param data_args: Any additional parameters are put a 'data' dictionary.
         """
         self.path = path
-        self.concept_id = concept_id
+        self.var_id = var_id
         self.data = data_args if data_args else {}
         self.type = node_type
 
@@ -396,12 +357,8 @@ class ConceptNode:
 
 class JSNode:
     """
-    This class exists as a helper to the jsTree.  Its "json_data" method can
-    generate sub-tree JSON without putting the logic directly into the jsTree.
-    This data structure is only semi-immutable.  The jsTree uses a directly
-    iterative (i.e. no stack is managed) builder pattern to construct a
-    tree out of paths.  Therefore, the children are not known in advance, and
-    we have to keep the children attribute mutable.
+    This class exists as a helper to the JSTree.  Its "json_data" method can
+    generate sub-tree JSON without putting the logic directly into the JSTree.
     """
 
     def __init__(self, path, oid=None, **kwargs):
@@ -412,7 +369,8 @@ class JSNode:
         For example, users may want to pass "attr" or some other valid jsTree options.
         """
 
-        self.children = kwargs.get('children', {})
+        self.children = {}
+        self.helper_children = {}
         if not all([isinstance(self.children[child], JSNode) for child in self.children]):
             raise TypeError("One or more children were not instances of '{}'".format(JSNode))
         if 'children' in kwargs:
@@ -427,30 +385,33 @@ class JSNode:
         self.__dict__.update(**kwargs)
         self.__dict__['text'] = path
 
+    def get_child(self, var_id, text):
+        return self.children.get(var_id) or self.helper_children.get(text) or self.children.get(text)
+
+    def __repr__(self):
+        return self.text
+
     def json_data(self):
-        children = [self.children[k].json_data() for k in self.children]
+        children = [k.json_data() for k in self.children.values()]
         output = {}
         for k, v in self.__dict__.items():
-            if k == 'children':
+            if k in {'children', 'helper_children'}:
                 continue
             output[k] = v
-        if len(children):
+        if children:
             output['children'] = children
         return output
 
 
 class JSTree:
     """
-    An immutable dictionary-like object that converts a list of "paths"
-    into a tree structure suitable for jQuery's jsTree.
+    An json like object that converts a list of nodes into something
+    that jQuery jstree can use.
     """
 
     def __init__(self, concept_nodes):
         """
-        Take a list of paths and put them into a tree.  Paths with the same prefix should
-        be at the same level in the tree.
-        kwargs may be standard jsTree options used at all levels in the tree.  These will be outputted
-        in the JSON.
+        Take a list of paths and put them into a tree.
         """
 
         if not all([isinstance(p, ConceptNode) for p in concept_nodes]):
@@ -463,25 +424,37 @@ class JSTree:
 
         for node in concept_nodes:
             curr = self._root
-            # sub_paths = re.split(r'[+\\]', node.path)
             sub_paths = node.path.split(Mappings.PATH_DELIM)
             data = node.__dict__.get('data', {})
-            children = node.__dict__.get('_children', {})
             node_type = node.__dict__.get('type', 'default')
 
-            # the sub paths below cause uniqueness constraint
+            # Will be used to add the categories to the right categorical node.
+            parent = node.var_id.parent if node_type == 'alpha' else 0
+
+            # And now for the tricky bit.
             for i, sub_path in enumerate(sub_paths):
-                if sub_path not in curr.children:
-                    if i == len(sub_paths) - 1:  # Arrived at leaf
-                        oid = self._tuple_to_str_var_id(node.concept_id)
-                        curr.children[sub_path] = JSNode(sub_path,
-                                                         oid=oid,
-                                                         data=data,
-                                                         children=children,
-                                                         type=node_type)
-                    else:
-                        curr.children[sub_path] = JSNode(sub_path)
-                curr = curr.children[sub_path]
+
+                # Arrived at leaf.  Add final JSNode of path and give it the VarID
+                if i == len(sub_paths) - 1:  # Arrived at leaf
+                    new_node = JSNode(sub_path,
+                                      oid=node.var_id,
+                                      data=data,
+                                      type=node_type)
+
+                    curr.children[node.var_id] = new_node
+                    curr.helper_children[new_node.text] = new_node
+                    continue  # next path
+
+                # Not a leaf, check if current path already in tree.
+                next_child = curr.get_child(var_id=parent, text=sub_path)
+
+                if not next_child:
+                    new_node = JSNode(sub_path)
+                    curr.children[sub_path] = new_node
+                    curr = new_node
+
+                else:
+                    curr = next_child
 
     def __repr__(self):
         """
@@ -491,27 +464,22 @@ class JSTree:
 
     def pretty(self, root=None, depth=0, spacing=2):
         """
-        Create a "pretty print" representation of the tree with customized indentation at each
-        level of the tree.
-
+        Create a pretty representation of tree.
         """
         if root is None:
             root = self._root
         fmt = "%s%s/" if root.children else "%s%s"
         s = fmt % (" " * depth * spacing, root.text)
-        for child in sorted(root.children):
-            child = root.children[child]
+        for child in root.children:
             s += "\n%s" % self.pretty(child, depth + 1, spacing)
         return s
 
     @property
     def json_data(self):
         """
-        Returns a copy of the internal tree in a JSON-friendly format,
-        ready for consumption by jsTree.  The data is represented as a
-        list of dictionaries, each of which are our internal nodes.
+        Convert this object to json ready to be consumed by jstree.
         """
-        return [self._root.children[k].json_data() for k in sorted(self._root.children)]
+        return [k.json_data() for k in self._root.children.values()]
 
     @property
     def json_data_string(self):
@@ -524,22 +492,6 @@ class JSTree:
     def to_clipboard(self):
         pd.DataFrame.to_clipboard(self.json_data_string)
 
-    def _tuple_to_str_var_id(self, var_id):
-        """
-        Convert a python var_id (tuple) to a string that is to go to JStree.
-        MD5 sums of highdim data are passed through.
-        :param var_id: Python var_id
-        :return: Returns a string.
-        """
-        if not var_id:
-            return None
-        elif len(var_id) == 2:
-            return '{}__{}'.format(*var_id)
-        elif len(var_id) == 3:
-            return '{}__{}_{}'.format(*var_id)
-        else:
-            return var_id
-
 
 class MyEncoder(json.JSONEncoder):
     """ Overwriting the standard JSON Encoder to treat numpy ints as native ints."""
@@ -547,5 +499,7 @@ class MyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, pd.np.int64):
             return int(obj)
+        elif isinstance(obj, VarID):
+            return str(obj)
         else:
             return super(MyEncoder, self).default(obj)

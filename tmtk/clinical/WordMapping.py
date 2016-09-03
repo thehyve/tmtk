@@ -46,6 +46,8 @@ class WordMapping(FileBase):
         :param var_id: tuple of filename and column number.
         :return: dict.
         """
+        var_id = tuple(var_id)
+
         if var_id in self.df.index:
             rows = self.df.loc[var_id]
             if isinstance(rows, pd.DataFrame):

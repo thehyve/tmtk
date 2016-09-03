@@ -1,3 +1,4 @@
 Filename	Column Number	Original Data Value	New Data Values
 Cell-line_clinical.txt	7		No Information
 Cell-line_clinical.txt	4	Prostate	Wordmapped_Prostated
+Cell-line_clinical.txt	4	Colon	Wordmapped_Prostated

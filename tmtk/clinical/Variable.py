@@ -1,6 +1,77 @@
 from ..utils import Mappings, path_converter, is_numeric
 
 
+class VarID:
+    """
+    Clinical variable identifier. Contains logic to convert to string for
+    jstree json.
+    """
+
+    def __new__(cls, *args, **kwargs):
+        if len(args) == 1 and (len(args[0]) == 32 or 'tags_id_' in args[0]):  # highdim or tags
+            return args[0]
+        else:
+            return super(VarID, cls).__new__(cls)
+
+    def __init__(self, *args):
+
+        if len(args) == 1 and '__' in args[0]:
+            l = args[0].rsplit('__', 1)
+            if '_' in l[1]:
+                l += l.pop(1).split('_')
+            args = l
+
+        elif len(args) == 1 and type(args[0]) == tuple:
+            args = args[0]
+
+        self.filename = args[0]
+        self.column = args[1]
+        self.category = args[2] if len(args) > 2 else None
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __hash__(self):
+        return hash(self.tuple)
+
+    def __repr__(self):
+        if self.category:
+            return 'VarID({!r}, {}, {})'.format(*self.tuple)
+        else:
+            return 'VarID({!r}, {})'.format(*self.tuple)
+
+    def __str__(self):
+        if self.category:
+            return '{}__{}_{}'.format(*self.tuple)
+        else:
+            return '{}__{}'.format(*self.tuple)
+
+    def __getitem__(self, key):
+        return self.tuple[key]
+
+    def __iter__(self):
+        for item in self.filename, self.column, self.category:
+            if item:
+                yield item
+    @property
+    def tuple(self):
+        return tuple(self)
+
+    @property
+    def parent(self):
+        return self.filename, self.column
+
+    def create_category(self, i):
+        """
+        Create a category ID and return it.
+
+        :param i: Integer
+        :return: new VarID
+        """
+        assert not self.category, 'VarID already has category.'
+        return VarID(self.filename, self.column, int(i))
+
+
 class Variable:
     """
     Base class for clinical variables
@@ -39,7 +110,7 @@ class Variable:
 
         :return: Variable identifier tuple (datafile.name, column).
         """
-        return self.datafile.name, self.column
+        return VarID(self.datafile.name, self.column)
 
     @property
     def is_numeric_in_datafile(self):
@@ -49,7 +120,7 @@ class Variable:
         :return: bool.
         """
         try:
-            list(map(float, self.values))
+            set(map(float, self.values))
             return True
         except ValueError:
             return False
@@ -152,4 +223,4 @@ class Variable:
 
         :return: bool.
         """
-        return self.var_id in self.parent.WordMapping.df.index
+        return tuple(self.var_id) in self.parent.WordMapping.df.index

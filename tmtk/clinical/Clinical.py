@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 from .DataFile import DataFile
-from .Variable import Variable
+from .Variable import Variable, VarID
 from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
 from ..utils import CPrint, PathError, clean_for_namespace
@@ -21,7 +21,6 @@ class Clinical:
     def __init__(self, clinical_params):
         self.ColumnMapping = ColumnMapping(params=clinical_params)
         self.WordMapping = WordMapping(params=clinical_params)
-        # self.Variables = VariableCollection(clinical_parent=self)
         self.params = clinical_params
 
         for file in self.ColumnMapping.included_datafiles:
@@ -79,10 +78,10 @@ class Clinical:
     @property
     def all_variables(self):
         """
-        Dictionary where {`var_id`: `tmtk.Variable`} for all variables in
+        Dictionary where {`tmtk.VarID`: `tmtk.Variable`} for all variables in
         the column mapping file.
         """
-        return {var_id: self.get_variable(var_id) for var_id in self.ColumnMapping.ids}
+        return {VarID(var_id): self.get_variable(var_id) for var_id in self.ColumnMapping.ids}
 
     def call_boris(self):
         """
