@@ -82,24 +82,67 @@ function add_tags_feedback (obj) {
     }
 };
 
-$("form#datanodedetails").submit(function (e) {
-  e.preventDefault();
-  if (node.type == 'tag') {
+function color_bg (id, color) {
+    var item = document.getElementById(id)
+    if (item) {
+        item.style.backgroundColor = color;
+        setTimeout(function () {item.style.backgroundColor = ""; }, 2000 );
 
+    }
+}
+
+function field_update (id) {
+    color_bg(id, '#bafbaf')
+}
+
+function field_empty (id) {
+    color_bg(id, '#ffc3c3')
+}
+
+function process_tags (obj) {
     // Reset tags object to clear all existing tags
+    var old_tags = node.data.tags;
     node.data.tags = {};
     var rowCount = $("#tagtable-body tr").length;
 
     for (i = 1; i <= rowCount; i++) {
-      var title = $("#tagname_" + i).val();
-      var desc = $("#tagdesc_" + i).val();
-      var weight = $("#tagweight_" + i).val();
-      // If title and description are present, store it to the tags.
-      if (title !== "" & desc !== ""){
-        node.data.tags[title] = [desc, weight];
+        var title = $("#tagname_" + i).val();
+        var desc = $("#tagdesc_" + i).val();
+        var weight = $("#tagweight_" + i).val();
+
+
+        if (title === "" & desc !== "") {
+            field_empty('tagname_' + i);
+        } else if (desc === "" & title !== "") {
+            field_empty('tagdesc_' + i);
         }
-      }
+
+        var entry = old_tags[title];
+        if (typeof entry !== 'undefined') {
+            if ((desc !== "") & (entry[0] !== desc)){
+                field_update("tagdesc_" + i);
+            }
+            if ((weight !== "") & (entry[1] !== weight)){
+                field_update("tagweight_" + i);
+            }
+        } else if (title !== "" & desc !== "") {
+            field_update("tagname_" + i);
+            field_update("tagdesc_" + i);
+            field_update("tagweight_" + i);
+        }
+
+        // If title and description are present, store it to the tags.
+        if (title !== "" & desc !== "") {
+            node.data.tags[title] = [desc, weight];
+        }
+    }
     add_tags_feedback()
+}
+
+$("form#datanodedetails").submit(function (e) {
+  e.preventDefault();
+  if (node.type == 'tag') {
+    process_tags()
   } else if (typeof node != 'undefined') {
 
     var text = $("#datalabel").val();
@@ -355,9 +398,6 @@ $('#treediv')
       "types": {
         "default": {
           "icon": "/static/images/tree/folder.gif",
-        },
-        "study": {
-          "icon": "/static/images/tree/study.png",
         },
         "alpha": {
           "icon": "/static/images/tree/alpha.gif",
