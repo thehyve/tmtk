@@ -154,6 +154,13 @@ $("form#datanodedetails").submit(function (e) {
 
     node.data['m5'] = $("#magic5").val();
     node.data['m6'] = $("#magic6").val();
+
+    if ($("#fc").prop('checked')) {
+        node.data['cty'] = 'CATEGORICAL'
+    } else {
+        node.data['cty'] = ''
+    }
+
     var type = node.type;
 
     if (updated) {
@@ -348,6 +355,9 @@ $('#treediv')
         }
         if (typeof node.data['m6'] !== 'undefined') {
           $("#magic6").val(node.data['m6']);
+        }
+        if (node.data['cty'] === 'CATEGORICAL') {
+          $("#fc").prop('checked', true);
         }
         if ((node.type == 'alpha') && (node.data['dfv'] !== node.text)) {
           $('.dfv').prop('hidden', false);
