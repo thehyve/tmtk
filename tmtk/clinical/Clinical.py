@@ -118,3 +118,22 @@ class Clinical:
             if hasattr(obj, 'df'):
                 hashes += hash(obj)
         return hashes
+
+    def show_changes(self):
+        """Print changes made to the column mapping and word mapping file."""
+        column_changes = self.ColumnMapping.path_changes(silent=True)
+        word_map_changes = self.WordMapping.word_map_changes(silent=True)
+
+        for var_id in set().union(column_changes, word_map_changes):
+            print("{}: {}".format(*var_id))
+            path_change = column_changes.get(var_id)
+            if path_change:
+                print("       {}".format(path_change[0]))
+                print("    -> {}".format(path_change[1]))
+            else:
+                print("       {}".format(self.get_variable(var_id).concept_path))
+
+            map_change = word_map_changes.get(var_id)
+            if map_change:
+                for k, v in map_change.items():
+                    print("          - {!r} -> {!r}".format(k, v))

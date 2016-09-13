@@ -2,7 +2,8 @@ import os
 import pandas as pd
 
 from ..arborist import call_boris
-from ..utils import FileBase, Exceptions, Mappings, path_converter, path_join, CPrint
+from ..utils import (FileBase, Exceptions, Mappings, path_converter,
+                     path_join, CPrint, column_map_diff)
 from ..params import ClinicalParams
 from .DataFile import DataFile
 
@@ -29,6 +30,8 @@ class ColumnMapping(FileBase):
             self.path = os.path.join(params.dirname, 'column_mapping_file.txt')
             self.params['COLUMN_MAP_FILE'] = os.path.basename(self.path)
         super().__init__()
+
+        self._initial_paths = self.path_id_dict
 
     @property
     def included_datafiles(self):
@@ -133,3 +136,24 @@ class ColumnMapping(FileBase):
                 self.df.loc[i] = [datafile.name, datafile.name, i, name] + cols_min_four
 
         self.build_index()
+
+    @property
+    def path_id_dict(self):
+        """Dictionary with all variable ids as keys and paths as value."""
+        return {v: self.get_concept_path(v) for v in self.ids}
+
+    def path_changes(self, silent=False):
+        """
+        Determine changes made to column mapping file.
+
+        :param silent: if True, only print output.
+        :return: if `silent=False` return dictionary with changes since load.
+        """
+        diff = column_map_diff(self._initial_paths, self.path_id_dict)
+        if not silent:
+            for var_id, item in diff.items():
+                print("{}: {}".format(*var_id))
+                print("        {}".format(item[0]))
+                print("     -> {}".format(item[1]))
+        else:
+            return diff

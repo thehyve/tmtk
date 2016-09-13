@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from ..utils import FileBase, Exceptions, Mappings, MessageCollector
+from ..utils import FileBase, Exceptions, Mappings, MessageCollector, word_map_diff
 from ..params import ClinicalParams
 
 
@@ -28,6 +28,7 @@ class WordMapping(FileBase):
             self.params.__dict__['WORD_MAP_FILE'] = os.path.basename(self.path)
 
         super().__init__()
+        self._initial_word_map = self.word_map_dicts
 
     def validate(self, verbosity=2):
         messages = MessageCollector(verbosity)
@@ -93,3 +94,24 @@ class WordMapping(FileBase):
         """
         df.ix[:, 1] = df.ix[:, 1].astype(int)
         return df
+
+    @property
+    def word_map_dicts(self):
+        """Dictionary with all variable ids as keys and word map dicts as value."""
+        return {t: self.get_word_map(t) for t in self.df.index}
+
+    def word_map_changes(self, silent=False):
+        """
+        Determine changes made to word mapping file.
+
+        :param silent: if True, only print output.
+        :return: if `silent=False` return dictionary with changes since load.
+        """
+        diff = word_map_diff(self._initial_word_map, self.word_map_dicts)
+        if not silent:
+            for var_id, d in diff.items():
+                print("{}: {}".format(*var_id))
+                for k, v in d.items():
+                    print("        {!r} -> {!r}".format(k, v))
+        else:
+            return diff

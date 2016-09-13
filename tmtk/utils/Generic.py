@@ -175,3 +175,49 @@ def merge_two_dicts(x, y):
     z = x.copy()
     z.update(y)
     return z
+
+
+def column_map_diff(a_column, b_column):
+
+    column_map = {}
+
+    for k in set().union(a_column, b_column):
+        if not a_column.get(k):
+            column_map[k] = ('-', b_column[k])
+        elif not b_column.get(k):
+            column_map[k] = (a_column[k], '-')
+        elif a_column[k] != b_column[k]:
+            column_map[k] = (a_column[k], b_column[k])
+
+    return column_map
+
+
+def word_map_diff(a_word_map, b_word_map):
+
+    word_map = {}
+
+    for k in set().union(a_word_map, b_word_map):
+
+        if not a_word_map.get(k):
+            word_map[k] = b_word_map[k]
+        elif not b_word_map.get(k):
+            word_map[k] = a_word_map[k]
+        else:
+            d = {}
+            for dfv in set().union(a_word_map[k], b_word_map[k]):
+                a_mapped = a_word_map[k].get(dfv)
+                b_mapped = b_word_map[k].get(dfv)
+
+                if not a_mapped and a_mapped != "":
+                    d[dfv] = b_mapped
+
+                elif not b_mapped and b_mapped != "":
+                    d[a_mapped] = dfv
+
+                elif a_mapped != b_mapped:
+                    d[a_mapped] = b_mapped
+
+            if d:
+                word_map[k] = d
+
+    return word_map
