@@ -8,10 +8,12 @@ class VarID:
     """
 
     def __new__(cls, *args, **kwargs):
-        if len(args) == 1 and (len(args[0]) == 32 or 'tags_id_' in args[0]):  # highdim or tags
-            return args[0]
-        else:
-            return super(VarID, cls).__new__(cls)
+        if len(args) == 1:
+            # highdim or tags
+            if (len(args[0]) == 32 and '_' not in args[0]) or 'tags_id_' in args[0]:
+                return args[0]
+
+        return super(VarID, cls).__new__(cls)
 
     def __init__(self, *args):
 
