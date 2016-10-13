@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import random
-from IPython.display import Audio
+from IPython.display import YouTubeVideo
 import hashlib
 import re
 
@@ -139,8 +139,7 @@ def fix_everything():
 
     :return: All your problems fixed by Rick
     """
-    return Audio(os.path.join(os.path.dirname(__file__), 'fix_for_all_tm_loading_issues.mp3'),
-                 autoplay=True)
+    return YouTubeVideo('dQw4w9WgXcQ', autoplay=True)
 
 
 def path_converter(path, delimiter=None):

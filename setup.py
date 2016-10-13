@@ -16,7 +16,7 @@ if os.environ.get('READTHEDOCS') == 'True':
 
 setuptools.setup(
     name="tmtk",
-    version="0.1.0",
+    version="0.1.1",
     url="https://www.github.com/thehyve/tmtk/",
 
     author="Jochem Bijlard",
@@ -25,13 +25,19 @@ setuptools.setup(
     description="A toolkit for ETL curation for the tranSMART data warehouse.",
     long_description=open('README.rst').read(),
 
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
+    package_data={'tmtk': ['*.html', '*.js', '*.css', '*.png', '*.gif', '*R']},
+
+    keywords=['transmart', 'etl', 'arborist', 'concept tree'],
+
+    download_url='https://github.com/thehyve/tmtk/tarball/0.1.0/',
 
     install_requires=required_packages,
 
     classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
 )
