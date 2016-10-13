@@ -91,9 +91,10 @@ These dependencies will have to be installed:
 
 Licence
 -------
+GPLv3
 
 Authors
-------
+-------
 
 .. _transmart-batch: https://github.com/thehyve/transmart-batch/
 .. _examples: examples

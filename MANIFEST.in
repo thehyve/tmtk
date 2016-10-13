@@ -1,0 +1,3 @@
+include requirements.txt
+recursive-include tmtk/arborist/static *
+recursive-include tmtk/arborist/templates *
