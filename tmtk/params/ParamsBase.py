@@ -38,14 +38,15 @@ class ParamsBase:
     def __repr__(self):
         return self.path
 
-    def get(self, parameter):
+    def get(self, parameter, default=None):
         """
         Return value for parameter.
 
         :param parameter: string will be converted to uppercase.
+        :param default: return default if value is not found.
         :return: value for this parameter if set, else None.
         """
-        return self.__dict__.get(parameter.upper())
+        return self.__dict__.get(parameter.upper(), default)
 
     @property
     def _params_in_file(self):
