@@ -69,7 +69,7 @@ def launch_arborist_gui(json_data: str):
     # Add wait for 0.5 second to give flask time to launch
     time.sleep(0.25)
 
-    display(IFrame(src=running_on, width=950, height=500))
+    display(IFrame(src=running_on, width='100%', height=500))
 
     # Wait for the GUI app to be killed by user button input
     app_thread.join()
