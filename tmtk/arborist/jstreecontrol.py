@@ -41,8 +41,21 @@ def create_tree_from_study(study_object, concept_tree=None):
     concept_tree = create_tree_from_clinical(study_object.Clinical, concept_tree)
 
     for map_file in study_object.subject_sample_mappings:
+        annotation = study_object.find_annotation(map_file.platform)
+
         for md5, path in map_file.get_concept_paths.items():
-            concept_tree.add_node(path, var_id=md5, node_type='highdim')
+            hd_args = {'pl_marker_type': annotation.marker_type,
+                       'pl_genome_build': annotation.params.get('GENOME_RELEASE'),
+                       'pl_title': annotation.params.get('TITLE'),
+                       'pl_id': annotation.platform,
+
+                       'hd_sample': ', '.join(map_file.slice_path(path).ix[:, 5].unique().astype(str)),
+                       'hd_tissue': ', '.join(map_file.slice_path(path).ix[:, 6].unique().astype(str)),
+                       'hd_type': Mappings.annotation_data_types.get(annotation.params.datatype)
+                       }
+
+            concept_tree.add_node(path, var_id=md5, node_type='highdim',
+                                  data_args={'hd_args': hd_args})
 
     if hasattr(study_object, 'Tags'):
         for i, (path, tags_dict) in enumerate(study_object.Tags.get_tags()):

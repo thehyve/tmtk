@@ -190,15 +190,26 @@ function enableRightFields(type) {
     $('.label').prop('hidden', false);
     $('.clinicaldata').prop('hidden', false);
     $('.tagdata').prop('hidden', true);
+    $('.hdtagdata').prop('hidden', true);
     $('.dfv').prop('hidden', true);
   } else if (type == 'tag') {
+    console.log('Enable tags fields.')
     $('.tagdata').prop('hidden', false);
     $('.clinicaldata').prop('hidden', true);
     $('.label').prop('hidden', true);
+    $('.hdtagdata').prop('hidden', true);
+    $('.dfv').prop('hidden', true);
+  } else if (type == 'highdim') {
+    console.log('Enable highdim fields.')
+    $('.tagdata').prop('hidden', true);
+    $('.clinicaldata').prop('hidden', true);
+    $('.hdtagdata').prop('hidden', false);
+    $('.label').prop('hidden', false);
     $('.dfv').prop('hidden', true);
   } else {
     $('.label').prop('hidden', false);
     $('.tagdata').prop('hidden', true);
+    $('.hdtagdata').prop('hidden', true);
     $('.clinicaldata').prop('hidden', true);
     $('.dfv').prop('hidden', true);
 
@@ -362,6 +373,15 @@ $('#treediv')
         if ((node.type == 'alpha') && (node.data['dfv'] !== node.text)) {
           $('.dfv').prop('hidden', false);
           $("#datafile_value").text(node.data['dfv']);
+        }
+        if ((node.type == 'highdim') && (node.data.hd_args !== 'undefined')) {
+          $("#hd_type").text(node.data.hd_args['hd_type']);
+          $("#hd_sample").text(node.data.hd_args['hd_sample']);
+          $("#hd_tissue").text(node.data.hd_args['hd_tissue']);
+          $("#pl_genome_build").text(node.data.hd_args['pl_genome_build']);
+          $("#pl_id").text(node.data.hd_args['pl_id']);
+          $("#pl_marker_type").text(node.data.hd_args['pl_marker_type']);
+          $("#pl_title").text(node.data.hd_args['pl_title']);
         }
 
         // This way to add multiple tags to 'tags' dictionary in 'data'

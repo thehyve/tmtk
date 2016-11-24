@@ -67,6 +67,24 @@ class Mappings:
                    tags_description,
                    tags_weight]
 
+    annotation_marker_types = {
+        'mirna_annotation': 'MIRNA_QPCR',
+        'cnv_annotation': 'Chromosomal',
+        'mrna_annotation': 'Gene expression',
+        'proteomics_annotation': 'PROTEOMICS',
+        'rnaseq_annotation': 'RNASEQ_RCNT',
+        'vcf_annotation': 'VCF',
+    }
+
+    annotation_data_types = {
+        'mirna_annotation': 'micro RNA data (PCR)',
+        'cnv_annotation': 'ACGH data',
+        'mrna_annotation': 'Messenger RNA data (microarray)',
+        'proteomics_annotation': 'Proteomics data (mass spec)',
+        'rnaseq_annotation': 'Messenger RNA data (sequencing)',
+        'vcf_annotation': 'Genomic variant data',
+    }
+
     @staticmethod
     def get_params(dtype=None):
         """

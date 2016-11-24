@@ -1,10 +1,11 @@
 import pandas as pd
 import os
 
-import tmtk.utils as utils
-from .SampleMapping import SampleMapping
-from tmtk.annotation import ChromosomalRegions
+from .. import utils
 from ..toolbox import remap_chromosomal_regions
+from ..annotation import ChromosomalRegions
+
+from .SampleMapping import SampleMapping
 
 
 class HighDimBase(utils.FileBase):

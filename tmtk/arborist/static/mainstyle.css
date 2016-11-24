@@ -77,3 +77,8 @@ input#search_box{
   color: #5cb85c;
   font-weight: bold;
 }
+.hdtagdata {
+  margin-left: 5px;
+  margin-top: 15px;
+  font-size: smaller;
+}

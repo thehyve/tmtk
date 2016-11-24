@@ -22,14 +22,24 @@ class SampleMapping(FileBase):
 
         :return: dictionary with md5 hash values as key and paths as value
         """
-        paths = self.df.apply(self._find_path, axis=1)
-        return {md5(p): p for p in paths}
+        return {md5(p): p for p in self._converted_paths}
+
+    @property
+    def _converted_paths(self):
+        return self.df.apply(self._find_path, axis=1)
 
     @staticmethod
     def _find_path(row):
         cp = row.ix[8]
+        # Legacy
         cp = cp.replace('ATTR1', str(row.ix[6]))
         cp = cp.replace('ATTR2', str(row.ix[7]))
+
+        # Current
+        cp = cp.replace('PLATFORM', str(row.ix[4]))
+        cp = cp.replace('SAMPLETYPE', str(row.ix[5]))
+        cp = cp.replace('TISSUETYPE', str(row.ix[6]))
+        cp = cp.replace('TIMEPOINT', str(row.ix[7]))
 
         return path_converter(cp)
 
@@ -82,3 +92,11 @@ class SampleMapping(FileBase):
                          'This is not supported.'.format(self.path))
         elif study_ids:
             return str(study_ids[0]).upper()
+
+    def slice_path(self, path):
+        """
+        Give slice of the dataframe where the paths are equal to given path.
+        :param path: path (will be converted using global logic).
+        :return: slice of dataframe.
+        """
+        return self.df.ix[self._converted_paths == path_converter(path), :]

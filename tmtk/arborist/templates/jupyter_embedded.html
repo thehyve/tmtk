@@ -58,10 +58,6 @@
                         <td>Force Categorical</td>
 
                     </tr>
-                    <!--<tr hidden class="clinicaldata">-->
-                        <!--<label style="padding-right: 5px;">-->
-                            <!--<input id="fc" type="checkbox" value="">Force Categorical</label>-->
-                    <!--</tr>-->
                 </table>
 
                 <div hidden id="tagbox" class="tagdata">
@@ -82,6 +78,26 @@
                    style="width: 150px;"/>
             <span style="float: center; padding-right: 5px;" id="feedback"></span>
         </form>
+
+        <div hidden id="hdtagbox" class="hdtagdata table-striped">
+            <table id="hdtagtable" width="95%">
+                <colgroup>
+                    <col span="1" style="width: 100px;">
+                    <col span="1" style="width: calc(95% - 100px);">
+                </colgroup>
+                <tbody id="hdtagtable-body">
+                    <tr><td colspan="2"><b>Node information</b></td></tr>
+                    <tr><td>datatype:</td><td id="hd_type"></td></tr>
+                    <tr><td>tissue type:</td><td id="hd_tissue"></td></tr>
+                    <tr><td>sample type:</td><td id="hd_sample"></td></tr>
+                    <tr><td colspan="2"><b>Platform information</b></td></tr>
+                    <tr><td>title:</td><td id="pl_title"></td></tr>
+                    <tr><td>marker type:</td><td id="pl_marker_type"></td></tr>
+                    <tr><td>genome build:</td><td id="pl_genome_build"></td></tr>
+                    <tr><td>platform ID:</td><td id="pl_id"></td></tr>
+                </tbody>
+            </table>
+        </div>
 
         <!-- End of shared code. -->
 

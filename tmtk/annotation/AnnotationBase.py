@@ -16,6 +16,7 @@ class AnnotationBase(utils.FileBase):
         if params and params.is_viable():
             self.path = os.path.join(params.dirname, params.ANNOTATIONS_FILE)
             self.platform = params.get('PLATFORM')
+            self.params = params
         elif path and os.path.exists(path):
             self.path = path
             self.platform = 'NO_PLATFORM_SPECIFIED'
@@ -28,3 +29,7 @@ class AnnotationBase(utils.FileBase):
 
     def validate(self, verbosity=2):
         pass
+
+    @property
+    def marker_type(self):
+        return utils.Mappings.annotation_marker_types.get(self.params.datatype)
