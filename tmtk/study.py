@@ -91,6 +91,10 @@ class Study:
         :param platform: platform id to look for in this study.
         :return: an Annotations object or nothing.
         """
+        if not hasattr(self, 'Annotations'):
+            CPrint.warn('No annotations in study.')
+            return
+
         annotations = []
         for key, annotation_object in self.Annotations.__dict__.items():
             if annotation_object.platform == platform:
@@ -177,9 +181,9 @@ class Study:
         arborist.call_boris(self)
 
     @property
-    def subject_sample_mappings(self):
+    def high_dim_nodes(self):
         """All subject sample mapping object in this study."""
-        return self.HighDim.subject_sample_mappings if hasattr(self, 'HighDim') else []
+        return self.HighDim.high_dim_nodes if hasattr(self, 'HighDim') else []
 
     @property
     def concept_tree(self):

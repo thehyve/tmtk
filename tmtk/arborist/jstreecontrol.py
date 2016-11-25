@@ -28,37 +28,43 @@ def create_concept_tree(column_object):
     return concept_tree.jstree.json_data_string
 
 
-def create_tree_from_study(study_object, concept_tree=None):
+def create_tree_from_study(study, concept_tree=None):
     """
 
-    :param study_object:
+    :param study:
     :param concept_tree:
     :return:
     """
     if not concept_tree:
         concept_tree = ConceptTree()
 
-    concept_tree = create_tree_from_clinical(study_object.Clinical, concept_tree)
+    concept_tree = create_tree_from_clinical(study.Clinical, concept_tree)
 
-    for map_file in study_object.subject_sample_mappings:
-        annotation = study_object.find_annotation(map_file.platform)
+    for high_dim_node in study.high_dim_nodes:
+        map_file = high_dim_node.sample_mapping
+        annotation = study.find_annotation(high_dim_node.platform)
 
         for md5, path in map_file.get_concept_paths.items():
-            hd_args = {'pl_marker_type': annotation.marker_type,
-                       'pl_genome_build': annotation.params.get('GENOME_RELEASE'),
-                       'pl_title': annotation.params.get('TITLE'),
-                       'pl_id': annotation.platform,
 
-                       'hd_sample': ', '.join(map_file.slice_path(path).ix[:, 5].unique().astype(str)),
-                       'hd_tissue': ', '.join(map_file.slice_path(path).ix[:, 6].unique().astype(str)),
-                       'hd_type': Mappings.annotation_data_types.get(annotation.params.datatype)
+            s = map_file.slice_path(path).ix[:, 5].unique()
+            t = map_file.slice_path(path).ix[:, 6].unique()
+
+            hd_args = {'hd_sample': ', '.join(s.astype(str)) if pd.notnull(s[0]) else '',
+                       'hd_tissue': ', '.join(t.astype(str)) if pd.notnull(t[0]) else '',
+                       'hd_type': Mappings.annotation_data_types.get(high_dim_node.params.datatype),
                        }
+
+            if annotation:
+                hd_args.update({'pl_marker_type': annotation.marker_type,
+                                'pl_genome_build': annotation.params.get('GENOME_RELEASE', ''),
+                                'pl_title': annotation.params.get('TITLE', ''),
+                                'pl_id': annotation.platform})
 
             concept_tree.add_node(path, var_id=md5, node_type='highdim',
                                   data_args={'hd_args': hd_args})
 
-    if hasattr(study_object, 'Tags'):
-        for i, (path, tags_dict) in enumerate(study_object.Tags.get_tags()):
+    if hasattr(study, 'Tags'):
+        for i, (path, tags_dict) in enumerate(study.Tags.get_tags()):
             # Add TAGS string to path name, TAGS will be subnode of the concept
             # that has the meta data.
             path_in_tree = path_join(path, Mappings.tags_node_name)

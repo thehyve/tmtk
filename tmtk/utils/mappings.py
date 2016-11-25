@@ -77,12 +77,12 @@ class Mappings:
     }
 
     annotation_data_types = {
-        'mirna_annotation': 'micro RNA data (PCR)',
-        'cnv_annotation': 'ACGH data',
-        'mrna_annotation': 'Messenger RNA data (microarray)',
-        'proteomics_annotation': 'Proteomics data (mass spec)',
-        'rnaseq_annotation': 'Messenger RNA data (sequencing)',
-        'vcf_annotation': 'Genomic variant data',
+        'mirna': 'micro RNA data (PCR)',
+        'cnv': 'ACGH data',
+        'expression': 'Messenger RNA data (microarray)',
+        'proteomics': 'Proteomics data (mass spec)',
+        'rnaseq': 'Messenger RNA data (sequencing)',
+        'vcf': 'Genomic variant data',
     }
 
     @staticmethod
