@@ -5,7 +5,7 @@ import mygene as _mygene
 _mg = _mygene.MyGeneInfo()
 
 
-def _get_query_restult(response_table, query, target):
+def _match_response_with_query(response_table, query, target):
     """
     Private method that gets the right response value for a query.
 
@@ -37,6 +37,8 @@ def hgnc_to_entrez(iterable):
     """
     target = 'entrezgene'
 
+    input_iterable = iterable
+
     try:
         iterable = iterable.unique()
     except AttributeError:
@@ -49,6 +51,7 @@ def hgnc_to_entrez(iterable):
                         as_dataframe=True)
 
     mgidf = out.loc[out.entrezgene.notnull()].copy()
+    # remove '.0' from IDs and convert to string. Mygene should be improved to return entrez ids as string.
     mgidf.loc[:, target] = mgidf.loc[:, target].astype(int).astype(str)
-    return _pd.Series(iterable).apply(lambda x: _get_query_restult(mgidf, x, target))
+    return _pd.Series(input_iterable).apply(lambda x: _match_response_with_query(mgidf, x, target))
 
