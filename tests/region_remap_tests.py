@@ -1,5 +1,6 @@
 import tmtk
 import unittest
+import pandas as pd
 
 
 class RemappingTests(unittest.TestCase):
@@ -44,6 +45,10 @@ class RemappingTests(unittest.TestCase):
         chrom_regions = self.study.Annotations.rnaseq_RNASEQ_ANNOT
         assert all(highdim_cnv.remap_to(chrom_regions) == highdim_cnv.remap_to(chrom_regions.df))
 
+    def test_hgnc_to_entrez(self):
+        mapped = tmtk.toolbox.remap_id.hgnc_to_entrez(['TP53', pd.np.nan, 'EGFR', 'ERBB2', pd.np.nan, 'definitely_not_a_gene'])
+        assert len(mapped) == 6
+        assert pd.isnull(mapped.iloc[-1])
 
 if __name__ == '__main__':
     unittest.main()
