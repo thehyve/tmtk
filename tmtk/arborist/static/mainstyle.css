@@ -22,12 +22,12 @@ div#treeanddetails {
 }
 div#treediv {
   overflow: scroll;
-  width: 60%;
+  width: 57%;
   height: 100%;
   float: left;
 }
 div#details {
-  width: 40%;
+  width: 43%;
   height: 100%;
   float: right;
   position: relative;
@@ -35,8 +35,9 @@ div#details {
 div#bottom-btns {
   position: absolute;
   bottom: 0;
-  width: 100%;
+  width: 150px;
   height: 40px;
+  right: 0px;
 }
 li.error {
   background: url('/static/images/message/error.png') no-repeat left top;
@@ -81,4 +82,35 @@ input#search_box{
   margin-left: 5px;
   margin-top: 15px;
   font-size: smaller;
+}
+.blockform {
+  height: 100%;
+  overflow: scroll;
+}
+.tag-container {
+  max-height: calc(100% - 147px);
+  position: inherit;
+  overflow: scroll;
+  border-top: silver 2px solid;
+  border-bottom: silver 2px solid;
+}
+.tag-title {
+  width: 100%;
+  margin-top: 5px;
+}
+.tag-weight {
+  margin-top: 5px;
+}
+.tag-description {
+  width: 100%;
+  margin-bottom: 5px;
+  max-height: 85px;
+}
+.table-striped>tbody>tr:nth-child(4n+1)>td,
+.table-striped>tbody>tr:nth-child(4n+2)>td
+{    background-color: #DFDFDF;
+}
+.table-striped>tbody>tr:nth-child(4n+3)>td,
+.table-striped>tbody>tr:nth-child(4n+4)>td
+{    background-color: #F6F6F6;
 }

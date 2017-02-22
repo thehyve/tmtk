@@ -17,7 +17,6 @@
                placeholder="Search here..."/>
         <img id="search_spinner" src="/static/images/spin.svg">
         <form id="datanodedetails" class="blockform">
-            <fieldset>
                 <legend>Data node details</legend>
                 <ul>
                     Type: <span id="nodetype"></span>
@@ -59,22 +58,17 @@
                     </tr>
                 </table>
 
-                <div hidden id="tagbox" class="tagdata">
-
-                    <table id="tagtable" width=99%">
-                        <colgroup>
-                            <col span="1" style="width: 18%;">
-                            <col span="1" style="width: 70%;">
-                            <col span="1" style="width: 12%;">
-                        </colgroup>
-                        <tbody id="tagtable-body"></tbody>
-                    </table>
-
+                <div hidden id="tagbox" class="tag-container"  >
+                        <table id="tagtable" class="table-condensed table-striped" width=99%" >
+                            <colgroup>
+                                <col span="1" style="width: 80%;">
+                                <col span="1" style="width: 19%;">
+                            </colgroup>
+                            <tbody id="tagtable-body"></tbody>
+                        </table>
                 </div>
-            </fieldset>
-            <hr>
             <input type="submit" class="btn btn-secondary" value="Apply changes"
-                   style="width: 150px;"/>
+                   style="margin: 15px 0px 0px 5px;"/>
             <span style="float: center; padding-right: 5px;" id="feedback"></span>
         </form>
 

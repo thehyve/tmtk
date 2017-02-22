@@ -132,7 +132,11 @@ function process_tags (obj) {
         }
 
         // If title and description are present, store it to the tags.
-        if (title !== "" & desc !== "") {
+        if ( title !== "" & desc !== "" & typeof title !== "undefined" & typeof desc !=="undefined") {
+            if (weight === "") {
+                var weight = 3
+            }
+            console.log('Adding tag: ' + title + ': ' + desc + ' (' + weight + ').')
             node.data.tags[title] = [desc, weight];
         }
     }
@@ -189,26 +193,26 @@ function enableRightFields(type) {
   if (type == 'numeric' | type == 'categorical' | type == 'codeleaf' | type == 'empty' ) {
     $('.label').prop('hidden', false);
     $('.clinicaldata').prop('hidden', false);
-    $('.tagdata').prop('hidden', true);
+    $('.tag-container').prop('hidden', true);
     $('.hdtagdata').prop('hidden', true);
     $('.dfv').prop('hidden', true);
   } else if (type == 'tag') {
     console.log('Enable tags fields.')
-    $('.tagdata').prop('hidden', false);
+    $('.tag-container').prop('hidden', false);
     $('.clinicaldata').prop('hidden', true);
     $('.label').prop('hidden', true);
     $('.hdtagdata').prop('hidden', true);
     $('.dfv').prop('hidden', true);
   } else if (type == 'highdim') {
     console.log('Enable highdim fields.')
-    $('.tagdata').prop('hidden', true);
+    $('.tag-container').prop('hidden', true);
     $('.clinicaldata').prop('hidden', true);
     $('.hdtagdata').prop('hidden', false);
     $('.label').prop('hidden', false);
     $('.dfv').prop('hidden', true);
   } else {
     $('.label').prop('hidden', false);
-    $('.tagdata').prop('hidden', true);
+    $('.tag-container').prop('hidden', true);
     $('.hdtagdata').prop('hidden', true);
     $('.clinicaldata').prop('hidden', true);
     $('.dfv').prop('hidden', true);
@@ -289,7 +293,7 @@ function customMenu(node) {
 function createTagRow(){
     // Add new row to tags table and return the row number
     var rowCount = $("#tagtable-body tr").length;
-    var counter = rowCount + 1;
+    var counter = rowCount / 2 + 1;
 
     var title_id = 'tagname_' + counter;
     var desc_id = 'tagdesc_' + counter;
@@ -297,17 +301,16 @@ function createTagRow(){
 
     var some_style = ' class="form-control form-control-sm" style="width: 100%; "'
 
-    var tdInput = '<input type="text" '+some_style+' placeholder="Title..." id="' + title_id + '" />';
-    var tdDesc = '<input type="text" '+some_style+' placeholder="Description..." id="' + desc_id + '" />';
-    var tdWeight = '<input type="number" class="form-control form-control-sm"  min="1" max="10" value="3" id="' + weight_id +'" />';
+    var tdInput = '<input placeholder="Title..." type="text" class="form-control form-control-sm tag-title" id="' + title_id + '" />';
+    var tdDesc = '<input type="text" placeholder="Description..." class="form-control form-control-sm tag-description" rows="1" id="' + desc_id + '" />';
+    var tdWeight = '<input type="number" class="form-control form-control-sm tag-weight" min="1" max="10" value="3" id="' + weight_id +'" />';
 
     var tr = $('<tr></tr>')
-        .append('<td>'+tdInput+'</td>')
-        .append('<td>'+tdDesc+'</td>')
-        .append('<td>'+tdWeight+'</td>');
+        .append('<td style="padding-left: 5px;" >'+tdInput+'</td>')
+        .append('<td style="padding-right: 5px;">'+tdWeight+'</td>');
 
     $('#tagtable-body').append(tr);
-
+    $('#tagtable-body').append('<tr><td colspan=2 style="padding-left: 5px; padding-right: 5px; " >'+tdDesc+'</td></tr>');
     $('#' + title_id).focus()
 
     return counter
