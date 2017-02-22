@@ -39,7 +39,7 @@ class HighDim:
             return
 
         for ss in self.high_dim_nodes:
-            ss.update_concept_paths(changed_dict)
+            ss.sample_mapping.update_concept_paths(changed_dict)
 
     @property
     def high_dim_nodes(self):
