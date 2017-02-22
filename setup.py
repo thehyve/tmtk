@@ -17,7 +17,7 @@ if os.environ.get('READTHEDOCS') == 'True':
 
 setuptools.setup(
     name="tmtk",
-    version="0.1.2",
+    version="0.1.3",
     url="https://www.github.com/thehyve/tmtk/",
 
     author="Jochem Bijlard",
@@ -31,7 +31,7 @@ setuptools.setup(
 
     keywords=['transmart', 'etl', 'arborist', 'concept tree'],
 
-    download_url='https://github.com/thehyve/tmtk/tarball/0.1.2/',
+    download_url='https://github.com/thehyve/tmtk/tarball/0.1.3/',
 
     install_requires=required_packages,
 
