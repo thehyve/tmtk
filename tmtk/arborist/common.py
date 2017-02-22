@@ -14,7 +14,7 @@ from .jstreecontrol import create_concept_tree, ConceptTree
 import tmtk
 
 
-def call_boris(to_be_shuffled=None):
+def call_boris(to_be_shuffled=None, **kwargs):
     """
     This function loads the Arborist if it has been properly installed in your environment.
 
@@ -35,7 +35,7 @@ def call_boris(to_be_shuffled=None):
 
     json_data = create_concept_tree(to_be_shuffled)
 
-    json_data = launch_arborist_gui(json_data)  # Returns modified json_data
+    json_data = launch_arborist_gui(json_data, **kwargs)  # Returns modified json_data
 
     if isinstance(to_be_shuffled, tmtk.Study):
         update_study_from_json(to_be_shuffled, json_data=json_data)
@@ -45,10 +45,11 @@ def call_boris(to_be_shuffled=None):
         return ConceptTree(json_data).column_mapping_file
 
 
-def launch_arborist_gui(json_data: str):
+def launch_arborist_gui(json_data: str, height=650):
     """
 
     :param json_data:
+    :param height:
     :return:
     """
     from .flask_connection import app
@@ -69,7 +70,7 @@ def launch_arborist_gui(json_data: str):
     # Add wait for 0.5 second to give flask time to launch
     time.sleep(0.25)
 
-    display(IFrame(src=running_on, width='100%', height=500))
+    display(IFrame(src=running_on, width='100%', height=height))
 
     # Wait for the GUI app to be killed by user button input
     app_thread.join()

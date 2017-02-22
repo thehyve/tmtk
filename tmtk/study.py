@@ -171,14 +171,15 @@ class Study:
         study_params = self.find_params_for_datatype('study')[0]
         return study_params.get('TOP_NODE', '').split('\\')[-1]
 
-    def call_boris(self):
+    def call_boris(self, height=650):
         """
         Launch The Arborist GUI editor for the concept tree. This starts a
         Flask webserver in an IFrame when running in a Jupyter Notebook.
 
         While The Arborist is opened, the GIL prevents any other actions.
+        :param height: set the height of the output cell
         """
-        arborist.call_boris(self)
+        arborist.call_boris(self, height=height)
 
     @property
     def high_dim_nodes(self):

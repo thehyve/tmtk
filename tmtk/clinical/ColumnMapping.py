@@ -55,11 +55,12 @@ class ColumnMapping(FileBase):
         df = self.build_index(df)
         return df
 
-    def call_boris(self):
+    def call_boris(self, height=650):
         """
         Use The Arborist to modify only information in the column mapping file.
+        :param height: set the height of the output cell
         """
-        self.df = call_boris(self.df)
+        self.df = call_boris(self.df, height=height)
 
     def validate(self, verbosity=2):
         pass

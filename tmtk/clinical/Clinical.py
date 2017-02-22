@@ -83,11 +83,12 @@ class Clinical:
         """
         return {VarID(var_id): self.get_variable(var_id) for var_id in self.ColumnMapping.ids}
 
-    def call_boris(self):
+    def call_boris(self, height=650):
         """
         Use The Arborist to modify only information in the column and word mapping files.
+        :param height: set the height of the output cell
         """
-        arborist.call_boris(self)
+        arborist.call_boris(self, height=height)
 
     def validate_all(self, verbosity=3):
         for key, obj in self.__dict__.items():
