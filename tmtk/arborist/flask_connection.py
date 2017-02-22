@@ -7,6 +7,7 @@ from werkzeug.routing import BaseConverter
 
 import urllib
 from markupsafe import Markup
+import logging
 
 app = Flask(__name__)
 
@@ -16,6 +17,9 @@ app.jinja_env.add_extension("jinja2.ext.do")
 app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
 app.jinja_env.filters['path_join'] = lambda paths: os.path.join(*paths)
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 
 def add_slash_if_not_windows(url_path):
