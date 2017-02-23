@@ -37,6 +37,7 @@ class Mappings:
 
     # Path delimeter used for paths.
     PATH_DELIM = '\u2215'  # Mathematical division sign
+    EXT_PATH_DELIM = '\\'  # Backslash used in transmart-batch
 
     column_mapping_header = [filename,
                              cat_cd,

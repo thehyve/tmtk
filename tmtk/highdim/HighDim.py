@@ -1,4 +1,4 @@
-import tmtk.utils as utils
+from ..utils import path_converter, md5, Mappings, PathError
 from tmtk.utils.CPrint import CPrint
 
 
@@ -14,10 +14,10 @@ class HighDim:
             'Expected list with annotation params, but got {}.'.format(type(params_list))
 
         for p in params_list:
-            new_instance = utils.Mappings.get_highdim(p.datatype)
+            new_instance = Mappings.get_highdim(p.datatype)
             try:
                 self.__dict__[str(p)] = new_instance(p, parent=parent)
-            except utils.PathError:
+            except PathError:
                 continue
 
     def validate_all(self, verbosity=3):
@@ -31,7 +31,7 @@ class HighDim:
 
         :param high_dim_paths: dictionary with paths and old concept paths.
         """
-        changed_dict = {k: path for k, path in high_dim_paths.items() if utils.md5(path) != k}
+        changed_dict = {k: path for k, path in high_dim_paths.items() if md5(path_converter(path)) != k}
         if changed_dict:
             CPrint.okay('Found ({}) changed concept paths.'.format(len(changed_dict)))
         else:

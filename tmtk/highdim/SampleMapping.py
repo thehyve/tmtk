@@ -48,7 +48,7 @@ class SampleMapping(FileBase):
 
     def _update_row(self, row, path_dict):
         current_path = self._find_path(row)
-        current_md5 = md5(current_path)
+        current_md5 = md5(path_converter(current_path))
         new_path = path_dict.get(current_md5)
         if new_path:
             return new_path

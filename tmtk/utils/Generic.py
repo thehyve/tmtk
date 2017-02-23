@@ -3,7 +3,6 @@ import pandas as pd
 import random
 from IPython.display import YouTubeVideo
 import hashlib
-import re
 
 from .Exceptions import *
 from .mappings import Mappings
@@ -142,21 +141,26 @@ def fix_everything():
     return YouTubeVideo('dQw4w9WgXcQ', autoplay=True)
 
 
-def path_converter(path, delimiter=None):
+def path_converter(path, internal=False):
     """
     Convert paths by creating delimiters of backslash "\" and "+" sign, additionally converting
     underscores "_" to a single space.
 
     :param path: concept path
-    :param delimiter: delimiter for paths, defaults to Mappings.path_delim
+    :param internal: if path is for internal use delimit with Mappings.PATH_DELIM
     :return: delimited path
     """
 
-    if not delimiter:
-        delimiter = Mappings.PATH_DELIM
+    delimiter = Mappings.PATH_DELIM if internal else Mappings.EXT_PATH_DELIM
+    path = path.replace('\\', delimiter)
+    path = path.replace('+', delimiter)
+    path = path.replace('_', ' ')
+    path = path.strip(delimiter)
 
-    path = re.sub(r'[\\+]', delimiter, path)
-    return path.strip(delimiter)
+    if not internal:
+        path = path.replace(Mappings.PATH_DELIM, Mappings.EXT_PATH_DELIM)
+
+    return path
 
 
 def path_join(*args):
