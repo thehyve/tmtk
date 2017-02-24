@@ -82,12 +82,10 @@ def publish_to_baas(url, json, study_name, username=None):
 
         r = client.post(add_study_url, data=study_data, headers={'Referer': add_study_url})
         r.raise_for_status()
-        if r.url == add_study_url:
+        if r.url.endswith('trees/add/'):
             print('Study name {!r} is probably taken, '
                   'pick another by setting study_name parameter.'.format(study_name))
             study_name = input('Pick a new name:')
-        if r.text.find("(1) " + study_name) != -1:
+        elif '/trees/' in r.url:
             CPrint.okay('Study added. You can find it in the BaaS instance.')
-            break
-
-    return r.url
+            return r.url
