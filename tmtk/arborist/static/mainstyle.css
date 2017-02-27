@@ -1,31 +1,35 @@
-p#breadcrumb {
-  font-family: 'Fjalla One', serif;
-}
-legend {
-  font-size: 1.4em;
-  text-align: center;
-}
-div#content {
-  min-height: 500px;
-}
 html {
   height: calc(100% - 125px);
 }
-
 body, div.container {
   height: 100%;
+}
+legend {
+  font-size: 1.6em;
+  text-align: center;
 }
 div#treeanddetails {
   background: white;
   border: 1px solid silver;
   height: 100%;
   min-height: 450px;
+  position: relative;
+  overflow: hidden;
 }
-div#treediv {
-  overflow: scroll;
-  width: 57%;
-  height: 100%;
-  float: left;
+div#outer-tree-div {
+ overflow: hidden;
+ width: 57%;
+ height: 100%;
+ float: left;
+ position: relative;
+}
+div#tree-div {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: -17px;
+  overflow-y: scroll;
 }
 div#details {
   width: 43%;
@@ -56,9 +60,6 @@ li.message {
   padding: 0px 0px 0px 20px;
   list-style: none;
 }
-::-webkit-scrollbar {
-    display: none;
-}
 input#search_box{
   position: absolute;
   margin-top: 15px;
@@ -87,32 +88,54 @@ input#search_box{
 }
 .blockform {
   height: 100%;
-  overflow: scroll;
 }
 .tag-container {
-  max-height: calc(100% - 147px);
+  max-height: calc(100% - 136px);
   position: inherit;
-  overflow: scroll;
+  overflow-y: scroll;
   border-top: silver 2px solid;
   border-bottom: silver 2px solid;
 }
 .tag-title {
   width: 100%;
   margin-top: 5px;
+  border-bottom-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
 }
 .tag-weight {
   margin-top: 5px;
+  border-bottom-left-radius: 0px;
+  border-top-left-radius: 0px;
+  border-bottom-right-radius: 0px;
 }
 .tag-description {
   width: 100%;
   margin-bottom: 5px;
-  max-height: 85px;
+  max-height: 128px;
+  border-top-right-radius: 0px;
+  border-top-left-radius: 0px;
 }
 .table-striped>tbody>tr:nth-child(4n+1)>td,
 .table-striped>tbody>tr:nth-child(4n+2)>td
-{    background-color: #DFDFDF;
+{    background-color: #FFFFFF;
 }
 .table-striped>tbody>tr:nth-child(4n+3)>td,
 .table-striped>tbody>tr:nth-child(4n+4)>td
 {    background-color: #F6F6F6;
+}
+input#fc {
+  width: inherit;
+  float: right;
+  margin-right: 5px;
+}
+input#apply-changes {
+  margin-top: 15px;
+}
+span#feedback {
+    padding-right: 5px;
+}
+button#embeded_return {
+  float: right;
+  margin-right: 10px;
 }

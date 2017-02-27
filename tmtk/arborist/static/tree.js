@@ -54,7 +54,7 @@ $(function () {
 
 // Gets a minimal string version of the current tree
 function stringTree(){
-    var v = $('#treediv').jstree(true).get_json('#', {'no_state': true});
+    var v = $('#tree-div').jstree(true).get_json('#', {'no_state': true});
     var tree = JSON.stringify(v, replacer);
     return tree;
 }
@@ -71,7 +71,8 @@ function replacer(key, value) {
 
 // Button to check if tag table is filled and if so add new tag
 function add_tags_feedback (obj) {
-    var empty = $('#tagtable-body').find("input").filter(function() {
+    //.find(":input") will also find description textarea fields.
+    var empty = $('#tagtable-body').find(":input").filter(function() {
         return this.value === "";
     });
     if (empty.length) {
@@ -150,7 +151,7 @@ $("form#datanodedetails").submit(function (e) {
   } else if (typeof node != 'undefined') {
 
     var text = $("#datalabel").val();
-    var updated = $("#treediv").jstree('rename_node', node, text);
+    var updated = $("#tree-div").jstree('rename_node', node, text);
 
     if (typeof node.data == 'undefined') {
       node.data = {}
@@ -179,9 +180,9 @@ $("form#datanodedetails").submit(function (e) {
         type = node.data['ctype'];
       }
 
-      $("#treediv").jstree('set_type', node, type);
-      $("#treediv").jstree('deselect_all');
-      $("#treediv").jstree('select_node', node);
+      $("#tree-div").jstree('set_type', node, type);
+      $("#tree-div").jstree('deselect_all');
+      $("#tree-div").jstree('select_node', node);
 
     }
   } else {
@@ -302,7 +303,7 @@ function createTagRow(){
     var some_style = ' class="form-control form-control-sm" style="width: 100%; "'
 
     var tdInput = '<input placeholder="Title..." type="text" class="form-control form-control-sm tag-title" id="' + title_id + '" />';
-    var tdDesc = '<input type="text" placeholder="Description..." class="form-control form-control-sm tag-description" rows="1" id="' + desc_id + '" />';
+    var tdDesc = '<textarea placeholder="Description..." class="form-control form-control-sm tag-description" rows="1" id="' + desc_id + '" />';
     var tdWeight = '<input type="number" class="form-control form-control-sm tag-weight" min="1" max="10" value="3" id="' + weight_id +'" />';
 
     var tr = $('<tr></tr>')
@@ -311,6 +312,14 @@ function createTagRow(){
 
     $('#tagtable-body').append(tr);
     $('#tagtable-body').append('<tr><td colspan=2 style="padding-left: 5px; padding-right: 5px; " >'+tdDesc+'</td></tr>');
+
+    $("#" + desc_id).bind('keypress', function(e) {
+        if ((e.keyCode || e.which) == 13) {
+            $(this).parents('form').submit();
+        e.preventDefault();
+        }
+    });
+
     $('#' + title_id).focus()
 
     return counter
@@ -336,7 +345,7 @@ $(function () {
     var v = $('#search_box').val();
     if(to) { clearTimeout(to); }
     to = setTimeout(function () {
-      $('#treediv').jstree(true).search(v);
+      $('#tree-div').jstree(true).search(v);
     }, 400);
     if(!v.length){
         $("#search_spinner").hide();
@@ -345,10 +354,11 @@ $(function () {
 });
 
 // Create the tree
-$('#treediv')
+$('#tree-div')
 // listen for event
     .on('loaded.jstree', function() {
       $("#search_spinner").hide();
+      $(this).jstree("select_node", "j1_1");
       })
     .on('search.jstree', function() {
       $("#search_spinner").hide();

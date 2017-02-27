@@ -11,65 +11,70 @@
 <!-- Here starts shared code between BaaS and Jupyter embedded template. -->
 
 <div id="treeanddetails">
-    <div id="treediv"></div>
+    <div id="outer-tree-div">
+        <div id="tree-div"></div>
+    </div>
+
     <div id="details">
-        <input class="form-control form-control" type="text" id="search_box"
-               placeholder="Search here..."/>
+        <input class="form-control" type="text" id="search_box" placeholder="Search here..."/>
         <img id="search_spinner" src="/static/images/spin.svg">
         <form id="datanodedetails" class="blockform">
-                <legend>Data node details</legend>
-                <ul>
-                    Type: <span id="nodetype"></span>
+            <legend>Data node details</legend>
+            <ul>
+                Type: <span id="nodetype"></span>
 
-                    <span class="clinicaldata" hidden>
-                        <br>File: <span id="filename"></span>(<span id="columnnumber"></span>)
-                    </span>
+                <span class="clinicaldata" hidden>
+                    <br>File: <span id="filename"></span>(<span id="columnnumber"></span>)
+                </span>
 
-                    <span class="dfv" hidden>
-                        <br>Datafile Value: <span id="datafile_value"></span>
-                    </span>
-                </ul>
+                <span class="dfv" hidden>
+                    <br>Datafile Value: <span id="datafile_value"></span>
+                </span>
+            </ul>
 
-                <table width="100%">
-                    <tr class="label">
-                        <td style="padding-right: 45px;"> Label</td>
-                        <td width="90%"><input style="width:inherit;"
-                                               class="form-control form-control-sm" type="text"
-                                               id="datalabel"/></td>
-                    </tr>
-                    <tr hidden class="clinicaldata">
-                        <td>DLS</td>
-                        <td width="90%"><input style="width:inherit;"
-                                               class="form-control form-control-sm" type="text"
-                                               id="magic5"/></td>
-                    </tr>
-                    <tr hidden class="clinicaldata">
-                        <td>CVCD</td>
-                        <td width="90%"><input style="width:inherit;"
-                                               class="form-control form-control-sm" type="text"
-                                               id="magic6"/></td>
-                    </tr>
-                    <tr hidden class="clinicaldata">
-                        <td><input style="width:inherit;position:relative;float:right;margin-right:5px;"
-                                   class="form-control form-control-sm" type="checkbox"
-                                   id="fc"/></td>
-                        <td>Force Categorical</td>
+            <table width="95%">
+                <colgroup>
+                    <col span="1" style="width: 100px;">
+                    <col span="1">
+                </colgroup>
+                <tr hidden class="label">
+                    <td>Label</td>
+                    <td>
+                        <input class="form-control form-control-sm" type="text" id="datalabel"/>
+                    </td>
+                </tr>
+                <tr hidden class="clinicaldata">
+                    <td>DLS</td>
+                    <td>
+                        <input class="form-control form-control-sm" type="text" id="magic5"/>
+                    </td>
+                </tr>
+                <tr hidden class="clinicaldata">
+                    <td>CVCD</td>
+                    <td>
+                        <input class="form-control form-control-sm" type="text" id="magic6"/>
+                    </td>
+                </tr>
+                <tr hidden class="clinicaldata">
+                    <td>
+                        <input class="form-control form-control-sm" type="checkbox" id="fc"/>
+                    </td>
+                    <td>Force Categorical</td>
+                </tr>
+            </table>
 
-                    </tr>
+            <div hidden id="tagbox" class="tag-container"  >
+                <table id="tagtable" class="table-striped" width=99%" cellpadding="0" >
+                    <colgroup>
+                        <col span="1" style="width: 80%;">
+                        <col span="1" style="width: 19%;">
+                    </colgroup>
+                    <tbody id="tagtable-body"></tbody>
                 </table>
+            </div>
 
-                <div hidden id="tagbox" class="tag-container"  >
-                        <table id="tagtable" class="table-condensed table-striped" width=99%" >
-                            <colgroup>
-                                <col span="1" style="width: 80%;">
-                                <col span="1" style="width: 19%;">
-                            </colgroup>
-                            <tbody id="tagtable-body"></tbody>
-                        </table>
-                </div>
-            <input type="submit" class="btn btn-secondary" value="Apply changes"
-                   style="margin: 15px 0px 0px 5px;"/>
-            <span style="float: center; padding-right: 5px;" id="feedback"></span>
+            <input type="submit" class="btn btn-sm btn-secondary" id="apply-changes" value="Apply changes"/>
+            <span id="feedback"></span>
 
             <div hidden id="hdtagbox" class="hdtagdata table-striped">
                 <table id="hdtagtable" width="95%">
@@ -96,10 +101,7 @@
         <!-- End of shared code. -->
 
         <div id="bottom-btns">
-            <button type="button" class="btn btn-sm btn-success"
-                    style="float: right; margin-right: 10px;" id="embeded_return">Return to Jupyter
-            </button>
-            <br><span id="feedbacksave"></span>
+            <button type="button" class="btn btn-sm btn-success" id="embeded_return">Return to Jupyter</button>
         </div>
     </div>
 </div>
