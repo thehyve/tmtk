@@ -97,11 +97,28 @@
             </div>
 
         </form>
-
         <!-- End of shared code. -->
 
         <div id="bottom-btns">
-            <button type="button" class="btn btn-sm btn-success" id="embeded_return">Return to Jupyter</button>
+            <div class="dropup">
+                <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Templates
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <h6 class="dropdown-header">Master Templates</h6>
+                    <button class="dropdown-item" id="trait-master">TraIT Master Tree</button>
+                    <button class="dropdown-item disabled">TraIT Clinical</button>
+                    <div class="dropdown-divider"></div>
+                    <h6 class="dropdown-header">Metadata Templates</h6>
+                    <button class="dropdown-item " id="fair-study-metadata">FAIR study level</button>
+                    <div class="dropdown-divider"></div>
+                    <h6 class="dropdown-header">Other actions</h6>
+                    <button class="dropdown-item" id="download_template">Download as template.</button>
+                    <button class="dropdown-item disabled">Apply from file.</button>
+
+                </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-danger" id="embeded_return">Exit</button>
         </div>
     </div>
 </div>
@@ -115,3 +132,5 @@
 <script src="/static/jquery-1.11.1.js"></script>
 <script src="/static/jstree/dist/jstree.min.js"></script>
 <script src="/static/tree.js"></script>
+<script src="/static/tether-1.2.0.js"></script>
+<script src="/static/bootstrap-4.0.0a5.js"></script>

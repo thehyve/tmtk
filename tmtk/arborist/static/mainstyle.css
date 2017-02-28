@@ -41,7 +41,6 @@ div#details {
 div#bottom-btns {
   position: absolute;
   bottom: 0;
-  width: 150px;
   height: 40px;
   right: 0px;
 }
@@ -138,4 +137,8 @@ span#feedback {
 button#embeded_return {
   float: right;
   margin-right: 10px;
+}
+.dropup {
+  display: inline-block;
+  margin-right: 5px;
 }

@@ -1,0 +1,66 @@
+[{
+	"text": "1. Clinical characteristics",
+	"children": [{
+		"text": "1. Subjects"
+	}, {
+		"text": "2. Primary tumor",
+		"children": [{
+			"text": "Differentiation grade"
+		}, {
+			"text": "Histological type"
+		}, {
+			"text": "Location tumor"
+		}, {
+			"text": "Microsatellite instability"
+		}, {
+			"text": "Staging"
+		}]
+	}, {
+		"text": "3. Metastasis"
+	}, {
+		"text": "4. Treatments"
+	}, {
+		"text": "5. Lab results"
+	}, {
+		"text": "6. Endpoints",
+		"children": [{
+			"text": "Disease-free survival"
+		}, {
+			"text": "Overall survival"
+		}]
+	}, {
+		"text": "7. Questionnaires"
+	}]
+}, {
+	"text": "2. Imaging",
+	"children": [{
+		"text": "1. Clinical imaging"
+	}, {
+		"text": "2. Digital pathology"
+	}]
+}, {
+	"text": "3. Biobank"
+}, {
+	"text": "4. Molecular profiling",
+	"children": [{
+		"text": "DNA methylation"
+	}, {
+		"text": "DNA methylation"
+	}, {
+		"text": "DNA small nucleotide variants"
+	}, {
+		"text": "DNA somatic copy number alterations"
+	}, {
+		"text": "DNA structural variants"
+	}, {
+		"text": "Protein expression"
+	}, {
+		"text": "RNA expression"
+	}, {
+		"text": "RNA small nucleotide variants"
+	}, {
+		"text": "RNA structural variants"
+	}]
+}, {
+	"text": "Subjects"
+}]

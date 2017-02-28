@@ -1,0 +1,10 @@
+[{
+	"text": "Tags",
+	"type": "tag",
+	"data": {
+		"tags": {
+			"title": ["The lord of the rings.", 3],
+			"Something": ["This has just been added", 4]
+		}
+	}
+}]

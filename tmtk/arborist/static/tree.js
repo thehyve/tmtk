@@ -57,7 +57,7 @@ function stringTree(){
     var v = $('#tree-div').jstree(true).get_json('#', {'no_state': true});
     var tree = JSON.stringify(v, replacer);
     return tree;
-}
+};
 
 // This function is used by JSON.stringify to exclude unnecessary nodes.
 function replacer(key, value) {
@@ -65,9 +65,35 @@ function replacer(key, value) {
     if ($.inArray(key, skipped) > -1 |
             (key == 'type' & value == 'default')) {
         return undefined;
-    }
+    };
     return value;
-}
+};
+
+// use the download function to download a treefile with the name of the study. HTML5 stuff.
+$('button#download_template').click( function (obj) {
+    console.log('Downloading template.')
+    var tree = stringTreeTemplate();
+    serveDownload('arborist_template.txt', tree)
+});
+
+// Gets a template version of the current tree
+function stringTreeTemplate(){
+    var v = $('#tree-div').jstree(true).get_json('#', {'no_state': true});
+    var tree = JSON.stringify(v, replacerTemplate);
+    return tree;
+};
+
+// This function is used by JSON.stringify to exclude unnecessary information.
+function replacerTemplate(key, value) {
+    var skipped = ['icon', 'li_attr', 'a_attr', 'id', 'state'];
+    if ($.inArray(key, skipped) > -1 |
+            (key == 'type' & value != 'tags') |
+            (key == 'children' & value.length === 0) |
+            (key == 'data' & !value.tags)) {
+        return undefined;
+    };
+    return value;
+};
 
 // Button to check if tag table is filled and if so add new tag
 function add_tags_feedback (obj) {
@@ -148,22 +174,27 @@ $("form#datanodedetails").submit(function (e) {
   e.preventDefault();
   if (node.type == 'tag') {
     process_tags()
+  } else if (node.type == 'default'){
+
+    var text = $("#datalabel").val();
+    var updated = $("#tree-div").jstree('rename_node', node, text);
+
   } else if (typeof node != 'undefined') {
 
     var text = $("#datalabel").val();
     var updated = $("#tree-div").jstree('rename_node', node, text);
 
     if (typeof node.data == 'undefined') {
-      node.data = {}
+      node.data = {};
     }
 
     node.data['m5'] = $("#magic5").val();
     node.data['m6'] = $("#magic6").val();
 
     if ($("#fc").prop('checked')) {
-        node.data['cty'] = 'CATEGORICAL'
+        node.data['cty'] = 'CATEGORICAL';
     } else {
-        node.data['cty'] = ''
+        node.data['cty'] = '';
     }
 
     var type = node.type;
@@ -259,8 +290,7 @@ function customMenu(node) {
         var tag_specs = {
           type: 'tag',
           text: 'Tags',
-          data: { // This is added to prevent GUI error for Filename
-            'fn': '',
+          data: {
             'tags': {},
           }
         }
@@ -371,7 +401,7 @@ $('#tree-div')
 
       enableRightFields(node.type);
 
-      if (typeof node.data !== 'undefined') {
+      if (node.data != null) {
         $("#filename").text(node.data['fn']);
         $("#columnnumber").text(node.data['col']);
         if (typeof node.data['m5'] !== 'undefined') {
@@ -490,3 +520,120 @@ $('#tree-div')
       },
       "plugins": ["dnd", "sort", "contextmenu", "types", "wholerow", "search"]
     });
+
+function merge() {
+    var options, name, src, copy, copyIsArray, clone, targetKey, target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
+    var currentId = typeof arguments[length - 1] == 'string' ? arguments[length - 1] : null;
+    if (currentId) {
+        length = length - 1;
+    }
+    // Handle a deep copy situation
+    if (typeof target === "boolean") {
+        deep = target;
+        target = arguments[1] || {};
+        // skip the boolean and the target
+        i = 2;
+    }
+
+    // Handle case when target is a string or something (possible in deep copy)
+    if (typeof target !== "object" && !jQuery.isFunction(target)) {
+        target = {};
+    }
+
+    // extend jQuery itself if only one argument is passed
+    if (length === i) {
+        target = this;
+        --i;
+    }
+
+    for (; i < length; i++) {
+        // Only deal with non-null/undefined values
+        if ((options = arguments[i]) != null) {
+            // Extend the base object
+            for (name in options) {
+                if (!options.hasOwnProperty(name)) {
+                    continue;
+                }
+                copy = options[name];
+                var mm = undefined, src = undefined;
+                if (currentId && jQuery.isArray(options) && jQuery.isArray(target)) {
+                    for (mm = 0; mm < target.length; mm++) {
+                        if (currentId && (isSameString(target[mm][currentId], copy[currentId]))) {
+                            src = target[mm];
+                            break;
+                        }
+                    }
+                }
+                else {
+                    src = target[name];
+                }
+
+                // Prevent never-ending loop
+                if (target === copy) {
+                    continue;
+                }
+                targetKey = mm !== undefined ? mm : name;
+                // Recurse if we're merging plain objects or arrays
+                if (deep && copy && (jQuery.isPlainObject(copy) || (copyIsArray = jQuery.isArray(copy)))) {
+                    if (copyIsArray) {
+                        copyIsArray = false;
+                        clone = src && jQuery.isArray(src) ? src : [];
+
+                    }
+                    else {
+                        clone = src && jQuery.isPlainObject(src) ? src : {};
+                    }
+
+                    // Never move original objects, clone them
+                    if (currentId) {
+                        target[targetKey] = merge(deep, clone, copy, currentId);
+                    }
+                    else {
+                        target[targetKey] = merge(deep, clone, copy);
+                    }
+
+                    // Don't bring in undefined values
+                }
+                else if (copy !== undefined) {
+                    target[targetKey] = copy;
+                }
+            }
+        }
+    }
+
+    // Return the modified object
+    return target;
+};
+function isSameString (a , b){
+    return a && b && String(a).toLowerCase() === String(b).toLowerCase();
+}
+
+function applyTemplate (template) {
+  console.log('Applying template.');
+  var currentTreeState = $('#tree-div').jstree(true).get_json('#');
+  var newTree = merge(true, currentTreeState, template, "text");
+  $('#tree-div').jstree(true).settings.core.data = newTree;
+  $('#tree-div').jstree(true).refresh();
+}
+
+// Applying functions to buttons that can be selected in html dropdown
+var templateMap = {"button#fair-study-metadata" : "/static/templates/fair_study.metadata.json",
+                   "button#trait-master" : "/static/templates/trait_master_tree.template.json",
+                   };
+
+for (var key in templateMap) {
+  if (templateMap.hasOwnProperty(key)) {
+    getTemplateCallback(key, templateMap[key]);
+  };
+};
+
+function getTemplateCallback(button, filename) {
+    return $(button).click( function () {
+        console.log('Fetching: ' + filename);
+        $.getJSON(filename, function(template) {
+            applyTemplate(template);
+        })
+        .error(function() { console.log("Cannot apply, found an error in JSON."); })
+//        .success(function() { alert('Template applied to tree.'); })
+    });
+};
