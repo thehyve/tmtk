@@ -3,8 +3,14 @@
 	"type": "tag",
 	"data": {
 		"tags": {
-			"title": ["The lord of the rings.", 3],
-			"Something": ["This has just been added", 4]
+			"Title": ["Human Chronic Obstructive Pulmonary Disorder Biomarker", 1],
+			"License": ["http://purl.org/NET/rdflicense/odbl1.0", 4],
+			"Publisher": ["Url to publisher site", 3],
+			"Has Version": ["1.0", 4],
+			"Theme": ["https://www.wikidata.org/wiki/Q199804", 2],
+			"Media type": ["application/json", 4],
+			"Name": ["Name of dataset owner", 4],
+			"Description": ["Transmartified dataset", 4]
 		}
 	}
 }]
