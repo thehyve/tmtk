@@ -308,9 +308,7 @@ class ConceptTree:
             path = node.path.rsplit(Mappings.tags_node_name, 1)[0].strip(Mappings.PATH_DELIM)
             path = Mappings.EXT_PATH_DELIM + path
 
-            for title, desc_weight in tags_dict.items():
-                description, weight = desc_weight
-
+            for title, (description, weight, *_) in tags_dict.items():
                 if not all([title, description, weight]):
                     continue
 
