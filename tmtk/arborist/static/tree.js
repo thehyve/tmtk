@@ -608,6 +608,7 @@ function isSameString (a , b){
     return a && b && String(a).toLowerCase() === String(b).toLowerCase();
 }
 
+// Applying functions to buttons that can be selected in html dropdown
 function applyTemplate (template) {
   console.log('Applying template.');
   var currentTreeState = $('#tree-div').jstree(true).get_json('#');
@@ -616,24 +617,41 @@ function applyTemplate (template) {
   $('#tree-div').jstree(true).refresh();
 }
 
-// Applying functions to buttons that can be selected in html dropdown
-var templateMap = {"button#fair-study-metadata" : "/static/templates/fair_study.metadata.json",
-                   "button#trait-master" : "/static/templates/trait_master_tree.template.json",
+var templateMap = {"button#fair-study-metadata" : {
+                        path: "/static/templates/fair_study.metadata.json",
+//                        name: "FAIR study level",
+//                        category: "Metadata",
+                        alertText: "Metadata template for FAIR metadata applied!",
+                        },
+                   "button#trait-master" : {
+                        path: "/static/templates/trait_master_tree.template.json",
+//                        name: "TraIT Master Tree",
+//                        category: "Master",
+                        alertText: "TraIT master template applied!",
+                        }
                    };
 
 for (var key in templateMap) {
   if (templateMap.hasOwnProperty(key)) {
-    getTemplateCallback(key, templateMap[key]);
+    getTemplateCallback(key, templateMap[key].path, templateMap[key].alertText);
   };
 };
 
-function getTemplateCallback(button, filename) {
+function getTemplateCallback(button, filename, alertText) {
     return $(button).click( function () {
         console.log('Fetching: ' + filename);
         $.getJSON(filename, function(template) {
             applyTemplate(template);
         })
         .error(function() { console.log("Cannot apply, found an error in JSON."); })
-//        .success(function() { alert('Template applied to tree.'); })
+        .success(function() { showAlert(alertText); })
     });
 };
+
+function showAlert(text) {
+    $('#alert-text').text(text);
+    $("#myAlert").addClass("in");
+    window.setTimeout(function () {
+        $("#myAlert").removeClass("in");;
+    }, 4000);
+}

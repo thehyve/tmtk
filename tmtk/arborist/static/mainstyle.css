@@ -142,3 +142,20 @@ button#embeded_return {
   display: inline-block;
   margin-right: 5px;
 }
+.fade {
+    opacity: 0;
+    -webkit-transition: opacity 0.1s linear;
+    -moz-transition: opacity 0.1s linear;
+    -o-transition: opacity 0.1s linear;
+    transition: opacity 0.1s linear;
+}
+.fade.in {
+    opacity: 1;
+}
+.alert {
+  position: absolute;
+  max-width: 50%;
+  left: 28%;
+  bottom: 50px;
+  transform: translate(-50%, -50%);
+}
