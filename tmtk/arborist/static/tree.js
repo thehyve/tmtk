@@ -70,7 +70,8 @@ function replacer(key, value) {
 };
 
 // use the download function to download a treefile with the name of the study. HTML5 stuff.
-$('button#download_template').click( function (obj) {
+$('button#download-template').click( function (obj) {
+    showAlert("Created template from current tree.")
     console.log('Downloading template.')
     var tree = stringTreeTemplate();
     serveDownload('arborist_template.txt', tree)
@@ -343,17 +344,17 @@ function createTagRow(){
     $('#tagtable-body').append(tr);
     $('#tagtable-body').append('<tr><td colspan=2 style="padding-left: 5px; padding-right: 5px; " >'+tdDesc+'</td></tr>');
 
-    $("#" + desc_id).bind('keypress', function(e) {
+    $('#' + title_id).focus()
+
+    return counter
+}
+
+$("#tagbox").on("keypress", ".tag-description" , function(e) {
         if ((e.keyCode || e.which) == 13) {
             $(this).parents('form').submit();
         e.preventDefault();
         }
     });
-
-    $('#' + title_id).focus()
-
-    return counter
-}
 
 var keymap = {default : 'Folder',
               numeric : 'Numerical',
@@ -393,6 +394,21 @@ $('#tree-div')
     .on('search.jstree', function() {
       $("#search_spinner").hide();
       })
+    .on('keydown.jstree', '.jstree-anchor', $.proxy(function (e) {
+      if(e.target.tagName === "INPUT") { return true; }
+      if(e.which === 46 | e.which === 8) {
+        e.preventDefault();
+        o = $(this).jstree("get_node", e.currentTarget);
+        if (o.parent == "#") {
+            showAlert("Cannot remove root nodes.");
+            return undefined;
+        }
+        if (o && o.id && o.id !== "#") {
+          o = $(this).jstree(true).is_selected(o) ? $(this).jstree(true).get_selected() : o;
+          $(this).jstree(true).delete_node(o);
+        }
+      }
+    }))
     .on('select_node.jstree', function (e, data) {
       node = data.instance.get_node(data.selected[0]);
       $("form#datanodedetails")[0].reset();
@@ -647,6 +663,22 @@ function getTemplateCallback(button, filename, alertText) {
         .success(function() { showAlert(alertText); })
     });
 };
+
+$(document).on('change', '.file-upload-button', function(event) {
+  var reader = new FileReader();
+  reader.onload = function(event) {
+    var jsonObj = JSON.parse(event.target.result);
+    applyTemplate(jsonObj);
+    showAlert("Template applied from file.");
+    // Reset button so it can be used again
+    $('.file-upload-button').val("");
+  };
+  reader.readAsText(event.target.files[0]);
+});
+
+$("button#template-from-file").click( function ( ) {
+  $('.file-upload-button').trigger('click');
+});
 
 function showAlert(text) {
     $('#alert-text').text(text);

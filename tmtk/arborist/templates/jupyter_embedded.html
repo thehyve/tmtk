@@ -113,9 +113,9 @@
                     <button class="dropdown-item " id="fair-study-metadata">FAIR study level</button>
                     <div class="dropdown-divider"></div>
                     <h6 class="dropdown-header">Other actions</h6>
-                    <button class="dropdown-item" id="download_template">Download as template.</button>
-                    <button class="dropdown-item disabled">Apply from file.</button>
-
+                    <button class="dropdown-item" id="download-template">Download as template.</button>
+                    <button class="dropdown-item" type="file" id="template-from-file">Apply from file.</button>
+                    <input hidden class='file-upload-button' type="file" />
                 </div>
             </div>
             <button type="button" class="btn btn-sm btn-danger" id="embeded_return">Exit</button>
@@ -129,7 +129,6 @@
 <script type="application/javascript">
     var treeData = {{ json | safe }};
     var shutdown_url = "{{ url_for('shutdown', treefile=treefile) }}";
-
 </script>
 
 <script src="/static/jquery-1.11.1.js"></script>
