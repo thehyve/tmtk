@@ -13,7 +13,7 @@
 :Source Code: https://github.com/thehyve/tmtk/
 :Generated: |today|
 :License: GPLv3
-:Version: |release|
+:Version: |version|
 
 
 .. topic:: Philosophy
@@ -31,6 +31,7 @@
     * load an existing study and validate its contents.
     * edit the transmart concept tree in The Arborist graphical editor.
     * create chromosomal region annotation files.
+    * map HGNC gene symbols to corresponding Entrez gene IDs using `mygene.info`_.
 
 
 .. note::
@@ -40,6 +41,7 @@
 
 
 .. _transmart-batch: https://github.com/thehyve/transmart-batch/
+.. _mygene.info: http://mygene.info/
 
 Contents
 ========

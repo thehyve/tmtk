@@ -1,5 +1,15 @@
 import setuptools
 import os
+import re
+
+VERSIONFILE=os.path.join('tmtk', '__init__.py')
+verstrline = open(VERSIONFILE, "rt").read()
+VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
+mo = re.search(VSRE, verstrline, re.M)
+if mo:
+    version_string = mo.group(1)
+else:
+    raise RuntimeError("Unable to find version string in {}.".format(VERSIONFILE,))
 
 required_packages = ['pandas',
                      'rpy2',
@@ -17,7 +27,7 @@ if os.environ.get('READTHEDOCS') == 'True':
 
 setuptools.setup(
     name="tmtk",
-    version="0.1.3",
+    version=version_string,
     url="https://www.github.com/thehyve/tmtk/",
 
     author="Jochem Bijlard",
@@ -31,7 +41,7 @@ setuptools.setup(
 
     keywords=['transmart', 'etl', 'arborist', 'concept tree'],
 
-    download_url='https://github.com/thehyve/tmtk/tarball/0.1.3/',
+    download_url='https://github.com/thehyve/tmtk/tarball/{}/'.format(version_string),
 
     install_requires=required_packages,
 
