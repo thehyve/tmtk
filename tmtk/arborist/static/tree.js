@@ -88,7 +88,7 @@ function stringTreeTemplate(){
 function replacerTemplate(key, value) {
     var skipped = ['icon', 'li_attr', 'a_attr', 'id', 'state'];
     if ($.inArray(key, skipped) > -1 |
-            (key == 'type' & value != 'tags') |
+            (key == 'type' & value != 'tag') |
             (key == 'children' & value.length === 0) |
             (key == 'data' & !value.tags)) {
         return undefined;
