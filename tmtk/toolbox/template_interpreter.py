@@ -1,7 +1,5 @@
 # coding: utf-8
 
-# In[1]:
-
 import os
 import re
 import csv
@@ -13,7 +11,6 @@ from random import randint
 from collections import defaultdict
 
 
-# In[386]:
 
 class TemplatedStudy:
     def __init__(self, ID, source_dir, output_dir="transmart_files", sec_req="Y", name=None):
@@ -74,8 +71,6 @@ class TemplatedStudy:
                 self.all_metadata = None
 
 
-# In[403]:
-
 class TemplateException(Exception):
     pass
 
@@ -116,8 +111,6 @@ class Validity:
         pass
 
 
-# In[410]:
-
 def get_clin_template(study):
     """Try to detect the clinical template file in the source dir and open it with pandas."""
     all_files = [excel_file for excel_file in glob(study.source_dir + "/*.xls*")]
@@ -139,15 +132,11 @@ def get_clin_template(study):
     return clin_template
 
 
-# In[414]:
-
 def get_sheet_dict(workbook, comment_char="#"):
     """Return a sheet dictionary of all sheets in the workbook."""
     sheets = {sheet_name: workbook.parse(sheet_name, comment=comment_char) for sheet_name in workbook.sheet_names}
     return sheets
 
-
-# In[415]:
 
 def get_tree_sheet(sheets):
     """Detect the name of sheet in the clinical template that contains the tree structure."""
@@ -161,22 +150,12 @@ def get_tree_sheet(sheets):
     return tree_sheet_name
 
 
-# ## Process tree structure sheet
-
-# ### Write sheets containing clinical data to .tsv files
-
-# ### Write column mapping file and collect paths for high-dimensional data
-
-# In[95]:
-
 def get_data_file_name(data_file, sheets, data_type="Low-dimensional"):
     """Return the clinical data file name with extension if it is present in one of the sheets."""
     if data_type == "Low-dimensional" and data_file in sheets.keys():
         data_file += ".tsv"
     return data_file
 
-
-# In[81]:
 
 def construct_concept_cd(row, previous_row, study):
     """Construct concept_cd based on current row in the tree sheet (and info gathered from previous rows)"""
@@ -203,8 +182,6 @@ def construct_concept_cd(row, previous_row, study):
     return concept_cd
 
 
-# In[412]:
-
 def create_concept_cd(concept_cd_series, join_char="+", exclude_study_level=True):
     """Turn the pandas series object into a concept_cd string."""
     concept_cd_series = concept_cd_series.dropna()
@@ -214,15 +191,11 @@ def create_concept_cd(concept_cd_series, join_char="+", exclude_study_level=True
     return concept_code
 
 
-# In[115]:
-
 def split_concept_cd(concept_cd, join_char="+"):
     """Split up the full concept path into a category_cd and a data label."""
     category_code, data_label = concept_cd.rsplit(join_char, 1)
     return (category_code, data_label)
 
-
-# In[84]:
 
 def subjects_in_tree(study, sheets):
     """Check if the subjects are present in the tree structure template"""
@@ -231,8 +204,6 @@ def subjects_in_tree(study, sheets):
     subjects_in_tree = 1 in column_numbers.tolist()
     return subjects_in_tree
 
-
-# In[413]:
 
 def add_subjects_to_mapping(study, sheets):
     """Add a line to the column mapping that links to the subjects for each data file."""
@@ -244,8 +215,6 @@ def add_subjects_to_mapping(study, sheets):
         study.col_map_rows.add((data_file_name, "", 1, "SUBJ_ID", "", "", ""))
 
 
-# In[86]:
-
 def write_column_mapping(col_map_writer):
     """Sort and write the column mapping rows."""
     col_map_rows_list = list(col_map_rows)
@@ -254,17 +223,9 @@ def write_column_mapping(col_map_writer):
     col_map_writer.writerows(col_map_rows_list)
 
 
-# In[87]:
-
 def duplicate_subjects_col():
     pass
 
-
-# ### Write word mapping file
-
-# ### Write metadata file
-
-# In[143]:
 
 def reformat_concept_path(concept_cd_series):
     # Study name is not used in metadata concept path
@@ -274,8 +235,6 @@ def reformat_concept_path(concept_cd_series):
         concept_path = "\\" + "\\".join(concept_cd_series[1:])
     return concept_path
 
-
-# In[164]:
 
 def create_metadata(row, concept_cd_series, index_counter, study):
     tags = row[4::3]
@@ -289,12 +248,6 @@ def create_metadata(row, concept_cd_series, index_counter, study):
             study.all_metadata.add((concept_path, tag, value, index_counter[concept_path]))
 
 
-# ### Write params files
-
-# ##### Study params file
-
-# In[169]:
-
 def write_study_params(study):
     with open(os.path.join(study.output_dir, "study.params"), "w") as study_params_file:
         study_params_file.write("STUDY_ID=" + study.ID + "\n")
@@ -304,10 +257,6 @@ def write_study_params(study):
             study_params_file.write("TOP_NODE=" + root_dir + study.name + "\n")
 
 
-# ##### Clinical params file
-
-# In[398]:
-
 def write_clinical_params(study):
     with open(os.path.join(study.clin_output_dir, "clinical.params"), "w") as clin_params_file:
         clin_params_file.write("COLUMN_MAP_FILE=" + study.col_map_file_name + "\n")
@@ -315,19 +264,11 @@ def write_clinical_params(study):
             clin_params_file.write("WORD_MAP_FILE=" + study.word_map_file_name + "\n")
 
 
-# ##### Metadata params file
-
-# In[397]:
-
 def write_metadata_params(study):
     if study.all_metadata:
         with open(os.path.join(study.metadata_output_dir, "tags.params"), "w") as metadata_params_file:
             metadata_params_file.write("TAGS_FILE=" + study.metadata_file_name + "\n")
 
-
-# ## Process high-dimensional workbooks
-
-# In[418]:
 
 class HighDim:
     def __init__(self, output_dir=None, hd_type=None, organism=None, platform_id=None, platform_name=None,
@@ -345,8 +286,6 @@ class HighDim:
         self.data_annotation_ids = set()
 
 
-# In[188]:
-
 def get_output_dir(study, hd_template_file_name):
     hd_output_dir = os.path.splitext(hd_template_file_name)[0]
     hd_output_dir = re.sub("template", "", hd_output_dir, flags=re.I)
@@ -354,8 +293,6 @@ def get_output_dir(study, hd_template_file_name):
     hd_output_dir = os.path.join(study.output_dir, hd_output_dir)
     return hd_output_dir
 
-
-# In[189]:
 
 def get_template_type(experiment, hd_template_description):
     """Check type of template by reading the description in the metadata and store template-specific info."""
@@ -387,9 +324,6 @@ def get_template_type(experiment, hd_template_description):
                                 hd_template_description)
 
 
-        # In[190]:
-
-
 def get_row_section(df, start_value=None, end_value=None):
     """Return a section of rows from a df, based on the start and/or end value to be found in the first column."""
     if start_value:
@@ -405,8 +339,6 @@ def get_row_section(df, start_value=None, end_value=None):
     return section
 
 
-# In[191]:
-
 def process_human_names(names_list):
     """Iterate through list of names and return a single formatted string as metadata value."""
     # Remove missing part from names
@@ -417,8 +349,6 @@ def process_human_names(names_list):
     value = ", ".join(names_list)
     return value
 
-
-# In[417]:
 
 def extract_hd_metadata(sheet, concept_cd, experiment, study):
     """Extract the general info and protocols section from HD metadata sheet and store in metadata object."""
@@ -452,8 +382,6 @@ def extract_hd_metadata(sheet, concept_cd, experiment, study):
     add_dir_level_metadata(metadata_concept_cd, experiment, study)
 
 
-# In[416]:
-
 def add_dir_level_metadata(metadata_concept_cd, experiment, study):
     """Add platform name and ID to the parent directory containing the high-dim object."""
     concept_cd_dir_level = metadata_concept_cd.rsplit("\\", 1)[0]
@@ -462,8 +390,6 @@ def add_dir_level_metadata(metadata_concept_cd, experiment, study):
     study.all_metadata.add((concept_cd_dir_level, "Platform name", experiment.platform_name, tag_index))
     study.all_metadata.add((concept_cd_dir_level, "Platform ID", experiment.platform_id, tag_index + 1))
 
-
-# In[194]:
 
 def retrieve_ss_df(sheet):
     """Retrieve the subject sample data as provided in the template as a separate reindexed df."""
@@ -475,8 +401,6 @@ def retrieve_ss_df(sheet):
 
     return ss_data
 
-
-# In[238]:
 
 def process_mapping(ss_data, experiment, concept_cd, study):
     """Add required high-dim properties to the experiment instance and combine the ss_data with info from metadata
@@ -499,8 +423,6 @@ def process_mapping(ss_data, experiment, concept_cd, study):
     write_hd_df(ss_mapping, experiment.output_dir, "subject_sample_mapping.tsv")
 
 
-# In[265]:
-
 def write_hd_df(df, hd_output_dir, file_name, subdir=""):
     """Write a high-dim df to the desired location."""
     full_hd_output_dir = os.path.join(hd_output_dir, subdir)
@@ -508,8 +430,6 @@ def write_hd_df(df, hd_output_dir, file_name, subdir=""):
     output_file_path = os.path.join(full_hd_output_dir, file_name)
     df.to_csv(output_file_path, sep="\t", index=False, na_rep="")
 
-
-# In[266]:
 
 def Determine_hd_properties(ss_data, experiment):
     """Validate the ss-mapping columns and save the info needed for the params files in the HD class instance."""
@@ -521,8 +441,6 @@ def Determine_hd_properties(ss_data, experiment):
     experiment.platform_id = uniform_props["Platform"][0]
     experiment.platform_name = uniform_props["Platform name"][0]
 
-
-# In[267]:
 
 def read_hd_sheets(hd_template):
     """Check if all the required sheets are present in the high-dim template and return them as separate variables."""
@@ -543,8 +461,6 @@ def read_hd_sheets(hd_template):
     return (metadata_samples_sheet, platform_sheet, data_sheet)
 
 
-# In[425]:
-
 def process_platform(platform_sheet, experiment, validate=True):
     """To each type of platform add the required columns and send the result to the write function."""
     if experiment.hd_type == "RNA_Microarray":
@@ -554,7 +470,7 @@ def process_platform(platform_sheet, experiment, validate=True):
         platform_sheet.insert(2, "ORGANISM", experiment.organism)
         platform_sheet.insert(3, "GPL_ID", experiment.platform_id)
     elif experiment.hd_type in ["aCGH", "CNA_DNA-Seq"]:
-        if not set(["GENE_SYMBOL", "GENE_ID"]).issubset(set(platform_sheet.columns)):
+        if not {"GENE_SYMBOL", "GENE_ID"}.issubset(set(platform_sheet.columns)):
             platform_sheet["GENE_SYMBOL"] = np.nan
             platform_sheet["GENE_ID"] = np.nan
         platform_sheet.insert(0, "GPL_ID", experiment.platform_id)
@@ -565,21 +481,14 @@ def process_platform(platform_sheet, experiment, validate=True):
         platform_sheet.insert(0, "GPL_ID", experiment.platform_id)
         platform_sheet["ORGANISM"] = experiment.organism
 
-    # if validate:
-    #    experiment.platform_annotation_ids = set([ref_id for ref_id in platform_sheet[0]])
-
     write_hd_df(platform_sheet, experiment.output_dir, experiment.platform_id + ".tsv", "annotation")
 
-
-# In[269]:
 
 def process_hd_data(data_sheet, experiment):
     """Send the df from the data sheet to the write function."""
     output_file_name = experiment.hd_type + "_data.tsv"
     write_hd_df(data_sheet, experiment.output_dir, output_file_name)
 
-
-# In[244]:
 
 def write_platform_params(experiment):
     """Write HD annotations params file."""
@@ -593,8 +502,6 @@ def write_platform_params(experiment):
         if experiment.genome_build:
             annotation_params_file.write("GENOME_RELEASE=" + experiment.genome_build + "\n")
 
-
-# In[245]:
 
 def write_hd_data_params(experiment):
     """Write HD data params file."""
@@ -610,8 +517,6 @@ def write_hd_data_params(experiment):
         hd_data_params_file.write("ZERO_MEANS_NO_INFO=" + "N" + "\n")
 
 
-# In[248]:
-
 def write_clinical_data_sheets(study, sheets):
     """In case the clinical data is in the clinical template sheet(s), write them to txt files"""
     tree_sheet = sheets[study.tree_sheet_name]
@@ -622,8 +527,6 @@ def write_clinical_data_sheets(study, sheets):
             write_location = os.path.join(study.clin_output_dir, file) + ".tsv"
             clinical_data_sheet.to_csv(write_location, sep="\t", index=False, na_rep="")
 
-
-# In[249]:
 
 def process_column_mapping(study, sheets):
     """Extract all information required to build the column mapping and write it to the clinical dir."""
@@ -651,8 +554,6 @@ def process_column_mapping(study, sheets):
     study.write_column_mapping()
 
 
-# In[250]:
-
 def process_word_mapping(study, sheets):
     """If present, write word mapping rows to file."""
     # word_map_sheets = [sheet for sheet in sheets if "value substitution" in sheet.lower()
@@ -666,8 +567,6 @@ def process_word_mapping(study, sheets):
     study.write_word_mapping()
 
 
-# In[251]:
-
 def process_clin_metadata(study, sheets):
     """Collect all metadata present in the clinical template."""
     index_counter = defaultdict(int)
@@ -679,16 +578,12 @@ def process_clin_metadata(study, sheets):
     study.write_metadata(delete=False)
 
 
-# In[252]:
-
 def write_low_dim_params(study):
     """Write all the low-dimensional and study params files."""
     write_study_params(study)
     write_clinical_params(study)
     write_metadata_params(study)
 
-
-# In[253]:
 
 def process_clinical(study):
     """Get clinical tempalte and call all clinical processing functions."""
@@ -705,8 +600,6 @@ def process_clinical(study):
     # Store and write metadata present in tree sheet
     process_clin_metadata(study, sheets)
 
-
-# In[420]:
 
 def process_high_dim(study):
     """Loop through high-dim templates and write all mapping, platform and (meta)data."""
@@ -742,8 +635,6 @@ def process_high_dim(study):
     study.write_metadata()
 
 
-# In[421]:
-
 def epilogue(huge_success=True):
     (ID, start) = "HKIbIC9H_Kg", 9
     if huge_success:
@@ -752,12 +643,8 @@ def epilogue(huge_success=True):
         IPython.display.display(IPython.display.YouTubeVideo(ID, autoplay=0, width=0, height=0, start=start))
 
 
-# In[422]:
-
-def create_study_from_templates(ID, source_dir, output_dir="transmart_files", sec_req="Y", study_name=None):
+def create_study_from_templates(ID, source_dir, output_dir="transmart_files", sec_req="Y", study_name=ID):
     """
-
-
     :param ID:
     :param source_dir:
     :param output_dir:
@@ -765,7 +652,7 @@ def create_study_from_templates(ID, source_dir, output_dir="transmart_files", se
     :param study_name:
     :return:
     """
-    study = TemplatedStudy(ID=ID, source_dir=source_dir, output_dir=output_dir, sec_req=sec_req)
+    study = TemplatedStudy(ID=ID, source_dir=source_dir, output_dir=output_dir, sec_req=sec_req, name=study_name)
 
     process_clinical(study)
     write_low_dim_params(study)
@@ -773,8 +660,6 @@ def create_study_from_templates(ID, source_dir, output_dir="transmart_files", se
 
     return epilogue()
 
-#
-# # In[424]:
 #
 # main(ID="DECODE_WP5_TEMPLATE", source_dir="templatos_finalos_nonfictivus_v2")
 #
