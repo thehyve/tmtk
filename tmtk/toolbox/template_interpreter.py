@@ -9,8 +9,7 @@ import pandas as pd
 from glob import glob
 from random import randint
 from collections import defaultdict
-
-
+from xlrd import XLRDError
 
 class TemplatedStudy:
     def __init__(self, ID, source_dir, output_dir="transmart_files", sec_req="Y", name=None):
@@ -36,6 +35,8 @@ class TemplatedStudy:
         self.word_map_header = ("Filename", "Column Number", "Datafile Value", "Mapping Value")
         self.metadata_header = ("concept_key", "tag_title", "tag_description", "index")
 
+        Validity(source_dir).check_source_dir()
+        Validity(output_dir).check_output_dir()
         os.makedirs(self.clin_output_dir, exist_ok=True)
 
     def _sort_write(self, data, key1, key2, output_path, header):
@@ -54,12 +55,14 @@ class TemplatedStudy:
         self._sort_write(self.col_map_rows, 0, 2, output_path, self.col_map_header)
         if delete:
             self.col_map_rows = None
+        print("Column mapping file written at: {0}".format(output_path))
 
     def write_word_mapping(self):
         """Sort rows on data file and column nubmer, then write the word mapping rows."""
         if self.word_map_rows:
             output_path = os.path.join(self.clin_output_dir, self.word_map_file_name)
             self._sort_write(self.word_map_rows, 0, 1, output_path, self.word_map_header)
+            print("Word mapping file written at: {0}".format(output_path))
 
     def write_metadata(self, delete=True):
         """Sort rows on concept_path and tag index, then write the metadata rows."""
@@ -70,17 +73,46 @@ class TemplatedStudy:
             if delete:
                 self.all_metadata = None
 
+class HighDim:
+    def __init__(self, output_dir=None, hd_type=None, organism=None, platform_id=None, platform_name=None,
+                 genome_build=None, annotation_params_name=None, hd_data_params_name=None):
+        self.output_dir = output_dir
+        self.hd_type = hd_type
+        self.organism = organism
+        self.platform_id = platform_id
+        self.platform_name = platform_name
+        self.genome_build = genome_build
+        self.annotation_params_name = annotation_params_name
+        self.hd_data_params_name = hd_data_params_name
+
+        self.platform_annotation_ids = set()
+        self.data_annotation_ids = set()
+
 
 class TemplateException(Exception):
-    pass
+    def __init__(self, Exception):
+        self.epilogue()
 
+    def epilogue(self):
+        (ID, start) = "HKIbIC9H_Kg", 9
+        IPython.display.display(IPython.display.YouTubeVideo(ID, autoplay=1, width=0, height=0, start=start))
 
 class Validity:
     def __init__(self, validity_object):
         self.validity_object = validity_object
 
-    def string_contains(self, expected):
-        pass
+    def check_source_dir(self):
+        if not os.path.isdir(self.validity_object):
+            raise TemplateException("Directory does not exist: {0}".format(self.validity_object))
+        elif not os.access(self.validity_object, os.R_OK):
+            raise TemplateException("Directory does not have read access: {0}".format(self.validity_object))
+
+    def check_output_dir(self):
+        if not os.path.exists(self.validity_object):
+            os.makedirs(self.validity_object)
+            print("Created output directory at: {0}".format(self.validity_object))
+        if not os.access(self.validity_object, os.W_OK):
+            raise TemplateException("No write access for given directory path: {0}".format(self.validity_object))
 
     def check_uniformity(self, allow_nan=False):
         for item in self.validity_object:
@@ -114,20 +146,20 @@ class Validity:
 def get_clin_template(study):
     """Try to detect the clinical template file in the source dir and open it with pandas."""
     all_files = [excel_file for excel_file in glob(study.source_dir + "/*.xls*")]
-    # print("\n".join(all_files))
+    #print("\n".join(all_files))
     # Try to automatically detect which of the template files contains the clinical data
     clinical_templates = [template for template in all_files if "clin" in template.lower() and not "~$" in template]
 
-    # Validity(clinical_templates).list_length(1)
+
     if len(clinical_templates) == 1:
         clinical_template_name = clinical_templates[0]
         print ("Clinical data template detected: " + clinical_template_name)
     else:
-        clinical_template_name = "No template selected"
-        print(("The clinical data template could not be detected automatically.\nPlease be a good chap and" +
-               " name your files properly."))
+        print(("The clinical data template could not be detected automatically.\n" +
+               "Make sure only one file has 'clinical' in its name."))
+    Validity(clinical_templates).list_length(1)
 
-    clin_template = all_files[4]
+    clin_template = clinical_templates[0]
     clin_template = pd.ExcelFile(clin_template, comment="#")
     return clin_template
 
@@ -140,13 +172,11 @@ def get_sheet_dict(workbook, comment_char="#"):
 
 def get_tree_sheet(sheets):
     """Detect the name of sheet in the clinical template that contains the tree structure."""
-    # sheets = get_sheet_dict(clin_template)
 
-    # tree_sheets = [sheet for sheet in sheets if "tree" in sheet.lower() and not "example" in sheet]
-    # Validity(tree_sheets).list_length(1)
-    # tree_sheet_name = tree_sheets[0]
+    tree_sheets = [sheet for sheet in sheets if "tree" in sheet.lower() and not "example" in sheet.lower()]
+    Validity(tree_sheets).list_length(1)
+    tree_sheet_name = tree_sheets[0]
 
-    tree_sheet_name = "Tree structure (example)"
     return tree_sheet_name
 
 
@@ -215,12 +245,12 @@ def add_subjects_to_mapping(study, sheets):
         study.col_map_rows.add((data_file_name, "", 1, "SUBJ_ID", "", "", ""))
 
 
-def write_column_mapping(col_map_writer):
-    """Sort and write the column mapping rows."""
-    col_map_rows_list = list(col_map_rows)
-    # Sort column mapping on data file name and secondly on column number.
-    col_map_rows_list.sort(key=lambda x: (x[0], x[2]))
-    col_map_writer.writerows(col_map_rows_list)
+# def write_column_mapping(col_map_writer):
+#     """Sort and write the column mapping rows."""
+#     col_map_rows_list = list(col_map_rows)
+#     # Sort column mapping on data file name and secondly on column number.
+#     col_map_rows_list.sort(key=lambda x: (x[0], x[2]))
+#     col_map_writer.writerows(col_map_rows_list)
 
 
 def duplicate_subjects_col():
@@ -268,22 +298,6 @@ def write_metadata_params(study):
     if study.all_metadata:
         with open(os.path.join(study.metadata_output_dir, "tags.params"), "w") as metadata_params_file:
             metadata_params_file.write("TAGS_FILE=" + study.metadata_file_name + "\n")
-
-
-class HighDim:
-    def __init__(self, output_dir=None, hd_type=None, organism=None, platform_id=None, platform_name=None,
-                 genome_build=None, annotation_params_name=None, hd_data_params_name=None):
-        self.output_dir = output_dir
-        self.hd_type = hd_type
-        self.organism = organism
-        self.platform_id = platform_id
-        self.platform_name = platform_name
-        self.genome_build = genome_build
-        self.annotation_params_name = annotation_params_name
-        self.hd_data_params_name = hd_data_params_name
-
-        self.platform_annotation_ids = set()
-        self.data_annotation_ids = set()
 
 
 def get_output_dir(study, hd_template_file_name):
@@ -517,6 +531,14 @@ def write_hd_data_params(experiment):
         hd_data_params_file.write("ZERO_MEANS_NO_INFO=" + "N" + "\n")
 
 
+def _epilogue(huge_success=True):
+    (ID, start) = "HKIbIC9H_Kg", 9
+    if huge_success:
+        (ID, start) = "S9x6GMM4UWw", 0
+
+        IPython.display.display(IPython.display.YouTubeVideo(ID, autoplay=1, width=0, height=0, start=start))
+
+
 def write_clinical_data_sheets(study, sheets):
     """In case the clinical data is in the clinical template sheet(s), write them to txt files"""
     tree_sheet = sheets[study.tree_sheet_name]
@@ -526,6 +548,7 @@ def write_clinical_data_sheets(study, sheets):
             clinical_data_sheet = sheets[file]
             write_location = os.path.join(study.clin_output_dir, file) + ".tsv"
             clinical_data_sheet.to_csv(write_location, sep="\t", index=False, na_rep="")
+            print("Clinical data file written at: {0}".format(write_location))
 
 
 def process_column_mapping(study, sheets):
@@ -556,11 +579,11 @@ def process_column_mapping(study, sheets):
 
 def process_word_mapping(study, sheets):
     """If present, write word mapping rows to file."""
-    # word_map_sheets = [sheet for sheet in sheets if "value substitution" in sheet.lower()
-    #                  and not 'example' in sheet.lower()]
-    # Validity(word_map_sheets).list_length(1)
-    # study.word_map_sheet_name = word_map_sheets[0]
-    study.word_map_sheet_name = "Value substitution (example)"
+    word_map_sheets = [sheet for sheet in sheets if "value substitution" in sheet.lower()
+                       and not 'example' in sheet.lower()]
+    Validity(word_map_sheets).list_length(1)
+    study.word_map_sheet_name = word_map_sheets[0]
+    #study.word_map_sheet_name = "Value substitution (example)"
     for index, row in sheets[study.word_map_sheet_name].iterrows():
         word_map_row = tuple(row.tolist())
         study.word_map_rows.add(word_map_row)
@@ -601,15 +624,27 @@ def process_clinical(study):
     process_clin_metadata(study, sheets)
 
 
+def open_hd_file_template(study, hd_template):
+    template_path = os.path.join(study.source_dir, hd_template)
+    try:
+        hd_template_workbook = pd.ExcelFile(template_path, comment="#")
+    except FileNotFoundError:
+        raise TemplateException("Could not find high-dim template file at: {0}".format(template_path))
+    except XLRDError:
+        raise TemplateException("High-dim template file at: {0} is not a valid xlsx file.".format(template_path))
+    return hd_template_workbook
+
+
 def process_high_dim(study):
     """Loop through high-dim templates and write all mapping, platform and (meta)data."""
     for hd_template, concept_cd in study.hd_dict.items():
+        print("Processing high-dim template: {0}".format(hd_template))
         # General processing
         experiment = HighDim()
         experiment.output_dir = get_output_dir(study, hd_template)
 
-        hd_template = pd.ExcelFile(os.path.join(study.source_dir, hd_template), comment="#")
-        (metadata_samples_sheet, platform_sheet, data_sheet) = read_hd_sheets(hd_template)
+        hd_template_workbook = open_hd_file_template(study, hd_template)
+        (metadata_samples_sheet, platform_sheet, data_sheet) = read_hd_sheets(hd_template_workbook)
 
         # Get template specific characteristics from the description in the template header
         get_template_type(experiment, metadata_samples_sheet.columns[0])
@@ -630,39 +665,34 @@ def process_high_dim(study):
         # Params files
         write_platform_params(experiment)
         write_hd_data_params(experiment)
-        print(vars(experiment))
+        print("Completed processing of high-dim template: {0}".format(hd_template))
 
     study.write_metadata()
 
 
-def epilogue(huge_success=True):
-    (ID, start) = "HKIbIC9H_Kg", 9
-    if huge_success:
-        (ID, start) = "S9x6GMM4UWw", 0
-
-        IPython.display.display(IPython.display.YouTubeVideo(ID, autoplay=0, width=0, height=0, start=start))
-
-
-def create_study_from_templates(ID, source_dir, output_dir="transmart_files", sec_req="Y", study_name=ID):
+def create_study_from_templates(ID, source_dir, output_dir="transmart_files", sec_req="Y", study_name=None):
     """
-    :param ID:
-    :param source_dir:
-    :param output_dir:
-    :param sec_req:
-    :param study_name:
+    Create tranSMART files in designated output_dir for all data provided in templates in the source_dir.
+
+    :param ID: study ID.
+    :param source_dir: directory containing all the templates.
+    :param output_dir: directory where the output should be written.
+    :param sec_req: security required? "Y" or "N", default="Y".
+    :param study_name: optional: name of the study, default=ID.
     :return:
     """
+    if not study_name:
+        study_name = ID
+
     study = TemplatedStudy(ID=ID, source_dir=source_dir, output_dir=output_dir, sec_req=sec_req, name=study_name)
 
     process_clinical(study)
     write_low_dim_params(study)
     process_high_dim(study)
+    print("Templates processed successfully!")
+    _epilogue()
 
-    return epilogue()
-
-#
-# main(ID="DECODE_WP5_TEMPLATE", source_dir="templatos_finalos_nonfictivus_v2")
-#
+# create_study_from_templates(ID="DECODE_WP5_TEMPLATE", source_dir="templatos_finalos_nonfictivus_v2")
 #
 
 
