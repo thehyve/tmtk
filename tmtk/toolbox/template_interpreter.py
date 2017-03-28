@@ -245,14 +245,6 @@ def add_subjects_to_mapping(study, sheets):
         study.col_map_rows.add((data_file_name, "", 1, "SUBJ_ID", "", "", ""))
 
 
-# def write_column_mapping(col_map_writer):
-#     """Sort and write the column mapping rows."""
-#     col_map_rows_list = list(col_map_rows)
-#     # Sort column mapping on data file name and secondly on column number.
-#     col_map_rows_list.sort(key=lambda x: (x[0], x[2]))
-#     col_map_writer.writerows(col_map_rows_list)
-
-
 def duplicate_subjects_col():
     pass
 
@@ -609,7 +601,7 @@ def write_low_dim_params(study):
 
 
 def process_clinical(study):
-    """Get clinical tempalte and call all clinical processing functions."""
+    """Get clinical template and call all clinical processing functions."""
     clin_template = get_clin_template(study)
     sheets = get_sheet_dict(clin_template)
     study.tree_sheet_name = get_tree_sheet(sheets)
@@ -622,6 +614,15 @@ def process_clinical(study):
     process_word_mapping(study, sheets)
     # Store and write metadata present in tree sheet
     process_clin_metadata(study, sheets)
+    # If present, process general study level metadata template
+    process_general_study_metadata(study)
+
+
+def process_general_study_metadata(study):
+    """Check for general study metadata template and if present write to metadata."""
+    study_metadata_template_path = find_general_study_metadata(study)
+    if study_metadata_template_path:
+        add_general_study_metadata(study, study_metadata_template_path)
 
 
 def open_hd_file_template(study, hd_template):
@@ -633,6 +634,42 @@ def open_hd_file_template(study, hd_template):
     except XLRDError:
         raise TemplateException("High-dim template file at: {0} is not a valid xlsx file.".format(template_path))
     return hd_template_workbook
+
+
+def find_general_study_metadata(study):
+    """If present return the name of the template containing general study level metadata."""
+    all_files = [excel_file for excel_file in glob(study.source_dir + "/*.xls*")]
+    # Try to automatically detect which of the template files contains the clinical data
+    templates = [template for template in all_files if "general study metadata" in template.lower()
+                 and not "~$" in template]
+    study_metadata_template_path = None
+    if len(templates) == 0:
+        print("[WARNING] No general study metadata template could be detected. Make sure the file name contains " +
+              "'general study metadata'.")
+    elif len(templates) > 1:
+        print("[WARNING] Multiple templates detected containing 'general study metadata' in file name. " +
+              "Please provide only one. Templates will now be ignored.")
+    else:
+        study_metadata_template_path = templates[0]
+    return study_metadata_template_path
+
+
+def add_general_study_metadata(study, study_metadata_template_path):
+    "Read the data from general study level metadata temaplate and write to tags file."
+    metadata = pd.ExcelFile(study_metadata_template_path, comment="#")
+
+    if len(metadata.sheet_names) > 1:
+        print("[WARNING] Multiple sheets detected in general study metadata template. Assuming first sheet.")
+    df = metadata.parse(0, header=None)
+    tag_index = 10
+    for __, row in df.iterrows():
+        data = row[row.first_valid_index():].dropna().tolist()
+        if len(data) == 2:
+            tag = data[0]
+            value = data[1]
+            study.all_metadata.add(("\\", tag, value, tag_index))
+            tag_index += 1
+    study.write_metadata(delete=False)
 
 
 def process_high_dim(study):
@@ -693,6 +730,3 @@ def create_study_from_templates(ID, source_dir, output_dir="transmart_files", se
     _epilogue()
 
 # create_study_from_templates(ID="DECODE_WP5_TEMPLATE", source_dir="templatos_finalos_nonfictivus_v2")
-#
-
-
