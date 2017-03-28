@@ -575,7 +575,6 @@ def process_word_mapping(study, sheets):
                        and not 'example' in sheet.lower()]
     Validity(word_map_sheets).list_length(1)
     study.word_map_sheet_name = word_map_sheets[0]
-    #study.word_map_sheet_name = "Value substitution (example)"
     for index, row in sheets[study.word_map_sheet_name].iterrows():
         word_map_row = tuple(row.tolist())
         study.word_map_rows.add(word_map_row)
