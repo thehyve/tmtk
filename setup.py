@@ -12,7 +12,6 @@ else:
     raise RuntimeError("Unable to find version string in {}.".format(VERSIONFILE,))
 
 required_packages = ['pandas',
-                     'rpy2',
                      'ipython',
                      'flask',
                      'jupyter',
@@ -22,7 +21,7 @@ required_packages = ['pandas',
                      ]
 
 if os.environ.get('READTHEDOCS') == 'True':
-    for p in ['pandas', 'rpy2']:
+    for p in ['pandas']:
         required_packages.remove(p)
 
 setuptools.setup(
