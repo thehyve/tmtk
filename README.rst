@@ -18,6 +18,8 @@ Disclaimer
 tmtk is a ``python3`` package meant to be run in ``Jupyter notebooks``.
 Results for other setups may vary.
 
+For documentation visit `readthedocs`_.
+
 Usage
 -----
 
@@ -97,4 +99,5 @@ Authors
 -------
 
 .. _transmart-batch: https://github.com/thehyve/transmart-batch/
+.. _readthedocs: https://tmtk.readthedocs.io/en/latest/
 .. _examples: examples
