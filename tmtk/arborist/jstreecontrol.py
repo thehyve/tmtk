@@ -306,6 +306,7 @@ class ConceptTree:
 
             # Tag paths need to start with slash
             path = node.path.rsplit(Mappings.tags_node_name, 1)[0].strip(Mappings.PATH_DELIM)
+            path = path_converter(path, internal=False)
             path = Mappings.EXT_PATH_DELIM + path
 
             for title, (description, weight, *_) in tags_dict.items():
