@@ -28,7 +28,7 @@ class ColumnMapping(FileBase):
             self.path = os.path.join(params.dirname, params.COLUMN_MAP_FILE)
         else:
             self.path = os.path.join(params.dirname, 'column_mapping_file.txt')
-            self.params['COLUMN_MAP_FILE'] = os.path.basename(self.path)
+            setattr(self.params, 'COLUMN_MAP_FILE', os.path.basename(self.path))
         super().__init__()
 
         self._initial_paths = self.path_id_dict
