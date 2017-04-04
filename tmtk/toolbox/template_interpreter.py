@@ -11,6 +11,7 @@ from random import randint
 from collections import defaultdict
 from xlrd import XLRDError
 
+
 class TemplatedStudy:
     def __init__(self, ID, source_dir, output_dir="transmart_files", sec_req="Y", name=None):
         self.ID = ID
@@ -73,6 +74,7 @@ class TemplatedStudy:
             if delete:
                 self.all_metadata = None
 
+
 class HighDim:
     def __init__(self, output_dir=None, hd_type=None, organism=None, platform_id=None, platform_name=None,
                  genome_build=None, annotation_params_name=None, hd_data_params_name=None):
@@ -97,6 +99,7 @@ class TemplateException(Exception):
         (ID, start) = "HKIbIC9H_Kg", 9
         IPython.display.display(IPython.display.YouTubeVideo(ID, autoplay=1, width=0, height=0, start=start))
 
+
 class Validity:
     def __init__(self, validity_object):
         self.validity_object = validity_object
@@ -105,12 +108,12 @@ class Validity:
         if not os.path.isdir(self.validity_object):
             raise TemplateException("Directory does not exist: {0}".format(self.validity_object))
         elif not os.access(self.validity_object, os.R_OK):
-            raise TemplateException("Directory does not have read access: {0}".format(self.validity_object))
+            raise TemplateException("You do not have read access for this directory: {0}".format(self.validity_object))
 
     def check_output_dir(self):
         if not os.path.exists(self.validity_object):
             os.makedirs(self.validity_object)
-            print("Created output directory at: {0}".format(self.validity_object))
+            print("[INFO] Created output directory at: {0}".format(self.validity_object))
         if not os.access(self.validity_object, os.W_OK):
             raise TemplateException("No write access for given directory path: {0}".format(self.validity_object))
 
@@ -139,23 +142,19 @@ class Validity:
             raise TemplateException(error_message)
         return True
 
-    def check_missing_annotations(self):
-        pass
-
 
 def get_clin_template(study):
     """Try to detect the clinical template file in the source dir and open it with pandas."""
     all_files = [excel_file for excel_file in glob(study.source_dir + "/*.xls*")]
-    #print("\n".join(all_files))
     # Try to automatically detect which of the template files contains the clinical data
     clinical_templates = [template for template in all_files if "clin" in template.lower() and not "~$" in template]
 
 
     if len(clinical_templates) == 1:
         clinical_template_name = clinical_templates[0]
-        print ("Clinical data template detected: " + clinical_template_name)
+        print ("[INFO] Clinical data template detected: " + clinical_template_name)
     else:
-        print(("The clinical data template could not be detected automatically.\n" +
+        print(("[ERROR] The clinical data template could not be detected automatically.\n" +
                "Make sure only one file has 'clinical' in its name."))
     Validity(clinical_templates).list_length(1)
 
@@ -243,10 +242,6 @@ def add_subjects_to_mapping(study, sheets):
     for data_file in data_files:
         data_file_name = get_data_file_name(data_file, sheets, "Low-dimensional")
         study.col_map_rows.add((data_file_name, "", 1, "SUBJ_ID", "", "", ""))
-
-
-def duplicate_subjects_col():
-    pass
 
 
 def reformat_concept_path(concept_cd_series):
@@ -346,12 +341,7 @@ def get_row_section(df, start_value=None, end_value=None):
 
 
 def process_human_names(names_list):
-    """Iterate through list of names and return a single formatted string as metadata value."""
-    # Remove missing part from names
-    # final_names = [list(filter(None, name.split(","))) for name  in names_list]
-    # merged_names = [",".join(name) for name in final_names]
-    # value = ", ".join(merged_names)
-
+    """Return a single formatted string as metadata value."""
     value = ", ".join(names_list)
     return value
 
@@ -540,7 +530,7 @@ def write_clinical_data_sheets(study, sheets):
             clinical_data_sheet = sheets[file]
             write_location = os.path.join(study.clin_output_dir, file) + ".tsv"
             clinical_data_sheet.to_csv(write_location, sep="\t", index=False, na_rep="")
-            print("Clinical data file written at: {0}".format(write_location))
+            print("[INFO] Clinical data file written at: {0}".format(write_location))
 
 
 def process_column_mapping(study, sheets):
@@ -654,7 +644,7 @@ def find_general_study_metadata(study):
 
 
 def add_general_study_metadata(study, study_metadata_template_path):
-    "Read the data from general study level metadata temaplate and write to tags file."
+    "Read the data from general study level metadata template and write to tags file."
     metadata = pd.ExcelFile(study_metadata_template_path, comment="#")
 
     if len(metadata.sheet_names) > 1:
@@ -674,7 +664,7 @@ def add_general_study_metadata(study, study_metadata_template_path):
 def process_high_dim(study):
     """Loop through high-dim templates and write all mapping, platform and (meta)data."""
     for hd_template, concept_cd in study.hd_dict.items():
-        print("Processing high-dim template: {0}".format(hd_template))
+        print("[INFO] Processing high-dim template: {0}".format(hd_template))
         # General processing
         experiment = HighDim()
         experiment.output_dir = get_output_dir(study, hd_template)
@@ -701,7 +691,7 @@ def process_high_dim(study):
         # Params files
         write_platform_params(experiment)
         write_hd_data_params(experiment)
-        print("Completed processing of high-dim template: {0}".format(hd_template))
+        print("[INFO] Completed processing of high-dim template: {0}".format(hd_template))
 
     study.write_metadata()
 
@@ -725,7 +715,5 @@ def create_study_from_templates(ID, source_dir, output_dir="transmart_files", se
     process_clinical(study)
     write_low_dim_params(study)
     process_high_dim(study)
-    print("Templates processed successfully!")
+    print("[INFO] Templates processed successfully!")
     _epilogue()
-
-# create_study_from_templates(ID="DECODE_WP5_TEMPLATE", source_dir="templatos_finalos_nonfictivus_v2")
