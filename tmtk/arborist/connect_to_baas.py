@@ -52,8 +52,6 @@ def get_json_from_baas(url, username=None):
     :param username: if no username is given, you will be prompted for one.
     :return: the JSON string from BaaS.
     """
-    url = 'http://' + url.split('//', 1)[-1]
-
     client = start_session(url, username)
     r = client.get(json_url(url))
     r.raise_for_status()
@@ -70,8 +68,6 @@ def publish_to_baas(url, json, study_name, username=None):
     :param username: if no username is given, you will be prompted for one.
     :return: the url that points to the study you've just uploaded.
     """
-    url = 'http://' + url.split('//', 1)[-1]
-
     client = start_session(url, username)
     add_study_url = get_instance_url(url) + 'trees/add/'
 

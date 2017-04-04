@@ -72,6 +72,8 @@ class ValidationTests(unittest.TestCase):
     def test_validate_all(self):
         assert not self.study.validate_all(0)
 
+    def test_tags_validation(self):
+        assert self.study.Tags.validate(0)
 
 if __name__ == '__main__':
     unittest.main()
