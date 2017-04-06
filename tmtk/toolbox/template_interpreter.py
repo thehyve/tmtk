@@ -9,7 +9,6 @@ import pandas as pd
 from glob import glob
 from random import randint
 from collections import defaultdict
-from xlrd import XLRDError
 
 
 class TemplatedStudy:
@@ -203,9 +202,11 @@ def construct_concept_cd(row, previous_row, study):
     # Incorporate the new concept_cd info into what was already known from the previous row(s)
     else:
         new_values = row[row.first_valid_index():]
-        first_col_name = new_values.keys()[0]
+        # Find the highest node that is different from the previous concept path
+        first_new_col_name = [col for col, value in new_values.iteritems() if value != previous_row[col]][0]
         # Replace values in the previous concept code with those from the new row
-        previous_row[first_col_name:] = new_values
+        previous_row[first_new_col_name:] = new_values[first_new_col_name:]
+        # To do: build check that makes sure there are no nan values in newly created concept_cd
         concept_cd = previous_row
 
     return concept_cd
