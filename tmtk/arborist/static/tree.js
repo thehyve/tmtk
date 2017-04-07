@@ -1,4 +1,5 @@
 var node, jstree, tagBuffer;
+var defaultTagWeight = 5;
 
 // Add jstree json to the submit form as hidden parameter.
 $("#edit_form").submit( function() {
@@ -55,7 +56,7 @@ $(function () {
         $.ajax({
             method: "POST",
             contentType: "application/json",
-            url: base_url + '/transmart-arborist',
+            url: base_url + 'transmart-arborist',
             data: stringTree(),
             beforeSend: function(request) {
                 return request.setRequestHeader("X-XSRFToken", getCookie('_xsrf'));
@@ -111,13 +112,14 @@ function replacerTemplate(key, value) {
 
 // Button to check if tag table is filled and if so add new tag
 function add_tags_feedback () {
-    var empty = $('#tagbox div').filter(function() {
+    var empty = $('.tag-container div').filter(function() {
         return $(this).text() == "";
     });
-    console.log(empty);
     if (empty.length) {
         showAlert("Fill all fields to add new row.", true);
     } else {
+        sortTags();
+        // Add a new empty row
         createTagRow();
         // The popover has to be initialized
         activateTagPopover();
@@ -132,11 +134,11 @@ function process_tags (obj) {
     // Reset tags object to clear all existing tags
     node.data.tags = {};
 
-    $("#tagbox li").each(function(){
+    $(".tag-container li").each(function(){
 
         var title = $(this).find('.list-tag-title').text();
         var desc = $(this).find('.list-tag-description').text();
-        var weight = $(this).find('.list-tag-weight').text() || 3;
+        var weight = $(this).find('.list-tag-weight').text() || defaultTagWeight;
 
         console.log('Tag found: ' + title + ': ' + desc + ' (' + weight + ').');
 
@@ -146,15 +148,20 @@ function process_tags (obj) {
             node.data.tags[title] = [desc, weight];
         }
     });
-    add_tags_feedback()
+    showAlert("Tags saved.")
 }
+
+$("button#tag-add").on('click', function () {
+    add_tags_feedback();
+});
+
+$("button#tag-save").on('click', function () {
+    process_tags();
+    sortTags();
+});
 
 $("form#datanodedetails").submit(function (e) {
     e.preventDefault();
-    if (node.type == 'tag') {
-        process_tags();
-        return;
-    }
     var new_label = $("#datalabel").val();
     var updated = jstree.rename_node(node, new_label);
 
@@ -191,26 +198,26 @@ function enableRightFields(type) {
     if ($.inArray(type, ['numeric', 'categorical', 'codeleaf', 'empty']) > -1) {
         $('.label').prop('hidden', false);
         $('.clinicaldata').prop('hidden', false);
-        $('#tagbox').prop('hidden', true);
+        $('.metadata').prop('hidden', true);
         $('.hdtagdata').prop('hidden', true);
         $('.dfv').prop('hidden', true);
     } else if (type == 'tag') {
         console.log('Enable tags fields.');
-        $('#tagbox').prop('hidden', false);
+        $('.metadata').prop('hidden', false);
         $('.clinicaldata').prop('hidden', true);
         $('.label').prop('hidden', true);
         $('.hdtagdata').prop('hidden', true);
         $('.dfv').prop('hidden', true);
     } else if (type == 'highdim') {
         console.log('Enable highdim fields.');
-        $('#tagbox').prop('hidden', true);
+        $('.metadata').prop('hidden', true);
         $('.clinicaldata').prop('hidden', true);
         $('.hdtagdata').prop('hidden', false);
         $('.label').prop('hidden', false);
         $('.dfv').prop('hidden', true);
     } else {
         $('.label').prop('hidden', false);
-        $('#tagbox').prop('hidden', true);
+        $('.metadata').prop('hidden', true);
         $('.hdtagdata').prop('hidden', true);
         $('.clinicaldata').prop('hidden', true);
         $('.dfv').prop('hidden', true);
@@ -249,6 +256,7 @@ function customMenu(node) {
                     setTimeout(function () {
                         jstree.deselect_all();
                         jstree.select_node(new_node);
+                        add_tags_feedback();
                     }, 100);
                 });
             }
@@ -305,26 +313,62 @@ function customMenu(node) {
     return items;
 }
 
+function sortTags () {
+    $('.tag-container > .trigger').sort(function (a, b) {
+
+        var aEmpty = false;
+        $(a).find('span').each(function() {
+            if ($.trim($(this).html()) == '') {
+                aEmpty = true;
+            }
+        });
+
+        var bEmpty = false;
+        $(b).find('span').each(function() {
+            if ($.trim($(this).html()) == '') {
+                bEmpty = true;
+            }
+        });
+
+        if ( aEmpty ^ bEmpty ) { // XOR -> sink tags with empties to bottom.
+            return aEmpty ? 1 : -1;
+        }
+
+        var weightA = parseInt($(a).children('.list-tag-weight').text());
+        var weightB = parseInt($(b).children('.list-tag-weight').text());
+
+        var weightsDiffer = (weightA < weightB) ? -1 : (weightA > weightB) ? 1 : 0;
+        var textDiffer = (a.innerText < b.innerText) ? -1 : (a.innerText > b.innerText) ? 1 : 0;
+        return weightsDiffer ? weightsDiffer : textDiffer;
+    }).appendTo('.tag-container');
+}
+
 function createTagRow(){
     // Add new row to tags list and return it
-
     var tr = $('<li class="list-group-item trigger"></li>')
+        .append('<button class="tag tag-danger tag-delete">del</button>')
+        .append('<span class="tag tag-default list-group-item-number list-tag-weight">'+ defaultTagWeight +'</span>')
         .append('<div class="list-tag-row"><span class="list-group-item-heading list-tag-title"></div>')
-        .append('<div class="list-tag-row"><span class="list-group-item-text list-tag-description"></span></div>')
-        .append('<span hidden class="list-group-item-number list-tag-weight"></span>');
+        .append('<div class="list-tag-row"><span class="list-group-item-text list-tag-description"></span></div>');
 
     $(".tag-container").append(tr);
     return tr;
 }
 
 function activateTagPopover() {
+    // Activate delete buttons
+    $('.tag-delete').on('click', function() {
+        var tagRow = $(this).closest(".trigger");
+        tagRow.popover('hide'); // remove all existing popovers;
+        tagRow.remove();
+    });
     $('.trigger').popover({
         html: true,
         title: "Edit tag properties",
         content: function () {
             var title = $(this).find(".list-group-item-heading").text();
             var description = $(this).find(".list-group-item-text").text();
-            var weight = $(this).find(".list-group-item-number").text() || 3;
+            var weight = $(this).find(".list-group-item-number").text() || defaultTagWeight;
 
             var form = $('<form></form>');
             form.append('<label>Title</label>');
@@ -348,22 +392,28 @@ function activateTagPopover() {
         })
         .on('shown.bs.popover', function () {
             var listItem = $(this);
-            var tagDescription = $(".tag-description");
 
-            tagDescription.on('keypress', function (e) {
+            $('.popover-content').find(':input').on('keypress', function (e) {
                 if ((e.keyCode || e.which) == 13) {
                     e.preventDefault();
-                    $("form#datanodedetails").submit();
+                    if(event.shiftKey) {
+                        $("button#tag-add").click();
+                    } else {
+                        $("button#tag-save").click();
+                    }
                 }
             });
-            tagDescription.keyup(function (e) {
+            $(".tag-description").keyup(function (e) {
                 listItem.find('.list-tag-description').text($(this).val());
             });
             $(".tag-title").keyup(function() {
                 listItem.find('.list-tag-title').text($(this).val());
             });
-            $(".tag-weight").keyup(function() {
-                listItem.find('.list-tag-weight').text($(this).val());
+            $(".tag-weight").on("change paste keyup", function() {
+                var newWeight = ($(this).val() <= 99) ? $(this).val() : 99;
+                newWeight = (newWeight >= 1) ? newWeight : 1;
+                listItem.find('.list-tag-weight').text(newWeight);
+                sortTags();
             });
         });
 }
@@ -492,8 +542,7 @@ $('#tree-div')
                         tagRow.find('.list-tag-weight').text(node.data.tags[key][1]);
                     }
                 }
-                // Add single empty row
-                createTagRow();
+                sortTags();
                 // The popover has to be initialized
                 activateTagPopover();
             }
@@ -668,13 +717,13 @@ var templateMap = {"button#fair-study-metadata" : {
                         path: static_base + "/templates/fair_study.metadata.json",
 //                        name: "FAIR study level",
 //                        category: "Metadata",
-                        alertText: "Metadata template for FAIR metadata applied!",
+                        alertText: "Metadata template for FAIR metadata applied!"
                         },
                    "button#trait-master" : {
                         path: static_base + "/templates/trait_master_tree.template.json",
 //                        name: "TraIT Master Tree",
 //                        category: "Master",
-                        alertText: "TraIT master template applied!",
+                        alertText: "TraIT master template applied!"
                         }
 };
 
@@ -690,8 +739,8 @@ function getTemplateCallback(button, filename, alertText) {
         $.getJSON(filename, function(template) {
             applyTemplate(template);
         })
-            .success( showAlert(alertText) )
-            .error( console.log("Cannot apply, found an error in JSON.") );
+            .success(function(){ showAlert(alertText)})
+            .fail(function(jqXHR, textStatus, errorThrown) { console.log("Cannot apply, found an error in JSON: " + errorThrown)})
     });
 }
 
@@ -723,9 +772,36 @@ $(document).ready(function(){
     $("#datalabel").keyup(function(){
         jstree.rename_node(node, $(this).val());
     });
-});
-$(document).ready(function(){
     $("#bottom-btns").on('click', function() {
         $(".trigger").popover('hide'); // remove all existing popovers;
     });
+});
+
+function changeWeight(up) {
+    var target = $('.tag-container .active').children('.list-tag-weight');
+    if (target.length != 1) {
+        return undefined;
+    }
+    var increment = up ? 1 : -1;
+    var newValue = parseInt(target.text() || defaultTagWeight) + increment || 1; // Don't go below 1
+    newValue = (newValue <= 99) ? newValue : 99;
+    target.text(newValue);
+    $('.popover-content').find('.tag-weight').val(newValue);
+    sortTags();
+}
+
+$(document).keydown(function(e) {
+    switch(e.which) {
+
+        case 38: // up
+        changeWeight(false);
+        break;
+
+        case 40: // down
+        changeWeight(true);
+        break;
+
+        default: return; // exit this handler for other keys
+    }
+    e.preventDefault(); // prevent the default action (scroll / move caret)
 });
