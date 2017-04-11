@@ -454,7 +454,7 @@ def process_clin_metadata(study, sheets):
         concept_cd_series = construct_concept_cd(row, previous_concept_cd_series, study)
         create_metadata(row, concept_cd_series, index_counter, study)
         previous_concept_cd_series = concept_cd_series
-    study.write_metadata(delete=False)
+    study.write_metadata()
 
 
 def write_low_dim_params(study):
@@ -533,7 +533,7 @@ def add_general_study_metadata(study, study_metadata_template_path):
             value = data[1]
             study.all_metadata.add(("\\", tag, value, tag_index))
             tag_index += 1
-    study.write_metadata(delete=False)
+    study.write_metadata()
 
 
 def process_high_dim(study):

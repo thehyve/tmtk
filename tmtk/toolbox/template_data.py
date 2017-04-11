@@ -42,12 +42,10 @@ class TemplatedStudy:
             writer.writerow(header)
             writer.writerows(data_as_list)
 
-    def write_column_mapping(self, delete=True):
+    def write_column_mapping(self):
         """Sort rows on data file and column number, then write the column mapping rows."""
         output_path = os.path.join(self.clin_output_dir, self.col_map_file_name)
         self._sort_write(self.col_map_rows, 0, 2, output_path, self.col_map_header)
-        if delete:
-            self.col_map_rows = None
         print("Column mapping file written at: {0}".format(output_path))
 
     def write_word_mapping(self):
@@ -57,14 +55,12 @@ class TemplatedStudy:
             self._sort_write(self.word_map_rows, 0, 1, output_path, self.word_map_header)
             print("Word mapping file written at: {0}".format(output_path))
 
-    def write_metadata(self, delete=True):
+    def write_metadata(self):
         """Sort rows on concept_path and tag index, then write the metadata rows."""
         if self.all_metadata:
             os.makedirs(self.metadata_output_dir, exist_ok=True)
             output_path = os.path.join(self.metadata_output_dir, self.metadata_file_name)
             self._sort_write(self.all_metadata, 0, 3, output_path, self.metadata_header)
-            if delete:
-                self.all_metadata = None
 
 
 class HighDim:
