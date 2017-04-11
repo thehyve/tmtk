@@ -1,7 +1,7 @@
 import csv
 import os
 
-from .template_validator import Validity
+from tmtk.toolbox import template_validation as Validity
 
 
 class TemplatedStudy:

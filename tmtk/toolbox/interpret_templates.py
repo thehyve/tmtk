@@ -10,8 +10,8 @@ import IPython
 import numpy as np
 import pandas as pd
 
+from tmtk.toolbox import template_validation as Validity
 from .template_data import TemplatedStudy, HighDim
-from .template_validator import TemplateException, Validity
 
 
 def get_clin_template(study):
@@ -196,7 +196,7 @@ def get_template_type(experiment, hd_template_description):
         experiment.annotation_params_name = "rnaseq_annotation.params"
         experiment.hd_data_params_name = "rnaseq.params"
     else:
-        raise TemplateException("Could not detect template type from description in first row:\n" +
+        raise Validity.TemplateException("Could not detect template type from description in first row:\n" +
                                 hd_template_description)
 
 
@@ -494,9 +494,9 @@ def open_hd_file_template(study, hd_template):
     try:
         hd_template_workbook = pd.ExcelFile(template_path, comment="#")
     except FileNotFoundError:
-        raise TemplateException("Could not find high-dim template file at: {0}".format(template_path))
+        raise Validity.TemplateException("Could not find high-dim template file at: {0}".format(template_path))
     except XLRDError:
-        raise TemplateException("High-dim template file at: {0} is not a valid xlsx file.".format(template_path))
+        raise Validity.TemplateException("High-dim template file at: {0} is not a valid xlsx file.".format(template_path))
     return hd_template_workbook
 
 
