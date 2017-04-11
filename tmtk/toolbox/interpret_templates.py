@@ -2,144 +2,16 @@
 
 import os
 import re
-import csv
+from collections import defaultdict
+from glob import glob
+from random import randint
+
 import IPython
 import numpy as np
 import pandas as pd
-from glob import glob
-from random import randint
-from collections import defaultdict
 
-
-class TemplatedStudy:
-    def __init__(self, ID, source_dir, output_dir="transmart_files", sec_req="Y", name=None):
-        self.ID = ID
-        self.name = name
-        self.source_dir = source_dir
-        self.output_dir = output_dir
-        self.sec_req = sec_req
-
-        self.metadata_output_dir = os.path.join(self.output_dir, "tags")
-        self.clin_output_dir = os.path.join(self.output_dir, "clinical")
-        self.col_map_rows = set()
-        self.word_map_rows = set()
-        self.all_metadata = set()
-        self.hd_dict = {}
-        self.col_map_file_name = self.ID + "_column_mapping.tsv"
-        self.word_map_file_name = self.ID + "_word_mapping.tsv"
-        self.metadata_file_name = self.ID + "_tags.tsv"
-        self.tree_sheet_name = None
-        self.word_map_sheet_name = None
-        self.col_map_header = ("Filename", "Category Code", "Column Number", "Data Label", "Data Label Source",
-                               "Control Vocab Cd", "Concept Type")
-        self.word_map_header = ("Filename", "Column Number", "Datafile Value", "Mapping Value")
-        self.metadata_header = ("concept_key", "tag_title", "tag_description", "index")
-
-        Validity(source_dir).check_source_dir()
-        Validity(output_dir).check_output_dir()
-        os.makedirs(self.clin_output_dir, exist_ok=True)
-
-    def _sort_write(self, data, key1, key2, output_path, header):
-        """Sort and write the input data."""
-        data_as_list = list(data)
-        data_as_list.sort(key=lambda x: (x[key1], x[key2]))
-
-        with open(output_path, "w") as output_file:
-            writer = csv.writer(output_file, delimiter='\t', quotechar=None)
-            writer.writerow(header)
-            writer.writerows(data_as_list)
-
-    def write_column_mapping(self, delete=True):
-        """Sort rows on data file and column number, then write the column mapping rows."""
-        output_path = os.path.join(self.clin_output_dir, self.col_map_file_name)
-        self._sort_write(self.col_map_rows, 0, 2, output_path, self.col_map_header)
-        if delete:
-            self.col_map_rows = None
-        print("Column mapping file written at: {0}".format(output_path))
-
-    def write_word_mapping(self):
-        """Sort rows on data file and column nubmer, then write the word mapping rows."""
-        if self.word_map_rows:
-            output_path = os.path.join(self.clin_output_dir, self.word_map_file_name)
-            self._sort_write(self.word_map_rows, 0, 1, output_path, self.word_map_header)
-            print("Word mapping file written at: {0}".format(output_path))
-
-    def write_metadata(self, delete=True):
-        """Sort rows on concept_path and tag index, then write the metadata rows."""
-        if self.all_metadata:
-            os.makedirs(self.metadata_output_dir, exist_ok=True)
-            output_path = os.path.join(self.metadata_output_dir, self.metadata_file_name)
-            self._sort_write(self.all_metadata, 0, 3, output_path, self.metadata_header)
-            if delete:
-                self.all_metadata = None
-
-
-class HighDim:
-    def __init__(self, output_dir=None, hd_type=None, organism=None, platform_id=None, platform_name=None,
-                 genome_build=None, annotation_params_name=None, hd_data_params_name=None):
-        self.output_dir = output_dir
-        self.hd_type = hd_type
-        self.organism = organism
-        self.platform_id = platform_id
-        self.platform_name = platform_name
-        self.genome_build = genome_build
-        self.annotation_params_name = annotation_params_name
-        self.hd_data_params_name = hd_data_params_name
-
-        self.platform_annotation_ids = set()
-        self.data_annotation_ids = set()
-
-
-class TemplateException(Exception):
-    def __init__(self, Exception):
-        self.epilogue()
-
-    def epilogue(self):
-        (ID, start) = "HKIbIC9H_Kg", 9
-        IPython.display.display(IPython.display.YouTubeVideo(ID, autoplay=1, width=0, height=0, start=start))
-
-
-class Validity:
-    def __init__(self, validity_object):
-        self.validity_object = validity_object
-
-    def check_source_dir(self):
-        if not os.path.isdir(self.validity_object):
-            raise TemplateException("Directory does not exist: {0}".format(self.validity_object))
-        elif not os.access(self.validity_object, os.R_OK):
-            raise TemplateException("You do not have read access for this directory: {0}".format(self.validity_object))
-
-    def check_output_dir(self):
-        if not os.path.exists(self.validity_object):
-            os.makedirs(self.validity_object)
-            print("[INFO] Created output directory at: {0}".format(self.validity_object))
-        if not os.access(self.validity_object, os.W_OK):
-            raise TemplateException("No write access for given directory path: {0}".format(self.validity_object))
-
-    def check_uniformity(self, allow_nan=False):
-        for item in self.validity_object:
-            if not allow_nan and pd.isnull(item).any():
-                raise TemplateException("Mandatory data series '{0}' has missing values: ".format(item.name) +
-                                        str(set(item)))
-            values = set(item)
-            if len(values) != 1:
-                raise TemplateException(("Multiple values detected in data series '{0}' expected" +
-                                         " to be uniform: ").format(item.name) + str(values))
-
-    def check_uniqueness(self):
-        for item in self.validity_object:
-            duplicates = item[item.duplicated(keep=False)]
-            if len(duplicates) != 0:
-                raise TemplateException(("Duplicates detected in data series '{0}' that should be " +
-                                         "unique: ").format(item.name) + str(set(duplicates)))
-
-    def list_length(self, expected):
-        length = len(self.validity_object)
-        correct_length = length == expected
-        if not correct_length:
-            error_message = "Incorrect list length: {0}, expected: {1}".format(length, expected)
-            raise TemplateException(error_message)
-        return True
+from .template_data import TemplatedStudy, HighDim
+from .template_validator import TemplateException, Validity
 
 
 def get_clin_template(study):
@@ -155,7 +27,7 @@ def get_clin_template(study):
     else:
         print(("[ERROR] The clinical data template could not be detected automatically.\n" +
                "Make sure only one file has 'clinical' in its name."))
-    Validity(clinical_templates).list_length(1)
+    Validity.list_length(clinical_templates, expected=1)
 
     clin_template = clinical_templates[0]
     clin_template = pd.ExcelFile(clin_template, comment="#")
@@ -172,7 +44,7 @@ def get_tree_sheet(sheets):
     """Detect the name of sheet in the clinical template that contains the tree structure."""
 
     tree_sheets = [sheet for sheet in sheets if "tree" in sheet.lower() and not "example" in sheet.lower()]
-    Validity(tree_sheets).list_length(1)
+    Validity.list_length(tree_sheets, expected=1)
     tree_sheet_name = tree_sheets[0]
 
     return tree_sheet_name
@@ -196,9 +68,11 @@ def construct_concept_cd(row, previous_row, study):
         # Get name of the study from first tree row
         if not study.name:
             study.name = concept_cd["Level 1"]
+
     # If the new row doesn't contain concept_cd info, keep the concept_cd as it was
     elif not row.any():
         concept_cd = previous_row
+        
     # Incorporate the new concept_cd info into what was already known from the previous row(s)
     else:
         new_values = row[row.first_valid_index():]
@@ -230,7 +104,7 @@ def split_concept_cd(concept_cd, join_char="+"):
 def subjects_in_tree(study, sheets):
     """Check if the subjects are present in the tree structure template"""
     tree_sheet = sheets[study.tree_sheet_name]
-    column_numbers = tree_sheet["Column number (starting from 1)"]
+    column_numbers = tree_sheet["Column number"]
     subjects_in_tree = 1 in column_numbers.tolist()
     return subjects_in_tree
 
@@ -365,7 +239,7 @@ def extract_hd_metadata(sheet, concept_cd, experiment, study):
                 continue
             elif tag in ('Submitter name(s)', 'Data owner/PI name'):
                 value = process_human_names(row[1:])
-            elif Validity(row[1:]).list_length(1):
+            elif Validity.list_length(row[1:], expected=1):
                 value = row[1]
             if tag == "Genome build":
                 experiment.genome_build = value
@@ -432,8 +306,8 @@ def Determine_hd_properties(ss_data, experiment):
     """Validate the ss-mapping columns and save the info needed for the params files in the HD class instance."""
     uniform_props = {col: ss_data[col] for col in ["Platform", "Platform name", "Organism"]}
     unique_props = {col: ss_data[col] for col in ["Sample ID"]}
-    Validity(uniform_props.values()).check_uniformity()
-    Validity(unique_props.values()).check_uniqueness()
+    Validity.check_uniformity(uniform_props.values())
+    Validity.check_uniqueness(unique_props.values())
     experiment.organism = uniform_props["Organism"][0]
     experiment.platform_id = uniform_props["Platform"][0]
     experiment.platform_name = uniform_props["Platform name"][0]
@@ -449,7 +323,7 @@ def read_hd_sheets(hd_template):
 
     # Check if each expected sheet is found exactly once
     for sheet in [metadata_samples_sheets, platform_sheets, data_sheets]:
-        Validity(sheet).list_length(1)
+        Validity.list_length(sheet, expected=1)
 
     metadata_samples_sheet = hd_template.parse(metadata_samples_sheets[0], comment=None)
     platform_sheet = hd_template.parse(platform_sheets[0], comment="#")
@@ -458,7 +332,7 @@ def read_hd_sheets(hd_template):
     return (metadata_samples_sheet, platform_sheet, data_sheet)
 
 
-def process_platform(platform_sheet, experiment, validate=True):
+def process_platform(platform_sheet, experiment):
     """To each type of platform add the required columns and send the result to the write function."""
     if experiment.hd_type == "RNA_Microarray":
         platform_sheet.insert(0, "GPL_ID", experiment.platform_id)
@@ -544,12 +418,12 @@ def process_column_mapping(study, sheets):
     for index, row in sheets[study.tree_sheet_name].iterrows():
         data_type = row["tranSMART data type"]
         data_file = get_data_file_name(row["Sheet name/File name"], sheets, data_type)
+        col_nr = int(row["Column number"]) if not np.isnan(row["Column number"]) else None
         concept_cd_series = construct_concept_cd(row, previous_concept_cd_series, study)
         concept_code = create_concept_cd(concept_cd_series, "+")
 
-        if data_type == "Low-dimensional":
+        if data_type == "Low-dimensional" and col_nr:
             category_code, data_label = split_concept_cd(concept_code)
-            col_nr = int(row["Column number (starting from 1)"])
             col_map_row = (data_file, category_code, col_nr, data_label, "", "", "")
             study.col_map_rows.add(col_map_row)
 
@@ -564,7 +438,7 @@ def process_word_mapping(study, sheets):
     """If present, write word mapping rows to file."""
     word_map_sheets = [sheet for sheet in sheets if "value substitution" in sheet.lower()
                        and not 'example' in sheet.lower()]
-    Validity(word_map_sheets).list_length(1)
+    Validity.list_length(word_map_sheets, expected=1)
     study.word_map_sheet_name = word_map_sheets[0]
     for index, row in sheets[study.word_map_sheet_name].iterrows():
         word_map_row = tuple(row.tolist())
