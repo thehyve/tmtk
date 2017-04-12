@@ -358,8 +358,14 @@ def process_platform(platform_sheet, experiment):
 def process_hd_data(data_sheet, experiment):
     """Send the df from the data sheet to the write function."""
     output_file_name = experiment.hd_type + "_data.tsv"
+
+    if experiment.hd_type in ["aCGH", "CNA_DNA-Seq"]:
+        data_sheet = edit_header_values(data_sheet, experiment)
+
     write_hd_df(data_sheet, experiment.output_dir, output_file_name)
 
+def edit_header_values(data_sheet, experiment):
+    pass
 
 def write_platform_params(experiment):
     """Write HD annotations params file."""

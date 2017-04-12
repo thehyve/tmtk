@@ -17,7 +17,8 @@ required_packages = ['pandas',
                      'jupyter',
                      'requests',
                      'tqdm',
-                     'mygene>=3.0.0'
+                     'mygene>=3.0.0',
+                     'xlrd>=1.0.0'
                      ]
 
 if os.environ.get('READTHEDOCS') == 'True':

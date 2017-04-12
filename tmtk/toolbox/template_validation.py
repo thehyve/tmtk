@@ -50,6 +50,6 @@ def list_length(item_list, expected):
     length = len(item_list)
     correct_length = length == expected
     if not correct_length:
-        error_message = "Incorrect list length: {0}, expected: {1}".format(length, expected)
+        error_message = "Incorrect list length: {0}, expected {1}, for list: {2}".format(length, expected, item_list)
         raise TemplateException(error_message)
     return True
