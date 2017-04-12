@@ -1,5 +1,9 @@
 import setuptools
+from setuptools.command.install import install
+from setuptools.command.develop import develop
+
 import os
+import subprocess
 import re
 
 VERSIONFILE=os.path.join('tmtk', '__init__.py')
@@ -13,8 +17,9 @@ else:
 
 required_packages = ['pandas',
                      'ipython',
-                     'flask',
-                     'jupyter',
+                     'jupyter>=1.0.0',
+                     'jupyter-client>=5.0.0',
+                     'jupyter-core>=4.3.0',
                      'requests',
                      'tqdm',
                      'mygene>=3.0.0'
@@ -23,6 +28,29 @@ required_packages = ['pandas',
 if os.environ.get('READTHEDOCS') == 'True':
     for p in ['pandas']:
         required_packages.remove(p)
+
+
+def _ask_for_extension_install():
+    print('\nFor the Arborist to work we need to install a jupyter serverextension using:')
+    print(' - jupyter nbextension install --py tmtk.arborist')
+    print(' - jupyter serverextension enable --py tmtk.arborist')
+
+    if input("Want to proceed with that (Y/n)? ") in ('Y', 'y', ''):
+        subprocess.call(["jupyter", "nbextension", "install", "--py", "tmtk.arborist"])
+        subprocess.call(["jupyter", "serverextension", "enable", "--py", "tmtk.arborist"])
+
+
+class HookedInstall(install):
+    def run(self):
+        install.run(self)
+        _ask_for_extension_install()
+
+
+class HookedDevelop(develop):
+    def run(self):
+        install.run(self)
+        _ask_for_extension_install()
+
 
 setuptools.setup(
     name="tmtk",
@@ -50,4 +78,9 @@ setuptools.setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
+
+    cmdclass={
+        'install': HookedInstall,
+        'develop': HookedDevelop
+    }
 )

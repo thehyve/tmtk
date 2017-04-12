@@ -34,15 +34,32 @@ function serveDownload(filename, text) {
 
 // Keep this for the embedded return from Jupyter Notebooks
 $(function () {
-    $('button#embeded_return').bind('click', function () {
-        var tree = stringTree();
 
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    };
+
+    $('button#embeded_return').bind('click', function () {
         $.ajax({
             method: "POST",
             contentType: "application/json",
-            url: shutdown_url,
-            data: tree
-        })
+            url: '/transmart-arborist',
+            data: stringTree(),
+            beforeSend: function(request) {
+                return request.setRequestHeader("X-XSRFToken", getCookie('_xsrf'));
+            }})
             .fail(function () {
                 showAlert("Error encountered in saving column mapping file.", true);
             });
@@ -499,32 +516,32 @@ $('#tree-div')
 
         "types": {
             "default": {
-                "icon": "/static/images/tree/folder.gif"
+                "icon": "/nbextensions/transmart-arborist/images/tree/folder.gif"
             },
             "alpha": {
-                "icon": "/static/images/tree/alpha.gif",
+                "icon": "/nbextensions/transmart-arborist/images/tree/alpha.gif",
                 "valid_children": ["tag"]
             },
             "categorical": {
-                "icon": "/static/images/tree/folder.gif"
+                "icon": "/nbextensions/transmart-arborist/images/tree/folder.gif"
             },
             "numeric": {
-                "icon": "/static/images/tree/numeric.gif",
+                "icon": "/nbextensions/transmart-arborist/images/tree/numeric.gif",
                 "valid_children": ["tag"]
             },
             "highdim": {
-                "icon": "/static/images/tree/dna_icon.png",
+                "icon": "/nbextensions/transmart-arborist/images/tree/dna_icon.png",
                 "valid_children": ["tag"]
             },
             "empty": {
-                "icon": "/static/images/tree/empty.png"
+                "icon": "/nbextensions/transmart-arborist/images/tree/empty.png"
             },
             "tag": {
-                "icon": "/static/images/tree/tag_icon.png",
+                "icon": "/nbextensions/transmart-arborist/images/tree/tag_icon.png",
                 "valid_children": "none"
             },
             "codeleaf": {
-                "icon": "/static/images/tree/code.png",
+                "icon": "/nbextensions/transmart-arborist/images/tree/code.png",
                 "valid_children": ["alpha", "tag"]
             }
         },
@@ -642,20 +659,19 @@ function isSameString (a , b){
 // Applying functions to buttons that can be selected in html dropdown
 function applyTemplate (template) {
     console.log('Applying template.');
-    var tree = $('#tree-div').jstree(true);
-    var currentTreeState = tree.get_json('#');
-    tree.settings.core.data = merge(true, currentTreeState, template, "text");
-    tree.refresh();
+    var currentTreeState = jstree.get_json('#');
+    jstree.settings.core.data = merge(true, currentTreeState, template, "text");
+    jstree.refresh();
 }
 
 var templateMap = {"button#fair-study-metadata" : {
-                        path: "/static/templates/fair_study.metadata.json",
+                        path: "/nbextensions/transmart-arborist/templates/fair_study.metadata.json",
 //                        name: "FAIR study level",
 //                        category: "Metadata",
                         alertText: "Metadata template for FAIR metadata applied!",
                         },
                    "button#trait-master" : {
-                        path: "/static/templates/trait_master_tree.template.json",
+                        path: "/nbextensions/transmart-arborist/templates/trait_master_tree.template.json",
 //                        name: "TraIT Master Tree",
 //                        category: "Master",
                         alertText: "TraIT master template applied!",

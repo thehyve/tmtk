@@ -2,9 +2,9 @@
 <html lang="en" style="height: 100%!important;">
 <!--<html lang="en">-->
 <head>
-  <link rel="stylesheet" href="/static/jstree/dist/themes/default/style.min.css"/>
-  <link rel="stylesheet" href="/static/bootstrap-4.0.0a5.css"/>
-  <link rel="stylesheet" href="/static/mainstyle.css"/>
+  <link rel="stylesheet" href="/nbextensions/transmart-arborist/jstree/dist/themes/default/style.min.css"/>
+  <link rel="stylesheet" href="/nbextensions/transmart-arborist/bootstrap-4.0.0a5.css"/>
+  <link rel="stylesheet" href="/nbextensions/transmart-arborist/mainstyle.css"/>
 </head>
 <body>
 
@@ -15,7 +15,7 @@
     <div id="tree-div"></div>
     <div id="search-container">
       <input class="form-control" type="text" id="search-box" placeholder="Search..."/>
-      <img id="search_spinner" src="/static/images/spin.svg">
+      <img id="search_spinner" src="/nbextensions/transmart-arborist/images/spin.svg">
     </div>
     <div class="alert fade show" id="myAlert" role="alert">
       <strong><span id="alert-text"></span></strong>
@@ -124,11 +124,10 @@
 
   <script type="application/javascript">
     var treeData = {{ json | safe }};
-    var shutdown_url = "{{ url_for('shutdown', treefile=treefile) }}";
   </script>
 
-  <script src="/static/jquery-1.11.1.js"></script>
-  <script src="/static/jstree/dist/jstree.min.js"></script>
-  <script src="/static/tether-1.2.0.js"></script>
-  <script src="/static/bootstrap-4.0.0a5.js"></script>
-  <script src="/static/tree.js"></script>
+  <script src="/nbextensions/transmart-arborist/jquery-1.11.1.js"></script>
+  <script src="/nbextensions/transmart-arborist/jstree/dist/jstree.min.js"></script>
+  <script src="/nbextensions/transmart-arborist/tether-1.2.0.js"></script>
+  <script src="/nbextensions/transmart-arborist/bootstrap-4.0.0a5.js"></script>
+  <script src="/nbextensions/transmart-arborist/tree.js"></script>

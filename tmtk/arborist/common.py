@@ -1,9 +1,7 @@
-import socket
 import os
 import pandas as pd
 import shutil
 import time
-from threading import Thread
 from IPython.display import display, IFrame, clear_output
 import tempfile
 
@@ -52,28 +50,21 @@ def launch_arborist_gui(json_data: str, height=650):
     :param height:
     :return:
     """
-    from .flask_connection import app
-
-    # Create a thread for the GUI app and start it.
-    port = get_open_port()
-    app_thread = Thread(target=app.run, kwargs={'port': port})
-    app_thread.start()
 
     new_temp_dir = tempfile.mkdtemp()
-    tmp_json = new_temp_dir + '/tmp_json'
+    tmp_json = os.path.join(new_temp_dir, 'tmp_json')
 
     with open(tmp_json, 'w') as f:
         f.write(json_data)
 
-    running_on = 'http://localhost:{}/treeview/{}'.format(port, os.path.abspath(tmp_json))
+    original_time = int(os.path.getmtime(tmp_json))
 
-    # Add wait for 0.5 second to give flask time to launch
-    time.sleep(0.25)
-
+    running_on = '/transmart-arborist?treefile={}'.format(os.path.abspath(tmp_json))
     display(IFrame(src=running_on, width='100%', height=height))
 
-    # Wait for the GUI app to be killed by user button input
-    app_thread.join()
+    # Wait for the json file to change before breaking the GIL.
+    while original_time == int(os.path.getmtime(tmp_json)):
+        time.sleep(0.25)
 
     # Clear output from Jupyter Notebook cell
     clear_output()
@@ -88,20 +79,6 @@ def launch_arborist_gui(json_data: str, height=650):
     shutil.rmtree(new_temp_dir)
 
     return json_data
-
-
-def get_open_port():
-    """
-    Open an available port (as given by the OS) and return it.
-
-    :return: the port number
-    """
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('', 0))
-    s.listen(1)
-    port = s.getsockname()[1]
-    s.close()
-    return port
 
 
 def update_clinical_from_json(clinical, json_data):

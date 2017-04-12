@@ -516,7 +516,7 @@ class MyEncoder(json.JSONEncoder):
     """ Overwriting the standard JSON Encoder to treat numpy ints as native ints."""
 
     def default(self, obj):
-        if isinstance(obj, pd.np.int64):
+        if isinstance(obj, (pd.np.int64, pd.np.int32)):
             return int(obj)
         elif isinstance(obj, VarID):
             return str(obj)

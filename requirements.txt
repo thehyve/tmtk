@@ -1,7 +1,8 @@
 pandas
 ipython
-flask
-jupyter
+jupyter>=1.0.0
+jupyter-client>=5.0.0
+jupyter-core>=4.3.0
 requests
 tqdm
 mygene>=3.0.0
