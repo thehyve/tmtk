@@ -326,7 +326,8 @@ def read_hd_sheets(hd_template):
         Validity.list_length(sheet, expected=1)
 
     metadata_samples_sheet = hd_template.parse(metadata_samples_sheets[0], comment=None)
-    platform_sheet = hd_template.parse(platform_sheets[0], comment="#")
+    platform_sheet = hd_template.parse(platform_sheets[0], comment="#",
+                                       converters={"CHROMOSOME":str, "START_BP":str, "END_BP":str, "NUM_PROBES":str})
     data_sheet = hd_template.parse(data_sheets[0], comment="#")
 
     return (metadata_samples_sheet, platform_sheet, data_sheet)
@@ -350,6 +351,7 @@ def process_platform(platform_sheet, experiment):
             platform_sheet.insert(5, "NUM_PROBES", np.nan)
     elif experiment.hd_type == "RNA-Seq":
         platform_sheet.insert(0, "GPL_ID", experiment.platform_id)
+        platform_sheet.insert(5, "NUM_PROBES", np.nan)
         platform_sheet["ORGANISM"] = experiment.organism
 
     write_hd_df(platform_sheet, experiment.output_dir, experiment.platform_id + ".tsv", "annotation")
@@ -360,12 +362,20 @@ def process_hd_data(data_sheet, experiment):
     output_file_name = experiment.hd_type + "_data.tsv"
 
     if experiment.hd_type in ["aCGH", "CNA_DNA-Seq"]:
-        data_sheet = edit_header_values(data_sheet, experiment)
+        data_sheet = edit_header(data_sheet)
 
     write_hd_df(data_sheet, experiment.output_dir, output_file_name)
 
-def edit_header_values(data_sheet, experiment):
-    pass
+
+def edit_header(data_sheet):
+    """Replace the columns name suffixes for CNA data df's'"""
+    old_cols = data_sheet.columns
+    new_cols = [col.replace('.call', '.flag') if col.endswith('.call') else
+                col.replace('.ratio', '.chip') if col.endswith('.ratio') else
+                col for col in old_cols]
+    data_sheet.columns = new_cols
+    return data_sheet
+
 
 def write_platform_params(experiment):
     """Write HD annotations params file."""
@@ -498,7 +508,7 @@ def process_general_study_metadata(study):
 def open_hd_file_template(study, hd_template):
     template_path = os.path.join(study.source_dir, hd_template)
     try:
-        hd_template_workbook = pd.ExcelFile(template_path, comment="#")
+        hd_template_workbook = pd.ExcelFile(template_path, comment="#", dtype=object)
     except FileNotFoundError:
         raise Validity.TemplateException("Could not find high-dim template file at: {0}".format(template_path))
     except XLRDError:
