@@ -59,7 +59,9 @@ def launch_arborist_gui(json_data: str, height=650):
 
     original_time = int(os.path.getmtime(tmp_json))
 
-    running_on = '/transmart-arborist?treefile={}'.format(os.path.abspath(tmp_json))
+    base_url = os.environ.get("ARBORIST_BASE_URL", "/")
+
+    running_on = '{}transmart-arborist?treefile={}'.format(base_url, os.path.abspath(tmp_json))
     display(IFrame(src=running_on, width='100%', height=height))
 
     # Wait for the json file to change before breaking the GIL.

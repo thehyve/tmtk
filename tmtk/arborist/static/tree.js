@@ -55,7 +55,7 @@ $(function () {
         $.ajax({
             method: "POST",
             contentType: "application/json",
-            url: '/transmart-arborist',
+            url: base_url + '/transmart-arborist',
             data: stringTree(),
             beforeSend: function(request) {
                 return request.setRequestHeader("X-XSRFToken", getCookie('_xsrf'));
@@ -516,32 +516,32 @@ $('#tree-div')
 
         "types": {
             "default": {
-                "icon": "/nbextensions/transmart-arborist/images/tree/folder.gif"
+                "icon": static_base + "/images/tree/folder.gif"
             },
             "alpha": {
-                "icon": "/nbextensions/transmart-arborist/images/tree/alpha.gif",
+                "icon": static_base + "/images/tree/alpha.gif",
                 "valid_children": ["tag"]
             },
             "categorical": {
-                "icon": "/nbextensions/transmart-arborist/images/tree/folder.gif"
+                "icon": static_base + "/images/tree/folder.gif"
             },
             "numeric": {
-                "icon": "/nbextensions/transmart-arborist/images/tree/numeric.gif",
+                "icon": static_base + "/images/tree/numeric.gif",
                 "valid_children": ["tag"]
             },
             "highdim": {
-                "icon": "/nbextensions/transmart-arborist/images/tree/dna_icon.png",
+                "icon": static_base + "/images/tree/dna_icon.png",
                 "valid_children": ["tag"]
             },
             "empty": {
-                "icon": "/nbextensions/transmart-arborist/images/tree/empty.png"
+                "icon": static_base + "/images/tree/empty.png"
             },
             "tag": {
-                "icon": "/nbextensions/transmart-arborist/images/tree/tag_icon.png",
+                "icon": static_base + "/images/tree/tag_icon.png",
                 "valid_children": "none"
             },
             "codeleaf": {
-                "icon": "/nbextensions/transmart-arborist/images/tree/code.png",
+                "icon": static_base + "/images/tree/code.png",
                 "valid_children": ["alpha", "tag"]
             }
         },
@@ -665,13 +665,13 @@ function applyTemplate (template) {
 }
 
 var templateMap = {"button#fair-study-metadata" : {
-                        path: "/nbextensions/transmart-arborist/templates/fair_study.metadata.json",
+                        path: static_base + "/templates/fair_study.metadata.json",
 //                        name: "FAIR study level",
 //                        category: "Metadata",
                         alertText: "Metadata template for FAIR metadata applied!",
                         },
                    "button#trait-master" : {
-                        path: "/nbextensions/transmart-arborist/templates/trait_master_tree.template.json",
+                        path: static_base + "/templates/trait_master_tree.template.json",
 //                        name: "TraIT Master Tree",
 //                        category: "Master",
                         alertText: "TraIT master template applied!",
