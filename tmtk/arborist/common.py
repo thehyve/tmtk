@@ -51,6 +51,20 @@ def launch_arborist_gui(json_data: str, height=650):
     :return:
     """
 
+    from notebook import __version__ as notebook_version
+    if notebook_version < '4.2.0':
+        print("Version of notebook package should be atleast 4.2.0 for Arborist, consider:")
+        print("    $ pip3 install --upgrade notebook")
+        raise RuntimeError("Notebook too old for Arborist.")
+
+    from notebook.serverextensions import validate_serverextension
+    warnings = validate_serverextension('tmtk.arborist')
+    if warnings:
+        print('For the Arborist to work you need to install a jupyter serverextension using something like:')
+        print('  $ jupyter nbextension install --py tmtk.arborist')
+        print('  $ jupyter serverextension enable --py tmtk.arborist')
+        raise RuntimeError('Transmart-arborist extension not found.')
+
     new_temp_dir = tempfile.mkdtemp()
     tmp_json = os.path.join(new_temp_dir, 'tmp_json')
 

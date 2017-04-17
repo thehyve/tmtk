@@ -1,9 +1,9 @@
 import setuptools
 from setuptools.command.install import install
 from setuptools.command.develop import develop
+from distutils import log
 
 import os
-import subprocess
 import re
 
 VERSIONFILE=os.path.join('tmtk', '__init__.py')
@@ -23,25 +23,41 @@ if os.environ.get('READTHEDOCS') == 'True':
         required_packages.remove(p)
 
 
-def _extension_install():
-    print('\nFor the Arborist to work we need to install a jupyter serverextension using:')
-    print(' - jupyter nbextension install --py tmtk.arborist')
-    print(' - jupyter serverextension enable --py tmtk.arborist')
-
-    subprocess.call(["jupyter", "nbextension", "install", "--py", "tmtk.arborist"])
-    subprocess.call(["jupyter", "serverextension", "enable", "--py", "tmtk.arborist"])
-
-
 class HookedInstall(install):
     def run(self):
         install.run(self)
-        _extension_install()
+
+        log.info('Attempting to install and enable transmart-aborist extension.')
+        log.info('This can be done manually by running.')
+        log.info('  $ jupyter nbextension install --py tmtk.arborist')
+        log.info('  $ jupyter serverextension enable --py tmtk.arborist')
+
+        from notebook import __version__ as notebook_version
+        if notebook_version < '4.2.0':
+            print("Version of notebook package should be atleast 4.2.0 for Arborist, consider:")
+            print("    $ pip3 install --upgrade notebook")
+
+            raise RuntimeWarning("Notebook too old for Arborist.")
+
+        from notebook.nbextensions import install_nbextension_python
+        from notebook.serverextensions import toggle_serverextension_python, validate_serverextension
+
+        install_nbextension_python('tmtk.arborist')
+        toggle_serverextension_python('tmtk.arborist', enabled=True, sys_prefix=True)
+
+        warnings = validate_serverextension('tmtk.arborist')
+        if warnings:
+            [log.warn(warning) for warning in warnings]
+        else:
+            log.info('Extension has been enabled.')
 
 
 class HookedDevelop(develop):
     def run(self):
         develop.run(self)
-        _extension_install()
+        log.info('For the Arborist to work you need to install and enable the jupyter serverextension using:')
+        log.info('  $ jupyter nbextension install --py tmtk.arborist')
+        log.info('  $ jupyter serverextension enable --py tmtk.arborist')
 
 
 setuptools.setup(
