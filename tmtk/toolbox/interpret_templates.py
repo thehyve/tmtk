@@ -250,36 +250,37 @@ def extract_hd_metadata(sheet, concept_cd, experiment, study):
     # Additionally add the platform ID derived from the ss-mapping to the standardized metadata
     study.all_metadata.add((metadata_concept_cd, "Platform ID", experiment.platform_id, tag_index))
     # Add platform name and ID to the high-dim directory level
-    add_dir_level_metadata(metadata_concept_cd, experiment, study)
-
-
-def add_dir_level_metadata(metadata_concept_cd, experiment, study):
-    """Add platform name and ID to the parent directory containing the high-dim object."""
     concept_cd_dir_level = metadata_concept_cd.rsplit("\\", 1)[0]
-    # tag_index = max(num[3] for num in [row for row in all_metadata if row[0] == concept_cd_dir_level]) + 100
+    study._add_dir_level_metadata(concept_cd_dir_level, experiment.platform_id, experiment.platform_name)
 
-    pf_names_row = [row for row in study.all_metadata if row[0] == concept_cd_dir_level and row[1] == "Platform names"]
-    pf_ids_row = [row for row in study.all_metadata if row[0] == concept_cd_dir_level and row[1] == "Platform IDs"]
 
-    # This ain't pretty (understatement). Consider adding a dic to study instance with metadata path and pf ids, names
-    # and write these after looping through all high_dim templates
-
-    tag_index = 10
-    if not pf_names_row and not pf_ids_row:
-        study.all_metadata.add((concept_cd_dir_level, "Platform names", experiment.platform_name, tag_index))
-        study.all_metadata.add((concept_cd_dir_level, "Platform IDs", experiment.platform_id, tag_index+1))
-    # If already present extend the 2 metadata rows by expanding the platform names and IDs
-    else:
-        current_pf_names = set(pf_names_row[0][2].split(", "))
-        current_pf_ids = set(pf_ids_row[0][2].split(", "))
-        current_pf_names.add(experiment.platform_name)
-        current_pf_ids.add(experiment.platform_id)
-        extended_pf_names = ", ".join(current_pf_names)
-        extended_pf_ids = ", ".join(current_pf_ids)
-        study.all_metadata.remove(pf_names_row[0])
-        study.all_metadata.remove(pf_ids_row[0])
-        study.all_metadata.add((concept_cd_dir_level, "Platform names", extended_pf_names, tag_index))
-        study.all_metadata.add((concept_cd_dir_level, "Platform IDs", extended_pf_ids, tag_index+1))
+# def add_dir_level_metadata(metadata_concept_cd, experiment, study):
+#     """Add platform name and ID to the parent directory containing the high-dim object."""
+#     concept_cd_dir_level = metadata_concept_cd.rsplit("\\", 1)[0]
+#     # tag_index = max(num[3] for num in [row for row in all_metadata if row[0] == concept_cd_dir_level]) + 100
+#
+#     pf_names_row = [row for row in study.all_metadata if row[0] == concept_cd_dir_level and row[1] == "Platform names"]
+#     pf_ids_row = [row for row in study.all_metadata if row[0] == concept_cd_dir_level and row[1] == "Platform IDs"]
+#
+#     # This ain't pretty (understatement). Consider adding a dic to study instance with metadata path and pf ids, names
+#     # and write these after looping through all high_dim templates
+#
+#     tag_index = 10
+#     if not pf_names_row and not pf_ids_row:
+#         study.all_metadata.add((concept_cd_dir_level, "Platform names", experiment.platform_name, tag_index))
+#         study.all_metadata.add((concept_cd_dir_level, "Platform IDs", experiment.platform_id, tag_index+1))
+#     # If already present extend the 2 metadata rows by expanding the platform names and IDs
+#     else:
+#         current_pf_names = set(pf_names_row[0][2].split(", "))
+#         current_pf_ids = set(pf_ids_row[0][2].split(", "))
+#         current_pf_names.add(experiment.platform_name)
+#         current_pf_ids.add(experiment.platform_id)
+#         extended_pf_names = ", ".join(current_pf_names)
+#         extended_pf_ids = ", ".join(current_pf_ids)
+#         study.all_metadata.remove(pf_names_row[0])
+#         study.all_metadata.remove(pf_ids_row[0])
+#         study.all_metadata.add((concept_cd_dir_level, "Platform names", extended_pf_names, tag_index))
+#         study.all_metadata.add((concept_cd_dir_level, "Platform IDs", extended_pf_ids, tag_index+1))
 
 
 def retrieve_ss_df(sheet):
@@ -604,6 +605,7 @@ def process_high_dim(study):
         write_hd_data_params(experiment)
         print("[INFO] Completed processing of high-dim template: {0}".format(hd_template))
 
+    study._finalize_dir_level_metadata()
     study.write_metadata()
 
 

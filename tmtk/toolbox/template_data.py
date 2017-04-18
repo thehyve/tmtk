@@ -18,6 +18,7 @@ class TemplatedStudy:
         self.word_map_rows = set()
         self.all_metadata = set()
         self.hd_dict = {}
+        self.hd_dir_level_metadata = {}
         self.col_map_file_name = self.ID + "_column_mapping.tsv"
         self.word_map_file_name = self.ID + "_word_mapping.tsv"
         self.metadata_file_name = self.ID + "_tags.tsv"
@@ -61,6 +62,32 @@ class TemplatedStudy:
             os.makedirs(self.metadata_output_dir, exist_ok=True)
             output_path = os.path.join(self.metadata_output_dir, self.metadata_file_name)
             self._sort_write(self.all_metadata, 0, 3, output_path, self.metadata_header)
+
+    def _add_dir_level_metadata(self, path, platform_id, platform_name):
+        if path not in self.hd_dir_level_metadata:
+            self.hd_dir_level_metadata[path] = HdDirLevelMetadata(platform_id, platform_name)
+        else:
+            self.hd_dir_level_metadata[path]._expand_existing(platform_id, platform_name)
+
+    def _finalize_dir_level_metadata(self):
+        """Add the collected dir level metadata to the all_metadata set."""
+        for path, metadata in self.hd_dir_level_metadata.items():
+            print(metadata.platform_ids)
+            print(metadata.platform_names)
+            platform_ids = ", ".join(metadata.platform_ids)
+            platform_names = ", ".join(metadata.platform_names)
+            self.all_metadata.add((path, "Platform names", platform_names, 10))
+            self.all_metadata.add((path, "Platform IDs", platform_ids, 11))
+
+
+class HdDirLevelMetadata:
+    def __init__(self, platform_id, platform_name):
+        self.platform_ids = set([platform_id])
+        self.platform_names = set([platform_name])
+
+    def _expand_existing(self, platform_id, platform_name):
+        self.platform_ids.add(platform_id)
+        self.platform_names.add(platform_name)
 
 
 class HighDim:
