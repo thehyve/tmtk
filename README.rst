@@ -67,36 +67,45 @@ For more, see the `examples`_.
 Installation
 ------------
 
-To install tmtk, and all dependencies, into your Python environment run:
+To install tmtk and all dependencies into your Python environment, and enable the Arborist Jupyter notebook extension, run:
 
 .. code:: sh
 
+    $   pip3 install tmtk
+
+or..
+
+.. code:: sh
+
+    $   pip3 install -r requirements.txt
     $   python3 setup.py install
 
-or if you want to run the tool from code:
+or if you want to run the tool from code in development mode:
 
 .. code:: sh
-
+    $   pip3 install -r requirements.txt
     $   python3 setup.py develop
+    $   jupyter-nbextension install --py tmtk.arborist
+    $   jupyter-serverextension enable tmtk.arborist
 
 Requirements
 ^^^^^^^^^^^^
 
 These dependencies will have to be installed:
- - pandas
- - jupyter
- - flask
- - ipython
- - tqdm
- - requests
- - rpy2
+ - pandas>=0.19.2
+ - ipython>=5.3.0
+ - jupyter>=1.0.0
+ - jupyter-client>=5.0.0
+ - jupyter-core>=4.3.0
+ - jupyter-console>=5.1.0
+ - notebook>=4.2.0
+ - requests>=2.13.0
+ - tqdm>=4.11.0
+ - mygene>=3.0.0
 
 Licence
 -------
 GPLv3
-
-Authors
--------
 
 .. _transmart-batch: https://github.com/thehyve/transmart-batch/
 .. _readthedocs: https://tmtk.readthedocs.io/en/latest/
