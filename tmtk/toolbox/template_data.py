@@ -72,8 +72,6 @@ class TemplatedStudy:
     def _finalize_dir_level_metadata(self):
         """Add the collected dir level metadata to the all_metadata set."""
         for path, metadata in self.hd_dir_level_metadata.items():
-            print(metadata.platform_ids)
-            print(metadata.platform_names)
             platform_ids = ", ".join(metadata.platform_ids)
             platform_names = ", ".join(metadata.platform_names)
             self.all_metadata.add((path, "Platform names", platform_names, 10))
