@@ -6,3 +6,4 @@ from .HighDimUtils import find_missing_annotations, check_datafile_header_with_s
 from .CPrint import MessageCollector, CPrint
 from .filebase import FileBase
 from .mappings import Mappings
+from .batch import TransmartBatch

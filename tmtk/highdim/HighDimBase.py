@@ -26,7 +26,7 @@ class HighDimBase(utils.FileBase):
         elif path and os.path.exists(self.path):
             self.path = path
         else:
-            raise utils.PathError()
+            raise utils.PathError
 
         super().__init__()
 
@@ -162,3 +162,11 @@ class HighDimBase(utils.FileBase):
                                              origin_platform=self.annotation_file.df,
                                              destination_platform=destination)
         return remapped
+
+    @property
+    def load_to(self):
+        return utils.TransmartBatch().get_loading_namespace(self.params.path, items_expected=self._total_batch_items)
+
+    @property
+    def _total_batch_items(self):
+        return len(self.sample_mapping.samples) * self.df.shape[0]

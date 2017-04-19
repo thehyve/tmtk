@@ -7,6 +7,7 @@ from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
 from ..utils import CPrint, PathError, clean_for_namespace
 from .. import arborist
+from ..utils.batch import TransmartBatch, Destinations
 
 
 class Clinical:
@@ -138,3 +139,20 @@ class Clinical:
             if map_change:
                 for k, v in map_change.items():
                     print("          - {!r} -> {!r}".format(k, v))
+
+    @property
+    def load_to(self):
+        return TransmartBatch(param=self.params.path,
+                              items_expected=self._total_batch_items
+                              ).get_loading_namespace()
+
+    @property
+    def datafiles(self):
+        return self.ColumnMapping.df.ix[:, 0].unique()
+
+    @property
+    def _total_batch_items(self):
+        total = 0
+        for datafile in self.datafiles:
+            total += self.get_datafile(datafile).df.shape[0]
+        return total

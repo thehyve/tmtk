@@ -7,7 +7,7 @@ from .params import Params
 from .highdim import HighDim
 from .annotation import Annotations
 from .tags import MetaDataTags
-from .utils import CPrint, Mappings
+from .utils import CPrint, Mappings, TransmartBatch
 from tmtk import utils, arborist
 
 
@@ -279,3 +279,14 @@ class Study:
             CPrint.error('Trying to add Clinical, but already there.')
         else:
             self.Clinical = Clinical(clinical_params)
+
+    @property
+    def load_to(self):
+        return TransmartBatch(param=self.params_path,
+                              items_expected=self._study_total_batch_items,
+                              ).get_loading_namespace()
+
+    @property
+    def _study_total_batch_items(self):
+        """A dictionary of with params path with number of items to be written."""
+        return {p.params.path: p._total_batch_items for p in self.get_objects_with_prop('_total_batch_items')}
