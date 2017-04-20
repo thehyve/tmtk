@@ -42,7 +42,7 @@ class HookedInstall(install):
         from notebook.nbextensions import install_nbextension_python
         from notebook.serverextensions import toggle_serverextension_python, validate_serverextension
 
-        install_nbextension_python('tmtk.arborist')
+        install_nbextension_python('tmtk.arborist', sys_prefix=True, overwrite=True)
         toggle_serverextension_python('tmtk.arborist', enabled=True, sys_prefix=True)
 
         warnings = validate_serverextension('tmtk.arborist')
