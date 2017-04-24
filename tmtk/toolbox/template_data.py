@@ -1,5 +1,6 @@
 import csv
 import os
+from glob import glob
 
 from tmtk.toolbox import template_validation as Validity
 
@@ -12,6 +13,7 @@ class TemplatedStudy:
         self.output_dir = output_dir
         self.sec_req = sec_req
 
+        self.clinical_template_present = True
         self.metadata_output_dir = os.path.join(self.output_dir, "tags")
         self.clin_output_dir = os.path.join(self.output_dir, "clinical")
         self.col_map_rows = set()
@@ -31,6 +33,7 @@ class TemplatedStudy:
 
         Validity.check_source_dir(source_dir)
         Validity.check_output_dir(output_dir)
+        self.excel_files = [excel_file for excel_file in glob(self.source_dir + "/*.xls*")]
         os.makedirs(self.clin_output_dir, exist_ok=True)
 
     def _sort_write(self, data, key1, key2, output_path, header):
@@ -80,8 +83,8 @@ class TemplatedStudy:
 
 class HdDirLevelMetadata:
     def __init__(self, platform_id, platform_name):
-        self.platform_ids = set([platform_id])
-        self.platform_names = set([platform_name])
+        self.platform_ids = {platform_id}
+        self.platform_names = {platform_name}
 
     def _expand_existing(self, platform_id, platform_name):
         self.platform_ids.add(platform_id)

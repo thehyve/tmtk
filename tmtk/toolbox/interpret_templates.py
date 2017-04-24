@@ -2,8 +2,8 @@
 
 import os
 import re
+import sys
 from collections import defaultdict
-from glob import glob
 from random import randint
 
 import IPython
@@ -14,24 +14,27 @@ from tmtk.toolbox import template_validation as Validity
 from .template_data import TemplatedStudy, HighDim
 
 
-def get_clin_template(study):
+def get_clinical_template(study):
     """Try to detect the clinical template file in the source dir and open it with pandas."""
-    all_files = [excel_file for excel_file in glob(study.source_dir + "/*.xls*")]
     # Try to automatically detect which of the template files contains the clinical data
-    clinical_templates = [template for template in all_files if "clin" in template.lower() and not "~$" in template]
+    clinical_templates = [template for template in study.excel_files if "clin" in template.lower() and
+                          "~$" not in template]
 
-
+    clinical_template = None
     if len(clinical_templates) == 1:
         clinical_template_name = clinical_templates[0]
-        print ("[INFO] Clinical data template detected: " + clinical_template_name)
+        clinical_template = pd.ExcelFile(clinical_template_name, comment="#")
+        print("[INFO] Clinical data template detected: " + clinical_template_name)
+    elif len(clinical_templates) == 0:
+        study.clinical_template_present = False
+        print("[WARNING] No clinical data template could be detected. Assuming only high-dimensional templates " +
+              "are available.")
     else:
-        print(("[ERROR] The clinical data template could not be detected automatically.\n" +
-               "Make sure only one file has 'clinical' in its name."))
-    Validity.list_length(clinical_templates, expected=1)
+        print("[ERROR] Too many clinical data templates were found. " +
+              "Make sure only one file has 'clinical' in its name.")
+        sys.exit(1)
 
-    clin_template = clinical_templates[0]
-    clin_template = pd.ExcelFile(clin_template, comment="#")
-    return clin_template
+    return clinical_template
 
 
 def get_sheet_dict(workbook, comment_char="#"):
@@ -163,6 +166,7 @@ def write_metadata_params(study):
 
 
 def get_output_dir(study, hd_template_file_name):
+    hd_template_file_name = os.path.basename(hd_template_file_name)
     hd_output_dir = os.path.splitext(hd_template_file_name)[0]
     hd_output_dir = re.sub("template", "", hd_output_dir, flags=re.I)
     hd_output_dir = "_".join(hd_output_dir.split())
@@ -172,7 +176,6 @@ def get_output_dir(study, hd_template_file_name):
 
 def get_template_type(experiment, hd_template_description):
     """Check type of template by reading the description in the metadata and store template-specific info."""
-
     description = hd_template_description.lower()
 
     if "proteomics" in description:
@@ -252,35 +255,6 @@ def extract_hd_metadata(sheet, concept_cd, experiment, study):
     # Add platform name and ID to the high-dim directory level
     concept_cd_dir_level = metadata_concept_cd.rsplit("\\", 1)[0]
     study._add_dir_level_metadata(concept_cd_dir_level, experiment.platform_id, experiment.platform_name)
-
-
-# def add_dir_level_metadata(metadata_concept_cd, experiment, study):
-#     """Add platform name and ID to the parent directory containing the high-dim object."""
-#     concept_cd_dir_level = metadata_concept_cd.rsplit("\\", 1)[0]
-#     # tag_index = max(num[3] for num in [row for row in all_metadata if row[0] == concept_cd_dir_level]) + 100
-#
-#     pf_names_row = [row for row in study.all_metadata if row[0] == concept_cd_dir_level and row[1] == "Platform names"]
-#     pf_ids_row = [row for row in study.all_metadata if row[0] == concept_cd_dir_level and row[1] == "Platform IDs"]
-#
-#     # This ain't pretty (understatement). Consider adding a dic to study instance with metadata path and pf ids, names
-#     # and write these after looping through all high_dim templates
-#
-#     tag_index = 10
-#     if not pf_names_row and not pf_ids_row:
-#         study.all_metadata.add((concept_cd_dir_level, "Platform names", experiment.platform_name, tag_index))
-#         study.all_metadata.add((concept_cd_dir_level, "Platform IDs", experiment.platform_id, tag_index+1))
-#     # If already present extend the 2 metadata rows by expanding the platform names and IDs
-#     else:
-#         current_pf_names = set(pf_names_row[0][2].split(", "))
-#         current_pf_ids = set(pf_ids_row[0][2].split(", "))
-#         current_pf_names.add(experiment.platform_name)
-#         current_pf_ids.add(experiment.platform_id)
-#         extended_pf_names = ", ".join(current_pf_names)
-#         extended_pf_ids = ", ".join(current_pf_ids)
-#         study.all_metadata.remove(pf_names_row[0])
-#         study.all_metadata.remove(pf_ids_row[0])
-#         study.all_metadata.add((concept_cd_dir_level, "Platform names", extended_pf_names, tag_index))
-#         study.all_metadata.add((concept_cd_dir_level, "Platform IDs", extended_pf_ids, tag_index+1))
 
 
 def retrieve_ss_df(sheet):
@@ -449,7 +423,8 @@ def process_column_mapping(study, sheets):
     """Extract all information required to build the column mapping and write it to the clinical dir."""
     add_subjects_to_mapping(study, sheets)
     if subjects_in_tree(study, sheets):
-        duplicate_subjects_col()
+        pass
+        #duplicate_subjects_col()
 
     previous_concept_cd_series = None
     for index, row in sheets[study.tree_sheet_name].iterrows():
@@ -497,26 +472,30 @@ def process_clin_metadata(study, sheets):
 def write_low_dim_params(study):
     """Write all the low-dimensional and study params files."""
     write_study_params(study)
-    write_clinical_params(study)
     write_metadata_params(study)
+    if study.clinical_template_present:
+        write_clinical_params(study)
 
 
 def process_clinical(study):
     """Get clinical template and call all clinical processing functions."""
-    clin_template = get_clin_template(study)
-    sheets = get_sheet_dict(clin_template)
-    study.tree_sheet_name = get_tree_sheet(sheets)
+    clinical_template = get_clinical_template(study)
 
-    # Write sheets containing clinical data to .tsv files
-    write_clinical_data_sheets(study, sheets)
-    # Write column mapping file and collect paths for high-dimensional data
-    process_column_mapping(study, sheets)
-    # Write word mapping file
-    process_word_mapping(study, sheets)
-    # Store and write metadata present in tree sheet
-    process_clin_metadata(study, sheets)
     # If present, process general study level metadata template
     process_general_study_metadata(study)
+
+    if study.clinical_template_present:
+        sheets = get_sheet_dict(clinical_template)
+        study.tree_sheet_name = get_tree_sheet(sheets)
+
+        # Write sheets containing clinical data to .tsv files
+        write_clinical_data_sheets(study, sheets)
+        # Write column mapping file and collect paths for high-dimensional data
+        process_column_mapping(study, sheets)
+        # Write word mapping file
+        process_word_mapping(study, sheets)
+        # Store and write metadata present in tree sheet
+        process_clin_metadata(study, sheets)
 
 
 def process_general_study_metadata(study):
@@ -526,23 +505,11 @@ def process_general_study_metadata(study):
         add_general_study_metadata(study, study_metadata_template_path)
 
 
-def open_hd_file_template(study, hd_template):
-    template_path = os.path.join(study.source_dir, hd_template)
-    try:
-        hd_template_workbook = pd.ExcelFile(template_path, comment="#", dtype=object)
-    except FileNotFoundError:
-        raise Validity.TemplateException("Could not find high-dim template file at: {0}".format(template_path))
-    except XLRDError:
-        raise Validity.TemplateException("High-dim template file at: {0} is not a valid xlsx file.".format(template_path))
-    return hd_template_workbook
-
-
 def find_general_study_metadata(study):
     """If present return the name of the template containing general study level metadata."""
-    all_files = [excel_file for excel_file in glob(study.source_dir + "/*.xls*")]
     # Try to automatically detect which of the template files contains the clinical data
-    templates = [template for template in all_files if "general study metadata" in template.lower()
-                 and not "~$" in template]
+    templates = [template for template in study.excel_files if "general study metadata" in template.lower() and
+                 "~$" not in template]
     study_metadata_template_path = None
     if len(templates) == 0:
         print("[WARNING] No general study metadata template could be detected. Make sure the file name contains " +
@@ -556,7 +523,7 @@ def find_general_study_metadata(study):
 
 
 def add_general_study_metadata(study, study_metadata_template_path):
-    "Read the data from general study level metadata template and write to tags file."
+    """Read the data from general study level metadata template and write to tags file."""
     metadata = pd.ExcelFile(study_metadata_template_path, comment="#")
 
     if len(metadata.sheet_names) > 1:
@@ -573,8 +540,30 @@ def add_general_study_metadata(study, study_metadata_template_path):
     study.write_metadata()
 
 
+def open_hd_file_template(study, hd_template):
+    """Try to read the specified template file and return the opened object."""
+    template_path = os.path.join(study.source_dir, hd_template)
+    try:
+        hd_template_workbook = pd.ExcelFile(template_path, comment="#", dtype=object)
+    except FileNotFoundError:
+        raise Validity.TemplateException("Could not find high-dim template file at: {0}".format(template_path))
+    except XLRDError:
+        raise Validity.TemplateException("High-dim template file at: {0} is not a valid xlsx file.".format(template_path))
+    return hd_template_workbook
+
+
+def collect_high_dim_templates(study):
+    """Add the high-dim template files to the dictionary in case these are not specified in a clinical template."""
+    study.hd_dict = {file: "<CONCEPT PATH>" for file in study.excel_files if "clin" not in file.lower() and
+                     "general" not in file.lower()}
+
+
 def process_high_dim(study):
     """Loop through high-dim templates and write all mapping, platform and (meta)data."""
+    # Case where there are only high-dimensional data templates
+    if not study.hd_dict and not study.clinical_template_present:
+        collect_high_dim_templates(study)
+
     for hd_template, concept_cd in study.hd_dict.items():
         print("[INFO] Processing high-dim template: {0}".format(hd_template))
         # General processing
