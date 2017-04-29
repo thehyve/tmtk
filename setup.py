@@ -11,15 +11,8 @@ if mo:
 else:
     raise RuntimeError("Unable to find version string in {}.".format(VERSIONFILE,))
 
-required_packages = ['pandas',
-                     'ipython',
-                     'flask',
-                     'jupyter',
-                     'requests',
-                     'tqdm',
-                     'mygene>=3.0.0',
-                     'xlrd>=1.0.0'
-                     ]
+with open("requirements.txt", 'r') as f:
+    required_packages = f.read().splitlines()
 
 if os.environ.get('READTHEDOCS') == 'True':
     for p in ['pandas']:
