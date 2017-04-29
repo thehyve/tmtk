@@ -2,6 +2,7 @@ import csv
 import os
 from glob import glob
 
+import pandas as pd
 from tmtk.toolbox import template_validation as Validity
 
 
@@ -33,7 +34,7 @@ class TemplatedStudy:
 
         Validity.check_source_dir(source_dir)
         Validity.check_output_dir(output_dir)
-        self.excel_files = [excel_file for excel_file in glob(self.source_dir + "/*.xls*")]
+        self.excel_files = [excel_file for excel_file in glob(self.source_dir + "/*.xls*") if "~$" not in excel_file]
         os.makedirs(self.clin_output_dir, exist_ok=True)
 
     def _sort_write(self, data, key1, key2, output_path, header):
@@ -50,14 +51,14 @@ class TemplatedStudy:
         """Sort rows on data file and column number, then write the column mapping rows."""
         output_path = os.path.join(self.clin_output_dir, self.col_map_file_name)
         self._sort_write(self.col_map_rows, 0, 2, output_path, self.col_map_header)
-        print("Column mapping file written at: {0}".format(output_path))
+        print("[INFO] Column mapping file written at: {0}".format(output_path))
 
     def write_word_mapping(self):
         """Sort rows on data file and column nubmer, then write the word mapping rows."""
         if self.word_map_rows:
             output_path = os.path.join(self.clin_output_dir, self.word_map_file_name)
             self._sort_write(self.word_map_rows, 0, 1, output_path, self.word_map_header)
-            print("Word mapping file written at: {0}".format(output_path))
+            print("[INFO] Word mapping file written at: {0}".format(output_path))
 
     def write_metadata(self):
         """Sort rows on concept_path and tag index, then write the metadata rows."""
@@ -66,13 +67,13 @@ class TemplatedStudy:
             output_path = os.path.join(self.metadata_output_dir, self.metadata_file_name)
             self._sort_write(self.all_metadata, 0, 3, output_path, self.metadata_header)
 
-    def _add_dir_level_metadata(self, path, platform_id, platform_name):
+    def add_dir_level_metadata(self, path, platform_id, platform_name):
         if path not in self.hd_dir_level_metadata:
             self.hd_dir_level_metadata[path] = HdDirLevelMetadata(platform_id, platform_name)
         else:
             self.hd_dir_level_metadata[path]._expand_existing(platform_id, platform_name)
 
-    def _finalize_dir_level_metadata(self):
+    def finalize_dir_level_metadata(self):
         """Add the collected dir level metadata to the all_metadata set."""
         for path, metadata in self.hd_dir_level_metadata.items():
             platform_ids = ", ".join(metadata.platform_ids)
@@ -92,16 +93,59 @@ class HdDirLevelMetadata:
 
 
 class HighDim:
-    def __init__(self, output_dir=None, hd_type=None, organism=None, platform_id=None, platform_name=None,
-                 genome_build=None, annotation_params_name=None, hd_data_params_name=None):
-        self.output_dir = output_dir
-        self.hd_type = hd_type
-        self.organism = organism
-        self.platform_id = platform_id
-        self.platform_name = platform_name
-        self.genome_build = genome_build
-        self.annotation_params_name = annotation_params_name
-        self.hd_data_params_name = hd_data_params_name
 
-        self.platform_annotation_ids = set()
-        self.data_annotation_ids = set()
+    class Sheets:
+        def __init__(self):
+            self.metadata_samples = None
+            self.platform = None
+            self.data = None
+
+    def __init__(self):
+        self.workbook_name = None
+        self.output_dir = None
+        self.hd_type = None
+        self.organism = None
+        self.platform_id = None
+        self.platform_name = None
+        self.genome_build = None
+        self.annotation_params_name = None
+        self.hd_data_params_name = None
+        self.sheets = HighDim.Sheets()
+
+    def read_hd_file_template(self, source_dir, hd_template):
+        """Try to read the specified template file and send to sheet loading method."""
+        template_path = os.path.join(source_dir, hd_template)
+        try:
+            hd_template_workbook = pd.ExcelFile(template_path, comment="#", dtype=object)
+        except FileNotFoundError:
+            raise Validity.TemplateException("Could not find high-dim template file at: {0}".format(template_path))
+        # except XLRDError:
+        #     raise Validity.TemplateException(
+        #         "High-dim template file at: {0} is not a valid xlsx file.".format(template_path))
+
+        self._load_sheets(hd_template_workbook)
+
+    def _load_sheets(self, hd_template):
+        """Check which sheets are present in the high-dim template and store them."""
+        hd_sheets = hd_template.sheet_names
+
+        attributes = {"metadata_samples":
+                          {"keyword": "metadata&samples", "comment": None, "converters": None},
+                      "data":
+                          {"keyword": "matrix", "comment": "#", "converters": None},
+                      "platform":
+                          {"keyword": "platform", "comment": "#", "converters":
+                              {"CHROMOSOME": str, "START_BP": str, "END_BP": str, "NUM_PROBES": str}}
+                      }
+
+        for attribute, params in attributes.items():
+            hits = [sheet for sheet in hd_sheets if params["keyword"] in sheet.lower()]
+            if len(hits) > 1 or (attribute == "metadata_samples" and len(hits) == 0):
+                Validity.list_length(hits, expected=1)
+            elif len(hits) == 0:
+                print("[WARNING] No {0} sheet found in {1}".format(attribute, self.workbook_name))
+            else:
+                hd_df = hd_template.parse(hits[0], comment=params["comment"], converters=params["converters"])
+                empty = Validity.empty_df(hd_df, mandatory=False, df_name=attribute, workbook_name=self.workbook_name)
+                if not empty:
+                    setattr(self.sheets, attribute, hd_df)

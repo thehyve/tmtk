@@ -3,13 +3,17 @@ import os
 import IPython
 import pandas as pd
 
+
 class TemplateException(Exception):
     def __init__(self, Exception):
-        self.epilogue()
+        self.epilogue(huge_succes=False)
 
-    def epilogue(self):
+    @staticmethod
+    def epilogue(huge_succes=True):
         (ID, start) = "HKIbIC9H_Kg", 9
-        IPython.display.display(IPython.display.YouTubeVideo(ID, autoplay=1, width=0, height=0, start=start))
+        if huge_succes:
+            (ID, start) = "S9x6GMM4UWw", 0
+        IPython.display.display(IPython.display.YouTubeVideo(ID, autoplay=1, width=1, height=1, start=start))
 
 
 def check_source_dir(source_path):
@@ -53,3 +57,15 @@ def list_length(item_list, expected):
         error_message = "Incorrect list length: {0}, expected {1}, for list: {2}".format(length, expected, item_list)
         raise TemplateException(error_message)
     return True
+
+
+def empty_df(df, mandatory=True, df_name="data frame", workbook_name="workbook"):
+    empty = False
+    if df.empty:
+        empty = True
+        message = "Empty {0} detected in {1}.".format(df_name, workbook_name)
+        if mandatory:
+            raise TemplateException("[Error] " + message)
+        else:
+            print("[WARNING] " + message)
+    return empty

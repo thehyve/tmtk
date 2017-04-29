@@ -2,7 +2,6 @@
 
 import os
 import re
-import sys
 from collections import defaultdict
 from random import randint
 
@@ -16,7 +15,6 @@ from .template_data import TemplatedStudy, HighDim
 
 def get_clinical_template(study):
     """Try to detect the clinical template file in the source dir and open it with pandas."""
-    # Try to automatically detect which of the template files contains the clinical data
     clinical_templates = [template for template in study.excel_files if "clin" in template.lower() and
                           "~$" not in template]
 
@@ -32,7 +30,7 @@ def get_clinical_template(study):
     else:
         print("[ERROR] Too many clinical data templates were found. " +
               "Make sure only one file has 'clinical' in its name.")
-        sys.exit(1)
+        Validity.list_length(clinical_templates, expected=1)
 
     return clinical_template
 
@@ -80,9 +78,12 @@ def construct_concept_cd(row, previous_row, study):
     else:
         new_values = row[row.first_valid_index():]
         # Find the highest node that is different from the previous concept path
-        first_new_col_name = [col for col, value in new_values.iteritems() if value != previous_row[col]][0]
+        new_col_names = [col for col, value in new_values.iteritems() if value != previous_row[col] and
+                         not pd.isnull(value)]
         # Replace values in the previous concept code with those from the new row
-        previous_row[first_new_col_name:] = new_values[first_new_col_name:]
+        if new_col_names:
+            first_new_col_name = new_col_names[0]
+            previous_row[first_new_col_name:] = new_values[first_new_col_name:]
         # To do: build check that makes sure there are no nan values in newly created concept_cd
         concept_cd = previous_row
 
@@ -174,9 +175,9 @@ def get_output_dir(study, hd_template_file_name):
     return hd_output_dir
 
 
-def get_template_type(experiment, hd_template_description):
+def get_template_type(experiment):
     """Check type of template by reading the description in the metadata and store template-specific info."""
-    description = hd_template_description.lower()
+    description = experiment.sheets.metadata_samples.columns[0].lower()
 
     if "proteomics" in description:
         experiment.hd_type = "Proteomics"
@@ -200,7 +201,7 @@ def get_template_type(experiment, hd_template_description):
         experiment.hd_data_params_name = "rnaseq.params"
     else:
         raise Validity.TemplateException("Could not detect template type from description in first row:\n" +
-                                hd_template_description)
+                                         description)
 
 
 def get_row_section(df, start_value=None, end_value=None):
@@ -224,9 +225,10 @@ def process_human_names(names_list):
     return value
 
 
-def extract_hd_metadata(sheet, concept_cd, experiment, study):
+def extract_hd_metadata(study, experiment, concept_cd):
     """Extract the general info and protocols section from HD metadata sheet and store in metadata object."""
     metadata_concept_cd = "\\" + concept_cd.replace("+", "\\")
+    sheet = experiment.sheets.metadata_samples
 
     general_info = get_row_section(sheet, "Description", "Related publication DOI link")
     protocols = get_row_section(sheet, "Sample processing, descriptive", "Value definition")
@@ -254,24 +256,25 @@ def extract_hd_metadata(sheet, concept_cd, experiment, study):
     study.all_metadata.add((metadata_concept_cd, "Platform ID", experiment.platform_id, tag_index))
     # Add platform name and ID to the high-dim directory level
     concept_cd_dir_level = metadata_concept_cd.rsplit("\\", 1)[0]
-    study._add_dir_level_metadata(concept_cd_dir_level, experiment.platform_id, experiment.platform_name)
+    study.add_dir_level_metadata(concept_cd_dir_level, experiment.platform_id, experiment.platform_name)
 
 
-def retrieve_ss_df(sheet):
-    """Retrieve the subject sample data as provided in the template as a separate reindexed df."""
+def retrieve_ss_df(experiment):
+    """Retrieve the subject sample data as provided in the template as a separate re-indexed df."""
+    sheet = experiment.sheets.metadata_samples
     ss_data = get_row_section(sheet, "Subject ID")
     ss_data.columns = ss_data.iloc[0]
     ss_data = ss_data.reset_index(drop=True)
     ss_data = ss_data.drop(ss_data.index[0])
     ss_data = ss_data.reset_index(drop=True)
-
+    Validity.empty_df(ss_data, mandatory=True, df_name="subject-sample mapping", workbook_name=experiment.workbook_name)
     return ss_data
 
 
 def process_mapping(ss_data, experiment, concept_cd, study):
     """Add required high-dim properties to the experiment instance and combine the ss_data with info from metadata
     to write the subject-sample mapping file."""
-    Determine_hd_properties(ss_data, experiment)
+    determine_hd_properties(ss_data, experiment)
     cols = ["STUDY_ID", "SITE_ID", "SUBJECT_ID", "SAMPLE_CD", "PLATFORM", "SAMPLE_TYPE", "TISSUE_TYPE",
             "TIME_POINT", "CATEGORY_CD", "SOURCE_CD"]
 
@@ -297,7 +300,7 @@ def write_hd_df(df, hd_output_dir, file_name, subdir=""):
     df.to_csv(output_file_path, sep="\t", index=False, na_rep="")
 
 
-def Determine_hd_properties(ss_data, experiment):
+def determine_hd_properties(ss_data, experiment):
     """Validate the ss-mapping columns and save the info needed for the params files in the HD class instance."""
     uniform_props = {col: ss_data[col] for col in ["Platform", "Platform name", "Organism"]}
     unique_props = {col: ss_data[col] for col in ["Sample ID"]}
@@ -308,28 +311,9 @@ def Determine_hd_properties(ss_data, experiment):
     experiment.platform_name = uniform_props["Platform name"][0]
 
 
-def read_hd_sheets(hd_template):
-    """Check if all the required sheets are present in the high-dim template and return them as separate variables."""
-    sheets = hd_template.sheet_names
-
-    metadata_samples_sheets = [sheet for sheet in sheets if "metadata&samples" in sheet.lower()]
-    platform_sheets = [sheet for sheet in sheets if "platform" in sheet.lower()]
-    data_sheets = [sheet for sheet in sheets if "matrix" in sheet.lower()]
-
-    # Check if each expected sheet is found exactly once
-    for sheet in [metadata_samples_sheets, platform_sheets, data_sheets]:
-        Validity.list_length(sheet, expected=1)
-
-    metadata_samples_sheet = hd_template.parse(metadata_samples_sheets[0], comment=None)
-    platform_sheet = hd_template.parse(platform_sheets[0], comment="#",
-                                       converters={"CHROMOSOME":str, "START_BP":str, "END_BP":str, "NUM_PROBES":str})
-    data_sheet = hd_template.parse(data_sheets[0], comment="#")
-
-    return (metadata_samples_sheet, platform_sheet, data_sheet)
-
-
-def process_platform(platform_sheet, experiment):
+def process_platform(experiment):
     """To each type of platform add the required columns and send the result to the write function."""
+    platform_sheet = experiment.sheets.platform
     if experiment.hd_type == "RNA_Microarray":
         platform_sheet.insert(0, "GPL_ID", experiment.platform_id)
         platform_sheet["ORGANISM"] = experiment.organism
@@ -352,8 +336,9 @@ def process_platform(platform_sheet, experiment):
     write_hd_df(platform_sheet, experiment.output_dir, experiment.platform_id + ".tsv", "annotation")
 
 
-def process_hd_data(data_sheet, experiment):
+def process_hd_data(experiment):
     """Send the df from the data sheet to the write function."""
+    data_sheet = experiment.sheets.data
     output_file_name = experiment.hd_type + "_data.tsv"
 
     if experiment.hd_type in ["aCGH", "CNA_DNA-Seq"]:
@@ -377,10 +362,13 @@ def write_platform_params(experiment):
     params_output_path = os.path.join(experiment.output_dir, "annotation", experiment.annotation_params_name)
 
     with open(params_output_path, "w") as annotation_params_file:
-        annotation_params_file.write("PLATFORM=" + experiment.platform_id + "\n")
-        annotation_params_file.write("TITLE=" + experiment.platform_name + "\n")
-        annotation_params_file.write("ANNOTATIONS_FILE=" + experiment.platform_id + ".tsv" + "\n")
-        annotation_params_file.write("ORGANISM=" + experiment.organism + "\n")
+        if experiment.platform_id:
+            annotation_params_file.write("PLATFORM=" + experiment.platform_id + "\n")
+            annotation_params_file.write("ANNOTATIONS_FILE=" + experiment.platform_id + ".tsv" + "\n")
+        if experiment.platform_name:
+            annotation_params_file.write("TITLE=" + experiment.platform_name + "\n")
+        if experiment.organism:
+            annotation_params_file.write("ORGANISM=" + experiment.organism + "\n")
         if experiment.genome_build:
             annotation_params_file.write("GENOME_RELEASE=" + experiment.genome_build + "\n")
 
@@ -390,21 +378,14 @@ def write_hd_data_params(experiment):
     params_output_path = os.path.join(experiment.output_dir, experiment.hd_data_params_name)
 
     with open(params_output_path, "w") as hd_data_params_file:
-        hd_data_params_file.write("DATA_FILE=" + experiment.hd_type + "_data.tsv" + "\n")
+        if experiment.hd_type:
+            hd_data_params_file.write("DATA_FILE=" + experiment.hd_type + "_data.tsv" + "\n")
         hd_data_params_file.write("DATA_TYPE=" + "R" + "\n")
         # hd_data_params_file.write("LOG_BASE="+"2"+"\n")
         hd_data_params_file.write("MAP_FILENAME=" + "subject_sample_mapping.tsv" + "\n")
-        hd_data_params_file.write("ALLOW_MISSING_ANNOTATIONS=" + "N" + "\n")
-        hd_data_params_file.write("SKIP_UNMAPPED_DATA=" + "N" + "\n")
-        hd_data_params_file.write("ZERO_MEANS_NO_INFO=" + "N" + "\n")
-
-
-def _epilogue(huge_success=True):
-    (ID, start) = "HKIbIC9H_Kg", 9
-    if huge_success:
-        (ID, start) = "S9x6GMM4UWw", 0
-
-        IPython.display.display(IPython.display.YouTubeVideo(ID, autoplay=1, width=0, height=0, start=start))
+        # hd_data_params_file.write("ALLOW_MISSING_ANNOTATIONS=" + "N" + "\n")
+        # hd_data_params_file.write("SKIP_UNMAPPED_DATA=" + "N" + "\n")
+        # hd_data_params_file.write("ZERO_MEANS_NO_INFO=" + "N" + "\n")
 
 
 def write_clinical_data_sheets(study, sheets):
@@ -449,7 +430,7 @@ def process_column_mapping(study, sheets):
 def process_word_mapping(study, sheets):
     """If present, write word mapping rows to file."""
     word_map_sheets = [sheet for sheet in sheets if "value substitution" in sheet.lower()
-                       and not 'example' in sheet.lower()]
+                       and 'example' not in sheet.lower()]
     Validity.list_length(word_map_sheets, expected=1)
     study.word_map_sheet_name = word_map_sheets[0]
     for index, row in sheets[study.word_map_sheet_name].iterrows():
@@ -540,18 +521,6 @@ def add_general_study_metadata(study, study_metadata_template_path):
     study.write_metadata()
 
 
-def open_hd_file_template(study, hd_template):
-    """Try to read the specified template file and return the opened object."""
-    template_path = os.path.join(study.source_dir, hd_template)
-    try:
-        hd_template_workbook = pd.ExcelFile(template_path, comment="#", dtype=object)
-    except FileNotFoundError:
-        raise Validity.TemplateException("Could not find high-dim template file at: {0}".format(template_path))
-    except XLRDError:
-        raise Validity.TemplateException("High-dim template file at: {0} is not a valid xlsx file.".format(template_path))
-    return hd_template_workbook
-
-
 def collect_high_dim_templates(study):
     """Add the high-dim template files to the dictionary in case these are not specified in a clinical template."""
     study.hd_dict = {file: "<CONCEPT PATH>" for file in study.excel_files if "clin" not in file.lower() and
@@ -565,36 +534,37 @@ def process_high_dim(study):
         collect_high_dim_templates(study)
 
     for hd_template, concept_cd in study.hd_dict.items():
-        print("[INFO] Processing high-dim template: {0}".format(hd_template))
+        print("\n[INFO] Processing high-dim template: {0}".format(hd_template))
         # General processing
         experiment = HighDim()
+        experiment.workbook_name = os.path.basename(hd_template)
         experiment.output_dir = get_output_dir(study, hd_template)
 
-        hd_template_workbook = open_hd_file_template(study, hd_template)
-        (metadata_samples_sheet, platform_sheet, data_sheet) = read_hd_sheets(hd_template_workbook)
+        experiment.read_hd_file_template(study.source_dir, hd_template)
 
         # Get template specific characteristics from the description in the template header
-        get_template_type(experiment, metadata_samples_sheet.columns[0])
+        get_template_type(experiment)
 
         # Subject-sample mapping
-        ss_data = retrieve_ss_df(metadata_samples_sheet)
+        ss_data = retrieve_ss_df(experiment)
         process_mapping(ss_data, experiment, concept_cd, study)
 
         # Metadata
-        extract_hd_metadata(metadata_samples_sheet, concept_cd, experiment, study)
+        extract_hd_metadata(study, experiment, concept_cd)
 
         # Platform
-        process_platform(platform_sheet, experiment)
+        if experiment.sheets.platform is not None:
+            process_platform(experiment)
+        write_platform_params(experiment)
 
         # High-dimensional data
-        process_hd_data(data_sheet, experiment)
-
-        # Params files
-        write_platform_params(experiment)
+        if experiment.sheets.data is not None:
+            process_hd_data(experiment)
         write_hd_data_params(experiment)
-        print("[INFO] Completed processing of high-dim template: {0}".format(hd_template))
 
-    study._finalize_dir_level_metadata()
+        print("[INFO] Completed processing of high-dim template: {0}".format(experiment.workbook_name))
+
+    study.finalize_dir_level_metadata()
     study.write_metadata()
 
 
@@ -618,4 +588,4 @@ def create_study_from_templates(ID, source_dir, output_dir="transmart_files", se
     write_low_dim_params(study)
     process_high_dim(study)
     print("[INFO] Templates processed successfully!")
-    _epilogue()
+    Validity.TemplateException.epilogue(huge_succes=True)
