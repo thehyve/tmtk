@@ -50,7 +50,7 @@ Here we will create a study from these two files:
     ==========  study params  ==========
     Updating:  TOP_NODE=\(Public|Private) Studies\<STUDY_ID> (default).
     Helptext:  The study top node.
-    Change to:  \Public Studies\You're a wizard Harry
+    Change to:  \\Public Studies\\You're a wizard Harry
     Updating! (TOP_NODE=\Public Studies\You're a wizard Harry)
     --------------------
     Updating:  STUDY_ID=Uppercased parent directory.
@@ -211,7 +211,7 @@ load it into your tranSMART instance.
 
 .. code:: python
 
-    study.save_to('~/studies/updated_study')
+    study.write_to('~/studies/updated_study')
 
 Collaboration with non technical users.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

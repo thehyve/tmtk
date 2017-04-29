@@ -136,9 +136,60 @@ button#embeded_return {
   position: inherit;
   overflow-y: scroll;
 }
+.tag-container:empty::after{
+  content: 'Got nothing. ¯\\_(ツ)_/¯';
+  font-size: xx-large;
+}
+.list-tag-weight{
+  float: right;
+}
+.tag-delete {
+    float: right;
+    border: none;
+    top: 12px;
+    right: 49px;
+    position: absolute;
+    display: none;
+}
+.trigger.active .tag-delete {
+  display: inline-block;
+}
+ul.tagbox-header {
+  text-align: justify;
+  margin-top: 10px;
+  margin-right: 17px;
+  padding-left: 17px;
+  height: 2.0em;
+}
+ul.tagbox-header:after {
+  content: '';
+    display: inline-block;
+    width: 100%;
+}
+ul.tagbox-header:before {
+    content: '';
+    display: block;
+    margin-top: -2.25em;
+}
+.tagbox-header li {
+    color: #373a3c;
+    display: inline-block;
+    margin-right: -.25em;
+    position: relative;
+    top: 1.25em;
+}
+div.metadata {
+  height: calc(100% - 20px);
+}
+button#tag-save {
+  float: right;
+}
 .tag-description {
   height: 128px;
   max-height: 196px;
+}
+.tag-buttons {
+  padding-top: 5px;
 }
 .list-tag-title:empty::after {
   content: 'Add title.';

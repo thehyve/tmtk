@@ -15,15 +15,11 @@ def create_concept_tree(column_object):
     if isinstance(column_object, tmtk.Study):
         concept_tree = create_tree_from_study(column_object)
 
-    elif isinstance(column_object, pd.DataFrame):
-        concept_tree = create_tree_from_df(column_object)
-
     elif isinstance(column_object, tmtk.Clinical):
         concept_tree = create_tree_from_clinical(column_object)
 
     else:
-        raise Exceptions.DatatypeError(type(column_object),
-                                       "tmtk.Study, tmtk.Clinical or pd.DataFrame")
+        raise Exceptions.ClassError(type(column_object, 'tmtk.Clinical or tmtk.Study'))
 
     return concept_tree.jstree.json_data_string
 
@@ -140,41 +136,6 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
                               node_type=node_type, data_args=data_args)
 
     return concept_tree
-
-
-def create_tree_from_df(df, concept_tree=None):
-    """
-
-    :param df:
-    :param concept_tree:
-    :return:
-    """
-    if not concept_tree:
-        concept_tree = ConceptTree()
-
-    col_map_tuples = df.apply(get_concept_node_from_df, axis=1)
-
-    for concept_path, var_id, data_args in col_map_tuples:
-        concept_tree.add_node(concept_path, var_id, data_args=data_args)
-    return concept_tree
-
-
-def get_concept_node_from_df(x):
-    """
-    This is only used when a the arborist is called from a single DF.
-
-    :param x: row in column mapping dataframe
-    :return:
-    """
-    concept_path = path_join(x[1], x[3])
-    var_id = (x[0], x[2])
-
-    data_args = {}
-    for i, s in enumerate(Mappings.column_mapping_s):
-        if s in [Mappings.cat_cd_s, Mappings.data_label_s]:
-            continue
-        data_args.update({s: x[i] if len(x) > i else None})
-    return concept_path, var_id, data_args
 
 
 class ConceptTree:
@@ -516,7 +477,7 @@ class MyEncoder(json.JSONEncoder):
     """ Overwriting the standard JSON Encoder to treat numpy ints as native ints."""
 
     def default(self, obj):
-        if isinstance(obj, pd.np.int64):
+        if isinstance(obj, (pd.np.int64, pd.np.int32)):
             return int(obj)
         elif isinstance(obj, VarID):
             return str(obj)
