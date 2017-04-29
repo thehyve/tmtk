@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-from IPython.display import display, HTML
 
 from . import cached_property, file2df, df2file, CPrint
 
