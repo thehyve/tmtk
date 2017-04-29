@@ -1,9 +1,6 @@
-import socket
 import os
-import pandas as pd
 import shutil
 import time
-from threading import Thread
 from IPython.display import display, IFrame, clear_output
 import tempfile
 
@@ -22,27 +19,45 @@ def call_boris(to_be_shuffled=None, **kwargs):
         column mapping dataframe, or a path to column mapping file.
     """
 
-    if isinstance(to_be_shuffled, str) and os.path.exists(to_be_shuffled):
-        to_be_shuffled = utils.file2df(to_be_shuffled)
-        return_df = True
-
-    if isinstance(to_be_shuffled, (pd.DataFrame, tmtk.Clinical, tmtk.Study)):
-        pass
-
-    else:
+    if not isinstance(to_be_shuffled, (tmtk.Clinical, tmtk.Study)):
         CPrint.error("No path to column mapping file or a valid object given.")
-        raise utils.ClassError(type(to_be_shuffled, 'pd.DataFrame, tmtk.Clinical or tmtk.Study'))
+        raise utils.ClassError(type(to_be_shuffled, 'tmtk.Clinical or tmtk.Study'))
 
     json_data = create_concept_tree(to_be_shuffled)
-
     json_data = launch_arborist_gui(json_data, **kwargs)  # Returns modified json_data
+
+    if json_data:
+        CPrint.okay('Successfully closed The Arborist. The updated column mapping file '
+                    'has been returned as a dataframe.')
+        CPrint.warn("Don't forget to save this dataframe to disk if you want to store it.")
+    else:
+        return
 
     if isinstance(to_be_shuffled, tmtk.Study):
         update_study_from_json(to_be_shuffled, json_data=json_data)
     elif isinstance(to_be_shuffled, tmtk.Clinical):
         update_clinical_from_json(to_be_shuffled, json_data=json_data)
     else:
-        return ConceptTree(json_data).column_mapping_file
+        raise TypeError("Arborist could not find object to update.")
+
+
+def valid_arborist_or_exception(**kwargs):
+    from notebook import __version__ as notebook_version
+    if notebook_version < '4.2.0':
+        print("Version of notebook package should be atleast 4.2.0 for Arborist, consider:")
+        print("    $ pip3 install --upgrade notebook")
+        raise RuntimeError("Notebook too old for Arborist.")
+
+    from notebook.serverextensions import validate_serverextension
+    from notebook.nbextensions import check_nbextension
+    warnings = validate_serverextension('tmtk.arborist')
+    if warnings or not check_nbextension('transmart-arborist', **kwargs):
+        print('For the Arborist to work you need to install a jupyter serverextension using something like:')
+        print('  $ jupyter nbextension install --py tmtk.arborist')
+        print('  $ jupyter serverextension enable --py tmtk.arborist')
+        print('Then to verify installation run:')
+        print('  $ jupyter serverextension list')
+        raise RuntimeError('Transmart-arborist extension not found.')
 
 
 def launch_arborist_gui(json_data: str, height=650):
@@ -52,56 +67,39 @@ def launch_arborist_gui(json_data: str, height=650):
     :param height:
     :return:
     """
-    from .flask_connection import app
-
-    # Create a thread for the GUI app and start it.
-    port = get_open_port()
-    app_thread = Thread(target=app.run, kwargs={'port': port})
-    app_thread.start()
 
     new_temp_dir = tempfile.mkdtemp()
-    tmp_json = new_temp_dir + '/tmp_json'
+    tmp_json = os.path.join(new_temp_dir, 'tmp_json')
 
     with open(tmp_json, 'w') as f:
         f.write(json_data)
 
-    running_on = 'http://localhost:{}/treeview/{}'.format(port, os.path.abspath(tmp_json))
+    original_time = int(os.path.getmtime(tmp_json))
 
-    # Add wait for 0.5 second to give flask time to launch
-    time.sleep(0.25)
+    base_url = os.environ.get("ARBORIST_BASE_URL", "/")
 
+    running_on = '{}transmart-arborist?treefile={}'.format(base_url, os.path.abspath(tmp_json))
     display(IFrame(src=running_on, width='100%', height=height))
 
-    # Wait for the GUI app to be killed by user button input
-    app_thread.join()
+    try:
+        # Wait for the json file to change before breaking the GIL.
+        while original_time == int(os.path.getmtime(tmp_json)):
+            time.sleep(0.25)
 
-    # Clear output from Jupyter Notebook cell
-    clear_output()
+    except KeyboardInterrupt:
+        # This stops the interpreter without showing a stacktrace.
+        pass
 
-    CPrint.okay('Successfully closed The Arborist. The updated column mapping file '
-                'has been returned as a dataframe.')
-    CPrint.warn("Don't forget to save this dataframe to disk if you want to store it.")
+    else:
+        with open(tmp_json, 'r') as f:
+            json_data = f.read()
+        return json_data
 
-    with open(tmp_json, 'r') as f:
-        json_data = f.read()
-
-    shutil.rmtree(new_temp_dir)
-
-    return json_data
-
-
-def get_open_port():
-    """
-    Open an available port (as given by the OS) and return it.
-
-    :return: the port number
-    """
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('', 0))
-    s.listen(1)
-    port = s.getsockname()[1]
-    s.close()
-    return port
+    finally:
+        shutil.rmtree(new_temp_dir)
+        # Clear output from Jupyter Notebook cell
+        clear_output()
+        print('Cleaning up before closing.')
 
 
 def update_clinical_from_json(clinical, json_data):

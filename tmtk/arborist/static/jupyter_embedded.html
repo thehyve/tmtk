@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%!important;">
+<!--<html lang="en">-->
+<head>
+    <link rel="stylesheet" href="{{ static_base  }}/jstree/dist/themes/default/style.min.css"/>
+    <link rel="stylesheet" href="{{ static_base  }}/bootstrap-4.0.0a5.css"/>
+    <link rel="stylesheet" href="{{ static_base  }}/mainstyle.css"/>
+</head>
+<body>
+
+
+<div id="treeanddetails">
+
+    <div id="outer-tree-div">
+        <div id="tree-div"></div>
+        <div id="search-container">
+            <input class="form-control" type="text" id="search-box" placeholder="Search..."/>
+            <img id="search_spinner" src="{{ static_base  }}/images/spin.svg">
+        </div>
+        <div class="alert fade show" id="myAlert" role="alert">
+            <strong><span id="alert-text"></span></strong>
+        </div>
+    </div>
+
+    <!-- Here starts shared code between BaaS and Jupyter embedded template. -->
+    <div id="details">
+        <div id="details-header" class="header-bar">
+            <span class="header-title">Details: <span id="nodetype"></span> </span>
+        </div>
+        <form id="datanodedetails" class="blockform">
+            <ul>
+                <div class="clinicaldata" hidden>
+                    File: <span id="filename"></span> (<span id="columnnumber"></span>)
+                </div>
+
+                <div class="dfv" hidden>
+                    Datafile Value: <span id="datafile_value"></span>
+                </div>
+            </ul>
+
+            <table width="95%">
+                <colgroup>
+                    <col span="1" style="width: 100px;">
+                    <col span="1">
+                </colgroup>
+                <tr hidden class="label">
+                    <td>Label</td>
+                    <td>
+                        <input class="form-control form-control-sm" type="text" id="datalabel"/>
+                    </td>
+                </tr>
+                <tr hidden class="clinicaldata">
+                    <td>DLS</td>
+                    <td>
+                        <input class="form-control form-control-sm" type="text" id="magic5"/>
+                    </td>
+                </tr>
+                <tr hidden class="clinicaldata">
+                    <td>CVCD</td>
+                    <td>
+                        <input class="form-control form-control-sm" type="text" id="magic6"/>
+                    </td>
+                </tr>
+                <tr hidden class="clinicaldata">
+                    <td>
+                        <input class="form-control form-control-sm" type="checkbox" id="fc"/>
+                    </td>
+                    <td>Force Categorical <small>(requires reloading)</small></td>
+                </tr>
+            </table>
+
+            <div hidden class="metadata">
+                <ul class="tagbox-header">
+                    <li><small>Title and description</small></li>
+                    <li><small>Weight</small></li>
+                </ul>
+                <div id="tagbox" class="tag-container list-group"></div>
+                <div class="tag-buttons">
+                    <button type="button" class="btn btn-sm btn-secondary" id="tag-add">New</button>
+                    <button type="button" class="btn btn-sm btn-secondary" id="tag-save">Save</button>
+                </div>
+            </div>
+
+            <input type="submit" class="btn btn-sm btn-secondary clinicaldata" id="apply-changes" value="Apply changes"/>
+            <span id="feedback"></span>
+
+            <div hidden id="hdtagbox" class="hdtagdata table-striped">
+                <table id="hdtagtable" width="95%">
+                    <colgroup>
+                        <col span="1" style="width: 100px;">
+                        <col span="1" style="width: calc(95% - 100px);">
+                    </colgroup>
+                    <tbody id="hdtagtable-body">
+                    <tr><td colspan="2"><b>Node information</b></td></tr>
+                    <tr><td>datatype:</td><td id="hd_type"></td></tr>
+                    <tr><td>tissue type:</td><td id="hd_tissue"></td></tr>
+                    <tr><td>sample type:</td><td id="hd_sample"></td></tr>
+                    <tr><td colspan="2"><b>Platform information</b></td></tr>
+                    <tr><td>title:</td><td id="pl_title"></td></tr>
+                    <tr><td>marker type:</td><td id="pl_marker_type"></td></tr>
+                    <tr><td>genome build:</td><td id="pl_genome_build"></td></tr>
+                    <tr><td>platform ID:</td><td id="pl_id"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </form>
+        <!-- End of shared code. -->
+
+        <div id="bottom-btns">
+            <div class="btn-group" role="group" aria-label="Control buttons">
+                <div class="btn-group dropup" role="group">
+                    <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Templates
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <h6 class="dropdown-header">Master Templates</h6>
+                        <button class="dropdown-item" id="trait-master">TraIT Master Tree</button>
+                        <button class="dropdown-item disabled">TraIT Clinical</button>
+                        <div class="dropdown-divider"></div>
+                        <h6 class="dropdown-header">Metadata Templates</h6>
+                        <button class="dropdown-item " id="fair-study-metadata">FAIR study level</button>
+                        <div class="dropdown-divider"></div>
+                        <h6 class="dropdown-header">Other actions</h6>
+                        <button class="dropdown-item" id="download-template">Download as template.</button>
+                        <button class="dropdown-item" type="file" id="template-from-file">Apply from file.</button>
+                        <input hidden class='file-upload-button' type="file" />
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-danger" id="embeded_return">Exit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="application/javascript">
+    var treeData = {{ json | safe }};
+    var static_base = "{{ static_base }}";
+    var base_url = "{{ base_url }}";
+</script>
+
+<script src="{{ static_base  }}/jquery-1.11.1.js"></script>
+<script src="{{ static_base  }}/jstree/dist/jstree.min.js"></script>
+<script src="{{ static_base  }}/tether-1.2.0.js"></script>
+<script src="{{ static_base  }}/bootstrap-4.0.0a5.js"></script>
+<script src="{{ static_base  }}/tree.js"></script>

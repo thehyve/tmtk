@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 
-from ..arborist import call_boris
 from ..utils import (FileBase, Exceptions, Mappings, path_converter,
                      path_join, CPrint, column_map_diff)
 from ..params import ClinicalParams
@@ -54,13 +53,6 @@ class ColumnMapping(FileBase):
         df = self._df_mods(df)
         df = self.build_index(df)
         return df
-
-    def call_boris(self, height=650):
-        """
-        Use The Arborist to modify only information in the column mapping file.
-        :param height: set the height of the output cell
-        """
-        self.df = call_boris(self.df, height=height)
 
     def validate(self, verbosity=2):
         pass

@@ -355,13 +355,6 @@ tmtk.arborist.connect_to_baas module
    :undoc-members:
    :show-inheritance:
 
-tmtk.arborist.flask_connection module
--------------------------------------
-
-.. automodule:: tmtk.arborist.flask_connection
-   :members:
-   :show-inheritance:
-
 tmtk.arborist.jstreecontrol module
 ----------------------------------
 
