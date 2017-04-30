@@ -172,6 +172,7 @@ def get_output_dir(study, hd_template_file_name):
     hd_output_dir = re.sub("template", "", hd_output_dir, flags=re.I)
     hd_output_dir = "_".join(hd_output_dir.split())
     hd_output_dir = os.path.join(study.output_dir, hd_output_dir)
+    os.makedirs(os.path.join(hd_output_dir, "annotation"), exist_ok=True)
     return hd_output_dir
 
 
