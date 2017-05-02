@@ -5,9 +5,9 @@ from .DataFile import DataFile
 from .Variable import Variable, VarID
 from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
-from ..utils import CPrint, PathError, clean_for_namespace
+from ..utils import CPrint, PathError, clean_for_namespace, FileBase
 from .. import arborist
-from ..utils.batch import TransmartBatch, Destinations
+from ..utils.batch import TransmartBatch
 
 
 class Clinical:
@@ -143,16 +143,12 @@ class Clinical:
     @property
     def load_to(self):
         return TransmartBatch(param=self.params.path,
-                              items_expected=self._total_batch_items
+                              items_expected=self._get_lazy_batch_items()
                               ).get_loading_namespace()
 
-    @property
-    def datafiles(self):
-        return self.ColumnMapping.df.ix[:, 0].unique()
+    def _get_lazy_batch_items(self):
+        return {self.params.path: [self.get_datafile(f).path for f in self.ColumnMapping.included_datafiles]}
 
     @property
-    def _total_batch_items(self):
-        total = 0
-        for datafile in self.datafiles:
-            total += self.get_datafile(datafile).df.shape[0]
-        return total
+    def clinical_files(self):
+        return [x for k, x in self.__dict__.items() if issubclass(type(x), FileBase)]

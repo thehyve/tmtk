@@ -165,8 +165,9 @@ class HighDimBase(utils.FileBase):
 
     @property
     def load_to(self):
-        return utils.TransmartBatch().get_loading_namespace(self.params.path, items_expected=self._total_batch_items)
+        return utils.TransmartBatch(self.params.path,
+                                    items_expected=self._get_lazy_batch_items()
+                                    ).get_loading_namespace()
 
-    @property
-    def _total_batch_items(self):
-        return len(self.sample_mapping.samples) * self.df.shape[0]
+    def _get_lazy_batch_items(self):
+        return {self.params.path: (len(self.sample_mapping.samples), self.path)}

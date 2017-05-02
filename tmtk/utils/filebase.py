@@ -114,7 +114,10 @@ class FileBase:
 
     @property
     def df_has_changed(self):
-        return not hash(self) == self._hash_init
+        if not self._hash_init:
+            return False
+        else:
+            return hash(self) != self._hash_init
 
     @property
     def header(self):

@@ -38,7 +38,7 @@ class ClinicalJob(JobStepsDescription):
         ('gatherCurrentPatients', 'gathering patients..'),
         ('GatherCurrentConcepts', 'gathering concepts..'),
         ('gatherXtrialNodes', 'gathering cross trial nodes..'),
-        ('deleteObservationFact', 'deleting observations, this could take a while..'),
+        ('deleteObservationFact', 'removing stuff, this takes a while..'),
         ('deleteConceptCounts', 'deleting concept counts..'),
         ('rowProcessingStep', 'loading data items..'),
         ('tagsLoadStep', 'loading metadata tags..'),
@@ -107,7 +107,6 @@ class ProteomicsAnnotationJob(JobStepsDescription):
 
 class TagsJob(JobStepsDescription):
     progress_bar_step = 'tagsLoadStep'
-
     step_list = [
         ('GatherCurrentConcepts', 'Description not set'),
         ('ValidateTopNodePreexistence', 'Description not set'),

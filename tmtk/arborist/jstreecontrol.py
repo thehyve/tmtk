@@ -59,7 +59,7 @@ def create_tree_from_study(study, concept_tree=None):
 
     concept_tree = create_tree_from_clinical(study.Clinical, concept_tree)
 
-    for high_dim_node in study.high_dim_nodes:
+    for high_dim_node in study.high_dim_files:
         annotation = study.find_annotation(high_dim_node.platform)
 
         for md5, path in high_dim_node.sample_mapping.get_concept_paths.items():

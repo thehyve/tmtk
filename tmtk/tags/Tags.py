@@ -87,9 +87,8 @@ class MetaDataTags(FileBase):
     @property
     def load_to(self):
         return TransmartBatch(param=self.params.path,
-                              items_expected=self._total_batch_items
+                              items_expected=self._get_lazy_batch_items()
                               ).get_loading_namespace()
 
-    @property
-    def _total_batch_items(self):
-        return self.df.shape[0]
+    def _get_lazy_batch_items(self):
+        return {self.params.path: [self.path]}
