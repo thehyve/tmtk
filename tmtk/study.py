@@ -191,7 +191,7 @@ class Study:
     @property
     def clinical_files(self):
         """All clinical file objects in this study."""
-        return self.Clinical.clinical_files if hasattr(self, 'Clinical') else []
+        return self.Clinical.clinical_files if hasattr(self.Clinical, 'clinical_files') else []
 
     @property
     def tag_files(self):
@@ -310,12 +310,19 @@ class Study:
 
         lazy_dict = {}
 
-        try:
-            lazy_dict.update(self.Clinical._get_lazy_batch_items())
-        except AttributeError:
-            pass
-
-        for file in self.high_dim_files + self.annotation_files + self.tag_files:
-                lazy_dict.update(file._get_lazy_batch_items())
-
+        for item in self._get_loadable_objects():
+            lazy_dict.update(item._get_lazy_batch_items())
         return lazy_dict
+
+    def _get_loadable_objects(self):
+        """ Gets all items that could potentially be loaded with transmart-batch """
+        l = self.high_dim_files + self.annotation_files + self.tag_files
+        if hasattr(self, 'Clinical'):
+            l.append(self.Clinical)
+        return l
+
+    def get_object_from_params_path(self, path):
+        """ Returns object that belongs to the params path given """
+        for item in self._get_loadable_objects():
+            if item.params.path == path:
+                return item

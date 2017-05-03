@@ -32,9 +32,9 @@ class JobStepsDescription:
 class ClinicalJob(JobStepsDescription):
     progress_bar_step = 'rowProcessingStep'
     step_list = [
-        ('readWordMap', 'reading wordmap..'),
-        ('readVariables', 'reading variables..'),
-        ('readXtrialsFile', 'reading cross trial file..'),
+        ('readWordMap', 'reading data files..'),
+        ('readVariables', 'reading data files..'),
+        ('readXtrialsFile', 'reading data files..'),
         ('gatherCurrentPatients', 'gathering patients..'),
         ('GatherCurrentConcepts', 'gathering concepts..'),
         ('gatherXtrialNodes', 'gathering cross trial nodes..'),
@@ -51,66 +51,66 @@ class ClinicalJob(JobStepsDescription):
 class HighDimJob(JobStepsDescription):
     progress_bar_step = 'secondPass'
     step_list = [
-        ('readMappingFile', 'Description not set'),
-        ('failIfPlatformNotFound', 'Description not set'),
-        ('checkPlatformNotFound', 'Description not set'),
-        ('gatherCurrentConcepts', 'Description not set'),
-        ('validateTopNodePreexistence', 'Description not set'),
-        ('validateHighDimensionalConcepts', 'Description not set'),
-        ('gatherCurrentPatients', 'Description not set'),
-        ('validatePatientIntersection', 'Description not set'),
-        ('loadAnnotationMappings', 'Description not set'),
-        ('firstPass', 'Description not set'),
-        ('deleteHdData', 'Description not set'),
-        ('deleteCurrentAssays', 'Description not set'),
-        ('deleteConceptCounts', 'Description not set'),
-        ('deleteObservationFact', 'Description not set'),
-        ('insertConcepts', 'Description not set'),
-        ('writePseudoFactsStep', 'Description not set'),
-        ('insertConceptCounts', 'Description not set'),
-        ('writeAssays', 'Description not set'),
-        ('partitionDataTable', 'Description not set'),
-        ('secondPass', 'Description not set'),
+        ('readMappingFile', 'reading subject mapping..'),
+        ('failIfPlatformNotFound', 'checking platform..'),
+        ('checkPlatformNotFound', 'checking platform..'),
+        ('gatherCurrentConcepts', 'getting current concepts..'),
+        ('validateTopNodePreexistence', 'getting current concepts..'),
+        ('validateHighDimensionalConcepts', 'getting current concepts..'),
+        ('gatherCurrentPatients', 'getting current patients..'),
+        ('validatePatientIntersection', 'getting current patients..'),
+        ('loadAnnotationMappings', 'loading annotation map..'),
+        ('firstPass', 'checking a bunch of stuff, this takes a while..'),
+        ('deleteHdData', 'removing stuff, this takes a while..'),
+        ('deleteCurrentAssays', 'cleaning up prior to load..'),
+        ('deleteConceptCounts', 'cleaning up prior to load..'),
+        ('deleteObservationFact', 'cleaning up prior to load..'),
+        ('insertConcepts', 'preparing load step..'),
+        ('writePseudoFactsStep', 'preparing load step..'),
+        ('insertConceptCounts', 'preparing load step..'),
+        ('writeAssays', 'preparing load step..'),
+        ('partitionDataTable', 'preparing load step..'),
+        ('secondPass', 'loading data items..'),
     ]
 
 
 class ChromosomalRegionJob(JobStepsDescription):
     progress_bar_step = 'insertChromosomalRegions'
     step_list = [
-        ('deleteChromosomalRegions', 'Description not set'),
-        ('deleteGplInfo', 'Description not set'),
-        ('insertGplInfo', 'Description not set'),
-        ('insertChromosomalRegions', 'Description not set'),
+        ('deleteChromosomalRegions', 'deleting old stuff..'),
+        ('deleteGplInfo', 'deleting old stuff..'),
+        ('insertGplInfo', 'preparing for loading..'),
+        ('insertChromosomalRegions', 'preparing for loading..'),
     ]
 
 
 class ExpressionAnnotationJob(JobStepsDescription):
     progress_bar_step = 'mainStep'
     step_list = [
-        ('deleteAnnotations', 'Description not set'),
-        ('deleteGplInfo', 'Description not set'),
-        ('insertGplInfo', 'Description not set'),
-        ('mainStep', 'Description not set'),
+        ('deleteAnnotations', 'deleting old stuff..'),
+        ('deleteGplInfo', 'deleting old stuff..'),
+        ('insertGplInfo', 'preparing for loading..'),
+        ('mainStep', 'preparing for loading..'),
     ]
 
 
 class ProteomicsAnnotationJob(JobStepsDescription):
     progress_bar_step = 'mainStep'
     step_list = [
-        ('deleteAnnotations', 'Description not set'),
-        ('deleteGplInfo', 'Description not set'),
-        ('insertGplInfo', 'Description not set'),
-        ('fillUniprotIdToUniprotNameMapping', 'Description not set'),
-        ('mainStep', 'Description not set'),
+        ('deleteAnnotations', 'deleting old stuff..'),
+        ('deleteGplInfo', 'deleting old stuff..'),
+        ('insertGplInfo', 'preparing for loading..'),
+        ('fillUniprotIdToUniprotNameMapping', 'setting identifiers..'),
+        ('mainStep', 'preparing for loading..'),
     ]
 
 
 class TagsJob(JobStepsDescription):
     progress_bar_step = 'tagsLoadStep'
     step_list = [
-        ('GatherCurrentConcepts', 'Description not set'),
-        ('ValidateTopNodePreexistence', 'Description not set'),
-        ('tagsLoadStep', 'Description not set'),
+        ('GatherCurrentConcepts', 'getting current concepts..'),
+        ('ValidateTopNodePreexistence', 'getting current concepts..'),
+        ('tagsLoadStep', 'loading tags..'),
         ]
 
 job_map = {'clinical.params': ClinicalJob(),

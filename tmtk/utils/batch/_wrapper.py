@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import socket
 import re
+from datetime import datetime
 
 from threading import Thread
 from tqdm import tqdm
@@ -23,6 +24,7 @@ class JobProperties:
     def __init__(self, path, tmbatch=None, param=None, items_expected=None):
         self.path = path
         self.filename = os.path.basename(path)
+        self.name = clean_for_namespace(self.filename.rsplit('.properties', 1)[0])
         self.tmbatch = tmbatch
         self.param = param
         self.items_expected = items_expected
@@ -42,6 +44,18 @@ class JobProperties:
         return 'Add "()" to call transmart-batch with property file: {!r}'.format(self.filename)
 
     def __call__(self, *args, **kwargs):
+        """
+        Run an actual transmart-batch job.
+
+        :param properties_file: path to properties file with database connection information.
+        :param param: parameter file to be used in transmart-batch command.
+        :param log: path to a log file to write to. If True (default) writes log to same folder as params.
+                    With False, output is not logged.
+        :param silent: do not show progress bars.
+        :param items_expected: specific dictionary created by loadable class methods.
+        :param non_html: force not showing Javascript widget loading bars.
+        :param background: release the GIL or not.
+        """
         if self.check_connection():
             self.tmbatch.run_job(properties_file=self.path, *args, **kwargs)
 
@@ -68,7 +82,7 @@ class JobProperties:
             s.connect((self.host, self.port))
             return True
         except Exception as e:
-            print("something's wrong with {}:{}. Exception is {}".format(self.host, self.port, e))
+            print("Something is wrong with the connection to {}:{}. Exception: {}".format(self.host, self.port, e))
             return False
         finally:
             s.close()
@@ -98,17 +112,19 @@ class TransmartBatch:
             raise EnvironmentError('Environment variable $TMBATCH_HOME not set.')
         return home
 
-    def run_job(self, log=True, silent=None, items_expected=None, background=False, properties_file=None, param=None):
+    def run_job(self, properties_file=None, param=None, log=True, silent=False,
+                items_expected=None, non_html=False, background=False):
         """
         Run an actual transmart-batch job.
 
-        :param properties_file:
+        :param properties_file: path to properties file with database connection information.
         :param param: parameter file to be used in transmart-batch command.
-        :param log:
-        :param silent:
-        :param items_expected:
-        :param background:
-        :return:
+        :param log: path to a log file to write to. If True (default) writes log to same folder as params.
+                    With False, output is not logged.
+        :param silent: do not show progress bars.
+        :param items_expected: specific dictionary created by loadable class methods.
+        :param non_html: force not showing Javascript widget loading bars.
+        :param background: release the GIL or not.
         """
 
         param = param or self._param
@@ -127,7 +143,8 @@ class TransmartBatch:
         job = [self.batch_jar, '-c', properties_file, '-n', f_or_p, param]
         logger.warning("Starting job: {}".format(" ".join([s.replace(self.tmbatch_home, '$TMBATCH_HOME') for s in job])))
 
-        job = BatchJob(job, job_type=job_type, log=log, silent=silent, items_expected=items_expected)
+        job = BatchJob(job, job_type=job_type, log=log, non_html=non_html,
+                       silent=silent, items_expected=items_expected)
         job.start()
 
         if not background:
@@ -148,14 +165,13 @@ class TransmartBatch:
                 youngest = jar
         return youngest
 
-    def _get_property_files(self, *args, **kwargs):
+    def get_property_files(self, *args, **kwargs):
         """
         Dictionary of all property files.
 
         :return: dictionary of TransmartBatchProperties objects.
         """
-        files = [JobProperties(p, tmbatch=self, *args, **kwargs) for p in glob(os.path.join(self.tmbatch_home, "*.properties"))]
-        return {clean_for_namespace(p.filename.rsplit('.properties', 1)[0]): p for p in files}
+        return [JobProperties(p, tmbatch=self, *args, **kwargs) for p in glob(os.path.join(self.tmbatch_home, "*.properties"))]
 
     def get_loading_namespace(self, *args, **kwargs):
         """
@@ -163,17 +179,19 @@ class TransmartBatch:
 
         :return: Destinations namespace.
         """
-        return Destinations(**self._get_property_files(*args, **kwargs))
+        return Destinations(**{p.name: p for p in self.get_property_files(*args, **kwargs)})
 
 
 class BatchJob(Thread):
 
-    def __init__(self, job=None, items_expected=None, job_type=None, log=None, silent=None):
+    def __init__(self, job=None, items_expected=None, non_html=None,
+                 job_type=None, log=None, silent=None):
         self.job = job
         self._silent = silent
         self.process = None
         self.job_type = job_type
         self.log = log
+        self.non_html = non_html
         self._items_expected = items_expected
         super().__init__()
 
@@ -181,12 +199,13 @@ class BatchJob(Thread):
 
         self.process = subprocess.Popen(self.job,
                                         stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
+                                        stderr=subprocess.STDOUT,
                                         universal_newlines=True)
 
         if not self._silent:
             JobLogger(stdout_stream=self.process.stdout,
                       log=self.log,
+                      non_html=self.non_html,
                       items_expected=self._items_expected)
 
 
@@ -196,23 +215,27 @@ class JobLogger:
     _all_jobs_tell = 'o.t.b.startup.RunJob - Following params'
     _new_job_tell = 'o.t.b.startup.RunJob - Start processing'
     _step_tell = 'o.s.b.c.j.SimpleStepHandler - Executing step:'
-    _items_written_tell = 'o.t.b.b.ProgressWriteListener - Items written:'
+    _items_written_tell = 'o.t.b.b.ProgressWriteListener - Items written: '
 
     # Progress bar text has to to be adjusted depending on GUI (Jupyter or console)
     _div = '<div style="margin-top:4px;">{}</div>'
     _pad = '{:<85}'
 
-    # Three base text settings
-    __status = 'Step ({i_step}/{n_step}): {desc} ({step_name})'
-    __status_total = 'Job {i_job} out of {n_job}. Currently running: {cur_job!r}'
-    __status_initial_text = 'Launching, please wait..'
+    # Width of tqdm output
+    __NCOLS = 140
 
-    def __init__(self, stdout_stream, log=None, items_expected=None):
+    # Base text settings
+    __status = 'Step ({i_step}/{n_step}): {desc} ({step_name})'
+    __status_total = '({perc:.1f}%) Job {i_job} out of {n_job}. Currently: {cur_job!r}'
+    __status_initial_text = 'Launching, please wait..'
+    __tqdm_bar_format = 'Job:    |{bar}| {desc}'
+    __tqdm_bar_format_total = 'Total:  |{bar}| {desc}'
+
+    def __init__(self, stdout_stream, log=None, non_html=None, items_expected=None):
 
         self.log = log or os.devnull
         self._items_expected = None
         self._all_jobs_items_n = None
-        self._multi_job = len(items_expected) > 1
 
         self.params_found = None
         self.current_job = None
@@ -222,30 +245,29 @@ class JobLogger:
         self._all_jobs_items_i = 0
         self._items_current_step = 0
         self._job_description = None
+        self._start_time = datetime.now()
 
         self._status_override = None
         self._last_warning = None
+        self._exception = None
 
-        # Hacky way to figure out front-end environment
         self._is_jupyter = False
-        display(self)
 
-        self.bar_format = 'Job: {n}/|/{desc}' if self._is_jupyter else 'Job:    |{bar}| {desc}'
-        self.bar_format_total = 'Total: {n}/|/{desc}' if self._is_jupyter else 'Total:  |{bar}| {desc}'
+        if not non_html:
+            # Hacky way to figure out front-end environment
+            display(self)
+
         self._wrapper = self._div if self._is_jupyter else self._pad
         self._status_initial = self._wrapper.format(self.__status_initial_text)
 
         if self._is_jupyter:
             self._pbar = ipywidgets.IntProgress()
             self._pbar_desc = ipywidgets.HTML(value=self._status_initial)
-            widgets = ipywidgets.HBox([self._pbar, self._pbar_desc])
 
-            if self._multi_job:
-                self._pbar_total = ipywidgets.IntProgress()
-                self._pbar_total_desc = ipywidgets.HTML(value=self._status_initial)
-                widgets = ipywidgets.VBox([ipywidgets.HBox([self._pbar_total, self._pbar_total_desc]), widgets])
-
-            display(widgets)
+            self._pbar_total = ipywidgets.IntProgress()
+            self._pbar_total_desc = ipywidgets.HTML(value=self._status_initial)
+            display(ipywidgets.VBox([ipywidgets.HBox([self._pbar_total, self._pbar_total_desc]),
+                                     ipywidgets.HBox([self._pbar, self._pbar_desc])]))
 
         # This is step is IO sensitive.
         # Creating widgets before so they are less likely to be in wrong cell.
@@ -253,13 +275,15 @@ class JobLogger:
         self.items_expected = items_expected
 
         if not self._is_jupyter:
-            if self._multi_job:
-                self._pbar_total = tqdm(bar_format=self.bar_format_total,
-                                        dynamic_ncols=True,
-                                        total=self._all_jobs_items_n,
-                                        desc=self._status_initial)
+            self._pbar_total = tqdm(bar_format=self.__tqdm_bar_format_total,
+                                    total=self._all_jobs_items_n,
+                                    ncols=self.__NCOLS,
+                                    desc=self._status_initial)
 
-            self._pbar = tqdm(bar_format=self.bar_format, dynamic_ncols=True, total=10, desc=self._status_initial)
+            self._pbar = tqdm(bar_format=self.__tqdm_bar_format,
+                              total=10,
+                              ncols=self.__NCOLS,
+                              desc=self._status_initial)
 
         self.start_log(stdout_stream)
 
@@ -274,37 +298,37 @@ class JobLogger:
     def update_progress(self):
         if self._is_jupyter:
             self._pbar_desc.value = self._status_job
-            self._pbar.value = self._items_current_step or 0
+            self._pbar.value = self._items_current_step
 
-            if self._multi_job:
-                self._pbar_total_desc.value = self._status_total
-                self._pbar_total.value = self._all_jobs_items_i + self._pbar.value
+            self._pbar_total_desc.value = self._status_total
+            self._pbar_total.value = self._all_jobs_items_i + self._items_current_step
 
         else:
+            self._pbar.n = self._items_current_step
             self._pbar.set_description(self._status_job)
-            self._pbar.n = self._items_current_step or 0
-            self._pbar.update(0)
 
-            if self._multi_job:
-                self._pbar_total.set_description(self._status_total)
-                self._pbar_total.n = self._all_jobs_items_i + self._pbar.n
-                self._pbar_total.update(0)
+            self._pbar_total.n = self._all_jobs_items_i + self._items_current_step
+            self._pbar_total.set_description(self._status_total)
+            self._pbar_total.update(0)
+
+            self._pbar.update(0)
 
         self._status_override = None
 
     def _reset_job_pbar(self):
         """ Reset progress bar when job is finished. """
+        self._items_current_step = 0
+
         if self._is_jupyter:
             self._pbar.max = self.items_expected
 
         else:
             self._pbar.close()
-            del self._pbar
-            self._pbar = tqdm(bar_format=self.bar_format,
+            self._pbar = tqdm(bar_format=self.__tqdm_bar_format,
                               initial=0,
                               total=self.items_expected,
-                              desc=self._status_initial)
-        self._items_current_step = 0
+                              ncols=self.__NCOLS,
+                              desc=self._status_job)
 
     @property
     def _status_job(self):
@@ -317,6 +341,7 @@ class JobLogger:
     @property
     def _status_total(self):
         return self._wrapper.format(self.__status_total.format(
+            perc=(self._all_jobs_items_i + self._items_current_step) / self._all_jobs_items_n * 100,
             i_job=self._job_i,
             n_job=self._all_jobs_n,
             cur_job=self.params_found))
@@ -386,20 +411,31 @@ class JobLogger:
                     self._row_parser(line)
             except:
                 raise
+
             finally:
                 failed = self._all_jobs_items_i + self._items_current_step < self._all_jobs_items_n
-                if not self._is_jupyter:
-                    self._pbar.close()
-                    self._pbar_total.close()
-                else:
+                if self._is_jupyter:
                     bar_color = 'danger' if failed else 'success'
                     self._pbar.bar_style = bar_color
-                    if self._multi_job:
-                        self._pbar_total.bar_style = bar_color
+                    self._pbar_total.bar_style = bar_color
+                else:
+                    self._pbar_total.close()
+                    self._pbar.close()
+
+                if self._exception:
+                    logger.error(self._exception)
+                    if self.log:
+                        print("See log for more info: {}".format(self.log))
+
+                print('Job {}'.format('failed :(' if failed else 'finished successfully!'))
+                print('Job ran for: {}'.format(str(datetime.now() - self._start_time)))
 
     def _row_parser(self, line):
         if '[WARN]' in line[:100]:
             self._last_warning = line
+
+        if line.startswith('Exception in thread'):
+            self._exception = line
 
         if not self._all_jobs_n and self._all_jobs_tell in line[:140]:
             self._all_jobs = [j.rsplit(', ', 1)[-1]+'.params' for j in line.strip(']) \n').split('.params')]
@@ -418,14 +454,14 @@ class JobLogger:
 
             # Set job description
             self.params_found = self.current_job.rsplit(os.sep, 1)[1]
-            self.job_description = job_map.get(self.params_found)
             self._status_override = 'Job registered for {}'.format(self.params_found)
+            self.job_description = job_map.get(self.params_found)
 
         elif self._step_tell in line[:140]:
             self.current_step = line.rsplit('[', 1)[1].strip('[] \n')
 
         elif self._items_written_tell in line[:140] and self.current_step == self.job_description.progress_bar_step:
-            items_written = line.split('o.t.b.b.ProgressWriteListener - Items written: ')[1].split(',')[0]
+            items_written = line.split(self._items_written_tell)[1].split(',')[0]
             self._items_current_step = int(items_written)
             self._status_override = '{} items written.'.format(items_written)
 
@@ -436,10 +472,7 @@ class JobLogger:
 
         elif line.endswith('[UNKNOWN]\n') or line.endswith('[FAILED]\n'):
             self._status_override = 'Job failed.'
-            logger.warning("Job failed: {}".format(self.current_job))
-            logger.warning("With error: {}".format(self._last_warning))
-            if self.log:
-                print("See log for more info: {}".format(self.log))
+            self._exception = "Job failed: {}\nWith error: {}".format(self.current_job, self._last_warning)
 
         else:
             return
