@@ -1,2 +1,7 @@
+### Mandatory
+# Points to the column file.
 COLUMN_MAP_FILE=Cell-line_columns.txt
+
+### Optional
+# Points to the file with dictionary to be used.
 WORD_MAP_FILE=Cell-line_wordmap.txt

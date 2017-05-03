@@ -1,4 +1,11 @@
-DATA_FILE=data.tsv
-DATA_TYPE=R
-LOG_BASE=2
+### Mandatory
+# Filename of the mapping file.
 MAP_FILENAME=subject_sample_mapping.tsv
+# Points to the HD data file.
+DATA_FILE=data.tsv
+# Must be R (raw values). Other types are not supported yet.
+DATA_TYPE=R
+
+### Optional
+# Keep this at 2 (sorry about that).
+LOG_BASE=2

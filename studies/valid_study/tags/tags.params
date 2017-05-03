@@ -1,2 +1,5 @@
+### Mandatory
+# Points to the tags file.
 TAGS_FILE=tags.txt
 
+### Optional
