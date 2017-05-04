@@ -68,8 +68,6 @@ def launch_arborist_gui(json_data: str, height=650):
     :return:
     """
 
-    valid_arborist_or_exception()
-
     new_temp_dir = tempfile.mkdtemp()
     tmp_json = os.path.join(new_temp_dir, 'tmp_json')
 
