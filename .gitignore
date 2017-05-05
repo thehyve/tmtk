@@ -38,3 +38,4 @@ nosetests.xml
 
 *.ipynb
 !tmtk/arborist/static/jstree/dist
+*.log

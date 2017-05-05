@@ -202,14 +202,18 @@ class BatchJob(Thread):
                                         stderr=subprocess.STDOUT,
                                         universal_newlines=True)
 
-        if not self._silent:
-            JobLogger(stdout_stream=self.process.stdout,
-                      log=self.log,
-                      non_html=self.non_html,
-                      items_expected=self._items_expected)
+        StatusParser(stdout_stream=self.process.stdout,
+                     log=self.log,
+                     silent=self._silent,
+                     non_html=self.non_html,
+                     items_expected=self._items_expected)
 
 
-class JobLogger:
+class StatusParser:
+    """
+    This class parses the output of transmart batch and computes the current state of
+    the loading process.
+    """
 
     # Some triggers for parsing output
     _all_jobs_tell = 'o.t.b.startup.RunJob - Following params'
@@ -217,73 +221,44 @@ class JobLogger:
     _step_tell = 'o.s.b.c.j.SimpleStepHandler - Executing step:'
     _items_written_tell = 'o.t.b.b.ProgressWriteListener - Items written: '
 
-    # Progress bar text has to to be adjusted depending on GUI (Jupyter or console)
-    _div = '<div style="margin-top:4px;">{}</div>'
-    _pad = '{:<85}'
+    def __init__(self, stdout_stream, log=None, silent=None, non_html=None, items_expected=None):
 
-    # Width of tqdm output
-    __NCOLS = 140
-
-    # Base text settings
-    __status = 'Step ({i_step}/{n_step}): {desc} ({step_name})'
-    __status_total = '({perc:.1f}%) Job {i_job} out of {n_job}. Currently: {cur_job!r}'
-    __status_initial_text = 'Launching, please wait..'
-    __tqdm_bar_format = 'Job:    |{bar}| {desc}'
-    __tqdm_bar_format_total = 'Total:  |{bar}| {desc}'
-
-    def __init__(self, stdout_stream, log=None, non_html=None, items_expected=None):
-
+        self._start_time = datetime.now()
         self.log = log or os.devnull
-        self._items_expected = None
-        self._all_jobs_items_n = None
 
+        self.all_jobs_items_n = None
         self.params_found = None
         self.current_job = None
         self.current_step = None
-        self._all_jobs = None
-        self._all_jobs_n = None
-        self._all_jobs_items_i = 0
-        self._items_current_step = 0
-        self._job_description = None
-        self._start_time = datetime.now()
+        self.all_jobs_n = None
 
-        self._status_override = None
+        self.all_jobs_items_trunc = 0
+        self.items_current_step = 0
+
+        self.status_override = None
+
+        self._all_jobs = None
+        self._job_description = None
+
         self._last_warning = None
         self._exception = None
 
         self._is_jupyter = False
-
         if not non_html:
             # Hacky way to figure out front-end environment
             display(self)
 
-        self._wrapper = self._div if self._is_jupyter else self._pad
-        self._status_initial = self._wrapper.format(self.__status_initial_text)
+        if silent:
+            self.progress_bar = NullLogger(parser=self)
+        elif self._is_jupyter:
+            self.progress_bar = WebLoggerBar(parser=self)
+        else:
+            self.progress_bar = ConsoleLoggerBar(parser=self)
 
-        if self._is_jupyter:
-            self._pbar = ipywidgets.IntProgress()
-            self._pbar_desc = ipywidgets.HTML(value=self._status_initial)
-
-            self._pbar_total = ipywidgets.IntProgress()
-            self._pbar_total_desc = ipywidgets.HTML(value=self._status_initial)
-            display(ipywidgets.VBox([ipywidgets.HBox([self._pbar_total, self._pbar_total_desc]),
-                                     ipywidgets.HBox([self._pbar, self._pbar_desc])]))
-
-        # This is step is IO sensitive.
-        # Creating widgets before so they are less likely to be in wrong cell.
-        # tqdm does not like resetting total, so have to get values prior.
+        self._items_expected = None
         self.items_expected = items_expected
-
-        if not self._is_jupyter:
-            self._pbar_total = tqdm(bar_format=self.__tqdm_bar_format_total,
-                                    total=self._all_jobs_items_n,
-                                    ncols=self.__NCOLS,
-                                    desc=self._status_initial)
-
-            self._pbar = tqdm(bar_format=self.__tqdm_bar_format,
-                              total=10,
-                              ncols=self.__NCOLS,
-                              desc=self._status_initial)
+        
+        self.progress_bar.set_total_max()
 
         self.start_log(stdout_stream)
 
@@ -294,57 +269,6 @@ class JobLogger:
 
     def __repr__(self):
         return ' '
-
-    def update_progress(self):
-        if self._is_jupyter:
-            self._pbar_desc.value = self._status_job
-            self._pbar.value = self._items_current_step
-
-            self._pbar_total_desc.value = self._status_total
-            self._pbar_total.value = self._all_jobs_items_i + self._items_current_step
-
-        else:
-            self._pbar.n = self._items_current_step
-            self._pbar.set_description(self._status_job)
-
-            self._pbar_total.n = self._all_jobs_items_i + self._items_current_step
-            self._pbar_total.set_description(self._status_total)
-            self._pbar_total.update(0)
-
-            self._pbar.update(0)
-
-        self._status_override = None
-
-    def _reset_job_pbar(self):
-        """ Reset progress bar when job is finished. """
-        self._items_current_step = 0
-
-        if self._is_jupyter:
-            self._pbar.max = self.items_expected
-
-        else:
-            self._pbar.close()
-            self._pbar = tqdm(bar_format=self.__tqdm_bar_format,
-                              initial=0,
-                              total=self.items_expected,
-                              ncols=self.__NCOLS,
-                              desc=self._status_job)
-
-    @property
-    def _status_job(self):
-        return self._wrapper.format(self.__status.format(
-            step_name=self.current_step or '*',
-            i_step=self.job_step_i,
-            n_step=self.job_step_n,
-            desc=self.job_step_description))
-
-    @property
-    def _status_total(self):
-        return self._wrapper.format(self.__status_total.format(
-            perc=(self._all_jobs_items_i + self._items_current_step) / self._all_jobs_items_n * 100,
-            i_job=self._job_i,
-            n_job=self._all_jobs_n,
-            cur_job=self.params_found))
 
     @property
     def items_expected(self):
@@ -359,18 +283,13 @@ class JobLogger:
             else:
                 path_dict[k] = sum([file_length(n) for n in v])
         self._items_expected = path_dict
-        self._all_jobs_items_n = sum(path_dict.values())
-        try:
-            # In jupyter
-            self._pbar_total.max = self._all_jobs_items_n
-        except AttributeError:
-            pass
+        self.all_jobs_items_n = sum(path_dict.values())
 
     @property
-    def _job_i(self):
+    def all_jobs_i(self):
         try:
             return self._all_jobs.index(self.current_job) + 1
-        except ValueError:
+        except (ValueError, AttributeError):
             return 0
 
     @property
@@ -390,7 +309,7 @@ class JobLogger:
     @property
     def job_step_description(self):
         try:
-            return self._status_override or self.job_description.description_of(self.current_step)
+            return self.status_override or self.job_description.description_of(self.current_step)
         except AttributeError:
             return '*'
 
@@ -401,7 +320,8 @@ class JobLogger:
     @job_description.setter
     def job_description(self, value):
         self._job_description = value
-        self._reset_job_pbar()
+        self.items_current_step = 0
+        self.progress_bar.reset_job_pbar()
 
     def start_log(self, stdout_stream):
         with open(self.log, 'a') as f:
@@ -409,18 +329,9 @@ class JobLogger:
                 for line in stdout_stream:
                     f.write(line)
                     self._row_parser(line)
-            except:
-                raise
-
             finally:
-                failed = self._all_jobs_items_i + self._items_current_step < self._all_jobs_items_n
-                if self._is_jupyter:
-                    bar_color = 'danger' if failed else 'success'
-                    self._pbar.bar_style = bar_color
-                    self._pbar_total.bar_style = bar_color
-                else:
-                    self._pbar_total.close()
-                    self._pbar.close()
+                failed = self.all_jobs_items_trunc + self.items_current_step < self.all_jobs_items_n
+                self.progress_bar.close_bars(failed)
 
                 if self._exception:
                     logger.error(self._exception)
@@ -437,24 +348,24 @@ class JobLogger:
         if line.startswith('Exception in thread'):
             self._exception = line
 
-        if not self._all_jobs_n and self._all_jobs_tell in line[:140]:
+        if not self.all_jobs_n and self._all_jobs_tell in line[:140]:
             self._all_jobs = [j.rsplit(', ', 1)[-1]+'.params' for j in line.strip(']) \n').split('.params')]
             try:
                 self._all_jobs.remove('.params')
             except ValueError:
                 pass
-            self._all_jobs_n = len(self._all_jobs)
+            self.all_jobs_n = len(self._all_jobs)
 
         elif self._new_job_tell in line[:140]:
             # Add items of previous job to all jobs total
-            self._all_jobs_items_i += self.items_expected
+            self.all_jobs_items_trunc += self.items_expected
 
             # Set the new job from output
             self.current_job = line.split('.params')[0].rsplit(', ', 1)[1] + '.params'
 
             # Set job description
             self.params_found = self.current_job.rsplit(os.sep, 1)[1]
-            self._status_override = 'Job registered for {}'.format(self.params_found)
+            self.status_override = 'Job registered for {}'.format(self.params_found)
             self.job_description = job_map.get(self.params_found)
 
         elif self._step_tell in line[:140]:
@@ -462,19 +373,179 @@ class JobLogger:
 
         elif self._items_written_tell in line[:140] and self.current_step == self.job_description.progress_bar_step:
             items_written = line.split(self._items_written_tell)[1].split(',')[0]
-            self._items_current_step = int(items_written)
-            self._status_override = '{} items written.'.format(items_written)
+            self.items_current_step = int(items_written)
+            self.status_override = '{} items written.'.format(items_written)
 
         elif line.endswith('[COMPLETED]\n'):
-            self._items_current_step = self.items_expected
-            self._status_override = 'Job complete.'
+            self.items_current_step = self.items_expected
+            self.status_override = 'Job complete.'
             logger.info("Job complete: {}".format(self.current_job))
 
         elif line.endswith('[UNKNOWN]\n') or line.endswith('[FAILED]\n'):
-            self._status_override = 'Job failed.'
+            self.status_override = 'Job failed.'
             self._exception = "Job failed: {}\nWith error: {}".format(self.current_job, self._last_warning)
 
         else:
             return
 
-        self.update_progress()
+        self.progress_bar.update_progress()
+
+
+class ProgressBarBase:
+
+    # Base text settings
+    _wrap = ''  # Overwritten later
+    __status = 'Step ({i_step}/{n_step}): {desc} ({step_name})'
+    __status_total = '({perc:.1f}%) Job {i_job} out of {n_job}. Currently: {cur_job!r}'
+    __status_initial_text = 'Launching, please wait..'
+
+    def __init__(self, parser=None):
+
+        self.parser = parser
+        self._status_initial = self._wrap.format(self.__status_initial_text)       
+
+        self._pbar = None
+        self._pbar_desc = None
+        self._pbar_total = None
+        self._pbar_total_desc = None
+
+        self.show_bars()
+
+    def show_bars(self):
+        raise NotImplementedError
+
+    def update_progress(self):
+        """ Updates the progress bars """
+        raise NotImplementedError
+
+    def reset_job_pbar(self):
+        """ Reset progress bar when job is finished. """
+        raise NotImplementedError
+
+    def close_bars(self):
+        """ wrap up progress """
+        raise NotImplementedError
+
+    def set_total_max(self):
+        """ set total bars max """
+        raise NotImplementedError
+
+    @property
+    def _status_job(self):
+        return self._wrap.format(self.__status.format(
+            step_name=self.parser.current_step or '*',
+            i_step=self.parser.job_step_i,
+            n_step=self.parser.job_step_n,
+            desc=self.parser.job_step_description))
+
+    @property
+    def _status_total(self):
+        return self._wrap.format(self.__status_total.format(
+            perc=(self.parser.all_jobs_items_trunc + self.parser.items_current_step) / self.parser.all_jobs_items_n * 100,
+            i_job=self.parser.all_jobs_i,
+            n_job=self.parser.all_jobs_n,
+            cur_job=self.parser.params_found))
+
+
+class ConsoleLoggerBar(ProgressBarBase):
+    _wrap = '{:<85}'
+
+    # Width of tqdm output
+    __NCOLS = 140
+
+    # The progress bar has to be set.
+    __tqdm_bar_format = 'Job:    |{bar}| {desc}'
+    __tqdm_bar_format_total = 'Total:  |{bar}| {desc}'
+
+    def show_bars(self):
+        self._pbar_total = tqdm(bar_format=self.__tqdm_bar_format_total,
+                                total=self.parser.all_jobs_items_n or 10,
+                                ncols=self.__NCOLS,
+                                desc=self._status_initial)
+
+        self._pbar = tqdm(bar_format=self.__tqdm_bar_format,
+                          total=10,
+                          ncols=self.__NCOLS,
+                          desc=self._status_initial)
+
+    def update_progress(self):
+        self._pbar_total.n = self.parser.all_jobs_items_trunc + self.parser.items_current_step
+        self._pbar_total.set_description(self._status_total)
+        self._pbar_total.update(0)
+
+        self._pbar.set_description(self._status_job)
+        self._pbar.n = self.parser.items_current_step
+        self._pbar.update(0)
+
+        self.parser.status_override = None
+
+    def reset_job_pbar(self):
+        """ Reset progress bar when job is finished. """
+        self._pbar.close()
+        self._pbar = tqdm(bar_format=self.__tqdm_bar_format,
+                          initial=0,
+                          total=self.parser.items_expected,
+                          ncols=self.__NCOLS,
+                          desc=self._status_job)
+
+    def set_total_max(self):
+        """ Set total bars max """
+        self._pbar_total.total = self.parser.all_jobs_items_n
+
+    def close_bars(self, failed=None):
+        self._pbar_total.close()
+        self._pbar.close()
+
+
+class WebLoggerBar(ProgressBarBase):
+    _wrap = '<div style="margin-top:4px;">{}</div>'
+
+    def show_bars(self):
+        self._pbar = ipywidgets.IntProgress()
+        self._pbar_desc = ipywidgets.HTML(value=self._status_initial)
+
+        self._pbar_total = ipywidgets.IntProgress()
+        self._pbar_total_desc = ipywidgets.HTML(value=self._status_initial)
+        display(ipywidgets.VBox([ipywidgets.HBox([self._pbar_total, self._pbar_total_desc]),
+                                 ipywidgets.HBox([self._pbar, self._pbar_desc])]))
+
+    def update_progress(self):
+        self._pbar_desc.value = self._status_job
+        self._pbar.value = self.parser.items_current_step
+
+        self._pbar_total_desc.value = self._status_total
+        self._pbar_total.value = self.parser.all_jobs_items_trunc + self.parser.items_current_step
+
+        self.parser.status_override = None
+
+    def reset_job_pbar(self):
+        """ Reset progress bar when job is finished. """
+        self._pbar.max = self.parser.items_expected
+
+    def set_total_max(self):
+        """ Set total bars max """
+        self._pbar_total.max = self.parser.all_jobs_items_n
+
+    def close_bars(self, failed=None):
+        bar_color = 'danger' if failed else 'success'
+        self._pbar.bar_style = bar_color
+        self._pbar_total.bar_style = bar_color
+
+
+class NullLogger(ProgressBarBase):
+    """ This logs as much work as Olaf does before 10:00 """
+
+    def show_bars(self):
+        pass
+
+    def update_progress(self):
+        pass
+
+    def reset_job_pbar(self):
+        pass
+
+    def set_total_max(self):
+        pass
+
+    def close_bars(self, failed=None):
+        pass
