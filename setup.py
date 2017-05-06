@@ -41,8 +41,10 @@ class HookedInstall(install):
 
             raise RuntimeWarning("Notebook too old for Arborist.")
 
-        from notebook.nbextensions import install_nbextension_python
+        from notebook.nbextensions import install_nbextension_python, enable_nbextension_python
         from notebook.serverextensions import toggle_serverextension_python, validate_serverextension
+
+        enable_nbextension_python('widgetsnbextension', sys_prefix=True)
 
         install_nbextension_python('tmtk.arborist', sys_prefix=True, overwrite=True)
         toggle_serverextension_python('tmtk.arborist', enabled=True, sys_prefix=True)
