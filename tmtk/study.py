@@ -36,9 +36,10 @@ class Study:
         if os.path.basename(study_params_path) != 'study.params':
             print('Please give a path to study.params file.')
             raise utils.PathError
-        self.params_path = os.path.abspath(study_params_path)
-        self.study_folder = os.path.dirname(self.params_path)
+        self.study_folder = os.path.dirname(os.path.abspath(study_params_path))
         self.Params = Params(self.study_folder)
+
+        self.params = self.find_params_for_datatype('study')[0]
 
         if minimal:
             return
@@ -111,7 +112,7 @@ class Study:
                                                                                annotations)
 
     def __str__(self):
-        statement = "Study object: {}".format(self.params_path)
+        statement = "Study object: {}".format(self.params.path)
         return statement
 
     def __repr__(self):
@@ -154,14 +155,27 @@ class Study:
     @property
     def study_id(self) -> str:
         """The study ID as it is set in study params."""
-        study_params = self.find_params_for_datatype('study')[0]
-        return study_params.get('STUDY_ID')
+        return self.params.get('STUDY_ID')
+
+    @study_id.setter
+    def study_id(self, value):
+        setattr(self.params, 'STUDY_ID', value.upper())
+        for obj in self.sample_mapping_files:
+            obj.study_id = value.upper()
 
     @property
     def study_name(self) -> str:
         """The study name, extracted from study param TOP_NODE."""
-        study_params = self.find_params_for_datatype('study')[0]
-        return study_params.get('TOP_NODE', '').split('\\')[-1]
+        return self.params.get('TOP_NODE', self.study_id).rsplit('\\', 1)[-1]
+
+    @study_name.setter
+    def study_name(self, value):
+        if self.params.get('TOP_NODE'):
+            new_top = "{}\\{}".format(self.params.get('TOP_NODE', '').rsplit('\\', 1)[0], value)
+        else:
+            pub_priv = 'Public Studies' if self.params.get('SECURITY_REQUIRED') == 'N' else 'Private Studies'
+            new_top = "\\{}\\{}".format(pub_priv, value)
+        setattr(self.params, 'TOP_NODE', new_top)
 
     def call_boris(self, height=650):
         """
@@ -259,8 +273,8 @@ class Study:
             CPrint.okay("Study metadata tags found.")
             return
 
-        params_path = os.path.join(self.study_folder, 'tags', 'tags.params')
-        self.Params.add_params(params_path, parameters={'TAGS_FILE': 'tags.txt'})
+        p = os.path.join(self.study_folder, 'tags', 'tags.params')
+        self.Params.add_params(p, parameters={'TAGS_FILE': 'tags.txt'})
         tag_param = self.find_params_for_datatype('tags')[0]
         self.Tags = MetaDataTags(params=tag_param, parent=self)
 
@@ -300,7 +314,7 @@ class Study:
     def load_to(self):
         if self.files_with_changes():
             CPrint.error('Files with changes found, they will not be loaded! Save them before restarting the job!')
-        return TransmartBatch(param=self.params_path,
+        return TransmartBatch(param=self.params.path,
                               items_expected=self._study_total_batch_items,
                               ).get_loading_namespace()
 

@@ -15,7 +15,7 @@ class IncompletenessTests(unittest.TestCase):
         pass
 
     def test_study_load(self):
-        assert self.study.params_path
+        assert self.study.params.path
 
     def test_empty_wordmap(self):
         assert self.study.Clinical.WordMapping.validate(0)

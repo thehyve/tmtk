@@ -24,13 +24,13 @@ class BatchTests(unittest.TestCase):
             tmp_log = f.read()
 
         tmtk_path = os.path.abspath(os.path.realpath(os.getcwd()))
-        for params_path in re.findall(r'( /home/vlad-the-impaler/.*?\.params)', tmp_log):
+        for _path in re.findall(r'( /home/vlad-the-impaler/.*?\.params)', tmp_log):
             # replace path in log with local path
-            new_path = params_path.replace('/home/vlad-the-impaler/tmtk', tmtk_path)
+            new_path = _path.replace('/home/vlad-the-impaler/tmtk', tmtk_path)
             new_path = new_path.replace('/', os.sep)
 
             # adapt tmp_log to reflect local machine
-            tmp_log = tmp_log.replace(params_path, new_path)
+            tmp_log = tmp_log.replace(_path, new_path)
 
         return io.StringIO(tmp_log)
 
