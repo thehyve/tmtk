@@ -1,21 +1,20 @@
-from tmtk.utils.Generic import clean_for_namespace
-
 import os
+from threading import Thread
 from glob import glob
 from pathlib import Path
 import subprocess
 import socket
 import re
 from datetime import datetime
+import logging
 
-from threading import Thread
 from tqdm import tqdm
 import ipywidgets
 from IPython.display import display
 
 from ._job_descriptions import job_map
+from ..Generic import clean_for_namespace
 
-import logging
 logger = logging.getLogger('tmtk')
 logger.setLevel(level=logging.INFO)
 
@@ -221,6 +220,9 @@ class StatusParser:
     _step_tell = 'o.s.b.c.j.SimpleStepHandler - Executing step:'
     _items_written_tell = 'o.t.b.b.ProgressWriteListener - Items written: '
 
+    # line parse heuristics
+    __CUT_LINE_HEURISTIC = 140
+
     def __init__(self, stdout_stream, log=None, silent=None, non_html=None, items_expected=None):
 
         self._start_time = datetime.now()
@@ -342,13 +344,13 @@ class StatusParser:
                 print('Job ran for: {}'.format(str(datetime.now() - self._start_time)))
 
     def _row_parser(self, line):
-        if '[WARN]' in line[:100]:
+        if '[WARN]' in line[:self.__CUT_LINE_HEURISTIC]:
             self._last_warning = line
 
         if line.startswith('Exception in thread'):
             self._exception = line
 
-        if not self.all_jobs_n and self._all_jobs_tell in line[:140]:
+        if not self.all_jobs_n and self._all_jobs_tell in line[:self.__CUT_LINE_HEURISTIC]:
             self._all_jobs = [j.rsplit(', ', 1)[-1]+'.params' for j in line.strip(']) \n').split('.params')]
             try:
                 self._all_jobs.remove('.params')
@@ -356,7 +358,7 @@ class StatusParser:
                 pass
             self.all_jobs_n = len(self._all_jobs)
 
-        elif self._new_job_tell in line[:140]:
+        elif self._new_job_tell in line[:self.__CUT_LINE_HEURISTIC]:
             # Add items of previous job to all jobs total
             self.all_jobs_items_trunc += self.items_expected
 
@@ -368,10 +370,10 @@ class StatusParser:
             self.status_override = 'Job registered for {}'.format(self.params_found)
             self.job_description = job_map.get(self.params_found)
 
-        elif self._step_tell in line[:140]:
+        elif self._step_tell in line[:self.__CUT_LINE_HEURISTIC]:
             self.current_step = line.rsplit('[', 1)[1].strip('[] \n')
 
-        elif self._items_written_tell in line[:140] and self.current_step == self.job_description.progress_bar_step:
+        elif self._items_written_tell in line[:self.__CUT_LINE_HEURISTIC] and self.current_step == self.job_description.progress_bar_step:
             items_written = line.split(self._items_written_tell)[1].split(',')[0]
             self.items_current_step = int(items_written)
             self.status_override = '{} items written.'.format(items_written)
