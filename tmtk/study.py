@@ -7,7 +7,7 @@ from .params import Params
 from .highdim import HighDim
 from .annotation import Annotations
 from .tags import MetaDataTags
-from .utils import CPrint, Mappings
+from .utils import CPrint, Mappings, TransmartBatch
 from tmtk import utils, arborist
 
 
@@ -127,17 +127,9 @@ class Study:
         for obj in self.get_objects_with_prop('validate'):
             obj.validate(verbosity=verbosity)
 
-    def files_with_changes(self):
+    def files_with_changes(self, ):
         """Find dataframes that have changed since they have been loaded."""
-        changed = []
-
-        for obj in self.get_objects_with_prop('df_has_changed'):
-            if obj.df_has_changed:
-                CPrint.warn('({}) Dataframe has changed.'.format(obj))
-                changed.append(obj)
-            else:
-                CPrint.info('({}) has not changed.'.format(obj))
-        return changed
+        return [obj for obj in self.all_files if obj.df_has_changed]
 
     def get_objects_with_prop(self, prop: all):
         """
@@ -182,9 +174,33 @@ class Study:
         arborist.call_boris(self, height=height)
 
     @property
-    def high_dim_nodes(self):
-        """All subject sample mapping object in this study."""
-        return self.HighDim.high_dim_nodes if hasattr(self, 'HighDim') else []
+    def high_dim_files(self):
+        """All high dimensional file objects in this study."""
+        return self.HighDim.high_dim_files if hasattr(self, 'HighDim') else []
+
+    @property
+    def sample_mapping_files(self):
+        """All subject sample mapping file objects in this study."""
+        return self.HighDim.sample_mapping_files if hasattr(self, 'HighDim') else []
+
+    @property
+    def annotation_files(self):
+        """All annotation file objects in this study."""
+        return self.Annotations.annotation_files if hasattr(self, 'Annotations') else []
+
+    @property
+    def clinical_files(self):
+        """All clinical file objects in this study."""
+        return self.Clinical.clinical_files if hasattr(self.Clinical, 'clinical_files') else []
+
+    @property
+    def tag_files(self):
+        return [self.Tags] if hasattr(self, 'Tags') else []
+
+    @property
+    def all_files(self):
+        """All file objects in this study."""
+        return self.high_dim_files + self.sample_mapping_files + self.annotation_files + self.clinical_files + self.tag_files
 
     @property
     def concept_tree(self):
@@ -279,3 +295,34 @@ class Study:
             CPrint.error('Trying to add Clinical, but already there.')
         else:
             self.Clinical = Clinical(clinical_params)
+
+    @property
+    def load_to(self):
+        if self.files_with_changes():
+            CPrint.error('Files with changes found, they will not be loaded! Save them before restarting the job!')
+        return TransmartBatch(param=self.params_path,
+                              items_expected=self._study_total_batch_items,
+                              ).get_loading_namespace()
+
+    @property
+    def _study_total_batch_items(self):
+        """A dictionary of with params path with number of items to be written."""
+
+        lazy_dict = {}
+
+        for item in self._get_loadable_objects():
+            lazy_dict.update(item._get_lazy_batch_items())
+        return lazy_dict
+
+    def _get_loadable_objects(self):
+        """ Gets all items that could potentially be loaded with transmart-batch """
+        l = self.high_dim_files + self.annotation_files + self.tag_files
+        if hasattr(self, 'Clinical'):
+            l.append(self.Clinical)
+        return l
+
+    def get_object_from_params_path(self, path):
+        """ Returns object that belongs to the params path given """
+        for item in self._get_loadable_objects():
+            if item.params.path == path:
+                return item

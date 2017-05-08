@@ -19,8 +19,10 @@ with open("requirements.txt", 'r') as f:
     required_packages = f.read().splitlines()
 
 if os.environ.get('READTHEDOCS') == 'True':
-    for p in ['pandas']:
-        required_packages.remove(p)
+    for dependency in ['pandas']:
+        for package in required_packages:
+            if package.startswith(dependency):
+                required_packages.remove(package)
 
 
 class HookedInstall(install):
@@ -34,13 +36,15 @@ class HookedInstall(install):
 
         from notebook import __version__ as notebook_version
         if notebook_version < '4.2.0':
-            print("Version of notebook package should be atleast 4.2.0 for Arborist, consider:")
-            print("    $ pip3 install --upgrade notebook")
+            log.info("Version of notebook package should be atleast 4.2.0 for Arborist, consider:")
+            log.info("    $ pip3 install --upgrade notebook")
 
             raise RuntimeWarning("Notebook too old for Arborist.")
 
-        from notebook.nbextensions import install_nbextension_python
+        from notebook.nbextensions import install_nbextension_python, enable_nbextension_python
         from notebook.serverextensions import toggle_serverextension_python, validate_serverextension
+
+        enable_nbextension_python('widgetsnbextension', sys_prefix=True)
 
         install_nbextension_python('tmtk.arborist', sys_prefix=True, overwrite=True)
         toggle_serverextension_python('tmtk.arborist', enabled=True, sys_prefix=True)
@@ -79,6 +83,12 @@ setuptools.setup(
     download_url='https://github.com/thehyve/tmtk/tarball/{}/'.format(version_string),
 
     install_requires=required_packages,
+
+    entry_points={
+        'console_scripts': [
+            'transmart-batch = tmtk.utils.batch.__main__:run_batch'
+        ]
+    },
 
     classifiers=[
         'Programming Language :: Python',

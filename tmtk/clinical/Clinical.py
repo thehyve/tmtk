@@ -5,8 +5,9 @@ from .DataFile import DataFile
 from .Variable import Variable, VarID
 from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
-from ..utils import CPrint, PathError, clean_for_namespace
+from ..utils import CPrint, PathError, clean_for_namespace, FileBase
 from .. import arborist
+from ..utils.batch import TransmartBatch
 
 
 class Clinical:
@@ -138,3 +139,16 @@ class Clinical:
             if map_change:
                 for k, v in map_change.items():
                     print("          - {!r} -> {!r}".format(k, v))
+
+    @property
+    def load_to(self):
+        return TransmartBatch(param=self.params.path,
+                              items_expected=self._get_lazy_batch_items()
+                              ).get_loading_namespace()
+
+    def _get_lazy_batch_items(self):
+        return {self.params.path: [self.get_datafile(f).path for f in self.ColumnMapping.included_datafiles]}
+
+    @property
+    def clinical_files(self):
+        return [x for k, x in self.__dict__.items() if issubclass(type(x), FileBase)]

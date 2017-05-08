@@ -1,4 +1,4 @@
-from ..utils import path_converter, md5, Mappings, PathError
+from ..utils import path_converter, md5, Mappings, PathError, FileBase
 from tmtk.utils.CPrint import CPrint
 
 
@@ -38,9 +38,13 @@ class HighDim:
             CPrint.info('No changes found in any HighDim paths.')
             return
 
-        for ss in self.high_dim_nodes:
-            ss.sample_mapping.update_concept_paths(changed_dict)
+        for ss in self.sample_mapping_files:
+            ss.update_concept_paths(changed_dict)
 
     @property
-    def high_dim_nodes(self):
-        return [x for k, x in self.__dict__.items() if hasattr(x, 'sample_mapping')]
+    def high_dim_files(self):
+        return [x for k, x in self.__dict__.items() if issubclass(type(x), FileBase)]
+
+    @property
+    def sample_mapping_files(self):
+        return [x.sample_mapping for x in self.high_dim_files]

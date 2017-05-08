@@ -1,1 +1,7 @@
-STUDY_ID=CLUC
+### Mandatory
+# Identifier of the study.
+STUDY_ID=VALID_STUDY
+
+### Optional
+# Defines study as Private (Y) or Public (N).
+SECURITY_REQUIRED=Y

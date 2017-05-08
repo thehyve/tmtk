@@ -1,4 +1,4 @@
-import tmtk.utils as utils
+from ..utils import clean_for_namespace, FileBase, Mappings, PathError
 
 
 class Annotations:
@@ -17,20 +17,24 @@ class Annotations:
 
         for p in params_list:
 
-            new_instance = utils.Mappings.get_annotations(p.datatype)
+            new_instance = Mappings.get_annotations(p.datatype)
 
             try:
                 af = new_instance(p)
-            except utils.PathError:
+            except PathError:
                 continue
 
             annotation_type = p.datatype.split('annotation')[0]
 
             platform_key = annotation_type + af.platform
-            platform_key = utils.clean_for_namespace(platform_key)
+            platform_key = clean_for_namespace(platform_key)
             self.__dict__[platform_key] = af
 
     def validate_all(self, verbosity=3):
         for key, obj in self.__dict__.items():
             if hasattr(obj, 'validate'):
                 obj.validate(verbosity=verbosity)
+
+    @property
+    def annotation_files(self):
+        return [x for k, x in self.__dict__.items() if issubclass(type(x), FileBase)]

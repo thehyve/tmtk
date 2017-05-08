@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from ..utils import Exceptions, FileBase, MessageCollector, summarise, Mappings, path_converter
+from ..utils import Exceptions, FileBase, MessageCollector, summarise, Mappings, path_converter, TransmartBatch
 from ..params import TagsParams
 
 
@@ -11,6 +11,7 @@ class MetaDataTags(FileBase):
         else:
             raise Exceptions.ClassError(type(params), TagsParams)
 
+        self.params = params
         self.parent = parent
         super().__init__()
 
@@ -82,3 +83,12 @@ class MetaDataTags(FileBase):
     def create_df():
         df = pd.DataFrame(dtype=str, columns=Mappings.tags_header)
         return df
+
+    @property
+    def load_to(self):
+        return TransmartBatch(param=self.params.path,
+                              items_expected=self._get_lazy_batch_items()
+                              ).get_loading_namespace()
+
+    def _get_lazy_batch_items(self):
+        return {self.params.path: [self.path]}
