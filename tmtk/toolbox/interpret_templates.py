@@ -44,7 +44,7 @@ def get_sheet_dict(workbook, comment_char="#"):
 def get_tree_sheet(sheets):
     """Detect the name of sheet in the clinical template that contains the tree structure."""
 
-    tree_sheets = [sheet for sheet in sheets if "tree" in sheet.lower() and not "example" in sheet.lower()]
+    tree_sheets = [sheet for sheet in sheets if "tree" in sheet.lower() and "example" not in sheet.lower()]
     Validity.list_length(tree_sheets, expected=1)
     tree_sheet_name = tree_sheets[0]
 
@@ -395,7 +395,7 @@ def write_clinical_data_sheets(study, sheets):
     data_files = tree_sheet["Sheet name/File name"].dropna().unique().tolist()
     for file in data_files:
         if file in sheets.keys():
-            clinical_data_sheet = sheets[file]
+            clinical_data_sheet = sheets[file].dropna(axis='columns', how='all')
             write_location = os.path.join(study.clin_output_dir, file) + ".tsv"
             clinical_data_sheet.to_csv(write_location, sep="\t", index=False, na_rep="")
             print("[INFO] Clinical data file written at: {0}".format(write_location))

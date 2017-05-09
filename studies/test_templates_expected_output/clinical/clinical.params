@@ -1,0 +1,2 @@
+COLUMN_MAP_FILE=TEMPLATE_TEST_column_mapping.tsv
+WORD_MAP_FILE=TEMPLATE_TEST_word_mapping.tsv

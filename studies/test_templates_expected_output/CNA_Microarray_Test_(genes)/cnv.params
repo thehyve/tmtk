@@ -1,0 +1,3 @@
+DATA_FILE=aCGH_data.tsv
+DATA_TYPE=R
+MAP_FILENAME=subject_sample_mapping.tsv
