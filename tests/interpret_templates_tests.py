@@ -16,7 +16,7 @@ class InterpretTemplatesTests(unittest.TestCase):
 
         def collect_study_files(dir_name):
             all_paths = Path(dir_name).glob('**/*')
-            return {path.name: path for path in all_paths if not path.startswith(('~', '.')) and path.isfile()}
+            return {path.name: path for path in all_paths if not path.name.startswith(('~', '.')) and path.isfile()}
 
         tmtk.toolbox.create_study_from_templates(ID='TEMPLATE_TEST', source_dir=cls.template_dir,
                                                  output_dir=cls.temp_dir, sec_req='N')
