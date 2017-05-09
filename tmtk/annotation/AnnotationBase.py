@@ -33,3 +33,12 @@ class AnnotationBase(utils.FileBase):
     @property
     def marker_type(self):
         return utils.Mappings.annotation_marker_types.get(self.params.datatype)
+
+    @property
+    def load_to(self):
+        return utils.TransmartBatch(param=self.params.path,
+                                    items_expected=self._get_lazy_batch_items()
+                                    ).get_loading_namespace()
+
+    def _get_lazy_batch_items(self):
+        return {self.params.path: [self.path]}

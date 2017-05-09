@@ -1,5 +1,13 @@
-PLATFORM=PROT_ANNOT
-TITLE="Test Proteomics Platform"
-ORGANISM="Homo Sapiens"
+### Mandatory
+# Points to the annotations file.
 ANNOTATIONS_FILE=proteomics_annotation.tsv
+# Short identifier for platform.
+PLATFORM=PROT_ANNOT
+# Platform description.
+TITLE=Test Proteomics Platform
+
+### Optional
+# Something like hg19 or hg38.  Only required when genomic coordinates are provided in the file.
 GENOME_RELEASE=hg19
+# Usually Homo sapiens.
+ORGANISM=Homo Sapiens

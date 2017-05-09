@@ -93,6 +93,10 @@ class SampleMapping(FileBase):
         elif study_ids:
             return str(study_ids[0]).upper()
 
+    @study_id.setter
+    def study_id(self, value):
+        self.df.ix[:, 0] = value.upper()
+
     def slice_path(self, path):
         """
         Give slice of the dataframe where the paths are equal to given path.

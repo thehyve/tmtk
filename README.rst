@@ -1,6 +1,13 @@
 ====
 tmtk
 ====
+.. image:: https://travis-ci.org/thehyve/tmtk.svg?branch=master
+    :target: https://travis-ci.org/thehyve/tmtk
+
+.. image:: https://readthedocs.org/projects/tmtk/badge/?version=latest
+    :target: http://tmtk.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
 
 A toolkit for ETL curation for the tranSMART data warehouse. The
 TranSMART curation toolkit (``tmtk``) can be used to edit and validate

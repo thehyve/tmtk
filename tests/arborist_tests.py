@@ -15,7 +15,7 @@ class ArboristTests(unittest.TestCase):
         pass
 
     def test_study_load(self):
-        assert self.study.params_path
+        assert self.study.params.path
 
     def test_create_json_string(self):
         assert self.study.Clinical.WordMapping.df.shape == (3, 4)

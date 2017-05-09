@@ -1,4 +1,11 @@
-PLATFORM=GPL570_bogus
-TITLE="Affymetrix Human Genome U133A 2.0 Array"
-ORGANISM="Homo Sapiens"
+### Mandatory
+# Points to the annotations file.
 ANNOTATIONS_FILE=GPL570_simplified.tsv
+# Short identifier for platform.
+PLATFORM=GPL570_BOGUS
+# Platform description.
+TITLE=Affymetrix Human Genome U133A 2.0 Array
+
+### Optional
+# Usually Homo sapiens.
+ORGANISM=Homo Sapiens

@@ -16,7 +16,7 @@ class RemappingTests(unittest.TestCase):
         pass
 
     def test_study_load(self):
-        assert self.study.params_path
+        assert self.study.params.path
 
     # def test_create_annotation_file(self):
     #     new_anno = tmtk.toolbox.generate_chromosomal_regions_file(platform_id='given_gpl_id',

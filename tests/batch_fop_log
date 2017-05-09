@@ -1,0 +1,363 @@
+2017-05-04 16:25:11,986 [main] [INFO] o.t.b.startup.RunJob - Following params files found and parsed: [org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, SECURITY_REQUIRED:Y, WORD_MAP_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/clinical/Cell-line_wordmap.txt, COLUMN_MAP_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/clinical/Cell-line_columns.txt, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/clinical/clinical.params), org.transmartproject.batch.startup.JobStartupDetails([ANNOTATIONS_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/GPL570_bogus/annotation/GPL570_simplified.tsv, PLATFORM:GPL570_BOGUS, TITLE:Affymetrix Human Genome U133A 2.0 Array, HAS_HEADER:Y, ORGANISM:Homo Sapiens, MARKER_TYPE:Gene Expression], /home/vlad-the-impaler/tmtk/studies/valid_study/GPL570_bogus/annotation/mrna_annotation.params), org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, ALLOW_MISSING_ANNOTATIONS:N, SKIP_UNMAPPED_DATA:N, MAP_FILENAME:/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset1/subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO:N, SECURITY_REQUIRED:Y, DATA_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset1/data.tsv, LOG_BASE:2, DATA_TYPE:R, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset1/expression.params), org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, ALLOW_MISSING_ANNOTATIONS:N, SKIP_UNMAPPED_DATA:N, MAP_FILENAME:/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset2/subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO:N, SECURITY_REQUIRED:Y, DATA_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset2/data.tsv, LOG_BASE:2, DATA_TYPE:R, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset2/expression.params), org.transmartproject.batch.startup.JobStartupDetails([ANNOTATIONS_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_annotation/proteomics_annotation.tsv, PLATFORM:PROT_ANNOT, TITLE:Test Proteomics Platform, GENOME_RELEASE:hg19, ORGANISM:Homo Sapiens, MARKER_TYPE:PROTEOMICS], /home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_annotation/proteomics_annotation.params), org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, ALLOW_MISSING_ANNOTATIONS:N, SKIP_UNMAPPED_DATA:N, MAP_FILENAME:/home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_subject_sample_mapping.txt, ZERO_MEANS_NO_INFO:N, SECURITY_REQUIRED:Y, DATA_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_data.txt, LOG_BASE:2, DATA_TYPE:R, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics.params), org.transmartproject.batch.startup.JobStartupDetails([ANNOTATIONS_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_annotation/chromosomal_regions.tsv, PLATFORM:RNASEQ_ANNOT, TITLE:Test RNASeq Platform, GENOME_RELEASE:hg19, ORGANISM:Homo Sapiens, MARKER_TYPE:RNASEQ_RCNT], /home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_annotation/rnaseq_annotation.params), org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, ALLOW_MISSING_ANNOTATIONS:N, SKIP_UNMAPPED_DATA:N, MAP_FILENAME:/home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO:N, SECURITY_REQUIRED:Y, DATA_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_data.tsv, LOG_BASE:2, DATA_TYPE:R, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq.params), org.transmartproject.batch.startup.JobStartupDetails([ANNOTATIONS_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_annotation/chromosomal_regions.tsv, PLATFORM:ACGH_ANNOT, TITLE:Test Acgh Platform, GENOME_RELEASE:hg19, ORGANISM:Homo Sapiens, MARKER_TYPE:Chromosomal], /home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_annotation/cnv_annotation.params), org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, PROB_IS_NOT_1:ERROR, ALLOW_MISSING_ANNOTATIONS:N, SKIP_UNMAPPED_DATA:N, MAP_FILENAME:/home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO:N, SECURITY_REQUIRED:Y, DATA_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_data.tsv, LOG_BASE:2, DATA_TYPE:R, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/cnv/cnv.params), org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, SECURITY_REQUIRED:Y, TAGS_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/tags/tags.txt, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/tags/tags.params)]
+2017-05-04 16:25:11,995 [main] [INFO] o.t.b.startup.RunJob - Start processing org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, SECURITY_REQUIRED:Y, WORD_MAP_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/clinical/Cell-line_wordmap.txt, COLUMN_MAP_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/clinical/Cell-line_columns.txt, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/clinical/clinical.params)
+2017-05-04 16:25:17,145 [main] [INFO] o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: POSTGRES
+2017-05-04 16:25:17,346 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2017-05-04 16:25:17,598 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [FlowJob: [name=ClinicalDataLoadJob]] launched with the following parameters: [{STUDY_ID=VALID_STUDY, run.date=1493907917524, SECURITY_REQUIRED=Y, WORD_MAP_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/clinical/Cell-line_wordmap.txt, COLUMN_MAP_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/clinical/Cell-line_columns.txt, TOP_NODE=\Private Studies\VALID_STUDY\}]
+2017-05-04 16:25:17,624 [main] [INFO] o.t.b.b.BetterExitMessageJobExecutionListener - Job id is 1418, execution id is 1429
+2017-05-04 16:25:17,695 [JobContextAwareTaskExecutor-2] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [readXtrialsFile]
+2017-05-04 16:25:17,698 [JobContextAwareTaskExecutor-1] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [readWordMap]
+2017-05-04 16:25:17,701 [JobContextAwareTaskExecutor-3] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [readVariables]
+2017-05-04 16:25:17,791 [JobContextAwareTaskExecutor-2] [INFO] o.t.b.s.JobParameterFileResource - Parameter XTRIAL_FILE not specified. Returning empty resource.
+2017-05-04 16:25:17,800 [JobContextAwareTaskExecutor-3] [WARN] o.t.b.c.v.ColumnMappingFileHeaderHandler - Column mapping file's header has 6 columns. This is accepted, but the 5th and 6th columns will be ignored
+2017-05-04 16:25:17,803 [JobContextAwareTaskExecutor-2] [WARN] o.s.b.i.f.FlatFileItemReader - Input resource does not exist inexistent resource (parameter XTRIAL_FILE does not exist)
+2017-05-04 16:25:18,318 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [gatherCurrentPatients]
+2017-05-04 16:25:18,428 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 19, WRITTEN: 19, SKIPPED: 0
+2017-05-04 16:25:18,472 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [GatherCurrentConcepts]
+2017-05-04 16:25:18,593 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 45, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:18,632 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [gatherXtrialNodes]
+2017-05-04 16:25:18,734 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:18,779 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteObservationFact]
+2017-05-04 16:25:18,832 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 128, SKIPPED: 0
+2017-05-04 16:25:18,873 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteConceptCounts]
+2017-05-04 16:25:18,888 [main] [INFO] o.t.b.c.DeleteConceptCountsTasklet - About to delete concept counts with base node \Private Studies\VALID_STUDY\
+2017-05-04 16:25:18,899 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 44, SKIPPED: 0
+2017-05-04 16:25:18,939 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [rowProcessingStep]
+2017-05-04 16:25:19,599 [main] [INFO] o.t.b.b.ProgressWriteListener - Items written: 19, 67.62 items/s (last); 67.62 items/s (global)
+2017-05-04 16:25:19,650 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [tagsLoadStep]
+2017-05-04 16:25:19,662 [main] [INFO] o.t.b.s.JobParameterFileResource - Parameter TAGS_FILE not specified. Returning empty resource.
+2017-05-04 16:25:19,663 [main] [WARN] o.s.b.i.f.FlatFileItemReader - Input resource does not exist inexistent resource (parameter TAGS_FILE does not exist)
+2017-05-04 16:25:19,703 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:19,744 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [CreateSecureStudy]
+2017-05-04 16:25:19,768 [main] [INFO] o.t.b.b.BioExperimentDAO - Found existing bio_experiment with id 391765698
+2017-05-04 16:25:19,795 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:19,837 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [InsertTableAccess]
+2017-05-04 16:25:19,861 [main] [INFO] o.t.b.c.InsertTableAccessTasklet - i2b2metadata.table_access already has an entry with c_fullname = \Private Studies\
+2017-05-04 16:25:19,869 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:19,975 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertConceptCountsStep]
+2017-05-04 16:25:20,045 [main] [INFO] o.t.b.b.ProgressWriteListener - Items written: 44, 1047.62 items/s (last); 1047.62 items/s (global)
+2017-05-04 16:25:20,073 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [FlowJob: [name=ClinicalDataLoadJob]] completed with the following parameters: [{STUDY_ID=VALID_STUDY, run.date=1493907917524, SECURITY_REQUIRED=Y, WORD_MAP_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/clinical/Cell-line_wordmap.txt, COLUMN_MAP_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/clinical/Cell-line_columns.txt, TOP_NODE=\Private Studies\VALID_STUDY\}] and the following status: [COMPLETED]
+2017-05-04 16:25:20,085 [main] [INFO] o.t.b.startup.RunJob - Start processing org.transmartproject.batch.startup.JobStartupDetails([ANNOTATIONS_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/GPL570_bogus/annotation/GPL570_simplified.tsv, PLATFORM:GPL570_BOGUS, TITLE:Affymetrix Human Genome U133A 2.0 Array, HAS_HEADER:Y, ORGANISM:Homo Sapiens, MARKER_TYPE:Gene Expression], /home/vlad-the-impaler/tmtk/studies/valid_study/GPL570_bogus/annotation/mrna_annotation.params)
+2017-05-04 16:25:20,850 [main] [INFO] o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: POSTGRES
+2017-05-04 16:25:20,853 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2017-05-04 16:25:20,978 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [SimpleJob: [name=mrnaPlatformLoadJob]] launched with the following parameters: [{PLATFORM=GPL570_BOGUS, HAS_HEADER=Y, ANNOTATIONS_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/GPL570_bogus/annotation/GPL570_simplified.tsv, run.date=1493907920934, TITLE=Affymetrix Human Genome U133A 2.0 Array, ORGANISM=Homo Sapiens, MARKER_TYPE=Gene Expression}]
+2017-05-04 16:25:20,985 [main] [INFO] o.t.b.b.BetterExitMessageJobExecutionListener - Job id is 1419, execution id is 1430
+2017-05-04 16:25:21,007 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteAnnotations]
+2017-05-04 16:25:21,056 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 20, SKIPPED: 0
+2017-05-04 16:25:21,097 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteGplInfo]
+2017-05-04 16:25:21,126 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 1, SKIPPED: 0
+2017-05-04 16:25:21,161 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertGplInfo]
+2017-05-04 16:25:21,199 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 1, SKIPPED: 0
+2017-05-04 16:25:21,233 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [mainStep]
+2017-05-04 16:25:21,515 [main] [INFO] o.t.b.b.ProgressWriteListener - Items written: 19, 131.03 items/s (last); 131.03 items/s (global)
+2017-05-04 16:25:21,553 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [SimpleJob: [name=mrnaPlatformLoadJob]] completed with the following parameters: [{PLATFORM=GPL570_BOGUS, HAS_HEADER=Y, ANNOTATIONS_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/GPL570_bogus/annotation/GPL570_simplified.tsv, run.date=1493907920934, TITLE=Affymetrix Human Genome U133A 2.0 Array, ORGANISM=Homo Sapiens, MARKER_TYPE=Gene Expression}] and the following status: [COMPLETED]
+2017-05-04 16:25:21,560 [main] [INFO] o.t.b.startup.RunJob - Start processing org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, ALLOW_MISSING_ANNOTATIONS:N, SKIP_UNMAPPED_DATA:N, MAP_FILENAME:/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset1/subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO:N, SECURITY_REQUIRED:Y, DATA_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset1/data.tsv, LOG_BASE:2, DATA_TYPE:R, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset1/expression.params)
+2017-05-04 16:25:23,450 [main] [WARN] o.s.b.c.l.AbstractListenerFactoryBean - org.springframework.batch.item.ItemStreamReader is an interface.  The implementing class will not be queried for annotation based listener configurations.  If using @StepScope on a @Bean method, be sure to return the implementing class so listner annotations can be used.
+2017-05-04 16:25:23,450 [main] [WARN] o.s.b.c.l.AbstractListenerFactoryBean - org.springframework.batch.item.ItemProcessor is an interface.  The implementing class will not be queried for annotation based listener configurations.  If using @StepScope on a @Bean method, be sure to return the implementing class so listner annotations can be used.
+2017-05-04 16:25:23,491 [main] [WARN] o.s.b.c.l.AbstractListenerFactoryBean - org.springframework.batch.item.ItemStreamReader is an interface.  The implementing class will not be queried for annotation based listener configurations.  If using @StepScope on a @Bean method, be sure to return the implementing class so listner annotations can be used.
+2017-05-04 16:25:23,569 [main] [WARN] o.s.a.f.CglibAopProxy - Unable to proxy method [public final java.util.Map org.transmartproject.batch.highdim.datastd.StandardMultipleVariablesPerSampleFieldSetMapper.getFieldSetters()] because it is final: All calls to this method via a proxy will NOT be routed to the target instance.
+2017-05-04 16:25:23,647 [main] [INFO] o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: POSTGRES
+2017-05-04 16:25:23,657 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2017-05-04 16:25:23,791 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [FlowJob: [name=mrnaDataLoadJob]] launched with the following parameters: [{STUDY_ID=VALID_STUDY, ALLOW_MISSING_ANNOTATIONS=N, SKIP_UNMAPPED_DATA=N, MAP_FILENAME=/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset1/subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO=N, run.date=1493907923748, SECURITY_REQUIRED=Y, DATA_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset1/data.tsv, LOG_BASE=2, DATA_TYPE=R, TOP_NODE=\Private Studies\VALID_STUDY\}]
+2017-05-04 16:25:23,797 [main] [INFO] o.t.b.b.BetterExitMessageJobExecutionListener - Job id is 1420, execution id is 1431
+2017-05-04 16:25:23,825 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [readMappingFile]
+2017-05-04 16:25:23,980 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [failIfPlatformNotFound]
+2017-05-04 16:25:24,014 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [checkPlatformNotFound]
+2017-05-04 16:25:24,037 [main] [INFO] o.t.b.h.p.PlatformCheckTasklet - Platform GPL570_BOGUS is already present in the database: org.transmartproject.batch.highdim.platform.Platform(GPL570_BOGUS, Affymetrix Human Genome U133A 2.0 Array, Homo Sapiens, Gene Expression, null)
+2017-05-04 16:25:24,110 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [gatherCurrentConcepts]
+2017-05-04 16:25:24,142 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 5, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:24,177 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validateTopNodePreexistence]
+2017-05-04 16:25:24,197 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:24,233 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validateHighDimensionalConcepts]
+2017-05-04 16:25:24,254 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:24,297 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [gatherCurrentPatients]
+2017-05-04 16:25:24,381 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validatePatientIntersection]
+2017-05-04 16:25:24,414 [main] [WARN] o.t.b.h.c.ValidatePatientIntersectionTasklet - Total of 17 patients in the study without data: [CACO2_AURKA, COLO320, HCT15, HCT116, HCT116_MLH1, HT29, LS174T, LIM1863, LS513, SW1398, SW48, SW480, SW480_AURKA, RKO, PC346c, VCaP, DLD1]
+2017-05-04 16:25:24,428 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:24,486 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [loadAnnotationMappings]
+2017-05-04 16:25:24,559 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 20, WRITTEN: 20, SKIPPED: 0
+2017-05-04 16:25:24,596 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [firstPass]
+2017-05-04 16:25:24,883 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 38, WRITTEN: 38, SKIPPED: 0
+2017-05-04 16:25:24,884 [main] [INFO] o.t.b.b.CollectMinimumPositiveValueListener - Minimal positive values has been found. It's 1.198.
+2017-05-04 16:25:24,927 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteHdData]
+2017-05-04 16:25:24,941 [main] [INFO] o.t.b.h.a.CurrentAssayIdsReader - Will delete assays and data related with concepts: [org.transmartproject.batch.concept.ConceptNode(\Private Studies\VALID_STUDY\Biomarker Data\dataset1\Skin\, 1353853)]
+2017-05-04 16:25:25,024 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteCurrentAssays]
+2017-05-04 16:25:25,079 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteConceptCounts]
+2017-05-04 16:25:25,091 [main] [INFO] o.t.b.c.DeleteConceptCountsTasklet - About to delete concept counts with base node \Private Studies\VALID_STUDY\
+2017-05-04 16:25:25,100 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 44, SKIPPED: 0
+2017-05-04 16:25:25,151 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteObservationFact]
+2017-05-04 16:25:25,178 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 2, SKIPPED: 0
+2017-05-04 16:25:25,234 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertConcepts]
+2017-05-04 16:25:25,270 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:25,318 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [writePseudoFactsStep]
+2017-05-04 16:25:25,417 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertConceptCounts]
+2017-05-04 16:25:25,472 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 44, SKIPPED: 0
+2017-05-04 16:25:25,513 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [writeAssays]
+2017-05-04 16:25:25,615 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [partitionDataTable]
+2017-05-04 16:25:25,644 [main] [INFO] o.t.b.d.PostgresPartitionTasklet - Found partition table: de_subject_microarray_data_70
+2017-05-04 16:25:25,645 [main] [INFO] o.t.b.d.AbstractPartitionTasklet - Will use partition table deapp.de_subject_microarray_data_70
+2017-05-04 16:25:25,654 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:25,695 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [secondPass]
+2017-05-04 16:25:25,891 [main] [INFO] o.t.b.b.ProgressWriteListener - Items written: 38, 542.86 items/s (last); 542.86 items/s (global)
+2017-05-04 16:25:25,899 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 38, WRITTEN: 38, SKIPPED: 0
+2017-05-04 16:25:25,922 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [FlowJob: [name=mrnaDataLoadJob]] completed with the following parameters: [{STUDY_ID=VALID_STUDY, ALLOW_MISSING_ANNOTATIONS=N, SKIP_UNMAPPED_DATA=N, MAP_FILENAME=/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset1/subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO=N, run.date=1493907923748, SECURITY_REQUIRED=Y, DATA_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset1/data.tsv, LOG_BASE=2, DATA_TYPE=R, TOP_NODE=\Private Studies\VALID_STUDY\}] and the following status: [COMPLETED]
+2017-05-04 16:25:25,930 [main] [INFO] o.t.b.startup.RunJob - Start processing org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, ALLOW_MISSING_ANNOTATIONS:N, SKIP_UNMAPPED_DATA:N, MAP_FILENAME:/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset2/subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO:N, SECURITY_REQUIRED:Y, DATA_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset2/data.tsv, LOG_BASE:2, DATA_TYPE:R, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset2/expression.params)
+2017-05-04 16:25:27,163 [main] [WARN] o.s.b.c.l.AbstractListenerFactoryBean - org.springframework.batch.item.ItemStreamReader is an interface.  The implementing class will not be queried for annotation based listener configurations.  If using @StepScope on a @Bean method, be sure to return the implementing class so listner annotations can be used.
+2017-05-04 16:25:27,164 [main] [WARN] o.s.b.c.l.AbstractListenerFactoryBean - org.springframework.batch.item.ItemProcessor is an interface.  The implementing class will not be queried for annotation based listener configurations.  If using @StepScope on a @Bean method, be sure to return the implementing class so listner annotations can be used.
+2017-05-04 16:25:27,185 [main] [WARN] o.s.b.c.l.AbstractListenerFactoryBean - org.springframework.batch.item.ItemStreamReader is an interface.  The implementing class will not be queried for annotation based listener configurations.  If using @StepScope on a @Bean method, be sure to return the implementing class so listner annotations can be used.
+2017-05-04 16:25:27,250 [main] [INFO] o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: POSTGRES
+2017-05-04 16:25:27,253 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2017-05-04 16:25:27,362 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [FlowJob: [name=mrnaDataLoadJob]] launched with the following parameters: [{STUDY_ID=VALID_STUDY, ALLOW_MISSING_ANNOTATIONS=N, SKIP_UNMAPPED_DATA=N, MAP_FILENAME=/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset2/subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO=N, run.date=1493907927327, SECURITY_REQUIRED=Y, DATA_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset2/data.tsv, LOG_BASE=2, DATA_TYPE=R, TOP_NODE=\Private Studies\VALID_STUDY\}]
+2017-05-04 16:25:27,371 [main] [INFO] o.t.b.b.BetterExitMessageJobExecutionListener - Job id is 1421, execution id is 1432
+2017-05-04 16:25:27,400 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [readMappingFile]
+2017-05-04 16:25:27,478 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [failIfPlatformNotFound]
+2017-05-04 16:25:27,504 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [checkPlatformNotFound]
+2017-05-04 16:25:27,518 [main] [INFO] o.t.b.h.p.PlatformCheckTasklet - Platform GPL570_BOGUS is already present in the database: org.transmartproject.batch.highdim.platform.Platform(GPL570_BOGUS, Affymetrix Human Genome U133A 2.0 Array, Homo Sapiens, Gene Expression, null)
+2017-05-04 16:25:27,566 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [gatherCurrentConcepts]
+2017-05-04 16:25:27,589 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 5, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:27,621 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validateTopNodePreexistence]
+2017-05-04 16:25:27,635 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:27,663 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validateHighDimensionalConcepts]
+2017-05-04 16:25:27,677 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:27,707 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [gatherCurrentPatients]
+2017-05-04 16:25:27,752 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validatePatientIntersection]
+2017-05-04 16:25:27,760 [main] [WARN] o.t.b.h.c.ValidatePatientIntersectionTasklet - Total of 17 patients in the study without data: [CACO2_AURKA, COLO320, HCT15, HCT116, HCT116_MLH1, HT29, LS174T, LIM1863, LS513, SW1398, SW48, SW480, SW480_AURKA, RKO, PC346c, VCaP, DLD1]
+2017-05-04 16:25:27,766 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:27,800 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [loadAnnotationMappings]
+2017-05-04 16:25:27,816 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 20, WRITTEN: 20, SKIPPED: 0
+2017-05-04 16:25:27,842 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [firstPass]
+2017-05-04 16:25:27,892 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 38, WRITTEN: 38, SKIPPED: 0
+2017-05-04 16:25:27,893 [main] [INFO] o.t.b.b.CollectMinimumPositiveValueListener - Minimal positive values has been found. It's 1.031.
+2017-05-04 16:25:27,936 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteHdData]
+2017-05-04 16:25:27,943 [main] [INFO] o.t.b.h.a.CurrentAssayIdsReader - Will delete assays and data related with concepts: [org.transmartproject.batch.concept.ConceptNode(\Private Studies\VALID_STUDY\Biomarker Data\dataset2\Skin\, 1353863)]
+2017-05-04 16:25:28,001 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteCurrentAssays]
+2017-05-04 16:25:28,075 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteConceptCounts]
+2017-05-04 16:25:28,081 [main] [INFO] o.t.b.c.DeleteConceptCountsTasklet - About to delete concept counts with base node \Private Studies\VALID_STUDY\
+2017-05-04 16:25:28,088 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 44, SKIPPED: 0
+2017-05-04 16:25:28,129 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteObservationFact]
+2017-05-04 16:25:28,147 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 2, SKIPPED: 0
+2017-05-04 16:25:28,181 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertConcepts]
+2017-05-04 16:25:28,202 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:28,245 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [writePseudoFactsStep]
+2017-05-04 16:25:28,318 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertConceptCounts]
+2017-05-04 16:25:28,348 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 44, SKIPPED: 0
+2017-05-04 16:25:28,378 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [writeAssays]
+2017-05-04 16:25:28,435 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [partitionDataTable]
+2017-05-04 16:25:28,445 [main] [INFO] o.t.b.d.PostgresPartitionTasklet - Found partition table: de_subject_microarray_data_70
+2017-05-04 16:25:28,446 [main] [INFO] o.t.b.d.AbstractPartitionTasklet - Will use partition table deapp.de_subject_microarray_data_70
+2017-05-04 16:25:28,450 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:28,479 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [secondPass]
+2017-05-04 16:25:28,540 [main] [INFO] o.t.b.b.ProgressWriteListener - Items written: 38, 1809.52 items/s (last); 1809.52 items/s (global)
+2017-05-04 16:25:28,549 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 38, WRITTEN: 38, SKIPPED: 0
+2017-05-04 16:25:28,569 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [FlowJob: [name=mrnaDataLoadJob]] completed with the following parameters: [{STUDY_ID=VALID_STUDY, ALLOW_MISSING_ANNOTATIONS=N, SKIP_UNMAPPED_DATA=N, MAP_FILENAME=/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset2/subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO=N, run.date=1493907927327, SECURITY_REQUIRED=Y, DATA_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/expression/dataset2/data.tsv, LOG_BASE=2, DATA_TYPE=R, TOP_NODE=\Private Studies\VALID_STUDY\}] and the following status: [COMPLETED]
+2017-05-04 16:25:28,577 [main] [INFO] o.t.b.startup.RunJob - Start processing org.transmartproject.batch.startup.JobStartupDetails([ANNOTATIONS_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_annotation/proteomics_annotation.tsv, PLATFORM:PROT_ANNOT, TITLE:Test Proteomics Platform, GENOME_RELEASE:hg19, ORGANISM:Homo Sapiens, MARKER_TYPE:PROTEOMICS], /home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_annotation/proteomics_annotation.params)
+2017-05-04 16:25:29,078 [main] [INFO] o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: POSTGRES
+2017-05-04 16:25:29,080 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2017-05-04 16:25:29,159 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [SimpleJob: [name=proteomicsPlatformLoadJob]] launched with the following parameters: [{PLATFORM=PROT_ANNOT, GENOME_RELEASE=hg19, ANNOTATIONS_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_annotation/proteomics_annotation.tsv, run.date=1493907929118, TITLE=Test Proteomics Platform, ORGANISM=Homo Sapiens, MARKER_TYPE=PROTEOMICS}]
+2017-05-04 16:25:29,165 [main] [INFO] o.t.b.b.BetterExitMessageJobExecutionListener - Job id is 1422, execution id is 1433
+2017-05-04 16:25:29,182 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteAnnotations]
+2017-05-04 16:25:29,203 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 8, SKIPPED: 0
+2017-05-04 16:25:29,233 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteGplInfo]
+2017-05-04 16:25:29,254 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 1, SKIPPED: 0
+2017-05-04 16:25:29,281 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertGplInfo]
+2017-05-04 16:25:29,311 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 1, SKIPPED: 0
+2017-05-04 16:25:29,334 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [fillUniprotIdToUniprotNameMapping]
+2017-05-04 16:25:29,370 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:29,403 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [mainStep]
+2017-05-04 16:25:29,432 [main] [WARN] o.t.b.h.p.p.SetUniprotNameProcessor - There is no protein with uniprot id Q9UBS8 found in the dictionary. Fill in uniprot name field with uniprot id.
+2017-05-04 16:25:29,460 [main] [WARN] o.t.b.h.p.p.SetUniprotNameProcessor - There is no protein with uniprot id P62805 found in the dictionary. Fill in uniprot name field with uniprot id.
+2017-05-04 16:25:29,461 [main] [WARN] o.t.b.h.p.p.SetUniprotNameProcessor - There is no protein with uniprot id P35573 found in the dictionary. Fill in uniprot name field with uniprot id.
+2017-05-04 16:25:29,461 [main] [WARN] o.t.b.h.p.p.SetUniprotNameProcessor - There is no protein with uniprot id E9PC15 found in the dictionary. Fill in uniprot name field with uniprot id.
+2017-05-04 16:25:29,462 [main] [WARN] o.t.b.h.p.p.SetUniprotNameProcessor - There is no protein with uniprot id Q09161 found in the dictionary. Fill in uniprot name field with uniprot id.
+2017-05-04 16:25:29,462 [main] [WARN] o.t.b.h.p.p.SetUniprotNameProcessor - There is no protein with uniprot id P11021 found in the dictionary. Fill in uniprot name field with uniprot id.
+2017-05-04 16:25:29,463 [main] [WARN] o.t.b.h.p.p.SetUniprotNameProcessor - There is no protein with uniprot id P34932 found in the dictionary. Fill in uniprot name field with uniprot id.
+2017-05-04 16:25:29,463 [main] [WARN] o.t.b.h.p.p.SetUniprotNameProcessor - There is no protein with uniprot id Q8WX92 found in the dictionary. Fill in uniprot name field with uniprot id.
+2017-05-04 16:25:29,494 [main] [INFO] o.t.b.b.ProgressWriteListener - Items written: 8, 285.71 items/s (last); 285.71 items/s (global)
+2017-05-04 16:25:29,515 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [SimpleJob: [name=proteomicsPlatformLoadJob]] completed with the following parameters: [{PLATFORM=PROT_ANNOT, GENOME_RELEASE=hg19, ANNOTATIONS_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_annotation/proteomics_annotation.tsv, run.date=1493907929118, TITLE=Test Proteomics Platform, ORGANISM=Homo Sapiens, MARKER_TYPE=PROTEOMICS}] and the following status: [COMPLETED]
+2017-05-04 16:25:29,525 [main] [INFO] o.t.b.startup.RunJob - Start processing org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, ALLOW_MISSING_ANNOTATIONS:N, SKIP_UNMAPPED_DATA:N, MAP_FILENAME:/home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_subject_sample_mapping.txt, ZERO_MEANS_NO_INFO:N, SECURITY_REQUIRED:Y, DATA_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_data.txt, LOG_BASE:2, DATA_TYPE:R, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics.params)
+2017-05-04 16:25:30,620 [main] [WARN] o.s.b.c.l.AbstractListenerFactoryBean - org.springframework.batch.item.ItemStreamReader is an interface.  The implementing class will not be queried for annotation based listener configurations.  If using @StepScope on a @Bean method, be sure to return the implementing class so listner annotations can be used.
+2017-05-04 16:25:30,621 [main] [WARN] o.s.b.c.l.AbstractListenerFactoryBean - org.springframework.batch.item.ItemProcessor is an interface.  The implementing class will not be queried for annotation based listener configurations.  If using @StepScope on a @Bean method, be sure to return the implementing class so listner annotations can be used.
+2017-05-04 16:25:30,657 [main] [WARN] o.s.b.c.l.AbstractListenerFactoryBean - org.springframework.batch.item.ItemStreamReader is an interface.  The implementing class will not be queried for annotation based listener configurations.  If using @StepScope on a @Bean method, be sure to return the implementing class so listner annotations can be used.
+2017-05-04 16:25:30,761 [main] [INFO] o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: POSTGRES
+2017-05-04 16:25:30,764 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2017-05-04 16:25:30,886 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [FlowJob: [name=proteomicsDataLoadJob]] launched with the following parameters: [{STUDY_ID=VALID_STUDY, ALLOW_MISSING_ANNOTATIONS=N, SKIP_UNMAPPED_DATA=N, MAP_FILENAME=/home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_subject_sample_mapping.txt, ZERO_MEANS_NO_INFO=N, run.date=1493907930851, SECURITY_REQUIRED=Y, DATA_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_data.txt, LOG_BASE=2, DATA_TYPE=R, TOP_NODE=\Private Studies\VALID_STUDY\}]
+2017-05-04 16:25:30,895 [main] [INFO] o.t.b.b.BetterExitMessageJobExecutionListener - Job id is 1423, execution id is 1434
+2017-05-04 16:25:30,925 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [readMappingFile]
+2017-05-04 16:25:31,124 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [failIfPlatformNotFound]
+2017-05-04 16:25:31,150 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [checkPlatformNotFound]
+2017-05-04 16:25:31,163 [main] [INFO] o.t.b.h.p.PlatformCheckTasklet - Platform PROT_ANNOT is already present in the database: org.transmartproject.batch.highdim.platform.Platform(PROT_ANNOT, Test Proteomics Platform, Homo Sapiens, PROTEOMICS, null)
+2017-05-04 16:25:31,217 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [gatherCurrentConcepts]
+2017-05-04 16:25:31,241 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 9, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:31,278 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validateTopNodePreexistence]
+2017-05-04 16:25:31,293 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:31,329 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validateHighDimensionalConcepts]
+2017-05-04 16:25:31,349 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:31,389 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [gatherCurrentPatients]
+2017-05-04 16:25:31,449 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validatePatientIntersection]
+2017-05-04 16:25:31,458 [main] [WARN] o.t.b.h.c.ValidatePatientIntersectionTasklet - Total of 11 patients in the study without data: [CACO2_AURKA, COLO320, HCT15, HCT116_MLH1, LS174T, LIM1863, LS513, SW48, SW480_AURKA, PC346c, VCaP]
+2017-05-04 16:25:31,464 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:31,497 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [loadAnnotationMappings]
+2017-05-04 16:25:31,520 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 8, WRITTEN: 8, SKIPPED: 0
+2017-05-04 16:25:31,564 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [firstPass]
+2017-05-04 16:25:31,659 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 128, WRITTEN: 128, SKIPPED: 0
+2017-05-04 16:25:31,659 [main] [INFO] o.t.b.b.CollectMinimumPositiveValueListener - Minimal positive values has been found. It's 2.6186E7.
+2017-05-04 16:25:31,713 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteHdData]
+2017-05-04 16:25:31,719 [main] [INFO] o.t.b.h.a.CurrentAssayIdsReader - Will delete assays and data related with concepts: [org.transmartproject.batch.concept.ConceptNode(\Private Studies\VALID_STUDY\Molecular profiling\High-throughput molecular profiling\Expression (protein)\LC-MS-MS\Protein level\TPNT\MZ ratios\, 1353870)]
+2017-05-04 16:25:31,800 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteCurrentAssays]
+2017-05-04 16:25:31,871 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteConceptCounts]
+2017-05-04 16:25:31,887 [main] [INFO] o.t.b.c.DeleteConceptCountsTasklet - About to delete concept counts with base node \Private Studies\VALID_STUDY\
+2017-05-04 16:25:31,899 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 44, SKIPPED: 0
+2017-05-04 16:25:31,943 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteObservationFact]
+2017-05-04 16:25:31,974 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 8, SKIPPED: 0
+2017-05-04 16:25:32,032 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertConcepts]
+2017-05-04 16:25:32,080 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:32,123 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [writePseudoFactsStep]
+2017-05-04 16:25:32,236 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertConceptCounts]
+2017-05-04 16:25:32,295 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 44, SKIPPED: 0
+2017-05-04 16:25:32,366 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [writeAssays]
+2017-05-04 16:25:32,521 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [partitionDataTable]
+2017-05-04 16:25:32,546 [main] [INFO] o.t.b.d.PostgresPartitionTasklet - Found partition table: de_subject_protein_data_30
+2017-05-04 16:25:32,547 [main] [INFO] o.t.b.d.AbstractPartitionTasklet - Will use partition table deapp.de_subject_protein_data_30
+2017-05-04 16:25:32,554 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:32,609 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [secondPass]
+2017-05-04 16:25:32,749 [main] [INFO] o.t.b.b.ProgressWriteListener - Items written: 128, 1641.03 items/s (last); 1641.03 items/s (global)
+2017-05-04 16:25:32,762 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 128, WRITTEN: 128, SKIPPED: 0
+2017-05-04 16:25:32,792 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [FlowJob: [name=proteomicsDataLoadJob]] completed with the following parameters: [{STUDY_ID=VALID_STUDY, ALLOW_MISSING_ANNOTATIONS=N, SKIP_UNMAPPED_DATA=N, MAP_FILENAME=/home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_subject_sample_mapping.txt, ZERO_MEANS_NO_INFO=N, run.date=1493907930851, SECURITY_REQUIRED=Y, DATA_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/proteomics/proteomics_data.txt, LOG_BASE=2, DATA_TYPE=R, TOP_NODE=\Private Studies\VALID_STUDY\}] and the following status: [COMPLETED]
+2017-05-04 16:25:32,799 [main] [INFO] o.t.b.startup.RunJob - Start processing org.transmartproject.batch.startup.JobStartupDetails([ANNOTATIONS_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_annotation/chromosomal_regions.tsv, PLATFORM:RNASEQ_ANNOT, TITLE:Test RNASeq Platform, GENOME_RELEASE:hg19, ORGANISM:Homo Sapiens, MARKER_TYPE:RNASEQ_RCNT], /home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_annotation/rnaseq_annotation.params)
+2017-05-04 16:25:33,072 [main] [INFO] o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: POSTGRES
+2017-05-04 16:25:33,076 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2017-05-04 16:25:33,162 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [SimpleJob: [name=chromosomalRegionLoadJob]] launched with the following parameters: [{PLATFORM=RNASEQ_ANNOT, GENOME_RELEASE=hg19, ANNOTATIONS_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_annotation/chromosomal_regions.tsv, run.date=1493907933103, TITLE=Test RNASeq Platform, ORGANISM=Homo Sapiens, MARKER_TYPE=RNASEQ_RCNT}]
+2017-05-04 16:25:33,170 [main] [INFO] o.t.b.b.BetterExitMessageJobExecutionListener - Job id is 1424, execution id is 1435
+2017-05-04 16:25:33,188 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteChromosomalRegions]
+2017-05-04 16:25:33,209 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 4, SKIPPED: 0
+2017-05-04 16:25:33,232 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteGplInfo]
+2017-05-04 16:25:33,248 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 1, SKIPPED: 0
+2017-05-04 16:25:33,277 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertGplInfo]
+2017-05-04 16:25:33,302 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 1, SKIPPED: 0
+2017-05-04 16:25:33,327 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertChromosomalRegions]
+2017-05-04 16:25:33,382 [main] [INFO] o.t.b.b.ProgressWriteListener - Items written: 4, 129.03 items/s (last); 129.03 items/s (global)
+2017-05-04 16:25:33,403 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [SimpleJob: [name=chromosomalRegionLoadJob]] completed with the following parameters: [{PLATFORM=RNASEQ_ANNOT, GENOME_RELEASE=hg19, ANNOTATIONS_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_annotation/chromosomal_regions.tsv, run.date=1493907933103, TITLE=Test RNASeq Platform, ORGANISM=Homo Sapiens, MARKER_TYPE=RNASEQ_RCNT}] and the following status: [COMPLETED]
+2017-05-04 16:25:33,408 [main] [INFO] o.t.b.startup.RunJob - Start processing org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, ALLOW_MISSING_ANNOTATIONS:N, SKIP_UNMAPPED_DATA:N, MAP_FILENAME:/home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO:N, SECURITY_REQUIRED:Y, DATA_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_data.tsv, LOG_BASE:2, DATA_TYPE:R, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq.params)
+2017-05-04 16:25:34,142 [main] [WARN] o.s.a.f.CglibAopProxy - Unable to proxy method [public final java.util.Map org.transmartproject.batch.highdim.rnaseq.data.RnaSeqDataMultipleVariablesPerSampleFieldSetMapper.getFieldSetters()] because it is final: All calls to this method via a proxy will NOT be routed to the target instance.
+2017-05-04 16:25:34,273 [main] [WARN] o.s.b.c.l.AbstractListenerFactoryBean - org.springframework.batch.item.ItemProcessor is an interface.  The implementing class will not be queried for annotation based listener configurations.  If using @StepScope on a @Bean method, be sure to return the implementing class so listner annotations can be used.
+2017-05-04 16:25:34,376 [main] [INFO] o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: POSTGRES
+2017-05-04 16:25:34,379 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2017-05-04 16:25:34,491 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [FlowJob: [name=rnaSeqDataJob]] launched with the following parameters: [{STUDY_ID=VALID_STUDY, ALLOW_MISSING_ANNOTATIONS=N, SKIP_UNMAPPED_DATA=N, MAP_FILENAME=/home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO=N, run.date=1493907934457, SECURITY_REQUIRED=Y, DATA_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_data.tsv, LOG_BASE=2, DATA_TYPE=R, TOP_NODE=\Private Studies\VALID_STUDY\}]
+2017-05-04 16:25:34,497 [main] [INFO] o.t.b.b.BetterExitMessageJobExecutionListener - Job id is 1425, execution id is 1436
+2017-05-04 16:25:34,524 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [readMappingFile]
+2017-05-04 16:25:34,609 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [failIfPlatformNotFound]
+2017-05-04 16:25:34,631 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [checkPlatformNotFound]
+2017-05-04 16:25:34,642 [main] [INFO] o.t.b.h.p.PlatformCheckTasklet - Platform RNASEQ_ANNOT is already present in the database: org.transmartproject.batch.highdim.platform.Platform(RNASEQ_ANNOT, Test RNASeq Platform, Homo Sapiens, RNASEQ_RCNT, null)
+2017-05-04 16:25:34,694 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [gatherCurrentConcepts]
+2017-05-04 16:25:34,711 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 6, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:34,737 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validateTopNodePreexistence]
+2017-05-04 16:25:34,752 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:34,782 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validateHighDimensionalConcepts]
+2017-05-04 16:25:34,794 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:34,821 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [gatherCurrentPatients]
+2017-05-04 16:25:34,865 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validatePatientIntersection]
+2017-05-04 16:25:34,875 [main] [WARN] o.t.b.h.c.ValidatePatientIntersectionTasklet - Total of 16 patients in the study without data: [CACO2_AURKA, COLO320, HCT15, HCT116, HCT116_MLH1, HT29, LS174T, LIM1863, LS513, SW1398, SW48, SW480, SW480_AURKA, RKO, PC346c, VCaP]
+2017-05-04 16:25:34,880 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:34,914 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [loadAnnotationMappings]
+2017-05-04 16:25:34,932 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 4, WRITTEN: 4, SKIPPED: 0
+2017-05-04 16:25:34,962 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [firstPass]
+2017-05-04 16:25:35,113 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 12, WRITTEN: 12, SKIPPED: 0
+2017-05-04 16:25:35,113 [main] [INFO] o.t.b.b.CollectMinimumPositiveValueListener - Minimal positive values has been found. It's 5.294.
+2017-05-04 16:25:35,150 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteHdData]
+2017-05-04 16:25:35,156 [main] [INFO] o.t.b.h.a.CurrentAssayIdsReader - Will delete assays and data related with concepts: [org.transmartproject.batch.concept.ConceptNode(\Private Studies\VALID_STUDY\Test\RnaSeq\rcnt\data\, 1353881)]
+2017-05-04 16:25:35,202 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteCurrentAssays]
+2017-05-04 16:25:35,257 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteConceptCounts]
+2017-05-04 16:25:35,266 [main] [INFO] o.t.b.c.DeleteConceptCountsTasklet - About to delete concept counts with base node \Private Studies\VALID_STUDY\
+2017-05-04 16:25:35,277 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 44, SKIPPED: 0
+2017-05-04 16:25:35,313 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteObservationFact]
+2017-05-04 16:25:35,332 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 3, SKIPPED: 0
+2017-05-04 16:25:35,389 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertConcepts]
+2017-05-04 16:25:35,419 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:35,455 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [writePseudoFactsStep]
+2017-05-04 16:25:35,526 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertConceptCounts]
+2017-05-04 16:25:35,575 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 44, SKIPPED: 0
+2017-05-04 16:25:35,617 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [writeAssays]
+2017-05-04 16:25:35,699 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [partitionDataTable]
+2017-05-04 16:25:35,712 [main] [INFO] o.t.b.d.PostgresPartitionTasklet - Found partition table: de_subject_rnaseq_data_156
+2017-05-04 16:25:35,712 [main] [INFO] o.t.b.d.AbstractPartitionTasklet - Will use partition table deapp.de_subject_rnaseq_data_156
+2017-05-04 16:25:35,719 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:35,758 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [secondPass]
+2017-05-04 16:25:35,832 [main] [INFO] o.t.b.b.ProgressWriteListener - Items written: 12, 266.67 items/s (last); 266.67 items/s (global)
+2017-05-04 16:25:35,841 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 12, WRITTEN: 12, SKIPPED: 0
+2017-05-04 16:25:35,866 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [FlowJob: [name=rnaSeqDataJob]] completed with the following parameters: [{STUDY_ID=VALID_STUDY, ALLOW_MISSING_ANNOTATIONS=N, SKIP_UNMAPPED_DATA=N, MAP_FILENAME=/home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO=N, run.date=1493907934457, SECURITY_REQUIRED=Y, DATA_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/rnaseq/rnaseq_data.tsv, LOG_BASE=2, DATA_TYPE=R, TOP_NODE=\Private Studies\VALID_STUDY\}] and the following status: [COMPLETED]
+2017-05-04 16:25:35,869 [main] [WARN] o.s.b.f.s.DisposableBeanAdapter - Invocation of destroy method 'close' failed on bean with name 'rnaSeqDataTsvFileReader': org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'scopedTarget.itemStreamReader': Scope 'step' is not active for the current thread; consider defining a scoped proxy for this bean if you intend to refer to it from a singleton; nested exception is java.lang.IllegalStateException: No context holder available for step scope
+2017-05-04 16:25:35,876 [main] [INFO] o.t.b.startup.RunJob - Start processing org.transmartproject.batch.startup.JobStartupDetails([ANNOTATIONS_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_annotation/chromosomal_regions.tsv, PLATFORM:ACGH_ANNOT, TITLE:Test Acgh Platform, GENOME_RELEASE:hg19, ORGANISM:Homo Sapiens, MARKER_TYPE:Chromosomal], /home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_annotation/cnv_annotation.params)
+2017-05-04 16:25:36,165 [main] [INFO] o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: POSTGRES
+2017-05-04 16:25:36,166 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2017-05-04 16:25:36,220 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [SimpleJob: [name=chromosomalRegionLoadJob]] launched with the following parameters: [{PLATFORM=ACGH_ANNOT, GENOME_RELEASE=hg19, ANNOTATIONS_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_annotation/chromosomal_regions.tsv, run.date=1493907936196, TITLE=Test Acgh Platform, ORGANISM=Homo Sapiens, MARKER_TYPE=Chromosomal}]
+2017-05-04 16:25:36,228 [main] [INFO] o.t.b.b.BetterExitMessageJobExecutionListener - Job id is 1426, execution id is 1437
+2017-05-04 16:25:36,247 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteChromosomalRegions]
+2017-05-04 16:25:36,268 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 4, SKIPPED: 0
+2017-05-04 16:25:36,298 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteGplInfo]
+2017-05-04 16:25:36,319 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 1, SKIPPED: 0
+2017-05-04 16:25:36,352 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertGplInfo]
+2017-05-04 16:25:36,384 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 1, SKIPPED: 0
+2017-05-04 16:25:36,412 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertChromosomalRegions]
+2017-05-04 16:25:36,451 [main] [INFO] o.t.b.b.ProgressWriteListener - Items written: 4, 200.00 items/s (last); 200.00 items/s (global)
+2017-05-04 16:25:36,477 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [SimpleJob: [name=chromosomalRegionLoadJob]] completed with the following parameters: [{PLATFORM=ACGH_ANNOT, GENOME_RELEASE=hg19, ANNOTATIONS_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_annotation/chromosomal_regions.tsv, run.date=1493907936196, TITLE=Test Acgh Platform, ORGANISM=Homo Sapiens, MARKER_TYPE=Chromosomal}] and the following status: [COMPLETED]
+2017-05-04 16:25:36,483 [main] [INFO] o.t.b.startup.RunJob - Start processing org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, PROB_IS_NOT_1:ERROR, ALLOW_MISSING_ANNOTATIONS:N, SKIP_UNMAPPED_DATA:N, MAP_FILENAME:/home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO:N, SECURITY_REQUIRED:Y, DATA_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_data.tsv, LOG_BASE:2, DATA_TYPE:R, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/cnv/cnv.params)
+2017-05-04 16:25:37,244 [main] [WARN] o.s.a.f.CglibAopProxy - Unable to proxy method [public final java.util.Map org.transmartproject.batch.highdim.cnv.data.CnvDataMultipleVariablesPerSampleFieldSetMapper.getFieldSetters()] because it is final: All calls to this method via a proxy will NOT be routed to the target instance.
+2017-05-04 16:25:37,271 [main] [WARN] o.s.b.c.l.AbstractListenerFactoryBean - org.springframework.batch.item.ItemProcessor is an interface.  The implementing class will not be queried for annotation based listener configurations.  If using @StepScope on a @Bean method, be sure to return the implementing class so listner annotations can be used.
+2017-05-04 16:25:37,330 [main] [WARN] o.s.b.c.l.AbstractListenerFactoryBean - org.springframework.batch.item.ItemProcessor is an interface.  The implementing class will not be queried for annotation based listener configurations.  If using @StepScope on a @Bean method, be sure to return the implementing class so listner annotations can be used.
+2017-05-04 16:25:37,501 [main] [INFO] o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: POSTGRES
+2017-05-04 16:25:37,502 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2017-05-04 16:25:37,675 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [FlowJob: [name=cnvDataJob]] launched with the following parameters: [{STUDY_ID=VALID_STUDY, PROB_IS_NOT_1=ERROR, ALLOW_MISSING_ANNOTATIONS=N, SKIP_UNMAPPED_DATA=N, MAP_FILENAME=/home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO=N, run.date=1493907937597, SECURITY_REQUIRED=Y, DATA_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_data.tsv, LOG_BASE=2, DATA_TYPE=R, TOP_NODE=\Private Studies\VALID_STUDY\}]
+2017-05-04 16:25:37,684 [main] [INFO] o.t.b.b.BetterExitMessageJobExecutionListener - Job id is 1427, execution id is 1438
+2017-05-04 16:25:37,717 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [readMappingFile]
+2017-05-04 16:25:37,907 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [failIfPlatformNotFound]
+2017-05-04 16:25:37,938 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [checkPlatformNotFound]
+2017-05-04 16:25:37,953 [main] [INFO] o.t.b.h.p.PlatformCheckTasklet - Platform ACGH_ANNOT is already present in the database: org.transmartproject.batch.highdim.platform.Platform(ACGH_ANNOT, Test Acgh Platform, Homo Sapiens, Chromosomal, null)
+2017-05-04 16:25:38,057 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [gatherCurrentConcepts]
+2017-05-04 16:25:38,085 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 6, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:38,140 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validateTopNodePreexistence]
+2017-05-04 16:25:38,164 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:38,241 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validateHighDimensionalConcepts]
+2017-05-04 16:25:38,264 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:38,321 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [gatherCurrentPatients]
+2017-05-04 16:25:38,434 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [validatePatientIntersection]
+2017-05-04 16:25:38,449 [main] [WARN] o.t.b.h.c.ValidatePatientIntersectionTasklet - Total of 16 patients in the study without data: [CACO2_AURKA, COLO320, HCT15, HCT116, HCT116_MLH1, HT29, LS174T, LIM1863, LS513, SW1398, SW48, SW480, SW480_AURKA, RKO, PC346c, VCaP]
+2017-05-04 16:25:38,464 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:38,535 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [loadAnnotationMappings]
+2017-05-04 16:25:38,561 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 4, WRITTEN: 4, SKIPPED: 0
+2017-05-04 16:25:38,616 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [firstPass]
+2017-05-04 16:25:38,768 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 12, WRITTEN: 12, SKIPPED: 0
+2017-05-04 16:25:38,823 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteHdData]
+2017-05-04 16:25:38,830 [main] [INFO] o.t.b.h.a.CurrentAssayIdsReader - Will delete assays and data related with concepts: [org.transmartproject.batch.concept.ConceptNode(\Private Studies\VALID_STUDY\Test\Acgh\cgh\data\, 1353892)]
+2017-05-04 16:25:38,907 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteCurrentAssays]
+2017-05-04 16:25:38,971 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteConceptCounts]
+2017-05-04 16:25:38,985 [main] [INFO] o.t.b.c.DeleteConceptCountsTasklet - About to delete concept counts with base node \Private Studies\VALID_STUDY\
+2017-05-04 16:25:39,002 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 44, SKIPPED: 0
+2017-05-04 16:25:39,141 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [deleteObservationFact]
+2017-05-04 16:25:39,162 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 3, SKIPPED: 0
+2017-05-04 16:25:39,200 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertConcepts]
+2017-05-04 16:25:39,227 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:39,263 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [writePseudoFactsStep]
+2017-05-04 16:25:39,370 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [insertConceptCounts]
+2017-05-04 16:25:39,419 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 44, SKIPPED: 0
+2017-05-04 16:25:39,485 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [writeAssays]
+2017-05-04 16:25:39,571 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [partitionDataTable]
+2017-05-04 16:25:39,584 [main] [INFO] o.t.b.d.PostgresPartitionTasklet - Found partition table: de_subject_acgh_data_80
+2017-05-04 16:25:39,584 [main] [INFO] o.t.b.d.AbstractPartitionTasklet - Will use partition table deapp.de_subject_acgh_data_80
+2017-05-04 16:25:39,591 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:39,637 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [secondPass]
+2017-05-04 16:25:39,710 [main] [INFO] o.t.b.b.ProgressWriteListener - Items written: 12, 333.33 items/s (last); 333.33 items/s (global)
+2017-05-04 16:25:39,730 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 12, WRITTEN: 12, SKIPPED: 0
+2017-05-04 16:25:39,759 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [FlowJob: [name=cnvDataJob]] completed with the following parameters: [{STUDY_ID=VALID_STUDY, PROB_IS_NOT_1=ERROR, ALLOW_MISSING_ANNOTATIONS=N, SKIP_UNMAPPED_DATA=N, MAP_FILENAME=/home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_subject_sample_mapping.tsv, ZERO_MEANS_NO_INFO=N, run.date=1493907937597, SECURITY_REQUIRED=Y, DATA_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/cnv/acgh_data.tsv, LOG_BASE=2, DATA_TYPE=R, TOP_NODE=\Private Studies\VALID_STUDY\}] and the following status: [COMPLETED]
+2017-05-04 16:25:39,760 [main] [WARN] o.s.b.f.s.DisposableBeanAdapter - Invocation of destroy method 'close' failed on bean with name 'cnvDataTsvFileReader': org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'scopedTarget.itemStreamReader': Scope 'step' is not active for the current thread; consider defining a scoped proxy for this bean if you intend to refer to it from a singleton; nested exception is java.lang.IllegalStateException: No context holder available for step scope
+2017-05-04 16:25:39,780 [main] [INFO] o.t.b.startup.RunJob - Start processing org.transmartproject.batch.startup.JobStartupDetails([STUDY_ID:VALID_STUDY, SECURITY_REQUIRED:Y, TAGS_FILE:/home/vlad-the-impaler/tmtk/studies/valid_study/tags/tags.txt, TOP_NODE:\Private Studies\VALID_STUDY\], /home/vlad-the-impaler/tmtk/studies/valid_study/tags/tags.params)
+2017-05-04 16:25:40,341 [main] [INFO] o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: POSTGRES
+2017-05-04 16:25:40,343 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2017-05-04 16:25:40,410 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [SimpleJob: [name=TagsLoadJob]] launched with the following parameters: [{STUDY_ID=VALID_STUDY, run.date=1493907940380, SECURITY_REQUIRED=Y, TAGS_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/tags/tags.txt, TOP_NODE=\Private Studies\VALID_STUDY\}]
+2017-05-04 16:25:40,416 [main] [INFO] o.t.b.b.BetterExitMessageJobExecutionListener - Job id is 1428, execution id is 1439
+2017-05-04 16:25:40,436 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [GatherCurrentConcepts]
+2017-05-04 16:25:40,467 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 45, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:40,493 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [ValidateTopNodePreexistence]
+2017-05-04 16:25:40,504 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 0, WRITTEN: 0, SKIPPED: 0
+2017-05-04 16:25:40,527 [main] [INFO] o.s.b.c.j.SimpleStepHandler - Executing step: [tagsLoadStep]
+2017-05-04 16:25:40,612 [main] [INFO] o.t.b.tag.TagWriter - Deleted 2 current tag entries
+2017-05-04 16:25:40,637 [main] [INFO] o.t.b.b.LogCountsStepListener - READ: 2, WRITTEN: 2, SKIPPED: 0
+2017-05-04 16:25:40,655 [main] [INFO] o.s.b.c.l.s.SimpleJobLauncher - Job: [SimpleJob: [name=TagsLoadJob]] completed with the following parameters: [{STUDY_ID=VALID_STUDY, run.date=1493907940380, SECURITY_REQUIRED=Y, TAGS_FILE=/home/vlad-the-impaler/tmtk/studies/valid_study/tags/tags.txt, TOP_NODE=\Private Studies\VALID_STUDY\}] and the following status: [COMPLETED]

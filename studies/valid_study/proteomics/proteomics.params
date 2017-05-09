@@ -1,4 +1,11 @@
-DATA_FILE=proteomics_data.txt
-DATA_TYPE=R
-LOG_BASE=2
+### Mandatory
+# Filename of the mapping file.
 MAP_FILENAME=proteomics_subject_sample_mapping.txt
+# Points to the HD data file.
+DATA_FILE=proteomics_data.txt
+# Must be R (raw values). Other types are not supported yet.
+DATA_TYPE=R
+
+### Optional
+# Keep this at 2 (sorry about that).
+LOG_BASE=2
