@@ -1,2 +1,2 @@
 STUDY_ID	SITE_ID	SUBJECT_ID	SAMPLE_CD	PLATFORM	SAMPLE_TYPE	TISSUE_TYPE	TIME_POINT	CATEGORY_CD	SOURCE_CD
-TEMPLATE_TEST		Subject_1	cna_subject1	CNA-GENES-TEMPLATE	Colorectal cancer cell line			4. Molecular profiling+RNA expression+Microarray: Agilent 244K mRNA+Genes	STD375686
+TEMPLATE_TEST		Subject_1	cna_subject1	CNA-GENES-TEMPLATE	Colorectal cancer cell line			4. Molecular profiling+RNA expression+Microarray: Agilent 244K mRNA+Genes	
