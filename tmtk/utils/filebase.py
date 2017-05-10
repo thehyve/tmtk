@@ -79,12 +79,10 @@ class FileBase:
         self._hash_init = hash(df.__bytes__())
         return df
 
-
     @property
     def df(self):
         """The pd.DataFrame for this file object."""
         return self._df
-
 
     @df.setter
     def df(self, value):

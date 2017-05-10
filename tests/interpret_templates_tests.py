@@ -16,7 +16,7 @@ class InterpretTemplatesTests(unittest.TestCase):
 
         def collect_study_files(dir_name):
             all_paths = Path(dir_name).glob('**/*')
-            return {path.name: path for path in all_paths if not path.name.startswith(('~', '.')) and path.isfile()}
+            return {path.name: path for path in all_paths if not path.name.startswith(('~', '.')) and path.is_file()}
 
         tmtk.toolbox.create_study_from_templates(ID='TEMPLATE_TEST', source_dir=cls.template_dir,
                                                  output_dir=cls.temp_dir, sec_req='N')
@@ -38,7 +38,7 @@ class InterpretTemplatesTests(unittest.TestCase):
         pass
 
     def test_study_load(self):
-        assert self.study.params_path
+        assert self.study.params.path
 
     def test_data_volumes(self):
         assert self.study.study_id == self.control_study.study_id
@@ -48,7 +48,7 @@ class InterpretTemplatesTests(unittest.TestCase):
 
         for file_name, file_path in self.control_files.items():
             test_file_path = self.test_files[file_name]
-            assert filecmp.cmp(file_path, test_file_path)
+            assert filecmp.cmp(str(file_path), str(test_file_path))
 
 
 if __name__ == '__main__':

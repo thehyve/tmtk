@@ -1,7 +1,7 @@
 import csv
 import os
 from glob import glob
-from pathlib import Path
+import operator
 
 import pandas as pd
 from tmtk.toolbox import template_validation as Validity
@@ -38,10 +38,10 @@ class TemplatedStudy:
         self.excel_files = [excel_file for excel_file in glob(self.source_dir + "/*.xls*") if "~$" not in excel_file]
         os.makedirs(self.clin_output_dir, exist_ok=True)
 
-    def _sort_write(self, data, key1, key2, output_path, header):
+    def _sort_write(self, data, output_path, header, *args):
         """Sort and write the input data."""
         data_as_list = list(data)
-        data_as_list.sort(key=lambda x: (x[key1], x[key2]))
+        data_as_list.sort(key=operator.itemgetter(*args))
 
         with open(output_path, "w") as output_file:
             writer = csv.writer(output_file, delimiter='\t', quotechar=None)
@@ -51,14 +51,14 @@ class TemplatedStudy:
     def write_column_mapping(self):
         """Sort rows on data file and column number, then write the column mapping rows."""
         output_path = os.path.join(self.clin_output_dir, self.col_map_file_name)
-        self._sort_write(self.col_map_rows, 0, 2, output_path, self.col_map_header)
+        self._sort_write(self.col_map_rows, output_path, self.col_map_header, 0, 2)
         print("[INFO] Column mapping file written at: {0}".format(output_path))
 
     def write_word_mapping(self):
         """Sort rows on data file and column nubmer, then write the word mapping rows."""
         if self.word_map_rows:
             output_path = os.path.join(self.clin_output_dir, self.word_map_file_name)
-            self._sort_write(self.word_map_rows, 0, 1, output_path, self.word_map_header)
+            self._sort_write(self.word_map_rows, output_path, self.word_map_header, 0, 1, 2)
             print("[INFO] Word mapping file written at: {0}".format(output_path))
 
     def write_metadata(self):
@@ -66,7 +66,7 @@ class TemplatedStudy:
         if self.all_metadata:
             os.makedirs(self.metadata_output_dir, exist_ok=True)
             output_path = os.path.join(self.metadata_output_dir, self.metadata_file_name)
-            self._sort_write(self.all_metadata, 0, 3, output_path, self.metadata_header)
+            self._sort_write(self.all_metadata, output_path, self.metadata_header, 0, 3)
 
     def add_dir_level_metadata(self, path, platform_id, platform_name):
         if path not in self.hd_dir_level_metadata:
