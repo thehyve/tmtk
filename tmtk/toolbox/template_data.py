@@ -1,9 +1,10 @@
 import csv
+import operator
 import os
 from glob import glob
-import operator
 
 import pandas as pd
+
 from tmtk.toolbox import template_validation as Validity
 
 

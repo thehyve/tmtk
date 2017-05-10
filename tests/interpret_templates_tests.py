@@ -1,10 +1,11 @@
 import filecmp
 import os
-import unittest
-import tempfile
 import shutil
-import tmtk.toolbox
+import tempfile
+import unittest
 from pathlib import Path
+
+import tmtk.toolbox
 
 
 class InterpretTemplatesTests(unittest.TestCase):
