@@ -1,11 +1,7 @@
-# coding: utf-8
-
 import os
 import re
 from collections import defaultdict
-from random import randint
 
-import IPython
 import numpy as np
 import pandas as pd
 
@@ -288,7 +284,7 @@ def process_mapping(ss_data, experiment, concept_cd, study):
     ss_mapping["TISSUE_TYPE"] = ss_data["Tissue type"]
     ss_mapping["TIME_POINT"] = ss_data["Timepoint"]
     ss_mapping["CATEGORY_CD"] = concept_cd
-    ss_mapping["SOURCE_CD"] = "STD" + str(randint(0, 1000000))
+    ss_mapping["SOURCE_CD"] = ""
 
     write_hd_df(ss_mapping, experiment.output_dir, "subject_sample_mapping.tsv")
 
