@@ -1,6 +1,7 @@
 import os
 import json
 from IPython.display import HTML
+import tempfile
 
 from .clinical import Clinical
 from .params import Params
@@ -33,18 +34,24 @@ class Study:
         :param study_params_path: valid path to a study.params.
         :param minimal: if True, tmtk will only load parameter files.
         """
-        if os.path.basename(study_params_path) != 'study.params':
+        if not study_params_path:
+            self.study_folder = tempfile.mkdtemp('tmp_study_dir')
+            self.Params = Params(self.study_folder)
+            self.Params.add_params(os.path.join(self.study_folder, 'study.params'))
+
+        elif os.path.basename(study_params_path) != 'study.params':
             print('Please give a path to study.params file.')
             raise utils.PathError
-        self.study_folder = os.path.dirname(os.path.abspath(study_params_path))
-        self.Params = Params(self.study_folder)
+
+        else:
+            self.study_folder = os.path.dirname(os.path.abspath(study_params_path))
+            self.Params = Params(self.study_folder)
 
         self.params = self.find_params_for_datatype('study')[0]
 
         if minimal:
             return
 
-        self.Clinical = None
         # Look for clinical params and create child object
         clinical_params = self.find_params_for_datatype(datatypes='clinical')
         if clinical_params:
@@ -205,7 +212,7 @@ class Study:
     @property
     def clinical_files(self):
         """All clinical file objects in this study."""
-        return self.Clinical.clinical_files if hasattr(self.Clinical, 'clinical_files') else []
+        return self.Clinical.clinical_files if hasattr(self, 'clinical_files') else []
 
     @property
     def tag_files(self):

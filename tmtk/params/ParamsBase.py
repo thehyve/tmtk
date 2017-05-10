@@ -29,8 +29,8 @@ class ParamsBase:
             self.__dict__.update(**parameters)
         elif os.path.exists(self.path):
             self.__dict__.update(**self._params_in_file)
-        else:
-            self.update()
+        # else:
+        #     self.update()
 
     def __str__(self):
         return self.subdir
