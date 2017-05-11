@@ -6,7 +6,7 @@
 `tmtk` - TranSMART data curation toolkit
 ========================================
 
-.. module:: tmkt
+.. module:: tmtk
 .. moduleauthor:: Jochem Bijlard
 
 :Author: Jochem Bijlard
