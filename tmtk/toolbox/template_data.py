@@ -10,11 +10,11 @@ from tmtk.toolbox import template_validation as Validity
 
 class TemplatedStudy:
     def __init__(self, ID, source_dir, output_dir="transmart_files", sec_req="Y", name=None):
-        self.ID = ID
+        self.ID = str(ID).upper()
         self.name = name
         self.source_dir = source_dir
         self.output_dir = output_dir
-        self.sec_req = sec_req
+        self.sec_req = sec_req.upper()
 
         self.clinical_template_present = True
         self.metadata_output_dir = os.path.join(self.output_dir, "tags")

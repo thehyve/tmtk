@@ -334,6 +334,14 @@ Study Wizard
    :undoc-members:
    :show-inheritance:
 
+Create study from templates
+------------
+
+.. automodule:: tmtk.toolbox.create_study_from_templates
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 The Arborist
 ============

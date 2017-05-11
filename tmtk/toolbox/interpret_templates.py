@@ -565,7 +565,7 @@ def process_high_dim(study):
     study.write_metadata()
 
 
-def create_study_from_templates(ID, source_dir, output_dir="transmart_files", sec_req="Y", study_name=None):
+def create_study_from_templates(ID, source_dir, output_dir="transmart_files", sec_req="Y"):
     """
     Create tranSMART files in designated output_dir for all data provided in templates in the source_dir.
 
@@ -573,13 +573,10 @@ def create_study_from_templates(ID, source_dir, output_dir="transmart_files", se
     :param source_dir: directory containing all the templates.
     :param output_dir: directory where the output should be written.
     :param sec_req: security required? "Y" or "N", default="Y".
-    :param study_name: optional: name of the study, default=ID.
     :return:
     """
-    if not study_name:
-        study_name = ID
 
-    study = TemplatedStudy(ID=ID, source_dir=source_dir, output_dir=output_dir, sec_req=sec_req, name=study_name)
+    study = TemplatedStudy(ID=ID, source_dir=source_dir, output_dir=output_dir, sec_req=sec_req)
 
     process_clinical(study)
     write_low_dim_params(study)
