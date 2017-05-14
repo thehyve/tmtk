@@ -11,7 +11,7 @@ Create study templates.
 -----------------------
 
 Using the ``tmtk.toolbox.create_study_from_templates()`` function you
-can process any templates you have filled in, and output the contents
+can process any template you have filled in, and output the contents
 to a format that can be uploaded to tranSMART. It has the following parameters:
 
 - ``ID`` **(Mandatory)** Unique identifier of the study. This argument does not define the name of the study, that will be derived from ``Level 1`` of the clinical data tree sheet.
