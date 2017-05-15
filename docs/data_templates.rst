@@ -16,7 +16,7 @@ to a format that can be uploaded to tranSMART. It has the following parameters:
 
 - ``ID`` **(Mandatory)** Unique identifier of the study. This argument does not define the name of the study, that will be derived from ``Level 1`` of the clinical data template tree sheet.
 - ``source_dir`` **(Mandatory)** Path to the folder in which the filled in templates are stored. Template files are not searched recursively, so all should be in the same folder.
-- ``output_dir`` Path to the folder where the tranSMART files should we written to. If the path doesn't exist the required folder(s) will be created. Default: ``./transmart_files``
+- ``output_dir`` Path to the folder where the tranSMART files should we written to. If the path doesn't exist the required folder(s) will be created. Default: ``./<STUDY_ID>_transmart_files``
 - ``sec_req`` Determines whether it should be a public or private study. Use ``Y`` for private or ``N`` for public. Default: ``Y``
 
 It is important that your ``source_dir`` contains just one clinical data template, which is detected
