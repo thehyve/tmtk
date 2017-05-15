@@ -7,8 +7,8 @@ and write the data to tranSMART-ready files.
 
 
 
-Create study templates.
------------------------
+Create study templates
+----------------------
 
 Using the ``tmtk.toolbox.create_study_from_templates()`` function you
 can process any template you have filled in, and output the contents
