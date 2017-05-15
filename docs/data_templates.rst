@@ -37,6 +37,6 @@ in that case the concept paths will have to be manually added to the subject-sam
 .. code:: python
 
     # Read templates and write to tranSMART files
-    tmtk.toolbox.create_study_from_templates(ID="TEMPLATE_STUDY",
+    tmtk.toolbox.create_study_from_templates(ID='MY-TEMPLATE_STUDY',
                                              source_dir='./my_templates_folder/',
                                              sec_req='N')
