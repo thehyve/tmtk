@@ -338,10 +338,6 @@ Create study from templates
 ---------------------------
 
 .. autofunction:: tmtk.toolbox.create_study_from_templates
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 
 The Arborist
 ============
