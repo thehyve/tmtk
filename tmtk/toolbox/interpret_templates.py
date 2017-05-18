@@ -573,7 +573,7 @@ def create_study_from_templates(ID, source_dir, output_dir=None, sec_req="Y"):
     :param source_dir: directory containing all the templates.
     :param output_dir: directory where the output should be written.
     :param sec_req: security required? "Y" or "N", default="Y".
-    :return:
+    :return: None
     """
 
     study = TemplatedStudy(ID=ID, source_dir=source_dir, output_dir=output_dir, sec_req=sec_req)
