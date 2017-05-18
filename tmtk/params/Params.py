@@ -52,6 +52,7 @@ class Params:
         Add a new parameter file to the Params object.
 
         :param path: a path to a parameter file.
+        :param new: if new, create parameter object.
         :param parameters: add dict here with parameters if you want to create a new parameter file.
         """
         datatype = os.path.basename(path).rsplit('.params', 1)[0]
@@ -62,6 +63,8 @@ class Params:
 
         if params:
             self.__dict__[subdir] = params
+
+        return params
 
     @staticmethod
     def create_params(path, parameters=None, subdir=None):

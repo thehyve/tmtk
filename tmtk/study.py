@@ -1,6 +1,7 @@
 import os
 import json
 from IPython.display import HTML
+import tempfile
 
 from .clinical import Clinical
 from .params import Params
@@ -33,22 +34,30 @@ class Study:
         :param study_params_path: valid path to a study.params.
         :param minimal: if True, tmtk will only load parameter files.
         """
-        if os.path.basename(study_params_path) != 'study.params':
-            print('Please give a path to study.params file.')
-            raise utils.PathError
-        self.study_folder = os.path.dirname(os.path.abspath(study_params_path))
-        self.Params = Params(self.study_folder)
+        if not study_params_path:
+            self.study_folder = tempfile.mkdtemp(prefix='tmtk-')
+            self.Params = Params(self.study_folder)
+            self.Params.add_params(os.path.join(self.study_folder, 'study.params'))
+
+        elif os.path.basename(study_params_path) != 'study.params':
+            raise utils.PathError('Please give a path to study.params file, or None to make one in tmp.')
+
+        else:
+            self.study_folder = os.path.dirname(os.path.abspath(study_params_path))
+            self.Params = Params(self.study_folder)
 
         self.params = self.find_params_for_datatype('study')[0]
 
         if minimal:
             return
 
-        self.Clinical = None
         # Look for clinical params and create child object
+        self.Clinical = Clinical()
         clinical_params = self.find_params_for_datatype(datatypes='clinical')
         if clinical_params:
-            self.add_clinical(clinical_params[0])
+            self.Clinical.params = clinical_params[0]
+        else:
+            self.create_clinical()
 
         annotation_params = self.find_params_for_datatype(list(Mappings.get_annotations()))
         if annotation_params:
@@ -278,12 +287,14 @@ class Study:
         tag_param = self.find_params_for_datatype('tags')[0]
         self.Tags = MetaDataTags(params=tag_param, parent=self)
 
-    def write_to(self, root_dir, overwrite=False):
+    def write_to(self, root_dir, overwrite=False, return_new=True):
         """
         Write this study to a new directory on file system.
 
         :param root_dir: the base directory to write the study to.
         :param overwrite: set this to True to overwrite existing files.
+        :param return_new: if True load the study object from the new location and return it.
+        :return: new study object if return_new == True.
         """
         root_dir = os.path.expanduser(root_dir)
 
@@ -297,18 +308,17 @@ class Study:
             CPrint.info("Writing file to {}".format(new_path))
             obj.write_to(new_path, overwrite=overwrite)
 
-    def add_clinical(self, clinical_params):
-        """
-        Add clinical data to a study object.
+        if return_new:
+            return Study(os.path.join(root_dir, 'study.params'))
 
-        :param clinical_params: `tmkt.ClinicalParams` object
-        """
-        if clinical_params.datatype != 'clinical':
-            CPrint.error('Expected clinical params, but got {} params.'.format(clinical_params))
-        elif self.Clinical:
+    def create_clinical(self):
+        """ Add clinical data to a study object by creating empty params. """
+
+        if self.find_params_for_datatype('clinical'):
             CPrint.error('Trying to add Clinical, but already there.')
         else:
-            self.Clinical = Clinical(clinical_params)
+            new_path = os.path.join(self.study_folder, 'clinical', 'clinical.params')
+            self.Clinical.params = self.Params.add_params(new_path)
 
     @property
     def load_to(self):

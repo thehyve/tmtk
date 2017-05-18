@@ -2,7 +2,6 @@ import os as _os
 import glob as _glob
 
 from ..study import Study as _Study
-from ..params import StudyParams as _StudyParams
 
 
 def create_study(path):
@@ -14,21 +13,11 @@ def create_study(path):
     """
     path = _base_dir(path)
 
-    study_params_path = _os.path.join(path, 'study.params')
-    study = _Study(study_params_path)
-    study.Params.study = _StudyParams(study_params_path, subdir='study', parent=study)
-
-    clinical_params = _clinical_param_or_none(study)
-    if clinical_params:
-        clinical_params.update()
-    else:
-        p = _os.path.join(path, 'clinical', 'clinical.params')
-        study.Params.add_params(p)
-        clinical_params = _clinical_param_or_none(study)
-        study.add_clinical(clinical_params)
+    study = _Study()
+    study.study_id = 'WIZARD'
 
     file_list = study.Clinical.ColumnMapping.included_datafiles or []
-    if _os.path.exists(_os.path.join(path, clinical_params.COLUMN_MAP_FILE)):
+    if _os.path.exists(_os.path.join(path, study.Clinical.params.COLUMN_MAP_FILE)):
         print('Column mapping file found that includes {}. Are there any other clinical files?'.
               format(file_list))
 
@@ -36,7 +25,7 @@ def create_study(path):
     new_files = [f for f in clinical_data_files if _os.path.basename(f) not in file_list]
 
     for data_file in new_files:
-        new_file_path = _os.path.join(clinical_params.dirname, _os.path.basename(data_file))
+        new_file_path = _os.path.join(study.Clinical.params.dirname, _os.path.basename(data_file))
         study.Clinical.add_datafile(data_file)
         file_obj = study.Clinical.get_datafile(_os.path.basename(data_file))
         file_obj.path = new_file_path

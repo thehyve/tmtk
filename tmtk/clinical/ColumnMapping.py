@@ -83,6 +83,19 @@ class ColumnMapping(FileBase):
         cp = path_join(row[1], row[3])
         return path_converter(cp)
 
+    def set_concept_path(self, var_id: tuple, path, label):
+        """
+        Return concept path for given variable identifier tuple.
+
+        :param var_id: tuple of filename and column number.
+        :param path: new value for path.
+        :param label: new value for data label.
+        """
+        if not path and label:
+            raise Exception('Need to give both path and label')
+
+        self.df.loc[tuple(var_id), [self.df.columns[1], self.df.columns[3]]] = path, label
+
     @staticmethod
     def _df_mods(df):
         """
