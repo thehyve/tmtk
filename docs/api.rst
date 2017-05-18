@@ -337,7 +337,7 @@ Study Wizard
 Create study from templates
 ---------------------------
 
-.. automodule:: tmtk.toolbox
+.. automodule:: tmtk.toolbox.interpret_templates
    :members:
    :undoc-members:
    :show-inheritance:
