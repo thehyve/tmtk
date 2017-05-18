@@ -51,6 +51,7 @@ Contents
     changelog
     usage
     api
+    data_templates
 
 Indices and tables
 ==================

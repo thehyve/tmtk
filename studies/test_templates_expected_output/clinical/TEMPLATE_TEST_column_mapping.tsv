@@ -1,0 +1,19 @@
+Filename	Category Code	Column Number	Data Label	Data Label Source	Control Vocab Cd	Concept Type
+Low-dimensional data.tsv		1	SUBJ_ID			
+Low-dimensional data.tsv	1. Clinical characteristics+1. Subjects	2	Gender			
+Low-dimensional data.tsv	1. Clinical characteristics+1. Subjects	3	Age			
+Low-dimensional data.tsv	1. Clinical characteristics+1. Subjects	4	History of colon polyps			
+Low-dimensional data.tsv	1. Clinical characteristics+2. Primary tumor	5	Location tumor			
+Low-dimensional data.tsv	1. Clinical characteristics+2. Primary tumor	6	Hypermutated			
+Low-dimensional data.tsv	1. Clinical characteristics+2. Primary tumor+Staging	7	T stage			
+Low-dimensional data.tsv	1. Clinical characteristics+2. Primary tumor+Staging	8	M stage			
+Low-dimensional data.tsv	1. Clinical characteristics+3. Metastasis	9	Location			
+Low-dimensional data.tsv	1. Clinical characteristics+3. Metastasis	10	Number of affected organs			
+Low-dimensional data.tsv	1. Clinical characteristics+4. Treatments	11	Radiotherapy			
+Low-dimensional data.tsv	1. Clinical characteristics+4. Treatments	12	Treatment arm			
+Low-dimensional data.tsv	1. Clinical characteristics+4. Treatments	13	Previous adjuvant therapy			
+Low-dimensional data.tsv	1. Clinical characteristics+5. Lab results	14	LDH (serum)			
+Low-dimensional data.tsv	1. Clinical characteristics+5. Lab results	15	CEA (blood/serum)			
+Low-dimensional data.tsv	1. Clinical characteristics+6. Endpoints	16	Cause of death			
+Low-dimensional data.tsv	1. Clinical characteristics+6. Endpoints+Overall survival	17	Overall survival: event			
+Low-dimensional data.tsv	1. Clinical characteristics+6. Endpoints+Overall survival	18	Overall survival			

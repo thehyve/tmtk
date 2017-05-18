@@ -1,0 +1,29 @@
+concept_key	tag_title	tag_description	index
+\	tagA1	valueA1	100
+\	tagA2	valueA2	200
+\1. Clinical characteristics	tagB1	valueB1	100
+\1. Clinical characteristics\5. Lab results\CEA (blood/serum)	tagD1	valueD1	100
+\1. Clinical characteristics\5. Lab results\CEA (blood/serum)	tagD2	valueD2	200
+\1. Clinical characteristics\5. Lab results\CEA (blood/serum)	tagD3	valueD3	300
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA	Platform names	Microarray: Agilent 9K	10
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA	Platform IDs	CNA-GENES-TEMPLATE	11
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Description	Description	10
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Overall design	Overall design	11
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Submitter name(s)	name1, name2, name3	12
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Submitter affiliation(s)	Submitter affiliation(s)	13
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Data owner/PI name	PI name	14
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Data owner/PI affiliation	Data owner/PI affiliation	15
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Location public data	Location public data	16
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Location public data link	Location public data link	17
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Related publication	Related publication	18
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Related publication PMID link	Related publication PMID link	19
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Related publication DOI link	Related publication DOI link	20
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Sample processing, descriptive	Sample processing, descriptive	21
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Sample processing, reference/link	Sample processing, reference/link	22
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Genome build	hg19	23
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Data (pre-)processing, descriptive	Data (pre-)processing, descriptive	24
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Data (pre-)processing, reference/link	Data (pre-)processing, reference/link	25
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Link to computational workflow	http://workflow.link.co.uk	26
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Data type	Data type	27
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Value definition	Value definition	28
+\4. Molecular profiling\RNA expression\Microarray: Agilent 244K mRNA\Genes	Platform ID	CNA-GENES-TEMPLATE	29

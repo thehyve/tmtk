@@ -8,4 +8,6 @@ notebook>=4.4.1
 requests>=2.13.0
 tqdm>=4.11.0
 mygene>=3.0.0
+xlrd>=1.0.0
 click>=6.0
+
