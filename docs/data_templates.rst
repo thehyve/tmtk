@@ -3,7 +3,7 @@ Data templates
 ==============
 
 This document describes how you can use tmtk to read your filled in templates
-and write the data to tranSMART-ready files. The templates can be downloaded `here <https://drive.google.com/open?id=0B5m3DYILzHFKeVEyZFU2RVFuYm8/>`_.
+and write the data to tranSMART-ready files. The templates can be downloaded `here <https://drive.google.com/open?id=0B5m3DYILzHFKeVEyZFU2RVFuYm8>`_.
 
 Create study templates
 ----------------------
