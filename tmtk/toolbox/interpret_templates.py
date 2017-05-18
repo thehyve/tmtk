@@ -565,7 +565,7 @@ def process_high_dim(study):
     study.write_metadata()
 
 
-def create_study_from_templates(ID, source_dir, output_dir="transmart_files", sec_req="Y"):
+def create_study_from_templates(ID, source_dir, output_dir=None, sec_req="Y"):
     """
     Create tranSMART files in designated output_dir for all data provided in templates in the source_dir.
 

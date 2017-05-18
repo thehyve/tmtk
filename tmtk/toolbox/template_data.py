@@ -9,10 +9,12 @@ from tmtk.toolbox import template_validation as Validity
 
 
 class TemplatedStudy:
-    def __init__(self, ID, source_dir, output_dir="transmart_files", sec_req="Y", name=None):
+    def __init__(self, ID, source_dir, output_dir=None, sec_req="Y"):
         self.ID = str(ID).upper()
-        self.name = name
+        self.name = None
         self.source_dir = source_dir
+        if not output_dir:
+            output_dir = self.ID + "_transmart_files"
         self.output_dir = output_dir
         self.sec_req = sec_req.upper()
 
