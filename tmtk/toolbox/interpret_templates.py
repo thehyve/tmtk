@@ -120,6 +120,7 @@ def add_subjects_to_mapping(study, sheets):
 
 
 def reformat_concept_path(concept_cd_series):
+    """Reformat the concept cd series to the metadata format expected by tm-batch."""
     # Study name is not used in metadata concept path
     if len(concept_cd_series) == 1:
         concept_path = "\\"
@@ -129,6 +130,7 @@ def reformat_concept_path(concept_cd_series):
 
 
 def create_metadata(row, concept_cd_series, index_counter, study):
+    """Iterate through metadata in the tree sheet and store in study instance."""
     tags = row[4::3]
     values = row[5::3]
 
@@ -163,6 +165,7 @@ def write_metadata_params(study):
 
 
 def get_output_dir(study, hd_template_file_name):
+    """Construct HD folder name based on template file name and create the folder."""
     hd_template_file_name = os.path.basename(hd_template_file_name)
     hd_output_dir = os.path.splitext(hd_template_file_name)[0]
     hd_output_dir = re.sub("template", "", hd_output_dir, flags=re.I)
