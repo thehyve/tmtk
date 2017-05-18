@@ -19,14 +19,61 @@ class Clinical:
     files and variables.
     """
 
-    def __init__(self, clinical_params):
-        self.ColumnMapping = ColumnMapping(params=clinical_params)
-        self.WordMapping = WordMapping(params=clinical_params)
-        self.params = clinical_params
+    def __init__(self, clinical_params=None):
+        self._WordMapping = None
+        self._ColumnMapping = None
+        self._params = clinical_params
 
+    @property
+    def params(self):
+        return self._params
+
+    @params.setter
+    def params(self, value):
+        self._params = value
+        self.ColumnMapping = ColumnMapping(params=self.params)
+        self.WordMapping = WordMapping(params=self.params)
+
+    @property
+    def ColumnMapping(self):
+        return self._ColumnMapping
+
+    @ColumnMapping.setter
+    def ColumnMapping(self, value):
+        self._ColumnMapping = value
         for file in self.ColumnMapping.included_datafiles:
             clinical_data_path = os.path.join(self.params.dirname, file)
             self.add_datafile(clinical_data_path)
+
+    @property
+    def WordMapping(self):
+        return self._WordMapping
+
+    @WordMapping.setter
+    def WordMapping(self, value):
+        self._WordMapping = value
+
+    def apply_column_mapping_template(self, template):
+        """
+        Update the column mapping by applying a template.
+
+        :param template: expected input is a dictionary where keys are column names
+            as found in clinical datafiles. Each column header name has a dictionary
+            describing the path and data label. For example:
+
+            {'GENDER': {'path': 'Characteristics\Demographics',
+                        'label': 'Gender'},
+             'BPBASE': {'path': 'Lab results\Blood',
+                        'label': 'Blood pressure (baseline)'}
+            }
+        """
+        for datafile in self.ColumnMapping.included_datafiles:
+            for index, code in enumerate(self.get_datafile(datafile).df.columns, start=1):
+                new_path = template.get(code, {}).get('path')
+                new_label = template.get(code, {}).get('label')
+                if not new_path and new_label:
+                    continue
+                self.ColumnMapping.set_concept_path((datafile, index), new_path, new_label)
 
     def add_datafile(self, filename, dataframe=None):
         """

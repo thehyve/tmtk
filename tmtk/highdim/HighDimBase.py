@@ -2,7 +2,6 @@ import pandas as pd
 import os
 
 from .. import utils
-from ..toolbox import remap_chromosomal_regions
 from ..annotation import ChromosomalRegions
 
 from .SampleMapping import SampleMapping
@@ -149,6 +148,8 @@ class HighDimBase(utils.FileBase):
         :param destination:
         :return:
         """
+        from ..toolbox import remap_chromosomal_regions
+
         if not self.annotation_file:
             raise Exception
 

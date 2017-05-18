@@ -2,7 +2,7 @@ import tmtk
 import unittest
 
 
-class IncompletenessTests(unittest.TestCase):
+class ReloadTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         pass

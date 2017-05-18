@@ -29,8 +29,6 @@ class ParamsBase:
             self.__dict__.update(**parameters)
         elif os.path.exists(self.path):
             self.__dict__.update(**self._params_in_file)
-        # else:
-        #     self.update()
 
     def __str__(self):
         return self.subdir
@@ -89,7 +87,7 @@ class ParamsBase:
                 messages.error('Illegal param found: {}.'.format(param))
             elif 'FILE' in param:
                 if not os.path.exists(os.path.join(self.dirname, value)):
-                    messages.error('{}={} cannot be found.'.format(param, value))
+                    messages.error('{}={} cannot be found on disk.'.format(param, value))
                 else:
                     messages.okay('{}={} found.'.format(param, value))
 

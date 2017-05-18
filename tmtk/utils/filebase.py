@@ -73,7 +73,7 @@ class FileBase:
         if self.path and os.path.exists(self.path) and self.tabs_in_first_line():
             df = file2df(self.path)
         else:
-            CPrint.warn("No valid file found on disk for {}, creating dataframe.".format(self))
+            CPrint.okay("Creating dataframe for: {}".format(self))
             df = self.create_df()
         df = self._df_processing(df)
         self._hash_init = hash(df.__bytes__())
