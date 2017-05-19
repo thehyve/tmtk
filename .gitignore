@@ -25,10 +25,14 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
+coverage.xml
 nosetests.xml
 
 # Translations
 *.mo
+
+# Documentation
+docs/_build
 
 # Mr Developer
 .mr.developer.cfg
@@ -36,6 +40,10 @@ nosetests.xml
 .pydevproject
 .idea
 
+# Deployment specifics
+to_pip.sh
+
+# Additional stuff
 *.ipynb
 !tmtk/arborist/static/jstree/dist
 *.log
