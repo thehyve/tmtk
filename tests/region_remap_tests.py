@@ -30,15 +30,15 @@ class RemappingTests(unittest.TestCase):
             destination_platform=self.study.Annotations.cnv_ACGH_ANNOT.df,
             origin_platform=self.study.Annotations.rnaseq_RNASEQ_ANNOT.df
         )
-        assert remapped.ix[0, 0] == '_WASH7P'
-        assert (remapped.ix[:, 1] == [3.0, 38.5, 0.0, 1.0]).all()
+        assert remapped.iloc[0, 0] == '_WASH7P'
+        assert (remapped.iloc[:, 1] == [3.0, 38.5, 0.0, 1.0]).all()
 
     def test_remapping_shortcut(self):
         highdim_cnv = self.study.HighDim.cnv
         chrom_regions = self.study.Annotations.rnaseq_RNASEQ_ANNOT
         remapped = highdim_cnv.remap_to(destination=chrom_regions)
         assert remapped.dtypes[3] == 'int64'
-        assert (remapped.ix[:, 1] == [0, 0, 0, 1, 1]).all()
+        assert (remapped.iloc[:, 1] == [0, 0, 0, 1, 1]).all()
 
     def test_df_and_object_remap_input(self):
         highdim_cnv = self.study.HighDim.cnv
