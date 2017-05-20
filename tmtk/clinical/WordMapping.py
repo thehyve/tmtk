@@ -52,7 +52,7 @@ class WordMapping(FileBase):
         if var_id in self.df.index:
             rows = self.df.loc[var_id]
             if isinstance(rows, pd.DataFrame):
-                return dict(zip(rows.ix[:, 2], rows.ix[:, 3]))
+                return dict(zip(rows.iloc[:, 2], rows.iloc[:, 3]))
             else:
                 return {rows[2]: rows[3]}
 
@@ -71,7 +71,7 @@ class WordMapping(FileBase):
         if not isinstance(df, pd.DataFrame):
             df = self.df
         df.set_index(list(df.columns[[0, 1]]), drop=False, inplace=True)
-        df.sortlevel(inplace=True)
+        df.sort_index(inplace=True)
         return df
 
     def create_df(self):
@@ -92,7 +92,7 @@ class WordMapping(FileBase):
         :param df: `pd.DataFrame`.
         :return: `pd.DataFrame`.
         """
-        df.ix[:, 1] = df.ix[:, 1].astype(int)
+        df.iloc[:, 1] = df.iloc[:, 1].astype(int)
         return df
 
     @property

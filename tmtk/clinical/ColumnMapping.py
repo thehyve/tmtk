@@ -35,7 +35,7 @@ class ColumnMapping(FileBase):
     @property
     def included_datafiles(self):
         """List of datafiles included in column mapping file."""
-        return list(self.df.ix[:, 0].unique())
+        return list(self.df.iloc[:, 0].unique())
 
     @property
     def ids(self):
@@ -105,7 +105,7 @@ class ColumnMapping(FileBase):
         :return: `pd.DataFrame`.
         """
         df.fillna("", inplace=True)
-        df.ix[:, 2] = df.ix[:, 2].astype(int)
+        df.iloc[:, 2] = df.iloc[:, 2].astype(int)
         return df
 
     def build_index(self, df=None):
@@ -119,7 +119,7 @@ class ColumnMapping(FileBase):
         if not isinstance(df, pd.DataFrame):
             df = self.df
         df.set_index(list(df.columns[[0, 2]]), drop=False, inplace=True)
-        df.sortlevel(inplace=True)
+        df.sort_index(inplace=True)
         return df
 
     def append_from_datafile(self, datafile):

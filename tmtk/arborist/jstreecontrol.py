@@ -31,8 +31,8 @@ def _get_hd_args(path, high_dim_node, annotation):
     """
     map_file = high_dim_node.sample_mapping
 
-    s = map_file.slice_path(path).ix[:, 5].unique()
-    t = map_file.slice_path(path).ix[:, 6].unique()
+    s = map_file.slice_path(path).iloc[:, 5].unique()
+    t = map_file.slice_path(path).iloc[:, 6].unique()
 
     hd_args = {'hd_sample': ', '.join(s.astype(str)) if pd.notnull(s[0]) else '',
                'hd_tissue': ', '.join(t.astype(str)) if pd.notnull(t[0]) else '',
@@ -209,7 +209,7 @@ class ConceptTree:
         # Fillna needs to happen because for some reason this expression below
         # returns True for NaN and NaN, which introduces unnecessary rows in word mapping.
         # This issue might need to be resolved earlier in the ConceptTree!
-        changed_values = df.fillna('').ix[:, 2] != df.fillna('').ix[:, 3]
+        changed_values = df.fillna('').iloc[:, 2] != df.fillna('').iloc[:, 3]
 
         # Set None to NaN, else empty fields in dataframes are not recognized (None != NaN)
         df.fillna(value=pd.np.nan, inplace=True)

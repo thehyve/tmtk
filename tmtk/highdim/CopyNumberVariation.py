@@ -48,14 +48,14 @@ class CopyNumberVariation(HighDimBase):
 
         for sample in set(self.samples):
             columns = self.header.str.contains(sample + '.prob')
-            sample_df = self.df.ix[:, columns].astype(float)
+            sample_df = self.df.iloc[:, columns].astype(float)
             sample_df = sample_df.dropna()
             not_near_1 = ~sample_df.sum(axis=1).between(0.99, 1.01)
             if any(not_near_1):
                 everything_okay = False
                 bad_samples.append(sample)
                 [bad_regions.append(x) for x in
-                 self.df.ix[not_near_1, 0]]  # Adds region ids to list.
+                 self.df.loc[not_near_1, 0]]  # Adds region ids to list.
 
         if not everything_okay:
             m = 'Samples ({}) where have regions where CNV probabilities do not approximate 1. ' \

@@ -54,7 +54,7 @@ class HighDimBase(utils.FileBase):
                 messages.error('No annotation file found for {}.'.format(self.platform))
             else:
                 messages.info('Annotation file found for {}, checking...'.format(self.platform))
-                data_series = self.df.ix[:, 0]
+                data_series = self.df.iloc[:, 0]
                 self._find_missing_annotation(annotation_series=self.annotation_file.biomarkers,
                                               data_series=data_series, messages=messages)
 

@@ -13,4 +13,4 @@ class ProteomicsAnnotation(AnnotationBase):
         if len(probeset_id_column) != 1:
             CPrint.error('Expected a probesetid column but got {}'.format(len(probeset_id_column)))
             return None
-        return self.df.ix[:, probeset_id_column[0]]
+        return self.df.loc[:, probeset_id_column[0]]
