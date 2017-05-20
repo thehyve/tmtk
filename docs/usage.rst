@@ -47,50 +47,14 @@ Here we will create a study from these two files:
 
 .. parsed-literal::
 
-    ==========  study params  ==========
-    Updating:  TOP_NODE=\(Public|Private) Studies\<STUDY_ID> (default).
-    Helptext:  The study top node.
-    Change to:  \\Public Studies\\You're a wizard Harry
-    Updating! (TOP_NODE=\Public Studies\You're a wizard Harry)
-    --------------------
-    Updating:  STUDY_ID=Uppercased parent directory.
-    Helptext:  Identifier of the study.
-    Change to:  WIZARD
-    Updating! (STUDY_ID=WIZARD)
-    --------------------
-    Updating:  SECURITY_REQUIRED=N (default).
-    Helptext:  Defines study as Private (Y) or Public (N).
-    Change to:  N
-    Updating! (SECURITY_REQUIRED=N)
-    --------------------
-    ==========  clinical params  ==========
-    Updating:  TAGS_FILE (not set)
-    Helptext:  Points to the concepts tags file.
-    Change to:
-    --------------------
-    Updating:  WORD_MAP_FILE (not set)
-    Helptext:  Points to the file with dictionary to be used.
-    Change to:
-    --------------------
-    Updating:  COLUMN_MAP_FILE (not set)
-    Helptext:  Points to the column file.
-    Change to:
-    --------------------
-    Updating:  XTRIAL_FILE (not set)
-    Helptext:  Points to the cross study concepts file.
-    Change to:
-    --------------------
-
     #####  Please select your clinical datafiles  #####
-    -    0. /Users/jb/thehyve/tmtk/studies/wizard/Cell-line_clinical.txt
-    -    1. /Users/jb/thehyve/tmtk/studies/wizard/Cell-line_NHTMP.txt
+    -    0. /home/vlad-the-impaler/tmtk/studies/wizard/Cell-line_clinical.txt
+    -    1. /home/vlad-the-impaler/tmtk/studies/wizard/Cell-line_NHTMP.txt
     Pick number:  0
     Selected files: ['Cell-line_clinical.txt']
     Pick number:  1
     Selected files: ['Cell-line_clinical.txt', 'Cell-line_NHTMP.txt']
     Pick number:
-
-
 
 .. raw:: html
 
@@ -102,7 +66,8 @@ Here we will create a study from these two files:
 
 The wizard walked us through some of the options for the study we want
 to create. Our new study is a public study with ``STUDY_ID==WIZARD`` and
-an appropriate name. None of the clinical params have been set, so tmtk
+you can pick an appropriate name by setting the ``study.study_name = 'Ur a wizard harry'``.
+None of the clinical params have been set, so tmtk
 will use default names for the column and word mapping file. Next the
 datafiles have been loaded and the column mapping object has been
 created to include the data files.
@@ -117,7 +82,7 @@ on disk.
 
 .. raw:: html
 
-    <p><font color="orange">&#9888; No valid file found on disk for /Users/jb/thehyve/tmtk/studies/wizard/clinical/word_mapping_file.txt, creating dataframe.</font></p>
+    <p><font color="orange">&#9888; No valid file found on disk for /home/vlad-the-impaler/tmtk/studies/wizard/clinical/word_mapping_file.txt, creating dataframe.</font></p>
     <h3>Validating params file at clinical</h3>
     <p><font color="red">&#x274C; WORD_MAP_FILE=word_mapping_file.txt cannot be found.</font></p>
     <p><font color="red">&#x274C; COLUMN_MAP_FILE=column_mapping_file.txt cannot be found.</font></p>
@@ -136,16 +101,19 @@ transmart-batch.
 
 .. code:: python
 
-    study.write_to('~/studies/my_new_study')
+    study = study.write_to('~/studies/my_new_study')
 
 .. raw:: html
 
-    <p>Writing file to /Users/jb/studies/my_new_study/clinical/clinical.params</p>
-    <p>Writing file to /Users/jb/studies/my_new_study/study.params</p>
-    <p>Writing file to /Users/jb/studies/my_new_study/clinical/column_mapping_file.txt</p>
-    <p>Writing file to /Users/jb/studies/my_new_study/clinical/Cell-line_clinical.txt</p>
-    <p>Writing file to /Users/jb/studies/my_new_study/clinical/word_mapping_file.txt</p>
-    <p>Writing file to /Users/jb/studies/my_new_study/clinical/Cell-line_NHTMP.txt</p>
+    <p>Writing file to /home/vlad-the-impaler/studies/my_new_study/clinical/clinical.params</p>
+    <p>Writing file to /home/vlad-the-impaler/studies/my_new_study/study.params</p>
+    <p>Writing file to /home/vlad-the-impaler/studies/my_new_study/clinical/column_mapping_file.txt</p>
+    <p>Writing file to /home/vlad-the-impaler/studies/my_new_study/clinical/Cell-line_clinical.txt</p>
+    <p>Writing file to /home/vlad-the-impaler/studies/my_new_study/clinical/word_mapping_file.txt</p>
+    <p>Writing file to /home/vlad-the-impaler/studies/my_new_study/clinical/Cell-line_NHTMP.txt</p>
+
+Next you can use the `TranSMART Arborist`_ to modify the concept tree or
+use tmtk to load to transmart if you've set your ``$TMBATCH_HOME``, see `Using transmart-batch from Jupyter`_.
 
 
 ====
@@ -233,4 +201,29 @@ copying the url for the latest tree into this command.
 
     study.update_from_baas('arborist-test-trait.thehyve.net/trees/valid-study/3/~edit')
 
+
+Using transmart-batch from Jupyter
+----------------------------------
+
+Using tmtk you can load data to transmart right from Jupyter. For this to work you need to
+download and build transmart-batch, if you want to do this see the `transmart-batch github`_.
+
+Once you've done that you need to set an environment variable to the path of the github repository.
+The easiest way to do this is to add the following to your *~/.bash_profile*:
+
+.. code:: bash
+
+    export $TMBATCH_HOME=/home/path/to/transmart-batch
+
+Next make sure to create a *batchdb.property* file with an appropriate name in the ``$TMBATCH_HOME``
+directory. *tmtk* will look for any *\*.property* file and allow you run transmart-batch with that property
+file from many objects. An examples of a good names are *production.properties* or *test-environment.properties*.
+Next you will be able to do something like this:
+
+.. code:: python
+
+    study.load_to.production()
+
+
+.. _transmart-batch github: https://github.com/thehyve/transmart-batch
 
