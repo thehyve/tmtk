@@ -96,7 +96,7 @@ class Variable:
 
         :return: All values as found in the datafile.
         """
-        return self.datafile.df.ix[:, self._zero_column]
+        return self.datafile.df.iloc[:, self._zero_column]
 
     @property
     def unique_values(self):

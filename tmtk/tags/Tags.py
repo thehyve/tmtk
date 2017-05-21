@@ -20,7 +20,7 @@ class MetaDataTags(FileBase):
         """
         Return tag paths delimited by the path_converter.
         """
-        return self.df.ix[:, 0].apply(lambda x: self._convert_path(x))
+        return self.df.iloc[:, 0].apply(lambda x: self._convert_path(x))
 
     @property
     def invalid_paths(self):

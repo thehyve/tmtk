@@ -8,4 +8,4 @@ class ChromosomalRegions(AnnotationBase):
 
     @property
     def biomarkers(self):
-        return self.df.ix[:, 1]
+        return self.df.iloc[:, 1]

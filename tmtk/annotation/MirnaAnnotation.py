@@ -8,4 +8,4 @@ class MirnaAnnotation(AnnotationBase):
 
     @property
     def biomarkers(self):
-        return self.df.ix[:, 0]
+        return self.df.iloc[:, 0]
