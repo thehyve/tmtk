@@ -65,9 +65,21 @@
                     <td>
                         <input class="form-control form-control-sm" type="checkbox" id="fc"/>
                     </td>
-                    <td>Force Categorical <small>(requires reloading)</small></td>
+                    <td><small>Force Categorical</small></td>
                 </tr>
             </table>
+
+            <div hidden class="clinicaldata ontology-tree-container">
+                <div id="ontology-box">
+                    <div>
+                        <input class="form-control form-control-sm" type="text" id="ontology-search"/>
+                    </div>
+                    <div>Label: <span id="ontology-label"></span></div>
+                    <div>Code: <a target="_blank" id="ontology-code"></a></div>
+                </div>
+                <div><img id="ontology-search-spinner" src="{{ static_base  }}/images/spin.svg"></div>
+                <div id="ontology-tree-div"></div>
+            </div>
 
             <div hidden class="metadata">
                 <ul class="tagbox-header">
@@ -103,7 +115,6 @@
                     </tbody>
                 </table>
             </div>
-
         </form>
         <!-- End of shared code. -->
 

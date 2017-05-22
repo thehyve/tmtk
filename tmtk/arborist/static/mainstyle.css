@@ -14,7 +14,7 @@ div#treeanddetails {
   overflow: hidden;
 }
 div#details {
-  width: 43%;
+  width: 50%;
   height: 100%;
   float: right;
   position: relative;
@@ -69,7 +69,7 @@ div#search-container {
 }
 div#outer-tree-div {
   overflow: hidden;
-  width: 57%;
+  width: 50%;
   height: 100%;
   float: left;
   position: relative;
@@ -238,4 +238,24 @@ button#tag-save {
 }
 h3.popover-title {
   color: rgba(255, 255, 255, 0.5);
+}
+.ontology-tree-container {
+  width: 100%;
+  height: calc(100% - 217px);
+  /*overflow: scroll;*/
+  border: 1px lightgrey solid;
+}
+#ontology-tree-div{
+  overflow: scroll;
+  max-height: calc(100% - 75px);
+}
+#ontology-search-spinner {
+  position: absolute;
+  width: 100px;
+  height: 200px;
+  left: calc(50% - 25px);
+}
+#ontology-box{
+  padding: 5px;
+  background: aliceblue;
 }

@@ -5,6 +5,7 @@ from .DataFile import DataFile
 from .Variable import Variable, VarID
 from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
+from .Ontology import OntologyMapping
 from ..utils import CPrint, PathError, clean_for_namespace, FileBase
 from .. import arborist
 from ..utils.batch import TransmartBatch
@@ -22,6 +23,7 @@ class Clinical:
     def __init__(self, clinical_params=None):
         self._WordMapping = None
         self._ColumnMapping = None
+        self._OntologyMapping = None
         self._params = clinical_params
 
     @property
@@ -33,6 +35,7 @@ class Clinical:
         self._params = value
         self.ColumnMapping = ColumnMapping(params=self.params)
         self.WordMapping = WordMapping(params=self.params)
+        self.OntologyMapping = OntologyMapping(params=self.params)
 
     @property
     def ColumnMapping(self):
@@ -52,6 +55,14 @@ class Clinical:
     @WordMapping.setter
     def WordMapping(self, value):
         self._WordMapping = value
+
+    @property
+    def OntologyMapping(self):
+        return self._OntologyMapping
+
+    @OntologyMapping.setter
+    def OntologyMapping(self, value):
+        self._OntologyMapping = value
 
     def apply_column_mapping_template(self, template):
         """
