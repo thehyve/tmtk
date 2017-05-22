@@ -1,12 +1,15 @@
-import tmtk
 import unittest
+import tmtk
 import pandas as pd
+from io import StringIO
+from contextlib import redirect_stdout
 
 
 class ValidationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.study = tmtk.Study('studies/valid_study/study.params')
+        cls.invalid_study = tmtk.Study('studies/invalid_study/study.params')
 
     @classmethod
     def tearDownClass(cls):
@@ -74,6 +77,28 @@ class ValidationTests(unittest.TestCase):
 
     def test_tags_validation(self):
         assert self.study.Tags.validate(0)
+
+    def test_invalid_word_map(self):
+        error_template = '\033[95m\033[91mError: {}\033[0m'
+        warning_template = '\033[93mWarning: {}\033[0m'
+
+        with StringIO() as buffer, redirect_stdout(buffer):
+            self.invalid_study.Clinical.WordMapping.validate(4)
+            messages = [line.strip("'") for line in buffer.getvalue().splitlines()]
+
+        assert len(messages) == 3, "Messages length is {} instead of 4".format(len(messages))
+
+        missing_file_error = "The file {} doesn't exists".format('Not_present_file.txt')
+        assert messages[0] == error_template.format(missing_file_error), "Received {!r}".format(messages[0])
+
+        column_index_error = "File {} doesn't has {} columns, but {} columns".format('Cell-line_clinical.txt', 10, 9)
+        assert messages[1] == error_template.format(column_index_error), "Received {!r}".format(messages[1])
+
+        unmapped_warning = "Value {} is mapped at column {} in file {}. " \
+                           "However the value is not present in the column".format("Not_present", 8,
+                                                                                   'Cell-line_clinical.txt')
+        assert messages[2] == warning_template.format(unmapped_warning), "Received {!r}".format(messages[2])
+
 
 if __name__ == '__main__':
     unittest.main()

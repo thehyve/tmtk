@@ -1,8 +1,9 @@
 import os
+
 import pandas as pd
 
-from ..utils import FileBase, Exceptions, Mappings, MessageCollector, word_map_diff
 from ..params import ClinicalParams
+from ..utils import FileBase, Exceptions, Mappings, MessageCollector, word_map_diff
 
 
 class WordMapping(FileBase):
@@ -31,10 +32,46 @@ class WordMapping(FileBase):
         self._initial_word_map = self.word_map_dicts
 
     def validate(self, verbosity=2):
+
         messages = MessageCollector(verbosity)
 
         if self.df.shape[1] != 4:
             messages.error("Wordmapping file does not have 4 columns!")
+
+        # check presence of all data files
+        filenames = self.df.iloc[:, 0].unique()
+        valid_filenames = []
+        for filename in filenames:
+            if filename not in os.listdir(self.params.dirname):
+                msg = "The file {} doesn't exists".format(filename)
+                messages.error(msg)
+            else:
+                absolute_filename = os.path.join(self.params.dirname, filename)
+                valid_filenames.append(absolute_filename)
+
+        dfs = {os.path.basename(filename): pd.read_table(filename) for filename in valid_filenames}
+        for filename, df in dfs.items():
+            column_number = df.shape[1]
+
+            rows = [row for index, row in self.df.iterrows() if row[0] == filename]
+            columns = {row[1] for row in rows}
+
+            out_of_bound = {index for index in columns if index > column_number}
+            for index in out_of_bound:
+                msg = "File {} doesn't has {} columns, but {} columns".format(filename, index, column_number)
+                messages.error(msg)
+
+            correct_columns = columns - out_of_bound
+            for column in correct_columns:
+                mapped_values = {row[2] for row in rows if row[1] == column}
+                index = column - 1
+                data_values = set(df.iloc[:, index].unique())
+
+                unmapped = mapped_values - data_values
+                for unmapped_value in unmapped:
+                    msg = "Value {} is mapped at column {} in file {}. " \
+                          "However the value is not present in the column".format(unmapped_value, column, filename)
+                    messages.warn(msg)
 
         messages.flush()
         return not messages.found_error
