@@ -72,10 +72,10 @@
             <div hidden class="clinicaldata ontology-tree-container">
                 <div id="ontology-box">
                     <div>
-                        <input class="form-control form-control-sm" type="text" id="ontology-search"/>
+                        <input class="form-control form-control-sm" type="text" id="ontology-search" placeholder="Search ontology"/>
                     </div>
-                    <div>Label: <span id="ontology-label"></span></div>
-                    <div>Code: <a target="_blank" id="ontology-code"></a></div>
+                    <div>Label: <span id="ontology-label" > --- </span></div>
+                    <div>Code: <a target="_blank" id="ontology-code"> --- </a></div>
                 </div>
                 <div><img id="ontology-search-spinner" src="{{ static_base  }}/images/spin.svg"></div>
                 <div id="ontology-tree-div"></div>
@@ -145,7 +145,8 @@
 </div>
 
 <script type="application/javascript">
-    var treeData = {{ json | safe }};
+    var conceptTreeData = {{ concept_tree | safe }};
+    var ontologyTreeData = {{ ontology_tree | safe }};
     var static_base = "{{ static_base }}";
     var base_url = "{{ base_url }}";
 </script>

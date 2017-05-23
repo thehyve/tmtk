@@ -3,6 +3,7 @@ import shutil
 import time
 from IPython.display import display, IFrame, clear_output
 import tempfile
+import json
 
 from ..utils import CPrint
 from .. import utils
@@ -23,7 +24,26 @@ def call_boris(to_be_shuffled=None, **kwargs):
         CPrint.error("No path to column mapping file or a valid object given.")
         raise utils.ClassError(type(to_be_shuffled, 'tmtk.Clinical or tmtk.Study'))
 
-    json_data = create_concept_tree(to_be_shuffled)
+    concept_tree = create_concept_tree(to_be_shuffled)
+
+    try:
+        ontology_tree = to_be_shuffled.Clinical.OntologyMapping.as_json()
+    except AttributeError:
+        try:
+            ontology_tree = to_be_shuffled.OntologyMapping.as_json()
+        except AttributeError:
+            ontology_tree = None
+
+    if ontology_tree:
+        ver2_data = {"version": "2",
+                     "concept_tree": concept_tree,
+                     "ontology_tree": ontology_tree}
+
+        json_data = json.dumps(ver2_data)
+
+    else:
+        json_data = concept_tree
+
     json_data = launch_arborist_gui(json_data, **kwargs)  # Returns modified json_data
 
     if json_data:
@@ -43,6 +63,7 @@ def call_boris(to_be_shuffled=None, **kwargs):
 
 def valid_arborist_or_exception(**kwargs):
     from notebook import __version__ as notebook_version
+
     if notebook_version < '4.2.0':
         print("Version of notebook package should be atleast 4.2.0 for Arborist, consider:")
         print("    $ pip3 install --upgrade notebook")

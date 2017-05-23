@@ -247,7 +247,8 @@ h3.popover-title {
 }
 #ontology-tree-div{
   overflow: scroll;
-  max-height: calc(100% - 75px);
+  padding-top: 3px;
+  max-height: calc(100% - 85px);
 }
 #ontology-search-spinner {
   position: absolute;

@@ -73,6 +73,7 @@ class OntologyTerm:
 
     def json(self):
         return {'text': self.label,
+                'id': self.code,
                 'data':
                     {'uri': self.uri,
                      'code': self.code,

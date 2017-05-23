@@ -1,5 +1,6 @@
 var node, jstree, tagBuffer, ontologyTree;
 var defaultTagWeight = 5;
+var hasOntology = true;
 
 // Add jstree json to the submit form as hidden parameter.
 $("#edit_form").submit( function() {
@@ -510,7 +511,12 @@ $('#tree-div')
                 $("#magic5").val(node.data['m5']);
             }
             if (typeof node.data['m6'] !== 'undefined') {
-                $("#magic6").val(node.data['m6']);
+                var cvcd = node.data['m6'];
+                if (hasOntology && ontologyTree.get_node(cvcd)) {
+                    ontologyTree.deselect_all();
+                    ontologyTree.select_node(cvcd);
+                }
+                $("#magic6").val(cvcd);
             }
             if (node.data['cty'] === 'CATEGORICAL') {
                 $("#fc").prop('checked', true);
@@ -552,7 +558,7 @@ $('#tree-div')
     // create the instance
     .jstree({
         'core': {
-            'data': treeData,
+            'data': conceptTreeData,
             "check_callback": true
         },
         'dnd': {
@@ -617,8 +623,6 @@ $('#tree-div')
         "plugins": ["dnd", "sort", "contextmenu", "types", "wholerow", "search"]
     });
 
-var ontologyTreeData = [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/363787002", "code": "SNOMEDCT/363787002"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/160476009", "code": "SNOMEDCT/160476009"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/302147001", "code": "SNOMEDCT/302147001"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/184100006", "code": "SNOMEDCT/184100006"}, "children": [], "text": "Patient sex"}, {"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/184099003", "code": "SNOMEDCT/184099003"}, "children": [], "text": "Date of birth"}], "text": "Demographic history detail"}], "text": "Social / personal history observable"}, {"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/363788007", "code": "SNOMEDCT/363788007"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/363789004", "code": "SNOMEDCT/363789004"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/248326004", "code": "SNOMEDCT/248326004"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/363804004", "code": "SNOMEDCT/363804004"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/363808001", "code": "SNOMEDCT/363808001"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/27113001", "code": "SNOMEDCT/27113001"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/425024002", "code": "SNOMEDCT/425024002"}, "children": [], "text": "Body weight without shoes"}], "text": "Body weight"}], "text": "Body weight measure"}], "text": "Body weight characteristic"}, {"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/271603002", "code": "SNOMEDCT/271603002"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/50373000", "code": "SNOMEDCT/50373000"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/248333004", "code": "SNOMEDCT/248333004"}, "children": [], "text": "Standing height"}], "text": "Body height measure"}], "text": "Height / growth measure"}], "text": "Body measure"}], "text": "General characteristic of patient"}], "text": "Clinical history/examination observable"}], "text": "Observable entity"}, {"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/71388002", "code": "SNOMEDCT/71388002"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/128927009", "code": "SNOMEDCT/128927009"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/386053000", "code": "SNOMEDCT/386053000"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/122869004", "code": "SNOMEDCT/122869004"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/430925007", "code": "SNOMEDCT/430925007"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/104780002", "code": "SNOMEDCT/104780002"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/104789001", "code": "SNOMEDCT/104789001"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/22644003", "code": "SNOMEDCT/22644003"}, "children": [], "text": "Low density lipoprotein measurement"}, {"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/17888004", "code": "SNOMEDCT/17888004"}, "children": [], "text": "High density lipoprotein measurement"}], "text": "Lipoproteins measurement"}], "text": "Lipids measurement"}, {"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/74040009", "code": "SNOMEDCT/74040009"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/104789001", "code": "SNOMEDCT/104789001"}, "children": [{"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/22644003", "code": "SNOMEDCT/22644003"}, "children": [], "text": "Low density lipoprotein measurement"}, {"data": {"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/17888004", "code": "SNOMEDCT/17888004"}, "children": [], "text": "High density lipoprotein measurement"}], "text": "Lipoproteins measurement"}], "text": "Protein measurement"}], "text": "Measurement of substance"}], "text": "Measurement"}], "text": "Evaluation procedure"}], "text": "Procedure by method"}], "text": "Procedure"}]
-
 $(function () {
     var to = false;
     $('#ontology-search').keyup(function () {
@@ -635,185 +639,50 @@ $(function () {
     });
 });
 
+
+if (!ontologyTreeData.length) {
+    console.log('No ontology tree found.');
+    hasOntology = false;
+    $('.ontology-tree-container').remove();
+} else {
 // Create the ontology tree
-$('#ontology-tree-div')
-// listen for event
-    .on('loaded.jstree', function() {
-        ontologyTree = $(this).jstree(true);
-        $("#ontology-search-spinner").hide();
-        // jstree.select_node('ul > li:first');
-    })
-    .on('search.jstree', function() {
-        $("#ontology-search-spinner").hide();
-    })
-    .on('keydown.jstree', '.jstree-anchor', $.proxy(function (e) {
-        // if (e.target.tagName === "INPUT") {
-        //     return true;
-        // }
-        // var o;
-        // o = jstree.get_node(e.currentTarget);
-        // if (e.which === 46 || e.which === 8) {
-        //     // remove node with forward or backward delete
-        //     if (o == "#") {
-        //         showAlert("Cannot remove root nodes.", true);
-        //         return undefined;
-        //     }
-        //     if (o && o.id && o.id !== "#") {
-        //         o = jstree.is_selected(o) ? jstree.get_selected() : o;
-        //         jstree.delete_node(o);
-        //     }
-        // } else if (e.which === 13) {
-        //     // edit current node with enter
-        //     jstree.deselect_all();
-        //     jstree.select_node(o);
-        //     if (node.type != 'tag'){
-        //         jstree.edit(o, null, function (new_node, status) {
-        //             $("#datalabel").val(new_node.text);
-        //             $("form#datanodedetails").submit(); // To make changes to nodes if applicable.
-        //         });
-        //     }
-        // } else if (e.which === 32) {
-        //     // select node with space
-        //     jstree.deselect_all();
-        //     jstree.select_node(o);
-        // }
-    }))
-    .on('click', function () {
-        // $(".trigger").popover('hide'); // remove all existing popovers;
-    })
-    .on('select_node.jstree', function (e, data) {
-        // $(".trigger").popover('hide'); // remove all existing popovers;
-        var ontologyNode = data.instance.get_node(data.selected[0]);
-        // $("form#datanodedetails")[0].reset();
-        console.log('Ontology code selected: ', node);
-        // $("#magic6").attr('value', ontologyNode.data.code);
-        $("#magic6").val(ontologyNode.data.code);
-        $("#ontology-label").text(ontologyNode.text);
-        // $("#ontology-uri").text(ontologyNode.data.uri);
-        $("#ontology-code")
-            .attr('href', ontologyNode.data.uri)
-            .text(ontologyNode.data.code);
+    $('#ontology-tree-div')
+    // listen for event
+        .on('loaded.jstree', function () {
+            ontologyTree = $(this).jstree(true);
+            $("#ontology-search-spinner").hide();
+        })
+        .on('search.jstree', function () {
+            $("#ontology-search-spinner").hide();
+        })
+        .on('select_node.jstree', function (e, data) {
 
-        // $("#nodetype").text(prettyType(node.type));
-        //
-        // enableRightFields(node.type);
-        //
-        // if (node.data != null) {
-        //     $("#filename").text(node.data['fn']);
-        //     $("#columnnumber").text(node.data['col']);
-        //     if (typeof node.data['m5'] !== 'undefined') {
-        //         $("#magic5").val(node.data['m5']);
-        //     }
-        //     if (typeof node.data['m6'] !== 'undefined') {
-        //         $("#magic6").val(node.data['m6']);
-        //     }
-        //     if (node.data['cty'] === 'CATEGORICAL') {
-        //         $("#fc").prop('checked', true);
-        //     }
-        //     if ((node.type == 'alpha') && (node.data['dfv'] !== node.text)) {
-        //         $('.dfv').prop('hidden', false);
-        //         $("#datafile_value").text(node.data['dfv']);
-        //     }
-        //     if ((node.type == 'highdim') && (node.data.hd_args !== 'undefined')) {
-        //         $("#hd_type").text(node.data.hd_args['hd_type']);
-        //         $("#hd_sample").text(node.data.hd_args['hd_sample']);
-        //         $("#hd_tissue").text(node.data.hd_args['hd_tissue']);
-        //         $("#pl_genome_build").text(node.data.hd_args['pl_genome_build']);
-        //         $("#pl_id").text(node.data.hd_args['pl_id']);
-        //         $("#pl_marker_type").text(node.data.hd_args['pl_marker_type']);
-        //         $("#pl_title").text(node.data.hd_args['pl_title']);
-        //     }
-        //
-        //     // This way to add multiple tags to 'tags' dictionary in 'data'
-        //     if (typeof node.data['tags'] !== 'undefined') {
-        //         // Clear the existing tag table
-        //         $(".tag-container").empty();
-        //         // Populate tags
-        //         for (var key in node.data.tags) {
-        //             if (node.data.tags.hasOwnProperty(key)) {
-        //                 var tagRow = createTagRow();
-        //
-        //                 tagRow.find('.list-tag-title').text(key);
-        //                 tagRow.find('.list-tag-description').text(node.data.tags[key][0]);
-        //                 tagRow.find('.list-tag-weight').text(node.data.tags[key][1]);
-        //             }
-        //         }
-        //         sortTags();
-        //         // The popover has to be initialized
-        //         activateTagPopover();
-        //     }
-        // }
-    })
-    // create the instance
-    .jstree({
-        'core': {
-            'data': ontologyTreeData
-        },
-        'search': {
-            'fuzzy': true
-        },
-        // 'dnd': {
-        //     'is_draggable': function (node) {
-        //         console.log('is_draggable called: ', node[0]);
-        //         return (node[0].type != 'alpha');
-        //     }
-        // },
-        // "unique": {case_sensitive : true},
-        // "contextmenu": {items: customMenu},
+            var ontologyNode = data.instance.get_node(data.selected[0]);
+            console.log('Ontology code selected: ', ontologyNode);
 
-        "types": {
-            "default": {
-                "icon": static_base + "/images/tree/green_info.png"
-            }
-            // "alpha": {
-            //     "icon": static_base + "/images/tree/alpha.gif",
-            //     "valid_children": ["tag"]
-            // },
-            // "categorical": {
-            //     "icon": static_base + "/images/tree/folder.gif"
-            // },
-            // "numeric": {
-            //     "icon": static_base + "/images/tree/numeric.gif",
-            //     "valid_children": ["tag"]
-            // },
-            // "highdim": {
-            //     "icon": static_base + "/images/tree/dna_icon.png",
-            //     "valid_children": ["tag"]
-            // },
-            // "empty": {
-            //     "icon": static_base + "/images/tree/empty.png"
-            // },
-            // "tag": {
-            //     "icon": static_base + "/images/tree/tag_icon.png",
-            //     "valid_children": "none"
-            // },
-            // "codeleaf": {
-            //     "icon": static_base + "/images/tree/code.png",
-            //     "valid_children": ["alpha", "tag"]
-            // }
-        },
-        // 'sort': function (a, b) {
-        //     var type_a = this.get_type(a);
-        //     var type_b = this.get_type(b);
-        //
-        //     var a_folder = ['default', 'categorical'].indexOf(type_a) > -1;
-        //     var b_folder = ['default', 'categorical'].indexOf(type_b) > -1;
-        //
-        //     if ((type_a == 'tag') && (type_b != 'tag')) {
-        //         return -1;
-        //     } else if ((type_a != 'tag') && (type_b == 'tag')) {
-        //         return 1;
-        //     } else if (a_folder && !b_folder) {
-        //         return -1;
-        //     } else if (!a_folder && b_folder) {
-        //         return 1;
-        //     } else {
-        //         return this.get_text(a) > this.get_text(b) ? 1 : -1;
-        //     }
-        // },
-        // "plugins": ["dnd", "sort", "contextmenu", "types", "wholerow", "search"]
-        "plugins": ["types", "search"]
-    });
+            $("#magic6").val(ontologyNode.data.code);
+
+            $("#ontology-label").text(ontologyNode.text);
+            $("#ontology-code")
+                .attr('href', ontologyNode.data.uri)
+                .text(ontologyNode.data.code);
+        })
+        // create the instance
+        .jstree({
+            'core': {
+                'data': ontologyTreeData
+            },
+            'search': {
+                'fuzzy': true
+            },
+            "types": {
+                "default": {
+                    "icon": static_base + "/images/tree/green_info.png"
+                }
+            },
+            "plugins": ["types", "search"]
+        });
+}
 
 function merge() {
     var options, name, src, copy, copyIsArray, clone, targetKey, target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
