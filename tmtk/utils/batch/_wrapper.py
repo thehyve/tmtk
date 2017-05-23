@@ -139,7 +139,7 @@ class TransmartBatch:
         else:
             f_or_p = '-p'
 
-        job = [self.batch_jar, '-c', properties_file, '-n', f_or_p, param]
+        job = ['java', '-jar', self.batch_jar, '-c', properties_file, '-n', f_or_p, param]
         logger.warning("Starting job: {}".format(" ".join([s.replace(self.tmbatch_home, '$TMBATCH_HOME') for s in job])))
 
         job = BatchJob(job, job_type=job_type, log=log, non_html=non_html,
