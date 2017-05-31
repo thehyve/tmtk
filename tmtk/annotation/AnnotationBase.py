@@ -27,7 +27,7 @@ class AnnotationBase(utils.FileBase):
     def __str__(self):
         return self.platform
 
-    def validate(self, verbosity=2):
+    def old_validate(self, verbosity=2):
         pass
 
     @property

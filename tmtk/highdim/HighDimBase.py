@@ -7,7 +7,7 @@ from ..annotation import ChromosomalRegions
 from .SampleMapping import SampleMapping
 
 
-class HighDimBase(utils.FileBase):
+class HighDimBase(utils.FileBase, utils.ValidateMixin):
     """
     Base class for high dimensional data structures.
     """
@@ -37,29 +37,29 @@ class HighDimBase(utils.FileBase):
             if hasattr(self._parent, 'Annotations'):
                 self.annotation_file = parent.find_annotation(self.platform)
 
-    def validate(self, verbosity=3):
-        """
-        Validate high dimensional data object
-
-        :param verbosity: set the verbosity of output, pick 0, 1, 2, 3 or 4.
-        :return: True if everything is okay, else return False.
-        """
-        messages = utils.MessageCollector(verbosity=verbosity)
-        messages.head("Validating {}".format(self.params.subdir))
-        self._validate_specifics(messages)
-        self._verify_sample_mapping(messages)
-
-        if hasattr(self, 'annotation_file'):
-            if not self.annotation_file:
-                messages.error('No annotation file found for {}.'.format(self.platform))
-            else:
-                messages.info('Annotation file found for {}, checking...'.format(self.platform))
-                data_series = self.df.iloc[:, 0]
-                self._find_missing_annotation(annotation_series=self.annotation_file.biomarkers,
-                                              data_series=data_series, messages=messages)
-
-        messages.flush()
-        return not messages.found_error
+    # def old_validate(self, verbosity=3):
+    #     """
+    #     Validate high dimensional data object
+    #
+    #     :param verbosity: set the verbosity of output, pick 0, 1, 2, 3 or 4.
+    #     :return: True if everything is okay, else return False.
+    #     """
+    #     messages = utils.MessageCollector(verbosity=verbosity)
+    #     messages.head("Validating {}".format(self.params.subdir))
+    #     self._validate_specifics(messages)
+    #     self._verify_sample_mapping(messages)
+    #
+    #     if hasattr(self, 'annotation_file'):
+    #         if not self.annotation_file:
+    #             messages.error('No annotation file found for {}.'.format(self.platform))
+    #         else:
+    #             messages.info('Annotation file found for {}, checking...'.format(self.platform))
+    #             data_series = self.df.iloc[:, 0]
+    #             self._find_missing_annotation(annotation_series=self.annotation_file.biomarkers,
+    #                                           data_series=data_series, messages=messages)
+    #
+    #     messages.flush()
+    #     return not messages.found_error
 
     def _check_header_extensions(self, messages):
         """
@@ -117,30 +117,30 @@ class HighDimBase(utils.FileBase):
         else:
             messages.okay('STUDY_ID as expected from study.params.')
 
-    def _find_missing_annotation(self, annotation_series=None, data_series=None, messages=None):
-        """
-        Checks for missing annotations.
-
-        :param annotation_series:
-        :param data_series:
-        :return:
-        """
-        missing_annotations = utils.find_missing_annotations(annotation_series=annotation_series,
-                                                             data_series=data_series)
-
-        missing_data = utils.find_missing_annotations(annotation_series=data_series,
-                                                      data_series=annotation_series)
-
-        if missing_annotations:
-            m = 'Missing annotations found: {}'.format(utils.summarise(missing_annotations))
-            messages.error(m)
-
-        if missing_data:
-            m = 'Data file has less data than annotations: {}'.format(utils.summarise(missing_data))
-            if self.params.get('ALLOW_MISSING_ANNOTATIONS', 'N') == 'Y':
-                messages.warn(m)
-            else:
-                messages.error(m)
+    # def _find_missing_annotation(self, annotation_series=None, data_series=None, messages=None):
+    #     """
+    #     Checks for missing annotations.
+    #
+    #     :param annotation_series:
+    #     :param data_series:
+    #     :return:
+    #     """
+    #     missing_annotations = utils.find_missing_annotations(annotation_series=annotation_series,
+    #                                                          data_series=data_series)
+    #
+    #     missing_data = utils.find_missing_annotations(annotation_series=data_series,
+    #                                                   data_series=annotation_series)
+    #
+    #     if missing_annotations:
+    #         m = 'Missing annotations found: {}'.format(utils.summarise(missing_annotations))
+    #         self.msgs.warning('Missing annotations found.', warning_list=missing_annotations, silent=silent)
+    #
+    #     if missing_data:
+    #         m = 'Data file has less data than annotations: {}'.format(utils.summarise(missing_data))
+    #         if self.params.get('ALLOW_MISSING_ANNOTATIONS', 'N') == 'Y':
+    #             messages.warn(m)
+    #         else:
+    #             messages.error(m)
 
     def _remap_to_chromosomal_regions(self, destination=None):
         """
@@ -172,3 +172,33 @@ class HighDimBase(utils.FileBase):
 
     def _get_lazy_batch_items(self):
         return {self.params.path: (len(self.sample_mapping.samples), self.path)}
+
+    def _validate_missing_annotation(self, silent=False):
+        missing_annotations = utils.find_missing_annotations(annotation_series=self.annotation_file.biomarkers,
+                                                             data_series=self.df.iloc[:, 0])
+        if missing_annotations:
+            self.msgs.warning('Missing annotations found.', warning_list=missing_annotations, silent=silent)
+        else:
+            self.msgs.okay('All data items have associated annotations.')
+
+    def _validate_missing_data_items(self, silent=False):
+        missing_data = utils.find_missing_annotations(annotation_series=self.df.iloc[:, 0],
+                                                      data_series=self.annotation_file.biomarkers)
+        if not missing_data:
+            self.msgs.okay('The entire annotation platform seems to have associated data.', silent=silent)
+            return
+
+        msg = 'Data file has less data than annotations.'
+
+        if self.params.get('ALLOW_MISSING_ANNOTATIONS', 'N') == 'Y':
+            self.msgs.warning(msg, warning_list=missing_data, silent=silent)
+        else:
+            self.msgs.error(msg, warning_list=missing_data, silent=silent)
+
+    def _validate_annotation_file(self, silent=False):
+
+        if hasattr(self, 'annotation_file'):
+            if not self.annotation_file:
+                self.msgs.error('No annotation file found for {}.'.format(self.platform), silent=silent)
+            else:
+                self.msgs.okay('Annotation file found for {}!'.format(self.platform), silent=silent)

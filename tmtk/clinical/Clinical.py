@@ -5,12 +5,12 @@ from .DataFile import DataFile
 from .Variable import Variable, VarID
 from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
-from ..utils import CPrint, PathError, clean_for_namespace, FileBase
+from ..utils import CPrint, PathError, clean_for_namespace, FileBase, ValidateMixin
 from .. import arborist
 from ..utils.batch import TransmartBatch
 
 
-class Clinical:
+class Clinical(ValidateMixin):
     """
     Container class for all clinical data related objects, i.e. the column
     mapping, word mapping, and clinical data files.
@@ -23,6 +23,12 @@ class Clinical:
         self._WordMapping = None
         self._ColumnMapping = None
         self._params = clinical_params
+
+    def __str__(self):
+        return "Clinical ({})".format(self.params.path)
+
+    def __repr__(self):
+        return "Clinical ({})".format(self.params.path)
 
     @property
     def params(self):
@@ -199,3 +205,9 @@ class Clinical:
     @property
     def clinical_files(self):
         return [x for k, x in self.__dict__.items() if issubclass(type(x), FileBase)]
+
+    def _validate_clinical_params(self, silent=False):
+        if os.path.exists(self.params.path):
+            self.msgs.okay('Clinical params found on disk.', silent=silent)
+        else:
+            self.msgs.error('Clinical params not on disk.', silent=silent)

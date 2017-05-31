@@ -8,11 +8,11 @@ from .params import Params
 from .highdim import HighDim
 from .annotation import Annotations
 from .tags import MetaDataTags
-from .utils import CPrint, Mappings, TransmartBatch
+from .utils import CPrint, Mappings, TransmartBatch, ValidateMixin
 from tmtk import utils, arborist
 
 
-class Study:
+class Study(ValidateMixin):
     """
     Describes an entire TranSMART study.  This is the main object used
     in tmtk. Studies can be initialized by pointing to a study.params file.
@@ -121,21 +121,20 @@ class Study:
                                                                                annotations)
 
     def __str__(self):
-        statement = "Study object: {}".format(self.params.path)
-        return statement
+        return 'Study ({})'.format(self.study_folder)
 
     def __repr__(self):
-        return '<tmtk.Study> ({})'.format(self.study_folder)
+        return 'Study ({})'.format(self.study_folder)
 
-    def validate_all(self, verbosity: int = 2):
+    def old_validate_all(self):
         """
         Validate all items in this study.
 
         :param verbosity: set the verbosity of output, pick 0, 1, 2, 3 or 4.
         :return: True if everything is okay, else return False.
         """
-        for obj in self.get_objects_with_prop('validate'):
-            obj.validate(verbosity=verbosity)
+        for obj in self.get_objects_with_prop('old_validate'):
+            obj.old_validate()
 
     def files_with_changes(self, ):
         """Find dataframes that have changed since they have been loaded."""
@@ -149,7 +148,7 @@ class Study:
         :return: generator for the found objects.
         """
 
-        recursion_items = ['parent', '_parent', 'obj']
+        recursion_items = ['parent', '_parent', 'obj', 'msgs']
 
         def iterate_items(d, prop):
             for key, obj in d.items():
@@ -350,3 +349,16 @@ class Study:
         for item in self._get_loadable_objects():
             if item.params.path == path:
                 return item
+
+    def _validate_study_id(self, silent=False):
+        if bool(self.study_id):
+            self.msgs.okay('Study ID found: {!r}'.format(self.study_id), silent=silent)
+        else:
+            self.msgs.error('Invalid study id: {!r}'.format(self.study_id), silent=silent)
+
+    def _validate_study_params_on_disk(self, silent=False):
+        """ Validate whether study params exists on disk. """
+        if os.path.exists(self.params.path):
+            self.msgs.okay('Study params found on disk.', warning_list=[1, 2, 3, 4], silent=silent)
+        else:
+            self.msgs.error('Study params not on disk.')

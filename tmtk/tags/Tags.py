@@ -62,7 +62,7 @@ class MetaDataTags(FileBase):
             self.df[associated_tags].apply(lambda x: tags_dict.update({x[1]: (x[2], x[3])}), axis=1)
             yield path, tags_dict
 
-    def validate(self, verbosity=2):
+    def old_validate(self, verbosity=2):
 
         message = MessageCollector(verbosity=verbosity)
         message.head("Validating Tags:")

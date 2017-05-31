@@ -91,7 +91,7 @@ class ParamsBase:
                 else:
                     messages.okay('{}={} found.'.format(param, value))
 
-    def validate(self, verbosity=3):
+    def old_validate(self, verbosity=3):
         """
         Validate this parameter file. Return True if no errors
         were found in this parameter file.
