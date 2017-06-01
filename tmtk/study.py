@@ -126,16 +126,6 @@ class Study(ValidateMixin):
     def __repr__(self):
         return 'Study ({})'.format(self.study_folder)
 
-    def old_validate_all(self):
-        """
-        Validate all items in this study.
-
-        :param verbosity: set the verbosity of output, pick 0, 1, 2, 3 or 4.
-        :return: True if everything is okay, else return False.
-        """
-        for obj in self.get_objects_with_prop('old_validate'):
-            obj.old_validate()
-
     def files_with_changes(self, ):
         """Find dataframes that have changed since they have been loaded."""
         return [obj for obj in self.all_files if obj.df_has_changed]
@@ -350,15 +340,23 @@ class Study(ValidateMixin):
             if item.params.path == path:
                 return item
 
-    def _validate_study_id(self, silent=False):
-        if bool(self.study_id):
-            self.msgs.okay('Study ID found: {!r}'.format(self.study_id), silent=silent)
-        else:
-            self.msgs.error('Invalid study id: {!r}'.format(self.study_id), silent=silent)
+    def validate_all(self):
+        """
+        Validate all items in this study.
 
-    def _validate_study_params_on_disk(self, silent=False):
+        :return: True if everything is okay, else return False.
+        """
+        return all([obj.validate() for obj in self.get_objects_with_prop('validate')])
+
+    def _validate_study_id(self):
+        if bool(self.study_id):
+            self.msgs.okay('Study ID found: {!r}'.format(self.study_id))
+        else:
+            self.msgs.error('Invalid study id: {!r}'.format(self.study_id))
+
+    def _validate_study_params_on_disk(self):
         """ Validate whether study params exists on disk. """
         if os.path.exists(self.params.path):
-            self.msgs.okay('Study params found on disk.', warning_list=[1, 2, 3, 4], silent=silent)
+            self.msgs.okay('Study params found on disk.', warning_list=[1, 2, 3, 4])
         else:
             self.msgs.error('Study params not on disk.')

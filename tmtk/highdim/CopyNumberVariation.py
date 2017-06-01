@@ -7,15 +7,6 @@ class CopyNumberVariation(HighDimBase):
     Base class for copy number variation datatypes (aCGH, qDNAseq)
     """
 
-    def _validate_specifics(self, messages):
-        """
-        Makes checks to determine whether transmart-batch likes this file.
-        Checks whether header contains the <samplecode>.<probability_type>.
-        """
-
-        if self._check_header_extensions(messages):
-            self._validate_probabilities(messages)
-
     @property
     def samples(self):
         return [h.rsplit('.', 1)[0] for h in self.header[1:]]
@@ -40,7 +31,7 @@ class CopyNumberVariation(HighDimBase):
         """
         return self._remap_to_chromosomal_regions(destination)
 
-    def _validate_probabilities(self, messages):
+    def _validate_probabilities(self):
 
         bad_regions = []
         bad_samples = []
@@ -61,9 +52,16 @@ class CopyNumberVariation(HighDimBase):
                 'Regions: {}.'.format(utils.summarise(bad_samples), utils.summarise(bad_regions))
 
             if self.params.get('PROB_IS_NOT_1', 'ERROR') == 'WARN':
-                messages.warn(m)
+                self.msgs.warning(m)
             else:
-                messages.error(m)
+                self.msgs.error(m)
         else:
-            messages.okay('All probabilities approximate 1.')
-        return everything_okay
+            self.msgs.okay('All probabilities approximate 1.')
+
+    def _validate_header_extensions(self):
+        """
+        Makes checks to determine whether transmart-batch likes this file.
+        Checks whether header contains the <samplecode>.<probability_type>.
+        """
+
+        self._check_header_extensions()

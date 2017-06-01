@@ -1,13 +1,13 @@
 import pandas as pd
 import os
 
-from .. import utils
-from ..annotation import ChromosomalRegions
-
 from .SampleMapping import SampleMapping
 
+from ..utils import FileBase, ValidateMixin, PathError, ClassError, TransmartBatch
+from ..annotation import ChromosomalRegions
 
-class HighDimBase(utils.FileBase, utils.ValidateMixin):
+
+class HighDimBase(FileBase, ValidateMixin):
     """
     Base class for high dimensional data structures.
     """
@@ -25,7 +25,7 @@ class HighDimBase(utils.FileBase, utils.ValidateMixin):
         elif path and os.path.exists(self.path):
             self.path = path
         else:
-            raise utils.PathError
+            raise PathError
 
         super().__init__()
 
@@ -37,110 +37,32 @@ class HighDimBase(utils.FileBase, utils.ValidateMixin):
             if hasattr(self._parent, 'Annotations'):
                 self.annotation_file = parent.find_annotation(self.platform)
 
-    # def old_validate(self, verbosity=3):
-    #     """
-    #     Validate high dimensional data object
-    #
-    #     :param verbosity: set the verbosity of output, pick 0, 1, 2, 3 or 4.
-    #     :return: True if everything is okay, else return False.
-    #     """
-    #     messages = utils.MessageCollector(verbosity=verbosity)
-    #     messages.head("Validating {}".format(self.params.subdir))
-    #     self._validate_specifics(messages)
-    #     self._verify_sample_mapping(messages)
-    #
-    #     if hasattr(self, 'annotation_file'):
-    #         if not self.annotation_file:
-    #             messages.error('No annotation file found for {}.'.format(self.platform))
-    #         else:
-    #             messages.info('Annotation file found for {}, checking...'.format(self.platform))
-    #             data_series = self.df.iloc[:, 0]
-    #             self._find_missing_annotation(annotation_series=self.annotation_file.biomarkers,
-    #                                           data_series=data_series, messages=messages)
-    #
-    #     messages.flush()
-    #     return not messages.found_error
+    def __str__(self):
+        return '{} ({})'.format(self.__class__, self.params.path)
 
-    def _check_header_extensions(self, messages):
-        """
+    def __repr__(self):
+        return '{} ({})'.format(self.__class__, self.params.path)
 
-        :param messages: message collector.
-        :return: True if nothings wrong.
-        """
-        everything_okay_so_far = True
+    def _check_header_extensions(self):
+
         illegal_header_items = []
 
         for h in self.header[1:]:
             try:
                 count_type = h.rsplit('.', 1)[1]
             except IndexError:
-                messages.error('Expected header with dot, but got {}.'.format(h))
-                everything_okay_so_far = False
+                self.msgs.error('Expected header with dot, but got {}.'.format(h))
                 continue
+
             # Add count_type to illegal items if not allowed.
             if count_type not in self.allowed_header:
                 illegal_header_items.append(count_type)
 
         # Create list of illegal header items.
         if illegal_header_items:
-            everything_okay_so_far = False
-            messages.error('Found illegal header items {}.'.
-                           format(utils.summarise(illegal_header_items)))
-
-        return everything_okay_so_far
-
-    def _verify_sample_mapping(self, messages):
-        samples_verified = utils.check_datafile_header_with_subjects(self.samples,
-                                                                     self.sample_mapping.samples)
-
-        not_in_datafile = samples_verified['not_in_datafile']
-        if not_in_datafile:
-            messages.error('Samples not in datafile: {}.'.
-                           format(utils.summarise(not_in_datafile)))
-
-        not_in_sample_mapping = samples_verified['not_in_sample_mapping']
-        if not_in_sample_mapping:
-            m = 'Samples not in mapping file: {}.'.format(utils.summarise(not_in_sample_mapping))
-            if self.params.get('SKIP_UNMAPPED_DATA', 'N') == 'Y':
-                messages.warn(m)
-            else:
-                messages.error(m)
-
-        intersection = samples_verified['intersection']
-        if intersection:
-            messages.info('Intersection of samples: {}.'.format(utils.summarise(intersection)))
-
-        if self.sample_mapping.study_id != self._parent.study_id:
-            m = 'Study_id in ({}) does not match ({}) in study.params'. \
-                format(self.sample_mapping.study_id, self._parent.study_id)
-            messages.error(m)
+            self.msgs.error('Found illegal header items.', warning_list=illegal_header_items)
         else:
-            messages.okay('STUDY_ID as expected from study.params.')
-
-    # def _find_missing_annotation(self, annotation_series=None, data_series=None, messages=None):
-    #     """
-    #     Checks for missing annotations.
-    #
-    #     :param annotation_series:
-    #     :param data_series:
-    #     :return:
-    #     """
-    #     missing_annotations = utils.find_missing_annotations(annotation_series=annotation_series,
-    #                                                          data_series=data_series)
-    #
-    #     missing_data = utils.find_missing_annotations(annotation_series=data_series,
-    #                                                   data_series=annotation_series)
-    #
-    #     if missing_annotations:
-    #         m = 'Missing annotations found: {}'.format(utils.summarise(missing_annotations))
-    #         self.msgs.warning('Missing annotations found.', warning_list=missing_annotations, silent=silent)
-    #
-    #     if missing_data:
-    #         m = 'Data file has less data than annotations: {}'.format(utils.summarise(missing_data))
-    #         if self.params.get('ALLOW_MISSING_ANNOTATIONS', 'N') == 'Y':
-    #             messages.warn(m)
-    #         else:
-    #             messages.error(m)
+            self.msgs.okay('Header extensions are okay!')
 
     def _remap_to_chromosomal_regions(self, destination=None):
         """
@@ -156,8 +78,7 @@ class HighDimBase(utils.FileBase, utils.ValidateMixin):
         if isinstance(destination, ChromosomalRegions):
             destination = destination.df
         elif not isinstance(destination, pd.DataFrame):
-            raise utils.ClassError(found=type(destination),
-                                   expected='pd.DataFrame, or ChromosomalRegions')
+            raise ClassError(found=type(destination), expected='pd.DataFrame, or ChromosomalRegions')
 
         remapped = remap_chromosomal_regions(datafile=self.df,
                                              origin_platform=self.annotation_file.df,
@@ -166,39 +87,67 @@ class HighDimBase(utils.FileBase, utils.ValidateMixin):
 
     @property
     def load_to(self):
-        return utils.TransmartBatch(self.params.path,
-                                    items_expected=self._get_lazy_batch_items()
-                                    ).get_loading_namespace()
+        return TransmartBatch(self.params.path,
+                              items_expected=self._get_lazy_batch_items()
+                              ).get_loading_namespace()
 
     def _get_lazy_batch_items(self):
         return {self.params.path: (len(self.sample_mapping.samples), self.path)}
 
-    def _validate_missing_annotation(self, silent=False):
-        missing_annotations = utils.find_missing_annotations(annotation_series=self.annotation_file.biomarkers,
-                                                             data_series=self.df.iloc[:, 0])
+    def _validate_missing_annotation(self):
+        missing_annotations = list(self.df.iloc[:, 0][~self.df.iloc[:, 0].isin(self.annotation_file.biomarkers)])
+
         if missing_annotations:
-            self.msgs.warning('Missing annotations found.', warning_list=missing_annotations, silent=silent)
+            self.msgs.warning('Missing annotations found.', warning_list=missing_annotations)
         else:
             self.msgs.okay('All data items have associated annotations.')
 
-    def _validate_missing_data_items(self, silent=False):
-        missing_data = utils.find_missing_annotations(annotation_series=self.df.iloc[:, 0],
-                                                      data_series=self.annotation_file.biomarkers)
+    def _validate_missing_data_items(self):
+        missing_data = list(self.annotation_file.biomarkers[~self.annotation_file.biomarkers.isin(self.df.iloc[:, 0])])
+
         if not missing_data:
-            self.msgs.okay('The entire annotation platform seems to have associated data.', silent=silent)
+            self.msgs.okay('The entire annotation platform seems to have associated data.')
             return
 
         msg = 'Data file has less data than annotations.'
 
         if self.params.get('ALLOW_MISSING_ANNOTATIONS', 'N') == 'Y':
-            self.msgs.warning(msg, warning_list=missing_data, silent=silent)
+            self.msgs.warning(msg, warning_list=missing_data)
         else:
-            self.msgs.error(msg, warning_list=missing_data, silent=silent)
+            self.msgs.error(msg, warning_list=missing_data)
 
-    def _validate_annotation_file(self, silent=False):
+    def _validate_annotation_file(self):
 
         if hasattr(self, 'annotation_file'):
             if not self.annotation_file:
-                self.msgs.error('No annotation file found for {}.'.format(self.platform), silent=silent)
+                self.msgs.error('No annotation file found for {}.'.format(self.platform))
             else:
-                self.msgs.okay('Annotation file found for {}!'.format(self.platform), silent=silent)
+                self.msgs.okay('Annotation file found for {}!'.format(self.platform))
+
+    def _validate_sample_mapping(self):
+        header_samples = pd.Series(self.samples)
+        mapping_samples = pd.Series(self.sample_mapping.samples)
+
+        not_in_datafile = list(mapping_samples[~mapping_samples.isin(header_samples)])
+        not_in_sample_mapping = list(header_samples[~header_samples.isin(mapping_samples)])
+        intersection = list(header_samples[header_samples.isin(mapping_samples)])
+
+        if not_in_datafile:
+            self.msgs.error('Samples not in datafile!', warning_list=not_in_datafile)
+
+        if not_in_sample_mapping:
+            if self.params.get('SKIP_UNMAPPED_DATA', 'N') == 'Y':
+                self.msgs.warning('Samples not in mapping file.', warning_list=not_in_sample_mapping)
+            else:
+                self.msgs.error('Samples not in mapping file.', warning_list=not_in_sample_mapping)
+
+        if intersection:
+            self.msgs.info('Intersection of samples.', warning_list=intersection)
+
+    def _validate_sample_mapping_study_id(self):
+        if self.sample_mapping.study_id != self._parent.study_id:
+            m = 'Study_id in ({}) does not match ({}) in study.params'.\
+                format(self.sample_mapping.study_id, self._parent.study_id)
+            self.msgs.error(m)
+        else:
+            self.msgs.okay('STUDY_ID as expected from study.params.')

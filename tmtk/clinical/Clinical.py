@@ -206,8 +206,8 @@ class Clinical(ValidateMixin):
     def clinical_files(self):
         return [x for k, x in self.__dict__.items() if issubclass(type(x), FileBase)]
 
-    def _validate_clinical_params(self, silent=False):
+    def _validate_clinical_params(self):
         if os.path.exists(self.params.path):
-            self.msgs.okay('Clinical params found on disk.', silent=silent)
+            self.msgs.okay('Clinical params found on disk.')
         else:
-            self.msgs.error('Clinical params not on disk.', silent=silent)
+            self.msgs.error('Clinical params not on disk.')

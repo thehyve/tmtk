@@ -1,5 +1,4 @@
 import logging
-from .CPrint import CPrint
 from IPython.display import display
 
 
@@ -86,27 +85,37 @@ class MessageCollection:
         self.msgs = message_list or []
         self.head = head or 'MessageCollection'
 
-    def debug(self, msg, warning_list=None, silent=True):
-        self.msgs.append(Message(msg, warning_list=warning_list, level=DEBUG, silent=silent))
+    def debug(self, msg, warning_list=None):
+        self.msgs.append(Message(msg, warning_list=warning_list,
+                                 level=DEBUG, silent=self._suppress_messages))
 
-    def info(self, msg, warning_list=None, silent=True):
-        self.msgs.append(Message(msg, warning_list=warning_list, level=INFO, silent=silent))
+    def info(self, msg, warning_list=None):
+        self.msgs.append(Message(msg, warning_list=warning_list,
+                                 level=INFO, silent=self._suppress_messages))
 
-    def okay(self, msg, warning_list=None, silent=True):
-        self.msgs.append(Message(msg, warning_list=warning_list, level=OKAY, silent=silent))
+    def okay(self, msg, warning_list=None):
+        self.msgs.append(Message(msg, warning_list=warning_list,
+                                 level=OKAY, silent=self._suppress_messages))
 
-    def warning(self, msg, warning_list=None, silent=True):
-        self.msgs.append(Message(msg, warning_list=warning_list, level=WARNING, silent=silent))
+    def warning(self, msg, warning_list=None):
+        self.msgs.append(Message(msg, warning_list=warning_list,
+                                 level=WARNING, silent=self._suppress_messages))
 
-    def error(self, msg, warning_list=None, silent=True):
-        self.msgs.append(Message(msg, warning_list=warning_list, level=ERROR, silent=silent))
+    def error(self, msg, warning_list=None):
+        self.msgs.append(Message(msg, warning_list=warning_list,
+                                 level=ERROR, silent=self._suppress_messages))
 
-    def critical(self, msg, warning_list=None, silent=True):
-        self.msgs.append(Message(msg, warning_list=warning_list, level=CRITICAL, silent=silent))
+    def critical(self, msg, warning_list=None):
+        self.msgs.append(Message(msg, warning_list=warning_list,
+                                 level=CRITICAL, silent=self._suppress_messages))
 
     @property
     def has_error(self):
         return any([MSG_RANK.get(m.level, 0) >= 4 for m in self.msgs])
+
+    @cached_property
+    def _suppress_messages(self):
+        return False
 
     @property
     def list_as_html(self):
@@ -123,7 +132,7 @@ class ValidateMixin:
 
     def _run_validate_method(self, m):
         try:
-            getattr(self, m)(silent=True)
+            getattr(self, m)()
 
         except Exception as e:
             self.msgs.critical('{!r} for {!r}'.format(e, m))
@@ -136,8 +145,14 @@ class ValidateMixin:
         """ Run all validate methods for this object. """
         self.msgs.msgs = []
         validate_methods = [m for m in self.__dir__() if m.startswith('_validate_')]
-        for m in validate_methods:
-            self._run_validate_method(m)
+        self.msgs._suppress_messages = True
+
+        try:
+            for m in validate_methods:
+                self._run_validate_method(m)
+
+        finally:
+            self.msgs._suppress_messages = False
 
         if self.msgs:
             display(self.msgs)
