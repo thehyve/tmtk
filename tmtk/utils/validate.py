@@ -65,7 +65,7 @@ class Message:
         return "{}: {}".format(self.level, self.msg)
 
     def __repr__(self):
-        return '{}{}: {}\033[0m'.format(TERMINAL_COLOR[self.level], self.level, str(self))
+        return '{}:{}\033[0m'.format(TERMINAL_COLOR[self.level], str(self))
 
     def _repr_html_(self):
         html_string = '<font color="{}" style="font-family: monospace;">{} {}</font>'
@@ -121,11 +121,15 @@ class MessageCollection:
     def list_as_html(self):
         return '<ul><li>{}</li></ul>'.format('</li><li>'.join([li._repr_html_() for li in self.msgs]))
 
+    @property
+    def list_as_str(self):
+        return '\n>> '.join([repr(li) for li in self.msgs])
+
     def _repr_html_(self):
         return '<h3>{}</h3>{}'.format(self.head, self.list_as_html)
 
     def __repr__(self):
-        return '\n{}\n{}'.format(self.head, self.list_as_html)
+        return '\n{}\n{}'.format(self.head, self.list_as_str)
 
 
 class ValidateMixin:
@@ -154,7 +158,7 @@ class ValidateMixin:
         finally:
             self.msgs._suppress_messages = False
 
-        if self.msgs:
+        if self.msgs.msgs:
             display(self.msgs)
 
         return not self.msgs.has_error

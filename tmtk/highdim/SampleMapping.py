@@ -58,12 +58,6 @@ class SampleMapping(FileBase):
     def __str__(self):
         return self.path
 
-    def validate(self, verbosity=2):
-        """
-        Checks whether transmart-batch likes this file.
-        """
-        pass
-
     @property
     def samples(self):
         return list(self.df.iloc[:, 3])

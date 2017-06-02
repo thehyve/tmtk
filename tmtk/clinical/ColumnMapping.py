@@ -54,9 +54,6 @@ class ColumnMapping(FileBase):
         df = self.build_index(df)
         return df
 
-    def validate(self, verbosity=2):
-        pass
-
     def select_row(self, var_id: tuple):
         """
         Select row based on variable identifier tuple.  Raises exception if
