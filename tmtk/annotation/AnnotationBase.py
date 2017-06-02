@@ -1,9 +1,9 @@
 import os
 
-from ..utils import Mappings, TransmartBatch, PathError, FileBase
+from ..utils import Mappings, TransmartBatch, PathError, FileBase, ValidateMixin
 
 
-class AnnotationBase(FileBase):
+class AnnotationBase(FileBase, ValidateMixin):
     """
     Base class for annotation files.
     """

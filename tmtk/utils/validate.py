@@ -2,7 +2,7 @@ import logging
 from IPython.display import display
 
 
-from .filebase import cached_property
+from . import cached_property
 
 logger = logging.getLogger('validator')
 logging.debug('Loaded logger.')
@@ -56,16 +56,45 @@ class Message:
     def __init__(self, msg=None, level=None, warning_list=None, method=None, silent=False):
         self.level = level or INFO
         self.msg = msg
-        self.warning_list = warning_list
+        self._warning_list = ['{!r}'.format(s) for s in warning_list] if warning_list else None
         self.method = method
         if not silent:
             display(self)
 
+    @staticmethod
+    def debug(msg, **kwargs):
+        Message(level=DEBUG, msg=msg, **kwargs)
+
+    @staticmethod
+    def info(msg, **kwargs):
+        Message(level=INFO, msg=msg, **kwargs)
+
+    @staticmethod
+    def okay(msg, **kwargs):
+        Message(level=OKAY, msg=msg, **kwargs)
+
+    @staticmethod
+    def warning(msg, **kwargs):
+        Message(level=WARNING, msg=msg, **kwargs)
+
+    @staticmethod
+    def error(msg, **kwargs):
+        Message(level=ERROR, msg=msg, **kwargs)
+
+    @staticmethod
+    def critical(msg, **kwargs):
+        Message(level=CRITICAL, msg=msg, **kwargs)
+
     def __str__(self):
-        return "{}: {}".format(self.level, self.msg)
+        return "[{}] {}".format(self.level, self.msg)
 
     def __repr__(self):
-        return '{}:{}\033[0m'.format(TERMINAL_COLOR[self.level], str(self))
+        response = '{}{}\033[0m'.format(TERMINAL_COLOR[self.level], str(self))
+
+        if self._warning_list:
+            response += '\n   list([{}])'.format(', '.join(self._warning_list))
+
+        return response
 
     def _repr_html_(self):
         html_string = '<font color="{}" style="font-family: monospace;">{} {}</font>'
@@ -73,9 +102,13 @@ class Message:
                                       HTML_ICON.get(self.level, ''),
                                       str(self))
 
-        if self.warning_list:
-            appendix_s = '<details><summary>See list:</summary>{}</details>'
-            response += appendix_s.format(', '.join([str(s) for s in self.warning_list]))
+        if self._warning_list:
+            appendix = '<details style="font-family: monospace;">' \
+                       '<summary>See list of {} items:</summary>list([{}])' \
+                       '</details>'
+
+            response += appendix.format(len(self._warning_list),
+                                        ', '.join(self._warning_list))
 
         return response
 
@@ -123,13 +156,13 @@ class MessageCollection:
 
     @property
     def list_as_str(self):
-        return '\n>> '.join([repr(li) for li in self.msgs])
+        return '\n>> ' + '\n>> '.join([repr(li) for li in self.msgs])
 
     def _repr_html_(self):
         return '<h3>{}</h3>{}'.format(self.head, self.list_as_html)
 
     def __repr__(self):
-        return '\n{}\n{}'.format(self.head, self.list_as_str)
+        return '\n{}{}'.format(self.head, self.list_as_str)
 
 
 class ValidateMixin:

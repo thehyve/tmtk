@@ -2,12 +2,12 @@ import os
 import pandas as pd
 
 from ..utils import (FileBase, Exceptions, Mappings, path_converter,
-                     path_join, CPrint, column_map_diff)
+                     path_join, column_map_diff, ValidateMixin)
 from ..params import ClinicalParams
 from .DataFile import DataFile
 
 
-class ColumnMapping(FileBase):
+class ColumnMapping(FileBase, ValidateMixin):
     """
     Class with utilities for the column mapping file for clinical data.
     Can be initiated with by giving a clinical params file object.
@@ -134,7 +134,7 @@ class ColumnMapping(FileBase):
             var_id = (datafile.name, i)
             try:
                 self.select_row(var_id)
-                CPrint.warn("Skipping {!r}, already in column mapping file.".format(var_id))
+                self.msgs.warning("Skipping {!r}, already in column mapping file.".format(var_id))
             except KeyError:
                 self.df.loc[i] = [datafile.name, datafile.name, i, name] + cols_min_four
 

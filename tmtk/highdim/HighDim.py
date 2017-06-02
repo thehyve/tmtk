@@ -1,8 +1,7 @@
-from ..utils import path_converter, md5, Mappings, PathError, FileBase
-from tmtk.utils.CPrint import CPrint
+from ..utils import path_converter, md5, Mappings, PathError, FileBase, ValidateMixin
 
 
-class HighDim:
+class HighDim(ValidateMixin):
     """
     Container class for all High Dimensional data types.
 
@@ -33,9 +32,9 @@ class HighDim:
         """
         changed_dict = {k: path for k, path in high_dim_paths.items() if md5(path_converter(path)) != k}
         if changed_dict:
-            CPrint.okay('Found ({}) changed concept paths.'.format(len(changed_dict)))
+            self.msgs.okay('Found ({}) changed concept paths.'.format(len(changed_dict)))
         else:
-            CPrint.info('No changes found in any HighDim paths.')
+            self.msgs.info('No changes found in any HighDim paths.')
             return
 
         for ss in self.sample_mapping_files:

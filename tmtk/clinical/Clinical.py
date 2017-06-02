@@ -5,7 +5,7 @@ from .DataFile import DataFile
 from .Variable import Variable, VarID
 from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
-from ..utils import CPrint, PathError, clean_for_namespace, FileBase, ValidateMixin
+from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin
 from .. import arborist
 from ..utils.batch import TransmartBatch
 
@@ -115,7 +115,7 @@ class Clinical(ValidateMixin):
         self.__dict__[safe_name] = datafile
 
         if datafile.name not in self.ColumnMapping.included_datafiles:
-            CPrint.okay('Adding {!r} as clinical datafile to study.'.format(datafile.name))
+            self.msgs.okay('Adding {!r} as clinical datafile to study.'.format(datafile.name))
             self.ColumnMapping.append_from_datafile(datafile)
 
     def get_variable(self, var_id: tuple):

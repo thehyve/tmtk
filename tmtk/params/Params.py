@@ -1,13 +1,11 @@
-import glob
 import os
 
 from pathlib import Path
 
-from .. import utils
-from ..utils import CPrint, Mappings
+from ..utils import Mappings, clean_for_namespace, ValidateMixin, Message
 
 
-class Params:
+class Params(ValidateMixin):
     """
     Container class for all params files, called by Study to locate all params files.
     """
@@ -37,7 +35,7 @@ class Params:
         normalised_path = os.path.normpath(relative_path)
         split_path = normalised_path.strip(os.sep).split(os.sep)
         subdir = '_'.join(split_path[:-1])
-        subdir = utils.clean_for_namespace(subdir)
+        subdir = clean_for_namespace(subdir)
         if not subdir.startswith(datatype):
             subdir = "{}_{}".format(datatype, subdir)
         return subdir.strip('_')
@@ -81,6 +79,6 @@ class Params:
         try:
             params_class = Mappings.get_params(datatype)
         except KeyError:
-            CPrint.warn('({}) not supported. skipping.'.format(path))
+            Message.warning('({}) not supported. skipping.'.format(path))
         else:
             return params_class(path=path, parameters=parameters, subdir=subdir)
