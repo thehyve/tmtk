@@ -30,10 +30,10 @@ class ParamsBase(ValidateMixin):
             self.__dict__.update(**self._params_in_file)
 
     def __str__(self):
-        return self.subdir
+        return 'Params: {} ({})'.format(self.datatype, self.path)
 
     def __repr__(self):
-        return self.path
+        return 'Params: {} ({})'.format(self.datatype, self.path)
 
     def get(self, parameter, default=None):
         """

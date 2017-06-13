@@ -26,7 +26,10 @@ class AnnotationBase(FileBase, ValidateMixin):
         super().__init__()
 
     def __str__(self):
-        return self.platform
+        return 'Annotations: {} ({})'.format(self.params.datatype, self.params.dirname)
+
+    def __repr__(self):
+        return 'Annotations: {} ({})'.format(self.params.datatype, self.params.dirname)
 
     @property
     def marker_type(self):

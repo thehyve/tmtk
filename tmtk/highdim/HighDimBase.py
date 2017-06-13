@@ -38,10 +38,10 @@ class HighDimBase(FileBase, ValidateMixin):
                 self.annotation_file = parent.find_annotation(self.platform)
 
     def __str__(self):
-        return '{} ({})'.format(self.__class__, self.params.path)
+        return 'HighDim: {} ({})'.format(self.params.datatype, self.params.dirname)
 
     def __repr__(self):
-        return '{} ({})'.format(self.__class__, self.params.path)
+        return 'HighDim: {} ({})'.format(self.params.datatype, self.params.dirname)
 
     def _check_header_extensions(self):
 

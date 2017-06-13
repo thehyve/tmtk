@@ -141,6 +141,16 @@ class ColumnMapping(FileBase, ValidateMixin):
         self.build_index()
 
     @property
+    def subj_id_columns(self):
+        """ A list of tuples with datafile and column index for SUBJ_ID, e.g. ('cell-line.txt', 1). """
+        response = []
+        for datafile in self.included_datafiles:
+            subj_id_df = self.df.loc[(self.df.iloc[:, 0] == datafile) & (self.df.iloc[:, 3] == 'SUBJ_ID')]
+            for l in subj_id_df.values[:, [0, 2]].tolist():
+                response.append((l[0], l[1]))
+        return response
+
+    @property
     def path_id_dict(self):
         """Dictionary with all variable ids as keys and paths as value."""
         return {v: self.get_concept_path(v) for v in self.ids}

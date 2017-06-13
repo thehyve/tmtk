@@ -74,6 +74,12 @@ class Study(ValidateMixin):
             self.Tags = MetaDataTags(params=tags_params[0],
                                      parent=self)
 
+    def __str__(self):
+        return 'StudyObject ({})'.format(self.study_folder)
+
+    def __repr__(self):
+        return 'StudyObject ({})'.format(self.study_folder)
+
     def find_params_for_datatype(self, datatypes=None):
         """
         Search for parameter files within this study object and return them as list.
@@ -118,12 +124,6 @@ class Study(ValidateMixin):
 
         else:
             self.msgs.error('Duplicate platform objects found for {}: {}').format(platform, annotations)
-
-    def __str__(self):
-        return 'Study ({})'.format(self.study_folder)
-
-    def __repr__(self):
-        return 'Study ({})'.format(self.study_folder)
 
     def files_with_changes(self, ):
         """Find dataframes that have changed since they have been loaded."""
@@ -339,13 +339,16 @@ class Study(ValidateMixin):
             if item.params.path == path:
                 return item
 
-    def validate_all(self):
+    def validate_all(self, verbosity='WARNING'):
         """
         Validate all items in this study.
 
-        :return: True if everything is okay, else return False.
+        :param verbosity: only display output of this level and above.
+            Levels: 'debug', 'info', 'okay', 'warning', 'error', 'critical'.
+            Default is 'WARNING'.
+        :return: True if no errors or critical is encountered.
         """
-        return all([obj.validate() for obj in self.get_objects_with_prop('validate')])
+        return all([obj.validate(verbosity=verbosity) for obj in self.get_objects_with_prop('validate')])
 
     def _validate_study_id(self):
         if bool(self.study_id):

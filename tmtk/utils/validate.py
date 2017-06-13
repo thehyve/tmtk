@@ -1,7 +1,6 @@
 import logging
 from IPython.display import display
 
-
 from . import cached_property
 
 logger = logging.getLogger('validator')
@@ -57,7 +56,6 @@ class Message:
         self.level = level or INFO
         self.msg = msg
         self._warning_list = ['{!r}'.format(s) for s in warning_list] if warning_list else None
-        self.method = method
         if not silent:
             display(self)
 
@@ -117,6 +115,7 @@ class MessageCollection:
     def __init__(self, message_list=None, head=None):
         self.msgs = message_list or []
         self.head = head or 'MessageCollection'
+        self.verbosity = INFO
 
     def debug(self, msg, warning_list=None):
         self.msgs.append(Message(msg, warning_list=warning_list,
@@ -141,6 +140,9 @@ class MessageCollection:
     def critical(self, msg, warning_list=None):
         self.msgs.append(Message(msg, warning_list=warning_list,
                                  level=CRITICAL, silent=self._suppress_messages))
+
+    def remove_below(self, rank):
+        self.msgs = [msg for msg in self.msgs if MSG_RANK[msg.level] >= MSG_RANK[rank.upper()]]
 
     @property
     def has_error(self):
@@ -178,8 +180,15 @@ class ValidateMixin:
     def msgs(self):
         return MessageCollection(head=self)
 
-    def validate(self):
-        """ Run all validate methods for this object. """
+    def validate(self, verbosity=WARNING):
+        """
+        Run all validate methods for this object.
+
+        :param verbosity: only display output of this level and above.
+            Levels: 'debug', 'info', 'okay', 'warning', 'error', 'critical'.
+            Default is 'WARNING'.
+        :return: True if no errors or critical is encountered.
+        """
         self.msgs.msgs = []
         validate_methods = [m for m in self.__dir__() if m.startswith('_validate_')]
         self.msgs._suppress_messages = True
@@ -191,8 +200,12 @@ class ValidateMixin:
         finally:
             self.msgs._suppress_messages = False
 
+        is_valid = not self.msgs.has_error
+
+        self.msgs.remove_below(verbosity)
+
         if self.msgs.msgs:
             display(self.msgs)
 
-        return not self.msgs.has_error
+        return is_valid
 

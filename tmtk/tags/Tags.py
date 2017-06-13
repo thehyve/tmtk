@@ -15,6 +15,12 @@ class MetaDataTags(FileBase, ValidateMixin):
         self.parent = parent
         super().__init__()
 
+    def __str__(self):
+        return 'Metadata tags: ({})'.format(self.params.path)
+
+    def __repr__(self):
+        return 'Metadata tags: ({})'.format(self.params.path)
+
     @property
     def tag_paths(self):
         """

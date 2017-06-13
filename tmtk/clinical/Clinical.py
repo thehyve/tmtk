@@ -25,10 +25,10 @@ class Clinical(ValidateMixin):
         self._params = clinical_params
 
     def __str__(self):
-        return "Clinical ({})".format(self.params.path)
+        return "ClinicalObject ({})".format(self.params.path)
 
     def __repr__(self):
-        return "Clinical ({})".format(self.params.path)
+        return "ClinicalObject ({})".format(self.params.path)
 
     @property
     def params(self):
@@ -211,3 +211,20 @@ class Clinical(ValidateMixin):
             self.msgs.okay('Clinical params found on disk.')
         else:
             self.msgs.error('Clinical params not on disk.')
+
+    def _validate_SUBJ_IDs(self):
+        for datafile in self.ColumnMapping.included_datafiles:
+            var_id_list = [var_id for var_id in self.ColumnMapping.subj_id_columns if var_id[0] == datafile]
+
+            # Check for one SUBJ_ID per file
+            if len(var_id_list) == 1:
+
+                subj_id = self.get_variable(var_id_list[0])
+                if len(subj_id.values) == len(subj_id.unique_values):
+                    self.msgs.okay('Found a SUBJ_ID for {} and it has unique values, thats good!'.format(datafile))
+                else:
+                    self.msgs.error('Found a SUBJ_ID for {}, but it has duplicate values.'.format(datafile),
+                                    warning_list=subj_id.values[subj_id.values.duplicated()].unique())
+
+            else:
+                self.msgs.error('Found {} SUBJ_ID for {}'.format(len(var_id_list), datafile))

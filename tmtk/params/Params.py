@@ -40,11 +40,6 @@ class Params(ValidateMixin):
             subdir = "{}_{}".format(datatype, subdir)
         return subdir.strip('_')
 
-    def validate_all(self, verbosity=3):
-        for key, obj in self.__dict__.items():
-            if hasattr(obj, 'validate'):
-                obj.validate(verbosity=verbosity)
-
     def add_params(self, path, parameters=None):
         """
         Add a new parameter file to the Params object.

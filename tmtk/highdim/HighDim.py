@@ -15,7 +15,7 @@ class HighDim(ValidateMixin):
         for p in params_list:
             new_instance = Mappings.get_highdim(p.datatype)
             try:
-                self.__dict__[str(p)] = new_instance(p, parent=parent)
+                self.__dict__[p.subdir] = new_instance(p, parent=parent)
             except PathError:
                 continue
 
