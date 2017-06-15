@@ -27,6 +27,5 @@ class GeneratorTests(unittest.TestCase):
         assert 'Demographics' in list(self.study.Clinical.ColumnMapping.df.iloc[:, 1])
         assert 'Gender' in list(self.study.Clinical.ColumnMapping.df.iloc[:, 3])
 
-
 if __name__ == '__main__':
     unittest.main()

@@ -1,11 +1,10 @@
 import os
 import glob
 
-from ..utils import PathError, merge_two_dicts
-from ..utils.CPrint import MessageCollector
+from ..utils import PathError, merge_two_dicts, ValidateMixin
 
 
-class ParamsBase:
+class ParamsBase(ValidateMixin):
     """
     Base class for parameter files.
     """
@@ -31,10 +30,10 @@ class ParamsBase:
             self.__dict__.update(**self._params_in_file)
 
     def __str__(self):
-        return self.subdir
+        return 'Params: {} ({})'.format(self.datatype, self.path)
 
     def __repr__(self):
-        return self.path
+        return 'Params: {} ({})'.format(self.datatype, self.path)
 
     def get(self, parameter, default=None):
         """
@@ -66,46 +65,6 @@ class ParamsBase:
                     param = 'DATA_FILE'
                 params_dict[param] = value
         return params_dict
-
-    def _check_for_correct_params(self, mandatory, optional, messages):
-        """
-
-        :param mandatory:
-        :param optional:
-        :return:
-        """
-        for param in mandatory:
-            value = self.get(param)
-            if not value:
-                messages.error('No {} given.'.format(param))
-
-        for param, value in self.__dict__.items():
-            if param.islower():
-                continue
-            messages.info('Detected parameter {}={}.'.format(param, value))
-            if param not in mandatory and param not in optional:
-                messages.error('Illegal param found: {}.'.format(param))
-            elif 'FILE' in param:
-                if not os.path.exists(os.path.join(self.dirname, value)):
-                    messages.error('{}={} cannot be found on disk.'.format(param, value))
-                else:
-                    messages.okay('{}={} found.'.format(param, value))
-
-    def validate(self, verbosity=3):
-        """
-        Validate this parameter file. Return True if no errors
-        were found in this parameter file.
-
-        :param verbosity: set the verbosity of output, pick 0, 1, 2, 3 or 4.
-        :return: True or False if errors are found.
-        """
-        messages = MessageCollector(verbosity=verbosity)
-
-        messages.head("Validating params file at {}".format(self))
-        self._check_for_correct_params(self.mandatory, self.optional, messages=messages)
-
-        messages.flush()
-        return not messages.found_error
 
     def write_to(self, path, overwrite=False):
         """
@@ -180,3 +139,21 @@ class ParamsBase:
                 self.__dict__[param] = new_setting
 
             print('-' * 20)
+
+    def _validate_correct_params(self):
+        for param in self.mandatory:
+            value = self.get(param)
+            if not value:
+                self.msgs.error('No {} given.'.format(param))
+
+        for param, value in self.__dict__.items():
+            if param.islower():
+                continue
+            self.msgs.info('Detected parameter {}={}.'.format(param, value))
+            if param not in self.mandatory and param not in self.optional:
+                self.msgs.error('Illegal param found: {}.'.format(param))
+            elif 'FILE' in param:
+                if not os.path.exists(os.path.join(self.dirname, value)):
+                    self.msgs.error('{}={} cannot be found on disk.'.format(param, value))
+                else:
+                    self.msgs.okay('{}={} found.'.format(param, value))

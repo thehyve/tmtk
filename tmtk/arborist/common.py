@@ -5,8 +5,7 @@ from IPython.display import display, IFrame, clear_output
 import tempfile
 import json
 
-from ..utils import CPrint
-from .. import utils
+from ..utils import Message, ClassError
 
 from .jstreecontrol import create_concept_tree, ConceptTree
 import tmtk
@@ -21,8 +20,8 @@ def call_boris(to_be_shuffled=None, **kwargs):
     """
 
     if not isinstance(to_be_shuffled, (tmtk.Clinical, tmtk.Study)):
-        CPrint.error("No path to column mapping file or a valid object given.")
-        raise utils.ClassError(type(to_be_shuffled, 'tmtk.Clinical or tmtk.Study'))
+        Message.error("No path to column mapping file or a valid object given.")
+        raise ClassError(type(to_be_shuffled, 'tmtk.Clinical or tmtk.Study'))
 
     concept_tree = create_concept_tree(to_be_shuffled)
 
@@ -47,9 +46,9 @@ def call_boris(to_be_shuffled=None, **kwargs):
     json_data = launch_arborist_gui(json_data, **kwargs)  # Returns modified json_data
 
     if json_data:
-        CPrint.okay('Successfully closed The Arborist. The updated column mapping file '
-                    'has been returned as a dataframe.')
-        CPrint.warn("Don't forget to save this dataframe to disk if you want to store it.")
+        Message.okay('Successfully closed The Arborist. The updated column'
+                     ' mapping file has been returned as a dataframe.')
+        Message.warning("Don't forget to save this dataframe to disk if you want to store it.")
     else:
         return
 

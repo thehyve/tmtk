@@ -15,5 +15,3 @@ class DataFile(utils.FileBase):
         self.path = path
         super().__init__()
 
-    def validate(self, verbosity=2):
-        pass

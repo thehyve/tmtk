@@ -3,7 +3,7 @@ import pandas as pd
 import tmtk
 import tqdm
 
-from ..utils import CPrint, Mappings, Exceptions, path_join, path_converter
+from ..utils import Mappings, Exceptions, path_join, path_converter, Message
 from ..clinical.Variable import VarID
 
 
@@ -179,8 +179,8 @@ class ConceptTree:
 
         # Check if node already exists.
         if path in self.paths and node_type not in {'alpha', 'codeleaf'}:
-            CPrint.warn('Trying to add duplicate to ConceptTree: {}\n'
-                        'This might fail in the GUI.'.format(path))
+            Message.warning('Trying to add duplicate to ConceptTree: {}\n'
+                            'This might fail in the GUI.'.format(path))
 
         new_node = ConceptNode(path,
                                var_id=var_id,
