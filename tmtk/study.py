@@ -359,6 +359,6 @@ class Study(ValidateMixin):
     def _validate_study_params_on_disk(self):
         """ Validate whether study params exists on disk. """
         if os.path.exists(self.params.path):
-            self.msgs.okay('Study params found on disk.', warning_list=[1, 2, 3, 4])
+            self.msgs.okay('Study params found on disk.')
         else:
             self.msgs.error('Study params not on disk.')
