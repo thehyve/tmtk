@@ -141,12 +141,6 @@ class ParamsBase(ValidateMixin):
             print('-' * 20)
 
     def _validate_correct_params(self):
-        """
-
-        :param mandatory:
-        :param optional:
-        :return:
-        """
         for param in self.mandatory:
             value = self.get(param)
             if not value:

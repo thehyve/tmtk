@@ -3,7 +3,7 @@ import os
 
 from .SampleMapping import SampleMapping
 
-from ..utils import FileBase, ValidateMixin, PathError, ClassError, TransmartBatch
+from ..utils import FileBase, ValidateMixin, PathError, ClassError, TransmartBatch, summarise
 from ..annotation import ChromosomalRegions
 
 
@@ -128,21 +128,25 @@ class HighDimBase(FileBase, ValidateMixin):
         header_samples = pd.Series(self.samples)
         mapping_samples = pd.Series(self.sample_mapping.samples)
 
-        not_in_datafile = list(mapping_samples[~mapping_samples.isin(header_samples)])
-        not_in_sample_mapping = list(header_samples[~header_samples.isin(mapping_samples)])
-        intersection = list(header_samples[header_samples.isin(mapping_samples)])
+        not_in_datafile = set(mapping_samples[~mapping_samples.isin(header_samples)])
+        not_in_sample_mapping = set(header_samples[~header_samples.isin(mapping_samples)])
+        intersection = set(header_samples[header_samples.isin(mapping_samples)])
 
         if not_in_datafile:
-            self.msgs.error('Samples not in datafile!', warning_list=not_in_datafile)
+            self.msgs.error('Samples not in datafile: {}!'.format(summarise(not_in_datafile)),
+                            warning_list=not_in_datafile)
 
         if not_in_sample_mapping:
             if self.params.get('SKIP_UNMAPPED_DATA', 'N') == 'Y':
-                self.msgs.warning('Samples not in mapping file.', warning_list=not_in_sample_mapping)
+                self.msgs.warning('Samples not in mapping file: {}.'.format(summarise(not_in_sample_mapping)),
+                                  warning_list=not_in_sample_mapping)
             else:
-                self.msgs.error('Samples not in mapping file.', warning_list=not_in_sample_mapping)
+                self.msgs.error('Samples not in mapping file: {}.'.format(summarise(not_in_sample_mapping)),
+                                warning_list=not_in_sample_mapping)
 
         if intersection:
-            self.msgs.info('Intersection of samples.', warning_list=intersection)
+            self.msgs.info('Intersection of samples: {}.'.format(summarise(intersection)),
+                           warning_list=intersection)
 
     def _validate_sample_mapping_study_id(self):
         if self.sample_mapping.study_id != self._parent.study_id:
