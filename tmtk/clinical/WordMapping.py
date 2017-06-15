@@ -1,11 +1,11 @@
 import os
 import pandas as pd
 
-from ..utils import FileBase, Exceptions, Mappings, MessageCollector, word_map_diff
+from ..utils import FileBase, Exceptions, Mappings, word_map_diff, ValidateMixin
 from ..params import ClinicalParams
 
 
-class WordMapping(FileBase):
+class WordMapping(FileBase, ValidateMixin):
     """
     Class representing the word mapping file.
     """
@@ -30,14 +30,9 @@ class WordMapping(FileBase):
         super().__init__()
         self._initial_word_map = self.word_map_dicts
 
-    def validate(self, verbosity=2):
-        messages = MessageCollector(verbosity)
-
+    def _validate_dimensions(self):
         if self.df.shape[1] != 4:
-            messages.error("Wordmapping file does not have 4 columns!")
-
-        messages.flush()
-        return not messages.found_error
+            self.msgs.error("Wordmapping file does not have 4 columns!")
 
     def get_word_map(self, var_id):
         """

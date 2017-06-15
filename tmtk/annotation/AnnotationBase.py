@@ -1,8 +1,9 @@
 import os
-import tmtk.utils as utils
+
+from ..utils import Mappings, TransmartBatch, PathError, FileBase, ValidateMixin
 
 
-class AnnotationBase(utils.FileBase):
+class AnnotationBase(FileBase, ValidateMixin):
     """
     Base class for annotation files.
     """
@@ -21,24 +22,24 @@ class AnnotationBase(utils.FileBase):
             self.path = path
             self.platform = 'NO_PLATFORM_SPECIFIED'
         else:
-            raise utils.PathError
+            raise PathError
         super().__init__()
 
     def __str__(self):
-        return self.platform
+        return 'Annotations: {} ({})'.format(self.params.datatype, self.params.dirname)
 
-    def validate(self, verbosity=2):
-        pass
+    def __repr__(self):
+        return 'Annotations: {} ({})'.format(self.params.datatype, self.params.dirname)
 
     @property
     def marker_type(self):
-        return utils.Mappings.annotation_marker_types.get(self.params.datatype)
+        return Mappings.annotation_marker_types.get(self.params.datatype)
 
     @property
     def load_to(self):
-        return utils.TransmartBatch(param=self.params.path,
-                                    items_expected=self._get_lazy_batch_items()
-                                    ).get_loading_namespace()
+        return TransmartBatch(param=self.params.path,
+                              items_expected=self._get_lazy_batch_items()
+                              ).get_loading_namespace()
 
     def _get_lazy_batch_items(self):
         return {self.params.path: [self.path]}

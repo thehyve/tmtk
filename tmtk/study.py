@@ -8,11 +8,11 @@ from .params import Params
 from .highdim import HighDim
 from .annotation import Annotations
 from .tags import MetaDataTags
-from .utils import CPrint, Mappings, TransmartBatch
+from .utils import Mappings, TransmartBatch, ValidateMixin, Message
 from tmtk import utils, arborist
 
 
-class Study:
+class Study(ValidateMixin):
     """
     Describes an entire TranSMART study.  This is the main object used
     in tmtk. Studies can be initialized by pointing to a study.params file.
@@ -74,6 +74,12 @@ class Study:
             self.Tags = MetaDataTags(params=tags_params[0],
                                      parent=self)
 
+    def __str__(self):
+        return 'StudyObject ({})'.format(self.study_folder)
+
+    def __repr__(self):
+        return 'StudyObject ({})'.format(self.study_folder)
+
     def find_params_for_datatype(self, datatypes=None):
         """
         Search for parameter files within this study object and return them as list.
@@ -102,7 +108,7 @@ class Study:
         :return: an Annotations object or nothing.
         """
         if not hasattr(self, 'Annotations'):
-            CPrint.warn('No annotations in study.')
+            self.msgs.warning('No annotations found for this study.')
             return
 
         annotations = []
@@ -111,31 +117,13 @@ class Study:
                 annotations.append(annotation_object)
 
         if not annotations:
-            CPrint.warn('Platform {} not found in study.'.format(platform))
+            self.msgs.warning('Platform {} not found in study.'.format(platform))
 
         elif len(annotations) == 1:
             return annotations[0]
 
         else:
-            CPrint.error('Duplicate platform objects found for {}: {}').format(platform,
-                                                                               annotations)
-
-    def __str__(self):
-        statement = "Study object: {}".format(self.params.path)
-        return statement
-
-    def __repr__(self):
-        return '<tmtk.Study> ({})'.format(self.study_folder)
-
-    def validate_all(self, verbosity: int = 2):
-        """
-        Validate all items in this study.
-
-        :param verbosity: set the verbosity of output, pick 0, 1, 2, 3 or 4.
-        :return: True if everything is okay, else return False.
-        """
-        for obj in self.get_objects_with_prop('validate'):
-            obj.validate(verbosity=verbosity)
+            self.msgs.error('Duplicate platform objects found for {}: {}').format(platform, annotations)
 
     def files_with_changes(self, ):
         """Find dataframes that have changed since they have been loaded."""
@@ -149,7 +137,7 @@ class Study:
         :return: generator for the found objects.
         """
 
-        recursion_items = ['parent', '_parent', 'obj']
+        recursion_items = ['parent', '_parent', 'obj', 'msgs']
 
         def iterate_items(d, prop):
             for key, obj in d.items():
@@ -279,7 +267,7 @@ class Study:
     def add_metadata(self):
         """Create the Tags object for this study.  Does nothing if it is already present."""
         if hasattr(self, 'Tags'):
-            CPrint.okay("Study metadata tags found.")
+            self.msgs.okay("Study metadata tags found.")
             return
 
         p = os.path.join(self.study_folder, 'tags', 'tags.params')
@@ -305,7 +293,7 @@ class Study:
             # Strip sub_path from leading slash, as os.path.join() will think its an absolute path
             sub_path = obj.path.split(self.study_folder)[1].strip('/')
             new_path = os.path.join(root_dir, sub_path)
-            CPrint.info("Writing file to {}".format(new_path))
+            self.msgs.info("Writing file to {}".format(new_path))
             obj.write_to(new_path, overwrite=overwrite)
 
         if return_new:
@@ -315,7 +303,7 @@ class Study:
         """ Add clinical data to a study object by creating empty params. """
 
         if self.find_params_for_datatype('clinical'):
-            CPrint.error('Trying to add Clinical, but already there.')
+            self.msgs.error('Trying to add Clinical, but already there.')
         else:
             new_path = os.path.join(self.study_folder, 'clinical', 'clinical.params')
             self.Clinical.params = self.Params.add_params(new_path)
@@ -323,7 +311,7 @@ class Study:
     @property
     def load_to(self):
         if self.files_with_changes():
-            CPrint.error('Files with changes found, they will not be loaded! Save them before restarting the job!')
+            self.msgs.error('Files with changes found, they will not be loaded! Save them before restarting the job!')
         return TransmartBatch(param=self.params.path,
                               items_expected=self._study_total_batch_items,
                               ).get_loading_namespace()
@@ -350,3 +338,27 @@ class Study:
         for item in self._get_loadable_objects():
             if item.params.path == path:
                 return item
+
+    def validate_all(self, verbosity='WARNING'):
+        """
+        Validate all items in this study.
+
+        :param verbosity: only display output of this level and above.
+            Levels: 'debug', 'info', 'okay', 'warning', 'error', 'critical'.
+            Default is 'WARNING'.
+        :return: True if no errors or critical is encountered.
+        """
+        return all([obj.validate(verbosity=verbosity) for obj in self.get_objects_with_prop('validate')])
+
+    def _validate_study_id(self):
+        if bool(self.study_id):
+            self.msgs.okay('Study ID found: {!r}'.format(self.study_id))
+        else:
+            self.msgs.error('Invalid study id: {!r}'.format(self.study_id))
+
+    def _validate_study_params_on_disk(self):
+        """ Validate whether study params exists on disk. """
+        if os.path.exists(self.params.path):
+            self.msgs.okay('Study params found on disk.', warning_list=[1, 2, 3, 4])
+        else:
+            self.msgs.error('Study params not on disk.')

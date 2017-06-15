@@ -5,12 +5,12 @@ from .DataFile import DataFile
 from .Variable import Variable, VarID
 from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
-from ..utils import CPrint, PathError, clean_for_namespace, FileBase
+from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin
 from .. import arborist
 from ..utils.batch import TransmartBatch
 
 
-class Clinical:
+class Clinical(ValidateMixin):
     """
     Container class for all clinical data related objects, i.e. the column
     mapping, word mapping, and clinical data files.
@@ -23,6 +23,12 @@ class Clinical:
         self._WordMapping = None
         self._ColumnMapping = None
         self._params = clinical_params
+
+    def __str__(self):
+        return "ClinicalObject ({})".format(self.params.path)
+
+    def __repr__(self):
+        return "ClinicalObject ({})".format(self.params.path)
 
     @property
     def params(self):
@@ -109,7 +115,7 @@ class Clinical:
         self.__dict__[safe_name] = datafile
 
         if datafile.name not in self.ColumnMapping.included_datafiles:
-            CPrint.okay('Adding {!r} as clinical datafile to study.'.format(datafile.name))
+            self.msgs.okay('Adding {!r} as clinical datafile to study.'.format(datafile.name))
             self.ColumnMapping.append_from_datafile(datafile)
 
     def get_variable(self, var_id: tuple):
@@ -199,3 +205,26 @@ class Clinical:
     @property
     def clinical_files(self):
         return [x for k, x in self.__dict__.items() if issubclass(type(x), FileBase)]
+
+    def _validate_clinical_params(self):
+        if os.path.exists(self.params.path):
+            self.msgs.okay('Clinical params found on disk.')
+        else:
+            self.msgs.error('Clinical params not on disk.')
+
+    def _validate_SUBJ_IDs(self):
+        for datafile in self.ColumnMapping.included_datafiles:
+            var_id_list = [var_id for var_id in self.ColumnMapping.subj_id_columns if var_id[0] == datafile]
+
+            # Check for one SUBJ_ID per file
+            if len(var_id_list) == 1:
+
+                subj_id = self.get_variable(var_id_list[0])
+                if len(subj_id.values) == len(subj_id.unique_values):
+                    self.msgs.okay('Found a SUBJ_ID for {} and it has unique values, thats good!'.format(datafile))
+                else:
+                    self.msgs.error('Found a SUBJ_ID for {}, but it has duplicate values.'.format(datafile),
+                                    warning_list=subj_id.values[subj_id.values.duplicated()].unique())
+
+            else:
+                self.msgs.error('Found {} SUBJ_ID for {}'.format(len(var_id_list), datafile))

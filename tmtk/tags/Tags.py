@@ -1,10 +1,10 @@
 import pandas as pd
 import os
-from ..utils import Exceptions, FileBase, MessageCollector, summarise, Mappings, path_converter, TransmartBatch
+from ..utils import Exceptions, FileBase, Mappings, path_converter, TransmartBatch, ValidateMixin
 from ..params import TagsParams
 
 
-class MetaDataTags(FileBase):
+class MetaDataTags(FileBase, ValidateMixin):
     def __init__(self, params=None, parent=None):
         if params and params.is_viable() and params.datatype == 'tags':
             self.path = os.path.join(params.dirname, params.TAGS_FILE)
@@ -14,6 +14,12 @@ class MetaDataTags(FileBase):
         self.params = params
         self.parent = parent
         super().__init__()
+
+    def __str__(self):
+        return 'Metadata tags: ({})'.format(self.params.path)
+
+    def __repr__(self):
+        return 'Metadata tags: ({})'.format(self.params.path)
 
     @property
     def tag_paths(self):
@@ -62,23 +68,6 @@ class MetaDataTags(FileBase):
             self.df[associated_tags].apply(lambda x: tags_dict.update({x[1]: (x[2], x[3])}), axis=1)
             yield path, tags_dict
 
-    def validate(self, verbosity=2):
-
-        message = MessageCollector(verbosity=verbosity)
-        message.head("Validating Tags:")
-        invalid = self.invalid_paths
-
-        if invalid:
-            message.error("Tags ({}) found that cannot map to tree: ({})."
-                          " You might want to call_boris() to fix them.".
-                          format(len(invalid), summarise(invalid)))
-        else:
-            message.okay("No tags found that do not map to tree. Total number of tags: {}".
-                         format(len(self.tag_paths)))
-
-        message.flush()
-        return not message.found_error
-
     @staticmethod
     def create_df():
         df = pd.DataFrame(dtype=str, columns=Mappings.tags_header)
@@ -92,3 +81,10 @@ class MetaDataTags(FileBase):
 
     def _get_lazy_batch_items(self):
         return {self.params.path: [self.path]}
+
+    def _validate_tag_paths(self):
+        invalids = self.invalid_paths
+        if invalids:
+            self.msgs.error("Tags ({}) found that cannot map to tree.".format(len(invalids)), warning_list=invalids)
+        else:
+            self.msgs.okay("No tags found that do not map to tree. Total number of tags: {}".format(len(self.tag_paths)))
