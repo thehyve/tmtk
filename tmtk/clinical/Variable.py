@@ -217,7 +217,7 @@ class Variable:
 
     def validate(self, verbosity=2):
         pass
-
+    
     @property
     def is_in_wordmap(self):
         """
@@ -226,3 +226,9 @@ class Variable:
         :return: bool.
         """
         return tuple(self.var_id) in self.parent.WordMapping.df.index
+    
+    def word_mapped_not_present(self):
+        mapped_value_column = self.parent.WordMapping.df.columns[2]
+        coordinates = (self.var_id.filename, self.var_id.column)
+        mapped_values = self.parent.WordMapping.df.loc[coordinates,mapped_value_column]
+        return set(mapped_values)-set(self.values)

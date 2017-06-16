@@ -86,20 +86,19 @@ class ValidationTests(unittest.TestCase):
 
         with StringIO() as buffer, redirect_stdout(buffer):
             self.invalid_study.Clinical.validate(validate.WARNING)
-            messages = [line.strip("'") for line in buffer.getvalue().splitlines()]
+            messages = [line.strip("'") for line in buffer.getvalue().splitlines() if line != '']
         
         assert len(messages) == 4, "Messages length is {} instead of 4".format(len(messages))
-
-        missing_file_error = "The file {} doesn't exists".format('Not_present_file.txt')
-        self.assertEquals(messages[1], error_template.format(missing_file_error))
+        missing_file_error = "The file {} isn't included in the column map".format('Not_present_file.txt')
+        self.assertEqual(messages[1], error_template.format(missing_file_error))
 
         column_index_error = "File {} doesn't has {} columns, but {} columns".format('Cell-line_clinical.txt', 10, 9)
-        self.assertEquals(messages[2], error_template.format(column_index_error))
+        self.assertEqual(messages[2], error_template.format(column_index_error))
 
         unmapped_warning = "Value {} is mapped at column {} in file {}. " \
                            "However the value is not present in the column".format("Not_present", 8,
                                                                                    'Cell-line_clinical.txt')
-        self.assertEquals(messages[3], warning_template.format(unmapped_warning))
+        self.assertEqual(messages[3], warning_template.format(unmapped_warning))
 
 
 if __name__ == '__main__':

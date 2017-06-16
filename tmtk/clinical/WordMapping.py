@@ -56,6 +56,11 @@ class WordMapping(FileBase, ValidateMixin):
         else:
             return {}
 
+    @property
+    def included_datafiles(self):
+        """List of datafiles included in word mapping file."""
+        return list(self.df.iloc[:, 0].unique())
+    
     def build_index(self, df=None):
         """
         Build and sort multi-index for dataframe based on filename and
