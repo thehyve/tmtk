@@ -1,4 +1,5 @@
 import os
+
 import pandas as pd
 
 from ..utils import FileBase, Exceptions, Mappings, word_map_diff, ValidateMixin
@@ -30,6 +31,7 @@ class WordMapping(FileBase, ValidateMixin):
         super().__init__()
         self._initial_word_map = self.word_map_dicts
 
+
     def _validate_dimensions(self):
         if self.df.shape[1] != 4:
             self.msgs.error("Wordmapping file does not have 4 columns!")
@@ -54,6 +56,11 @@ class WordMapping(FileBase, ValidateMixin):
         else:
             return {}
 
+    @property
+    def included_datafiles(self):
+        """List of datafiles included in word mapping file."""
+        return list(self.df.iloc[:, 0].unique())
+    
     def build_index(self, df=None):
         """
         Build and sort multi-index for dataframe based on filename and

@@ -228,3 +228,37 @@ class Clinical(ValidateMixin):
 
             else:
                 self.msgs.error('Found {} SUBJ_ID for {}'.format(len(var_id_list), datafile))
+
+    def _validate_word_mappings(self):
+
+        # check presence of all data files
+        filenames = self.WordMapping.included_datafiles
+        valid_filenames = []
+        for filename in filenames:
+            if filename not in self.ColumnMapping.included_datafiles:
+                msg = "The file {} isn't included in the column map".format(filename)
+                self.msgs.error(msg)
+            else:
+                valid_filenames.append(filename)
+        
+        column_number = self.WordMapping.df.columns[1]
+
+        for filename in valid_filenames:
+            datafile = self.get_datafile(filename)
+            amount_of_columns = datafile.df.shape[1]
+
+            columns = set(self.WordMapping.df.loc[filename, column_number])
+
+            out_of_bound = {index for index in columns if index > amount_of_columns}
+            for index in out_of_bound:
+                msg = "File {} doesn't has {} columns, but {} columns".format(filename, index, amount_of_columns)
+                self.msgs.error(msg)
+
+            correct_columns = columns - out_of_bound
+            for column in correct_columns:
+                variable = self.get_variable((filename, column))
+                unmapped = variable.word_mapped_not_present()
+                for unmapped_value in unmapped:
+                    msg = "Value {} is mapped at column {} in file {}. " \
+                          "However the value is not present in the column".format(unmapped_value, column, filename)
+                    self.msgs.warning(msg)

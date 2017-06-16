@@ -1,0 +1,7 @@
+### Mandatory
+# Identifier of the study.
+STUDY_ID=INVALID_STUDY
+
+### Optional
+# Defines study as Private (Y) or Public (N).
+SECURITY_REQUIRED=Y
