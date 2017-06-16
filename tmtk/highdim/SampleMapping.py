@@ -1,9 +1,9 @@
 import os
 
-from ..utils import CPrint, FileBase, md5, path_converter
+from ..utils import ValidateMixin, FileBase, md5, path_converter
 
 
-class SampleMapping(FileBase):
+class SampleMapping(FileBase, ValidateMixin):
     """
     Base class for subject sample mapping
     """
@@ -58,12 +58,6 @@ class SampleMapping(FileBase):
     def __str__(self):
         return self.path
 
-    def validate(self, verbosity=2):
-        """
-        Checks whether transmart-batch likes this file.
-        """
-        pass
-
     @property
     def samples(self):
         return list(self.df.iloc[:, 3])
@@ -75,8 +69,8 @@ class SampleMapping(FileBase):
         """
         platform_ids = list(self.df.iloc[:, 4].unique())
         if len(platform_ids) > 1:
-            CPrint.warn('Found multiple platforms in {}. '
-                        'This might lead to unexpected behaviour.'.format(self.path))
+            self.msgs.warning('Found multiple platforms in {}. '
+                              'This might lead to unexpected behaviour.'.format(self.path))
         elif platform_ids:
             return str(platform_ids[0]).upper()
 
@@ -88,8 +82,8 @@ class SampleMapping(FileBase):
         """
         study_ids = list(self.df.iloc[:, 0].unique())
         if len(study_ids) > 1:
-            CPrint.error('Found multiple study_ids found in {}. '
-                         'This is not supported.'.format(self.path))
+            self.msgs.error('Found multiple study_ids found in {}. '
+                            'This is not supported.'.format(self.path))
         elif study_ids:
             return str(study_ids[0]).upper()
 

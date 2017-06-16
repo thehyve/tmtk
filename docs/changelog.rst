@@ -2,6 +2,11 @@
 Changelog
 =========
 
+.. topic::  Version 0.3.1
+
+    * Replaced deprecated pandas functionality
+    * More reliably start batch job
+
 .. topic::  Version 0.3.0
 
     * Create studies from TraIT data templates, see :ref:`data_templates`.

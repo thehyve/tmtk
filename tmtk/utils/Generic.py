@@ -16,7 +16,7 @@ def clean_for_namespace(path) -> str:
     :param path: usually a descriptive subdirectory
     :return: string
     """
-    disallowed = ['/', '-', ' ', '.']
+    disallowed = ['/', '-', ' ', '.', '(', ')', '#']
     for item in disallowed:
         path = path.replace(item, '_')
     return path

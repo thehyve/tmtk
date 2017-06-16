@@ -1,7 +1,7 @@
 import requests
 import getpass
 from urllib.parse import urlparse
-from ..utils import CPrint, PathError
+from ..utils import Message, PathError
 
 
 def get_instance_url(url):
@@ -83,5 +83,5 @@ def publish_to_baas(url, json, study_name, username=None):
                   'pick another by setting study_name parameter.'.format(study_name))
             study_name = input('Pick a new name:')
         elif '/trees/' in r.url:
-            CPrint.okay('Study added. You can find it in the BaaS instance.')
+            Message.okay('Study added. You can find it in the BaaS instance.')
             return r.url

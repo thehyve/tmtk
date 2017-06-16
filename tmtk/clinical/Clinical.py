@@ -5,12 +5,12 @@ from .DataFile import DataFile
 from .Variable import Variable, VarID
 from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
-from ..utils import CPrint, PathError, clean_for_namespace, FileBase
+from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin
 from .. import arborist
 from ..utils.batch import TransmartBatch
 
 
-class Clinical:
+class Clinical(ValidateMixin):
     """
     Container class for all clinical data related objects, i.e. the column
     mapping, word mapping, and clinical data files.
@@ -23,6 +23,12 @@ class Clinical:
         self._WordMapping = None
         self._ColumnMapping = None
         self._params = clinical_params
+
+    def __str__(self):
+        return "ClinicalObject ({})".format(self.params.path)
+
+    def __repr__(self):
+        return "ClinicalObject ({})".format(self.params.path)
 
     @property
     def params(self):
@@ -109,7 +115,7 @@ class Clinical:
         self.__dict__[safe_name] = datafile
 
         if datafile.name not in self.ColumnMapping.included_datafiles:
-            CPrint.okay('Adding {!r} as clinical datafile to study.'.format(datafile.name))
+            self.msgs.okay('Adding {!r} as clinical datafile to study.'.format(datafile.name))
             self.ColumnMapping.append_from_datafile(datafile)
 
     def get_variable(self, var_id: tuple):
@@ -199,3 +205,63 @@ class Clinical:
     @property
     def clinical_files(self):
         return [x for k, x in self.__dict__.items() if issubclass(type(x), FileBase)]
+
+    def _validate_clinical_params(self):
+        if os.path.exists(self.params.path):
+            self.msgs.okay('Clinical params found on disk.')
+        else:
+            self.msgs.error('Clinical params not on disk.')
+
+    def _validate_SUBJ_IDs(self):
+        for datafile in self.ColumnMapping.included_datafiles:
+            var_id_list = [var_id for var_id in self.ColumnMapping.subj_id_columns if var_id[0] == datafile]
+
+            # Check for one SUBJ_ID per file
+            if len(var_id_list) == 1:
+
+                subj_id = self.get_variable(var_id_list[0])
+                if len(subj_id.values) == len(subj_id.unique_values):
+                    self.msgs.okay('Found a SUBJ_ID for {} and it has unique values, thats good!'.format(datafile))
+                else:
+                    self.msgs.error('Found a SUBJ_ID for {}, but it has duplicate values.'.format(datafile),
+                                    warning_list=subj_id.values[subj_id.values.duplicated()].unique())
+
+            else:
+                self.msgs.error('Found {} SUBJ_ID for {}'.format(len(var_id_list), datafile))
+
+    def _validate_word_mappings(self):
+
+        # check presence of all data files
+        filenames = self.WordMapping.df.iloc[:, 0].unique()
+        valid_filenames = []
+        for filename in filenames:
+            if filename not in os.listdir(self.params.dirname):
+                msg = "The file {} doesn't exists".format(filename)
+                self.msgs.error(msg)
+            else:
+                absolute_filename = os.path.join(self.params.dirname, filename)
+                valid_filenames.append(absolute_filename)
+
+        dfs = {os.path.basename(filename): pd.read_table(filename) for filename in valid_filenames}
+        for filename, df in dfs.items():
+            column_number = df.shape[1]
+
+            rows = [row for index, row in self.WordMapping.df.iterrows() if row[0] == filename]
+            columns = {row[1] for row in rows}
+
+            out_of_bound = {index for index in columns if index > column_number}
+            for index in out_of_bound:
+                msg = "File {} doesn't has {} columns, but {} columns".format(filename, index, column_number)
+                self.msgs.error(msg)
+
+            correct_columns = columns - out_of_bound
+            for column in correct_columns:
+                mapped_values = {row[2] for row in rows if row[1] == column}
+                index = column - 1
+                data_values = set(df.iloc[:, index].unique())
+
+                unmapped = mapped_values - data_values
+                for unmapped_value in unmapped:
+                    msg = "Value {} is mapped at column {} in file {}. " \
+                          "However the value is not present in the column".format(unmapped_value, column, filename)
+                    self.msgs.warn(msg)
