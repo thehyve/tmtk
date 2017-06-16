@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import json
 
-from ..utils import FileBase, Exceptions, Mappings, MessageCollector, word_map_diff
+from ..utils import FileBase, Exceptions, Mappings
 from ..params import ClinicalParams
 
 
@@ -95,9 +95,9 @@ class OntologyTree:
         for term in children:
             if term.code == code:
                 return term
-            in_children = self._recurse_children(term.children, code)
-            if in_children:
-                return in_children
+            term_from_children = self._recurse_children(term.children, code)
+            if term_from_children:
+                return term_from_children
 
     def _find_code(self, code):
         term = self._recurse_children(self.anchors, code)
@@ -127,4 +127,18 @@ class OntologyTree:
             pass
 
     def json(self):
-        return json.dumps([node.json() for node in self.anchors])
+        ids_ = set()
+
+        def clean_duplicate_ids(children):
+            for term in children:
+                if term.get('data', {}).get('code') in ids_:
+                    term['id'] = None
+                else:
+                    ids_.add(term['id'])
+
+                clean_duplicate_ids(term.get('children'))
+
+        tree = [node.json() for node in self.anchors]
+        clean_duplicate_ids(tree)
+        return json.dumps(tree)
+
