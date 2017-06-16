@@ -264,4 +264,4 @@ class Clinical(ValidateMixin):
                 for unmapped_value in unmapped:
                     msg = "Value {} is mapped at column {} in file {}. " \
                           "However the value is not present in the column".format(unmapped_value, column, filename)
-                    self.msgs.warn(msg)
+                    self.msgs.warning(msg)

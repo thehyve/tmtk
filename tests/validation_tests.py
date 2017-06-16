@@ -4,6 +4,8 @@ import pandas as pd
 from io import StringIO
 from contextlib import redirect_stdout
 
+from tmtk.utils import validate
+
 
 class ValidationTests(unittest.TestCase):
     @classmethod
@@ -79,25 +81,25 @@ class ValidationTests(unittest.TestCase):
         assert self.study.Tags.validate()
 
     def test_invalid_word_map(self):
-        error_template = '\033[95m\033[91mError: {}\033[0m'
-        warning_template = '\033[93mWarning: {}\033[0m'
+        error_template = '>> \033[95m[ERROR] {}\033[0m'
+        warning_template = '>> \033[93m[WARNING] {}\033[0m'
 
         with StringIO() as buffer, redirect_stdout(buffer):
-            self.invalid_study.Clinical.WordMapping.validate(4)
+            self.invalid_study.Clinical.validate(validate.WARNING)
             messages = [line.strip("'") for line in buffer.getvalue().splitlines()]
-
-        assert len(messages) == 3, "Messages length is {} instead of 4".format(len(messages))
+        
+        assert len(messages) == 4, "Messages length is {} instead of 4".format(len(messages))
 
         missing_file_error = "The file {} doesn't exists".format('Not_present_file.txt')
-        assert messages[0] == error_template.format(missing_file_error), "Received {!r}".format(messages[0])
+        self.assertEquals(messages[1], error_template.format(missing_file_error))
 
         column_index_error = "File {} doesn't has {} columns, but {} columns".format('Cell-line_clinical.txt', 10, 9)
-        assert messages[1] == error_template.format(column_index_error), "Received {!r}".format(messages[1])
+        self.assertEquals(messages[2], error_template.format(column_index_error))
 
         unmapped_warning = "Value {} is mapped at column {} in file {}. " \
                            "However the value is not present in the column".format("Not_present", 8,
                                                                                    'Cell-line_clinical.txt')
-        assert messages[2] == warning_template.format(unmapped_warning), "Received {!r}".format(messages[2])
+        self.assertEquals(messages[3], warning_template.format(unmapped_warning))
 
 
 if __name__ == '__main__':
