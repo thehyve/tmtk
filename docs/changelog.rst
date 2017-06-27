@@ -2,6 +2,12 @@
 Changelog
 =========
 
+.. topic::  Version 0.3.2
+
+    * More easily extensible validator functionality
+    * Added multiple validation methods
+    * Fix issue with namespace cleaner
+
 .. topic::  Version 0.3.1
 
     * Replaced deprecated pandas functionality
