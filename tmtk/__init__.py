@@ -3,7 +3,7 @@ from .study import Study
 from .clinical import Clinical
 from .toolbox import wizard
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __author__ = 'Jochem Bijlard <j.bijlard@gmail.com>'
 __all__ = []
 

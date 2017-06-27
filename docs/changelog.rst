@@ -2,7 +2,7 @@
 Changelog
 =========
 
-.. topic::  Version 0.3.2
+.. topic::  Version 0.3.3
 
     * More easily extensible validator functionality
     * Added multiple validation methods
