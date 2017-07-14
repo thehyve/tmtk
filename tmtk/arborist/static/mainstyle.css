@@ -181,9 +181,6 @@ ul.tagbox-header:before {
 div.metadata {
   height: calc(100% - 20px);
 }
-button#tag-save {
-  float: right;
-}
 .tag-description {
   height: 128px;
   max-height: 196px;

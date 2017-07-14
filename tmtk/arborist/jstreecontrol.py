@@ -118,6 +118,9 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
         # Store node type in `data` so it can be changed back after renaming OMIT
         data_args.update({'ctype': node_type})
 
+        # Store column header of variable.
+        data_args.update({'dfh': variable.header})
+
         # Add filename to SUBJ_ID and OMIT, this is a work around for unique path constraint.
         if variable.data_label in {"SUBJ_ID", "OMIT"}:
             concept_path = concept_path.replace("SUBJ ID", "SUBJ_ID")

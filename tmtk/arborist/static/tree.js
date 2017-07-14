@@ -505,6 +505,7 @@ $('#tree-div')
         if (node.data != null) {
             $("#filename").text(node.data['fn']);
             $("#columnnumber").text(node.data['col']);
+            $("#datafile_header").text(node.data['dfh']);
             if (typeof node.data['m5'] !== 'undefined') {
                 $("#magic5").val(node.data['m5']);
             }
