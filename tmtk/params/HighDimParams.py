@@ -14,7 +14,7 @@ class HighDimParams(ParamsBase):
             'DATA_TYPE': {
                 'possible_values': ['R', 'L'],
                 'default': 'R',
-                'helptext': ('Must be R (raw values). Other types are not '
+                'helptext': ('Must be R (raw values) or L (log transformed). Other types are not '
                              'supported yet.')
             },
             "MAP_FILENAME": {
