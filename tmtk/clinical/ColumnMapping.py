@@ -80,18 +80,36 @@ class ColumnMapping(FileBase, ValidateMixin):
         cp = path_join(row[1], row[3])
         return path_converter(cp)
 
-    def set_concept_path(self, var_id: tuple, path, label):
+    def set_concept_path(self, var_id: tuple, path=None, label=None):
         """
-        Return concept path for given variable identifier tuple.
+        Set the concept path or data label for given variable identifier tuple.
 
         :param var_id: tuple of filename and column number.
         :param path: new value for path.
         :param label: new value for data label.
         """
-        if not path and label:
-            raise Exception('Need to give both path and label')
+        if not (path or label):
+            raise Exception('Need to give path or label')
 
-        self.df.loc[tuple(var_id), [self.df.columns[1], self.df.columns[3]]] = path, label
+        columns_to_update = [self.df.columns[1], self.df.columns[3]]
+        new_values = [path, label]
+        if not path:
+            columns_to_update.pop(0)
+            new_values = new_values[1]
+        if not label:
+            columns_to_update.pop(1)
+            new_values = new_values[0]
+
+        self.df.loc[tuple(var_id), columns_to_update] = new_values
+
+    def force_categorical(self, var_id: tuple, enable=True):
+        """
+        Set variable to be forced categorical.
+
+        :param var_id: tuple of filename and column number.
+        :param enable: if True add the 'CATEGORICAL' parameter, else remove it.
+        """
+        self.df.loc[tuple(var_id), self.df.columns[6]] = 'CATEGORICAL' if enable else ''
 
     @staticmethod
     def _df_mods(df):

@@ -184,11 +184,15 @@ class Variable:
         """
         return self.column_map_data.get(Mappings.data_label_s)
 
+    @data_label.setter
+    def data_label(self, value):
+        self.parent.ColumnMapping.set_concept_path(self.var_id, label=value)
+
     @property
     def word_map_dict(self):
         """
         A dictionary with word mapped categoricals. Keys are items in the datafile,
-        values are what they will be mapped to through the word mapping file.  Unmapped
+        values are what they will be mapped to through the word mapping file. Unmapped
         items are also added as key, value pair.
 
         :return: dict.
@@ -210,14 +214,16 @@ class Variable:
     @property
     def forced_categorical(self):
         """Check if forced categorical by entering 'CATEGORICAL' in 7th column.
+        Can be changed by setting this to True or False.
 
         :return: bool.
         """
         return self.column_map_data.get(Mappings.concept_type_s) == 'CATEGORICAL'
 
-    def validate(self, verbosity=2):
-        pass
-    
+    @forced_categorical.setter
+    def forced_categorical(self, value: bool):
+        self.parent.ColumnMapping.force_categorical(self.var_id, bool(value))
+
     @property
     def is_in_wordmap(self):
         """
@@ -233,5 +239,9 @@ class Variable:
 
         mapped_value_column = self.parent.WordMapping.df.columns[2]
         coordinates = (self.var_id.filename, self.var_id.column)
-        mapped_values = self.parent.WordMapping.df.loc[coordinates,mapped_value_column]
+        mapped_values = self.parent.WordMapping.df.loc[coordinates, mapped_value_column]
         return set(mapped_values)-set(self.values)
+
+    @property
+    def header(self):
+        return self.datafile.df.columns[self._zero_column]
