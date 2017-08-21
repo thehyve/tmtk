@@ -38,12 +38,12 @@ $(function () {
 
     function getCookie(name) {
         var cookieValue = null;
-        if (document.cookie && document.cookie != '') {
+        if (document.cookie && document.cookie !== '') {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
                 var cookie = jQuery.trim(cookies[i]);
                 // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
                 }
@@ -79,7 +79,7 @@ function stringTree(){
 function replacer(key, value) {
     var skipped = ['icon', 'li_attr', 'a_attr'];
     if ($.inArray(key, skipped) > -1 ||
-        (key == 'type' && value == 'default')) {
+        (key === 'type' && value === 'default')) {
         return undefined;
     }
     return value;
@@ -102,9 +102,9 @@ function stringTreeTemplate(){
 function replacerTemplate(key, value) {
     var skipped = ['icon', 'li_attr', 'a_attr', 'id', 'state'];
     if ($.inArray(key, skipped) > -1 |
-        (key == 'type' && value != 'tag') ||
-        (key == 'children' && value.length === 0) ||
-        (key == 'data' && !value.tags)) {
+        (key === 'type' && value !== 'tag') ||
+        (key === 'children' && value.length === 0) ||
+        (key === 'data' && !value.tags)) {
         return undefined;
     }
     return value;
@@ -113,7 +113,7 @@ function replacerTemplate(key, value) {
 // Button to check if tag table is filled and if so add new tag
 function add_tags_feedback () {
     var empty = $('.tag-container div').filter(function() {
-        return $(this).text() == "";
+        return $(this).text() === "";
     });
     if (empty.length) {
         showAlert("Fill all fields to add new row.", true);
@@ -165,9 +165,9 @@ $("form#datanodedetails").submit(function (e) {
     var new_label = $("#datalabel").val();
     var updated = jstree.rename_node(node, new_label);
 
-    if (node.type != 'default'){
+    if (node.type !== 'default'){
 
-        if (typeof node.data == 'undefined') {
+        if (typeof node.data === 'undefined') {
             node.data = {};
         }
 
@@ -184,7 +184,7 @@ $("form#datanodedetails").submit(function (e) {
             if (is_special && (['categorical', 'numeric', 'empty'].indexOf(node.type) > -1 )) {
                 new_type = 'codeleaf';
                 // If changed from SUBJ_ID or OMIT to regular, change type back to original
-            } else if ((node.type == 'codeleaf') && (!is_special)) {
+            } else if ((node.type === 'codeleaf') && (!is_special)) {
                 new_type = node.data['ctype'];
             }
             jstree.set_type(node, new_type);
@@ -201,14 +201,14 @@ function enableRightFields(type) {
         $('.metadata').prop('hidden', true);
         $('.hdtagdata').prop('hidden', true);
         $('.dfv').prop('hidden', true);
-    } else if (type == 'tag') {
+    } else if (type === 'tag') {
         console.log('Enable tags fields.');
         $('.metadata').prop('hidden', false);
         $('.clinicaldata').prop('hidden', true);
         $('.label').prop('hidden', true);
         $('.hdtagdata').prop('hidden', true);
         $('.dfv').prop('hidden', true);
-    } else if (type == 'highdim') {
+    } else if (type === 'highdim') {
         console.log('Enable highdim fields.');
         $('.metadata').prop('hidden', true);
         $('.clinicaldata').prop('hidden', true);
@@ -274,10 +274,10 @@ function customMenu(node) {
 
                 var tagNode;
                 // if not tag selected, check if has tag child
-                tagNode = node.type == 'tag' ? node : jstree.get_node(node.children[0]);
+                tagNode = node.type === 'tag' ? node : jstree.get_node(node.children[0]);
 
                 // if not tag child, create one.
-                if (tagNode.type != "tag") {
+                if (tagNode.type !== "tag") {
                     jstree.create_node(node, {"tags": {}, "type": 'tag', "text": "Tags"}, "first", function(new_node){
                         console.log('pasting into: ', new_node);
                         tagNode = new_node;
@@ -302,7 +302,7 @@ function customMenu(node) {
             }
         }
     };
-    if (node.type != 'tag'){
+    if (node.type !== 'tag'){
         delete items.copyTags;
     } else {
         delete items.addTags;
@@ -318,14 +318,14 @@ function sortTags () {
 
         var aEmpty = false;
         $(a).find('span').each(function() {
-            if ($.trim($(this).html()) == '') {
+            if ($.trim($(this).html()) === '') {
                 aEmpty = true;
             }
         });
 
         var bEmpty = false;
         $(b).find('span').each(function() {
-            if ($.trim($(this).html()) == '') {
+            if ($.trim($(this).html()) === '') {
                 bEmpty = true;
             }
         });
@@ -394,7 +394,7 @@ function activateTagPopover() {
             var listItem = $(this);
 
             $('.popover-content').find(':input').on('keypress', function (e) {
-                if ((e.keyCode || e.which) == 13) {
+                if ((e.keyCode || e.which) === 13) {
                     e.preventDefault();
                     if(event.shiftKey) {
                         $("button#tag-add").click();
@@ -466,7 +466,7 @@ $('#tree-div')
         o = jstree.get_node(e.currentTarget);
         if (e.which === 46 || e.which === 8) {
             // remove node with forward or backward delete
-            if (o == "#") {
+            if (o === "#") {
                 showAlert("Cannot remove root nodes.", true);
                 return undefined;
             }
@@ -478,7 +478,7 @@ $('#tree-div')
             // edit current node with enter
             jstree.deselect_all();
             jstree.select_node(o);
-            if (node.type != 'tag'){
+            if (node.type !== 'tag'){
                 jstree.edit(o, null, function (new_node, status) {
                     $("#datalabel").val(new_node.text);
                     $("form#datanodedetails").submit(); // To make changes to nodes if applicable.
@@ -496,13 +496,15 @@ $('#tree-div')
     .on('select_node.jstree', function (e, data) {
         $(".trigger").popover('hide'); // remove all existing popovers;
         node = data.instance.get_node(data.selected[0]);
+        console.log('Node selected: ', node);
+
         $("form#datanodedetails")[0].reset();
         $("#datalabel").val(node.text);
         $("#nodetype").text(prettyType(node.type));
 
         enableRightFields(node.type);
 
-        if (node.data != null) {
+        if (node.data !== null) {
             $("#filename").text(node.data['fn']);
             $("#columnnumber").text(node.data['col']);
             $("#datafile_header").text(node.data['dfh']);
@@ -515,11 +517,11 @@ $('#tree-div')
             if (node.data['cty'] === 'CATEGORICAL') {
                 $("#fc").prop('checked', true);
             }
-            if ((node.type == 'alpha') && (node.data['dfv'] !== node.text)) {
+            if ((node.type === 'alpha') && (node.data['dfv'] !== node.text)) {
                 $('.dfv').prop('hidden', false);
                 $("#datafile_value").text(node.data['dfv']);
             }
-            if ((node.type == 'highdim') && (node.data.hd_args !== 'undefined')) {
+            if ((node.type === 'highdim') && (node.data.hd_args !== 'undefined')) {
                 $("#hd_type").text(node.data.hd_args['hd_type']);
                 $("#hd_sample").text(node.data.hd_args['hd_sample']);
                 $("#hd_tissue").text(node.data.hd_args['hd_tissue']);
@@ -557,8 +559,14 @@ $('#tree-div')
         },
         'dnd': {
             'is_draggable': function (node) {
-                console.log('is_draggable called: ', node[0]);
-                return (node[0].type != 'alpha');
+                var previously_selected = jstree.get_selected();
+                for (var i = 0; i < previously_selected.length; i++) {
+                    var prev_node = jstree.get_node(previously_selected[i]);
+                    if (prev_node.type === 'alpha') {
+                        return false
+                    }
+                }
+                return (node[0].type !== 'alpha');
             }
         },
         "unique": {case_sensitive : true},
@@ -602,9 +610,9 @@ $('#tree-div')
             var a_folder = ['default', 'categorical'].indexOf(type_a) > -1;
             var b_folder = ['default', 'categorical'].indexOf(type_b) > -1;
 
-            if ((type_a == 'tag') && (type_b != 'tag')) {
+            if ((type_a === 'tag') && (type_b !== 'tag')) {
                 return -1;
-            } else if ((type_a != 'tag') && (type_b == 'tag')) {
+            } else if ((type_a !== 'tag') && (type_b === 'tag')) {
                 return 1;
             } else if (a_folder && !b_folder) {
                 return -1;
@@ -619,7 +627,7 @@ $('#tree-div')
 
 function merge() {
     var options, name, src, copy, copyIsArray, clone, targetKey, target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
-    var currentId = typeof arguments[length - 1] == 'string' ? arguments[length - 1] : null;
+    var currentId = typeof arguments[length - 1] === 'string' ? arguments[length - 1] : null;
     if (currentId) {
         length = length - 1;
     }
@@ -644,7 +652,7 @@ function merge() {
 
     for (; i < length; i++) {
         // Only deal with non-null/undefined values
-        if ((options = arguments[i]) != null) {
+        if ((options = arguments[i]) !== null) {
             // Extend the base object
             for (name in options) {
                 if (!options.hasOwnProperty(name)) {
@@ -780,7 +788,7 @@ $(document).ready(function(){
 
 function changeWeight(up) {
     var target = $('.tag-container .active').children('.list-tag-weight');
-    if (target.length != 1) {
+    if (target.length !== 1) {
         return undefined;
     }
     var increment = up ? 1 : -1;
