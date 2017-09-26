@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import random
 import string
+import math
 
 from tmtk.study import Study
 
@@ -149,40 +150,59 @@ class RandomChoice:
 
 class RandomStudy(Study):
 
-    def __init__(self, subjects, numerical=0, categorical=0):
+    def __init__(self, subjects=0, numerical=0, categorical=0, max_depth=None):
         super().__init__()
         self.subjects = subjects
-        self.numerical = numerical
-        self.categorical = categorical
         self.study_id = 'RANDOM_STUDY_{}'.format(random.randint(1000, 9999))
         self._ids = {'SUBJ_ID', 'AGE', 'GENDER', 'RACE'}
+        self._subject_ids = ["{}_SUBJECT{}".format(self.study_id, i) for i in range(self.subjects)]
+        self.max_depth = max_depth
+        total_columns = numerical + categorical
+        proportion_numerical = numerical / total_columns
 
-        self.Clinical.add_datafile(filename='random_clinical_data.tsv', dataframe=self.create_clinical_df())
+        step_size = 500
+        steps_n = int(math.ceil(total_columns / step_size))
+
+        print('Files to create: {}'.format(steps_n))
+        for i in range(steps_n):
+            columns_for_file = min(total_columns - step_size * i, step_size)
+            numerical = int(math.ceil(proportion_numerical * columns_for_file))
+            categorical = int(math.ceil((1 - proportion_numerical) * columns_for_file))
+            first = i == 0
+
+            new_df = self.create_clinical_df(numerical, categorical, first)
+            self.Clinical.add_datafile(filename='random_clinical_data{}.tsv'.format(i + 1), dataframe=new_df)
+            del new_df
 
         self.Clinical.apply_column_mapping_template(self._build_tree_template())
 
-    def create_clinical_df(self):
-        clinical_dict = {'SUBJ_ID': ["{}_SUBJECT{}".format(self.study_id, i) for i in range(self.subjects)]}
+    def create_clinical_df(self, numerical=0, categorical=0, first=False):
+        clinical_dict = {'SUBJ_ID': self._subject_ids}
 
-        if self.numerical:
+        if numerical and first:
             clinical_dict.update({"AGE": RandomNormal(mean=50, sigma=15).pick(self.subjects)})
+            numerical -= 1
 
-            for i in range(1, self.numerical):
-                clinical_dict[self.new_id()] = RandomNormal(mean=random.randint(i * 20, i * 40),
-                                                            sigma=random.randint(i * 3, i * 5)
-                                                            ).pick(self.subjects)
-
-        if self.categorical:
+        if categorical and first:
             clinical_dict.update({"GENDER": RandomChoice(['Male', 'Female'], [0.48, 0.52]).pick(self.subjects)})
             clinical_dict.update({"RACE": RandomChoice(['ELf', 'Smurf', 'Orc', 'Cowboy', 'Android']).pick(self.subjects)})
+            categorical -= 2
 
-            for i in range(1, self.categorical - 1):
-                clinical_dict[self.new_id()] = RandomChoice(random.sample(the_bio_glossary, random.randint(1, 9))
-                                                            ).pick(self.subjects)
+        for i in range(numerical):
+            clinical_dict[self.new_id()] = RandomNormal(mean=random.randint(i * 20, i * 40),
+                                                        sigma=random.randint(i * 3, i * 5)
+                                                        ).pick(self.subjects)
+
+        for i in range(max(categorical, 0)):
+            clinical_dict[self.new_id()] = RandomChoice(random.sample(the_bio_glossary, random.randint(1, 9))
+                                                        ).pick(self.subjects)
 
         clinical_dict.update({'SUBJ_ID': ["{}_SUBJECT{}".format(self.study_id, i) for i in range(self.subjects)]})
 
-        return pd.DataFrame(clinical_dict)
+        return_df = pd.DataFrame(clinical_dict)
+
+        del clinical_dict
+        return return_df
 
     def new_id(self, size=8):
         new_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(size))
@@ -240,12 +260,19 @@ class RandomStudy(Study):
         total_parents = int(n / 5 + 1)
         parents_list = [self._get_combined_parent() for i in range(total_parents)]
 
+        overflow = []
+
         for parent in parents_list:
             random_pick = random.randint(0, len(parents) - 1)
 
             append_to = parents[random_pick].copy()
-            # Add create copy and add current path to list of possible parents
-            parents.append(append_to + [parent])
 
+            if self.max_depth and (len(append_to) + 1) > self.max_depth:
+                overflow.append(append_to + [parent])
+            else:
+                # Add create copy and add current path to list of possible parents
+                parents.append(append_to + [parent])
+
+        parents += overflow
         parents.remove([''])
         return ['\\'.join(parent) for parent in parents]

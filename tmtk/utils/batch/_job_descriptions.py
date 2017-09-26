@@ -20,7 +20,7 @@ class JobStepsDescription:
     def description_of(self, step):
 
         if not self.steps.get(step):
-            print('Job description not found for: {}'.format(step))
+            pass
         else:
             return self.steps.get(step)
 
@@ -112,6 +112,7 @@ class TagsJob(JobStepsDescription):
         ('ValidateTopNodePreexistence', 'getting current concepts..'),
         ('tagsLoadStep', 'loading tags..'),
         ]
+
 
 job_map = {'clinical.params': ClinicalJob(),
            'cnv.params': HighDimJob(),
