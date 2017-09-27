@@ -234,13 +234,25 @@ class Variable:
         return tuple(self.var_id) in self.parent.WordMapping.df.index
     
     def word_mapped_not_present(self):
+        """
+        Gets the values that are in the word map but not in the data file.
+
+        :return: set.
+        """
         if not self.is_in_wordmap:
             return set()
 
         mapped_value_column = self.parent.WordMapping.df.columns[2]
-        coordinates = (self.var_id.filename, self.var_id.column)
-        mapped_values = self.parent.WordMapping.df.loc[coordinates, mapped_value_column]
-        return set(mapped_values)-set(self.values)
+
+        t_index = tuple(self.var_id)
+        mapped_values = self.parent.WordMapping.df.loc[t_index, mapped_value_column]
+
+        if type(mapped_values) != str:
+            mapped_values = set(mapped_values)
+        else:
+            mapped_values = {mapped_values}
+
+        return mapped_values - set(self.values)
 
     @property
     def header(self):
