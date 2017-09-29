@@ -33,7 +33,7 @@ class IncompletenessTests(unittest.TestCase):
         tmtk.arborist.update_study_from_json(self.study, json_data)
 
     def test_create_tags(self):
-        self.study.add_metadata()
+        self.study.ensure_metadata()
         assert self.study.Params.tags.is_viable()
         assert self.study.Tags.df.shape == (0, 4)
 

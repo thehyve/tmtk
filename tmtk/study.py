@@ -264,7 +264,7 @@ class Study(ValidateMixin):
         new_url = arborist.publish_to_baas(url, json_data, study_name, username)
         return HTML('<a target="_blank" href="{l}">{l}</a>'.format(l=new_url))
 
-    def add_metadata(self):
+    def ensure_metadata(self):
         """Create the Tags object for this study.  Does nothing if it is already present."""
         if hasattr(self, 'Tags'):
             self.msgs.okay("Study metadata tags found.")
@@ -307,6 +307,16 @@ class Study(ValidateMixin):
         else:
             new_path = os.path.join(self.study_folder, 'clinical', 'clinical.params')
             self.Clinical.params = self.Params.add_params(new_path)
+
+    def apply_blueprint(self, blueprint):
+
+        if os.path.exists(blueprint):
+            with open(blueprint) as f:
+                blueprint = json.load(f)
+
+        self.Clinical.apply_blueprint(blueprint)
+        self.ensure_metadata()
+        self.Tags.apply_blueprint(blueprint)
 
     @property
     def load_to(self):

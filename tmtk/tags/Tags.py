@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from ..utils import Exceptions, FileBase, Mappings, path_converter, TransmartBatch, ValidateMixin
+from ..utils import Exceptions, FileBase, Mappings, path_converter, TransmartBatch, ValidateMixin, path_join
 from ..params import TagsParams
 
 
@@ -67,6 +67,36 @@ class MetaDataTags(FileBase, ValidateMixin):
             tags_dict = {}
             self.df[associated_tags].apply(lambda x: tags_dict.update({x[1]: (x[2], x[3])}), axis=1)
             yield path, tags_dict
+
+    def apply_blueprint(self, blueprint):
+        """
+        Add metadata tags from a blueprint file.
+
+        :param blueprint:
+        :return:
+        """
+        for id_, blueprint_var in blueprint.items():
+            tags = blueprint_var.get('metadata_tags')
+            if not tags:
+                continue
+
+            path = Mappings.EXT_PATH_DELIM + path_join(blueprint_var.get('path'), blueprint_var.get('label'))
+
+            for title, description in tags.items():
+                path = self._convert_path(path)
+                one = self.df.iloc[:, 0] == path
+                two = self.df.iloc[:, 1] == title
+                index = self.df[one & two].index
+
+                if len(index):
+                    self.df.drop(index, inplace=True)
+
+                self.df = self.df.append(
+                    pd.DataFrame(
+                        [[path, title, description, 5]],
+                        columns=self.df.columns
+                    ),
+                    ignore_index=True)
 
     @staticmethod
     def create_df():
