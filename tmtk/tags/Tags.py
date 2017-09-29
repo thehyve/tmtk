@@ -51,8 +51,11 @@ class MetaDataTags(FileBase, ValidateMixin):
     def _convert_path(x):
         starts_with_delim = x.startswith(Mappings.PATH_DELIM) or x.startswith(Mappings.EXT_PATH_DELIM)
         x = path_converter(x, internal=False)
+
+        # Put back the delimiter if it was removed in the previous step.
         if starts_with_delim:
             x = Mappings.EXT_PATH_DELIM + x
+
         return x.strip()
 
     def get_tags(self):

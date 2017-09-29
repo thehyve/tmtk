@@ -3,6 +3,7 @@ import pandas as pd
 import random
 from IPython.display import YouTubeVideo
 import hashlib
+import re
 
 from .Exceptions import *
 from .mappings import Mappings
@@ -151,11 +152,14 @@ def path_converter(path, internal=False):
     :return: delimited path
     """
 
-    delimiter = Mappings.PATH_DELIM if internal else Mappings.EXT_PATH_DELIM
+    delimiter = Mappings.PATH_DELIM
     path = path.replace('\\', delimiter)
     path = path.replace('+', delimiter)
     path = path.replace('_', ' ')
     path = path.strip(delimiter)
+
+    # Demultiply the path delimiters
+    path = re.sub(r'{}+'.format(delimiter*2), r'{}'.format(delimiter), path)
 
     if not internal:
         path = path.replace(Mappings.PATH_DELIM, Mappings.EXT_PATH_DELIM)

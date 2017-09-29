@@ -5,7 +5,7 @@ from .DataFile import DataFile
 from .Variable import Variable, VarID
 from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
-from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin
+from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin, path_converter
 from .. import arborist
 from ..utils.batch import TransmartBatch
 
@@ -59,7 +59,7 @@ class Clinical(ValidateMixin):
     def WordMapping(self, value):
         self._WordMapping = value
 
-    def apply_blueprint(self, blueprint):
+    def apply_blueprint(self, blueprint, omit_missing=False):
         """
         Update the column mapping by applying a template.
 
@@ -94,16 +94,21 @@ class Clinical(ValidateMixin):
                 }
               }
             }
+        :param omit_missing: if True, then variable that are not present in the blueprint
+        will be set to OMIT.
         """
         for var_id, variable in self.all_variables.items():
 
             blueprint_var = blueprint.get(variable.header)
 
             if not blueprint_var:
+                self.msgs.info("Column with header {!r} not found in blueprint.".format(variable.header))
+                if omit_missing:
+                    variable.data_label = 'OMIT'
                 continue
 
             if blueprint_var.get('path'):
-                variable.concept_path = blueprint_var.get('path')
+                variable.concept_path = path_converter(blueprint_var.get('path'))
 
             if blueprint_var.get('label'):
                 variable.data_label = blueprint_var.get('label')

@@ -308,13 +308,20 @@ class Study(ValidateMixin):
             new_path = os.path.join(self.study_folder, 'clinical', 'clinical.params')
             self.Clinical.params = self.Params.add_params(new_path)
 
-    def apply_blueprint(self, blueprint):
+    def apply_blueprint(self, blueprint, omit_missing=False):
+        """
+        Apply a blueprint to current study.
+
+        :param blueprint: blueprint dictionary or link to blueprint json on disk.
+        :param omit_missing: if True, then variable that are not present in the blueprint
+        will be set to OMIT.
+        """
 
         if os.path.exists(blueprint):
             with open(blueprint) as f:
                 blueprint = json.load(f)
 
-        self.Clinical.apply_blueprint(blueprint)
+        self.Clinical.apply_blueprint(blueprint, omit_missing)
         self.ensure_metadata()
         self.Tags.apply_blueprint(blueprint)
 
