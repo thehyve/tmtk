@@ -160,6 +160,14 @@ class ConceptTree:
         if json_data:
             if type(json_data) == str:
                 json_data = json.loads(json_data)
+
+                # This to get version2 concept tree
+                try:
+                    if json_data.get("version") == "2":
+                        json_data = json_data.get('concept_tree')
+                except AttributeError:
+                    pass
+
             self._extract_node_list(json_data)
 
     def add_node(self, path, var_id=None, node_type=None, data_args=None):

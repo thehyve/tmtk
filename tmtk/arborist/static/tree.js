@@ -1,5 +1,6 @@
-var node, jstree, tagBuffer;
+var node, jstree, tagBuffer, ontologyTree;
 var defaultTagWeight = 5;
+var hasOntology = true;
 
 // Add jstree json to the submit form as hidden parameter.
 $("#edit_form").submit( function() {
@@ -171,6 +172,7 @@ $("form#datanodedetails").submit(function (e) {
             node.data = {};
         }
 
+        console.log($("#magic5").val(), $("#magic6").val());
         node.data['m5'] = $("#magic5").val();
         node.data['m6'] = $("#magic6").val();
         node.data['cty'] = $("#fc").prop('checked') ? 'CATEGORICAL' : '';
@@ -447,7 +449,7 @@ $(function () {
     });
 });
 
-// Create the tree
+// Create the main tree
 $('#tree-div')
 // listen for event
     .on('loaded.jstree', function() {
@@ -512,7 +514,12 @@ $('#tree-div')
                 $("#magic5").val(node.data['m5']);
             }
             if (typeof node.data['m6'] !== 'undefined') {
-                $("#magic6").val(node.data['m6']);
+                var cvcd = node.data['m6'];
+                if (hasOntology && ontologyTree.get_node(cvcd)) {
+                    ontologyTree.deselect_all();
+                    ontologyTree.select_node(cvcd);
+                }
+                $("#magic6").val(cvcd);
             }
             if (node.data['cty'] === 'CATEGORICAL') {
                 $("#fc").prop('checked', true);
@@ -554,7 +561,7 @@ $('#tree-div')
     // create the instance
     .jstree({
         'core': {
-            'data': treeData,
+            'data': conceptTreeData,
             "check_callback": true
         },
         'dnd': {
@@ -624,6 +631,67 @@ $('#tree-div')
         },
         "plugins": ["dnd", "sort", "contextmenu", "types", "wholerow", "search"]
     });
+
+$(function () {
+    var to = false;
+    $('#ontology-search').keyup(function () {
+        var spinner = $("#ontology-search-spinner");
+        spinner.show();
+        var v = $('#ontology-search').val();
+        if(to) { clearTimeout(to); }
+        to = setTimeout(function () {
+            ontologyTree.search(v);
+        }, 400);
+        if(!v.length){
+            spinner.hide();
+        }
+    });
+});
+
+
+if (!ontologyTreeData.length) {
+    console.log('No ontology tree found.');
+    hasOntology = false;
+    $('.ontology-tree-container').remove();
+} else {
+// Create the ontology tree
+    $('#ontology-tree-div')
+    // listen for event
+        .on('loaded.jstree', function () {
+            ontologyTree = $(this).jstree(true);
+            $("#ontology-search-spinner").hide();
+        })
+        .on('search.jstree', function () {
+            $("#ontology-search-spinner").hide();
+        })
+        .on('select_node.jstree', function (e, data) {
+
+            var ontologyNode = data.instance.get_node(data.selected[0]);
+            console.log('Ontology code selected: ', ontologyNode);
+
+            $("#magic6").val(ontologyNode.data.code);
+
+            $("#ontology-label").text(ontologyNode.text);
+            $("#ontology-code")
+                .attr('href', ontologyNode.data.uri)
+                .text(ontologyNode.data.code);
+        })
+        // create the instance
+        .jstree({
+            'core': {
+                'data': ontologyTreeData
+            },
+            'search': {
+                'fuzzy': true
+            },
+            "types": {
+                "default": {
+                    "icon": static_base + "/images/tree/green_info.png"
+                }
+            },
+            "plugins": ["types", "search"]
+        });
+}
 
 function merge() {
     var options, name, src, copy, copyIsArray, clone, targetKey, target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;

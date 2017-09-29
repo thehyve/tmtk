@@ -81,12 +81,21 @@ class TransmartArborist(IPythonHandler):
         self.log.info("Launching Arborist.")
 
         with open(tmp_json, 'r') as f:
-            treejson = f.read()
+            treejson = json.loads(f.read())
+
+        try:
+            if treejson.get('version') == "2":
+                ontology_tree = treejson.get('ontology_tree')
+                concept_tree = treejson.get('concept_tree')
+        except AttributeError:
+            concept_tree = json.dumps(treejson)
+            ontology_tree = {}
 
         static_base = '{}nbextensions/transmart-arborist/'.format(self.base_url)
 
         self.finish(self.render_template("jupyter_embedded.html",
-                                         json=treejson,
+                                         concept_tree=concept_tree,
+                                         ontology_tree=ontology_tree,
                                          base_url=self.base_url,
                                          static_base=static_base))
 
