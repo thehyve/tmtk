@@ -99,10 +99,10 @@ class Clinical(ValidateMixin):
         """
         for var_id, variable in self.all_variables.items():
 
-            blueprint_var = blueprint.get(variable.header)
+            blueprint_var = blueprint.get(variable.header.strip())
 
             if not blueprint_var:
-                self.msgs.info("Column with header {!r} not found in blueprint.".format(variable.header))
+                self.msgs.info("Removing column with header {!r}. Not found in blueprint.".format(variable.header))
                 if omit_missing:
                     variable.data_label = 'OMIT'
                 continue
@@ -121,10 +121,22 @@ class Clinical(ValidateMixin):
 
             expected_numerical = blueprint_var.get('expected_numerical')
             if expected_numerical and variable.is_numeric_in_datafile:
-                min_const = float(expected_numerical.get('min', '-Inf'))
-                max_const = float(expected_numerical.get('max', 'Inf'))
+                min_expected = expected_numerical.get('min', '')
+                try:
+                    min_const = float(min_expected if min_expected != '' else '-Inf')
+                except ValueError:
+                    self.msgs.warning("Expected numerical for min constraint ({}), got {!r}."
+                                      .format(variable.header, min_expected))
+
+                max_expected = expected_numerical.get('max', '')
+                try:
+                    max_const = float(max_expected if max_expected != '' else 'Inf')
+                except ValueError:
+                    self.msgs.warning("Expected numerical for max constraint ({}), got {!r}."
+                                      .format(variable.header, max_expected))
+
                 if min_const > variable.min or max_const < variable.max:
-                    self.msgs.warning("Value constraints exceeded for {}: {} to {}, where datafile has {}..{}".
+                    self.msgs.warning("Value constraints exceeded for {}: {} to {}, where datafile has min:{}, max:{}".
                                       format(variable.header, min_const, max_const, variable.min, variable.max)
                                       )
 
