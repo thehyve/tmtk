@@ -1,4 +1,4 @@
-from ..utils import Mappings, path_converter, is_numeric
+from ..utils import Mappings, path_converter, is_numeric, path_join
 
 
 class VarID:
@@ -257,3 +257,11 @@ class Variable:
     @property
     def header(self):
         return self.datafile.df.columns[self._zero_column]
+
+    @property
+    def visual_attributes(self):
+        return 'LAN' if self.is_numeric else 'LAC'
+
+    @property
+    def concept_code(self):
+        return self.parent.ColumnMapping.select_row(self.var_id)[4] or self.concept_path

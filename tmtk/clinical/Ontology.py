@@ -57,13 +57,20 @@ class OntologyMapping(FileBase):
     #     # df = self.build_index(df)
     #     # return df
 
+    @property
+    def concepts(self):
+        return self.df.apply(lambda x: Concept(x[2], x[3], x[4], str(x[5]).split(',')),
+                             axis=1)
+
+    @property
+    def tree(self):
+        return OntologyTree(self.concepts)
+
     def as_json(self):
-        ontology_terms = self.df.apply(lambda x: OntologyTerm(x[2], x[3], x[4], str(x[5]).split(',')),
-                                       axis=1)
-        return OntologyTree(ontology_terms).json()
+        return self.tree.json()
 
 
-class OntologyTerm:
+class Concept:
     def __init__(self, code, label, uri, parents=None):
         self.code = code
         self.label = label
@@ -126,7 +133,7 @@ class OntologyTree:
         while self._iterate_hierarchy():
             pass
 
-    def json(self):
+    def json(self, as_object=False):
         ids_ = set()
 
         def clean_duplicate_ids(children):
@@ -140,5 +147,18 @@ class OntologyTree:
 
         tree = [node.json() for node in self.anchors]
         clean_duplicate_ids(tree)
-        return json.dumps(tree)
+        if as_object:
+            return tree
+        else:
+            return json.dumps(tree)
 
+    def get_concept_rows(self):
+        yield from self._get_next_concept_row(self.json(as_object=True), path='')
+
+    def _get_next_concept_row(self, children, path):
+        for node in children:
+            path += '\\' + node.get('text')
+            if node.get('children'):
+                yield from self._get_next_concept_row(node.get('children'), path)
+            if node.get('id'):
+                yield node.get('id'), path, node.get('text')
