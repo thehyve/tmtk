@@ -128,7 +128,7 @@ def update_study_from_json(study, json_data):
     # Some checks for whether to create Tags in the study.
     ct_tags = concept_tree.tags_file
     if hasattr(study, 'Tags') or ct_tags.shape[0]:
-        study.add_metadata()
+        study.ensure_metadata()
         study.Tags.df = concept_tree.tags_file
 
     high_dim_paths = concept_tree.high_dim_paths

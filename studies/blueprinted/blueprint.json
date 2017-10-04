@@ -1,0 +1,29 @@
+{
+  "GENDER": {
+    "path": "Characteristics\\Demographics",
+    "label": "Gender",
+    "metadata_tags": {
+      "Info": "As measured when born."
+    },
+    "force_categorical": "Y",
+    "word_map": {
+      "M": "Male",
+      "F": "Female"
+    },
+    "expected_categorical": [
+      "M",
+      "F"
+    ]
+  },
+  "BPBASE": {
+    "path": "Lab results\\Blood",
+    "label": "Blood pressure (baseline)",
+    "expected_numerical": {
+      "min": 30,
+      "max": 180
+    }
+  },
+  "subject_identifier": {
+    "label": "SUBJ_ID"
+  }
+}

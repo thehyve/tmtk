@@ -174,7 +174,7 @@ class RandomStudy(Study):
             self.Clinical.add_datafile(filename='random_clinical_data{}.tsv'.format(i + 1), dataframe=new_df)
             del new_df
 
-        self.Clinical.apply_column_mapping_template(self._build_tree_template())
+        self.Clinical.apply_blueprint(self._build_tree_template())
 
     def create_clinical_df(self, numerical=0, categorical=0, first=False):
         clinical_dict = {'SUBJ_ID': self._subject_ids}
@@ -189,8 +189,8 @@ class RandomStudy(Study):
             categorical -= 2
 
         for i in range(numerical):
-            clinical_dict[self.new_id()] = RandomNormal(mean=random.randint(i * 20, i * 40),
-                                                        sigma=random.randint(i * 3, i * 5)
+            clinical_dict[self.new_id()] = RandomNormal(mean=random.randint(i+2 * 20, i+2 * 40),
+                                                        sigma=random.randint(i+1 * 3, i+1 * 5)
                                                         ).pick(self.subjects)
 
         for i in range(max(categorical, 0)):

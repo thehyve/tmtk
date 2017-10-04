@@ -5,7 +5,7 @@ from .DataFile import DataFile
 from .Variable import Variable, VarID
 from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
-from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin
+from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin, path_converter
 from .. import arborist
 from ..utils.batch import TransmartBatch
 
@@ -59,27 +59,94 @@ class Clinical(ValidateMixin):
     def WordMapping(self, value):
         self._WordMapping = value
 
-    def apply_column_mapping_template(self, template):
+    def apply_blueprint(self, blueprint, omit_missing=False):
         """
         Update the column mapping by applying a template.
 
-        :param template: expected input is a dictionary where keys are column names
+        :param blueprint: expected input is a dictionary where keys are column names
             as found in clinical datafiles. Each column header name has a dictionary
-            describing the path and data label. For example:
+            describing the path and data label and other information. For example:
 
-            {'GENDER': {'path': 'Characteristics\Demographics',
-                        'label': 'Gender'},
-             'BPBASE': {'path': 'Lab results\Blood',
-                        'label': 'Blood pressure (baseline)'}
+            {
+              "GENDER": {
+                "path": "Characteristics\\Demographics",
+                "label": "Gender",
+                "metadata_tags": {
+                  "Info": "As measured when born."
+                },
+                "force_categorical": "Y",
+                "word_map": {
+                  "goo": "values",
+                  "pile": "list"
+                },
+                "expected_categorical": [
+                  "pile",
+                  "of",
+                  "goo"
+                ]
+              },
+              "BPBASE": {
+                "path": "Lab results\\Blood",
+                "label": "Blood pressure (baseline)",
+                "expected_numerical": {
+                  "min": 1,
+                  "max": 9
+                }
+              }
             }
+        :param omit_missing: if True, then variable that are not present in the blueprint
+        will be set to OMIT.
         """
-        for datafile in self.ColumnMapping.included_datafiles:
-            for index, code in enumerate(self.get_datafile(datafile).df.columns, start=1):
-                new_path = template.get(code, {}).get('path')
-                new_label = template.get(code, {}).get('label')
-                if not new_path and new_label:
-                    continue
-                self.ColumnMapping.set_concept_path((datafile, index), new_path, new_label)
+        for var_id, variable in self.all_variables.items():
+
+            blueprint_var = blueprint.get(variable.header.strip())
+
+            if not blueprint_var:
+                self.msgs.info("Removing column with header {!r}. Not found in blueprint.".format(variable.header))
+                if omit_missing:
+                    variable.data_label = 'OMIT'
+                continue
+
+            if blueprint_var.get('path'):
+                variable.concept_path = path_converter(blueprint_var.get('path'))
+
+            if blueprint_var.get('label'):
+                variable.data_label = blueprint_var.get('label')
+
+            if blueprint_var.get('force_categorical'):
+                variable.forced_categorical = blueprint_var.get('force_categorical') == "Y"
+
+            if blueprint_var.get('word_map'):
+                variable.word_map_dict = blueprint_var.get('word_map')
+
+            expected_numerical = blueprint_var.get('expected_numerical')
+            if expected_numerical and variable.is_numeric_in_datafile:
+                min_expected = expected_numerical.get('min', '')
+                try:
+                    min_const = float(min_expected if min_expected != '' else '-Inf')
+                except ValueError:
+                    self.msgs.warning("Expected numerical for min constraint ({}), got {!r}."
+                                      .format(variable.header, min_expected))
+
+                max_expected = expected_numerical.get('max', '')
+                try:
+                    max_const = float(max_expected if max_expected != '' else 'Inf')
+                except ValueError:
+                    self.msgs.warning("Expected numerical for max constraint ({}), got {!r}."
+                                      .format(variable.header, max_expected))
+
+                if min_const > variable.min or max_const < variable.max:
+                    self.msgs.warning("Value constraints exceeded for {}: {} to {}, where datafile has min:{}, max:{}".
+                                      format(variable.header, min_const, max_const, variable.min, variable.max)
+                                      )
+
+            expected_categorical = blueprint_var.get('expected_categorical')
+            if expected_categorical:
+                unexpected = set(variable.unique_values) - set(expected_categorical)
+                if unexpected:
+                    self.msgs.warning("Unexpected values for {}. Expected: {}. Also found: {}".
+                                      format(variable.header, expected_categorical, list(unexpected))
+                                      )
 
     def add_datafile(self, filename, dataframe=None):
         """
