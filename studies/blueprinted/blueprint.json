@@ -1,6 +1,6 @@
 {
   "GENDER": {
-    "path": "Characteristics\\Demographics",
+    "path": "Characteristics\\Demographics\\_information\\+other",
     "label": "Gender",
     "metadata_tags": {
       "Info": "As measured when born."

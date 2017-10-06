@@ -30,6 +30,14 @@ class BlueprintTests(unittest.TestCase):
         self.assertEqual(var.min, 57.468)
         self.assertEqual(var.max, 263.671)
 
+    def test_underscore_plus(self):
+        assert '\\Demographics\\_information\\+other' in self.study.Clinical.ColumnMapping.df['Category Code'][1]
+        json_data = self.study.concept_tree_json
+        assert 'Demographics_information+other' in json_data
+        json_data = json_data.replace('_information', '_info+_mation')
+        tmtk.arborist.update_study_from_json(self.study, json_data)
+        assert '\\Demographics\\_info\\+\\_mation\\+other' in self.study.Clinical.ColumnMapping.df['Category Code'][1]
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -36,7 +36,8 @@ class MetaDataTags(FileBase, ValidateMixin):
         study_paths = [node.path for node in self.parent.concept_tree.nodes if node.type != 'tag']
 
         # Add delimiter to both paths comparing so tag_path only matches if a complete node is matched
-        study_paths = ['{0}{1}{0}'.format(delimiter, path_converter(path, internal=False)) for path in study_paths]
+        study_paths = ['{0}{1}{0}'.format(delimiter, path_converter(path)) for path in study_paths]
+        study_paths = ['{0}{1}{0}'.format(delimiter, path_converter(path)) for path in study_paths]
 
         # Add study level path (no nodes)
         study_paths.append(delimiter)
@@ -50,7 +51,7 @@ class MetaDataTags(FileBase, ValidateMixin):
     @staticmethod
     def _convert_path(x):
         starts_with_delim = x.startswith(Mappings.PATH_DELIM) or x.startswith(Mappings.EXT_PATH_DELIM)
-        x = path_converter(x, internal=False)
+        x = path_converter(x)
 
         # Put back the delimiter if it was removed in the previous step.
         if starts_with_delim:
