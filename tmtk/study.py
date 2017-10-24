@@ -189,12 +189,20 @@ class Study(ValidateMixin):
 
     @study_name.setter
     def study_name(self, value):
-        if self.params.get('TOP_NODE'):
-            new_top = "{}\\{}".format(self.params.get('TOP_NODE', '').rsplit('\\', 1)[0], value)
-        else:
-            pub_priv = 'Public Studies' if self.params.get('SECURITY_REQUIRED') == 'N' else 'Private Studies'
-            new_top = "\\{}\\{}".format(pub_priv, value)
+        pub_priv = 'Private Studies' if self.security_required else 'Public Studies'
+        new_top = "\\{}\\{}".format(pub_priv, value)
         setattr(self.params, 'TOP_NODE', new_top)
+
+    @property
+    def security_required(self) -> bool:
+        return self.params.get('SECURITY_REQUIRED', 'Y') == 'Y'
+
+    @security_required.setter
+    def security_required(self, value: bool):
+        assert value in (True, False)
+        setattr(self.params, 'SECURITY_REQUIRED', 'Y' if value else 'N')
+        # Reset Public/Private in TOP_NODE
+        self.study_name = self.study_name
 
     def call_boris(self, height=650):
         """
