@@ -4,12 +4,14 @@ from IPython.display import HTML
 import tempfile
 
 from .clinical import Clinical
-from .params import Params
+from .params import Params, ParamsBase
 from .highdim import HighDim
 from .annotation import Annotations
 from .tags import MetaDataTags
-from .utils import Mappings, TransmartBatch, ValidateMixin, Message
+from .utils import Mappings, TransmartBatch, ValidateMixin, FileBase
 from tmtk import utils, arborist
+
+from itertools import chain
 
 
 class Study(ValidateMixin):
@@ -136,7 +138,7 @@ class Study(ValidateMixin):
         :param prop: string equal to the property name.
         :return: generator for the found objects.
         """
-
+        self.msgs.warning("DeprecationWarning: Don't use get_objects_with_prop(), use get_objects() instead.")
         recursion_items = ['parent', '_parent', 'obj', 'msgs']
 
         def iterate_items(d, prop):
@@ -148,6 +150,26 @@ class Study(ValidateMixin):
                     yield obj
 
         return {i for i in iterate_items(self.__dict__, prop)}
+
+    def get_objects(self, of_type):
+        """
+        Search for objects that have inherited from a certain type.
+
+        :param of_type: type to match against.
+        :return: generator for the found objects.
+        """
+
+        recursion_items = ['parent', '_parent', 'obj', 'msgs']
+
+        def iterate_items(d):
+            for key, obj in d.items():
+                if hasattr(obj, '__dict__') and key not in recursion_items:
+                    yield from iterate_items(obj.__dict__)
+
+                if isinstance(obj, of_type):
+                    yield obj
+
+        return {i for i in iterate_items(self.__dict__)}
 
     @property
     def study_id(self) -> str:
@@ -289,7 +311,7 @@ class Study(ValidateMixin):
         if not os.path.exists(root_dir) or not os.path.isdir(root_dir):
             os.makedirs(root_dir, exist_ok=True)
 
-        for obj in self.get_objects_with_prop('path'):
+        for obj in chain(self.get_objects(FileBase), self.get_objects(ParamsBase)):
             # Strip sub_path from leading slash, as os.path.join() will think its an absolute path
             sub_path = obj.path.split(self.study_folder)[1].strip('/')
             new_path = os.path.join(root_dir, sub_path)
@@ -365,7 +387,7 @@ class Study(ValidateMixin):
             Default is 'WARNING'.
         :return: True if no errors or critical is encountered.
         """
-        return all([obj.validate(verbosity=verbosity) for obj in self.get_objects_with_prop('validate')])
+        return all([obj.validate(verbosity=verbosity) for obj in self.get_objects(ValidateMixin)])
 
     def _validate_study_id(self):
         if bool(self.study_id):
