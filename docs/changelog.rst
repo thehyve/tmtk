@@ -2,6 +2,14 @@
 Changelog
 =========
 
+.. topic::  Version 0.3.4
+
+    * Better support for building pipelines from code books using Blueprints
+    * Set data label, concept path, and word mapping from clinical variable abstraction
+    * Arborist support for _ and +
+    * Improved stability of Arborist
+    * Fixes in Validator for word map file
+
 .. topic::  Version 0.3.3
 
     * More easily extensible validator functionality
