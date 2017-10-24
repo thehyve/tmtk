@@ -95,8 +95,16 @@ class TransmartArborist(IPythonHandler):
         # Get location of json in tmp
         tmp_file = self.request.headers.get("Referer").rsplit('treefile=', 1)[1]
 
+        # A file that is created after the json is fully written to disk.
+        # This serves as a signal for the parent kernel to continue work.
+        done_file = os.path.join(os.path.dirname(tmp_file), 'DONE')
+
         self.log.info("Saving Arborist tree file.")
 
         with open(tmp_file, 'w') as f:
             f.write(json.dumps(self.get_json_body()))
+
+        with open(done_file, 'w') as f:
+            f.write('')
+
         self.finish("200")

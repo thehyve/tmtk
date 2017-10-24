@@ -30,7 +30,7 @@ def call_boris(to_be_shuffled=None, **kwargs):
                      ' mapping file has been returned as a dataframe.')
         Message.warning("Don't forget to save this dataframe to disk if you want to store it.")
     else:
-        return
+        raise Exception('No json file returned from Arborist.')
 
     if isinstance(to_be_shuffled, tmtk.Study):
         update_study_from_json(to_be_shuffled, json_data=json_data)
@@ -73,7 +73,8 @@ def launch_arborist_gui(json_data: str, height=650):
     with open(tmp_json, 'w') as f:
         f.write(json_data)
 
-    original_time = int(os.path.getmtime(tmp_json))
+    # Signal created by Javascript to continue work here.
+    done_signal = os.path.join(os.path.dirname(tmp_json), 'DONE')
 
     base_url = os.environ.get("ARBORIST_BASE_URL", "/")
 
@@ -81,9 +82,9 @@ def launch_arborist_gui(json_data: str, height=650):
     display(IFrame(src=running_on, width='100%', height=height))
 
     try:
-        # Wait for the json file to change before breaking the GIL.
-        while original_time == int(os.path.getmtime(tmp_json)):
-            time.sleep(0.25)
+        # Wait for the done signal file to be created before breaking the GIL.
+        while not os.path.exists(done_signal):
+            time.sleep(0.1)
 
     except KeyboardInterrupt:
         # This stops the interpreter without showing a stacktrace.
@@ -98,7 +99,7 @@ def launch_arborist_gui(json_data: str, height=650):
         shutil.rmtree(new_temp_dir)
         # Clear output from Jupyter Notebook cell
         clear_output()
-        print('Cleaning up before closing.')
+        print('Cleaning up before closing...')
 
 
 def update_clinical_from_json(clinical, json_data):
