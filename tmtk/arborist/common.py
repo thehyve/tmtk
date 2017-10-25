@@ -91,9 +91,16 @@ def launch_arborist_gui(json_data: str, height=650):
         pass
 
     else:
-        with open(tmp_json, 'r') as f:
-            json_data = f.read()
-        return json_data
+        updated_json = None
+
+        # We've been having issues with a slow file system where the json response was empty
+        # Now we make sure something is sent back.
+        while not updated_json:
+            time.sleep(0.1)
+            with open(tmp_json, 'r') as f:
+                updated_json = f.read()
+
+        return updated_json
 
     finally:
         shutil.rmtree(new_temp_dir)

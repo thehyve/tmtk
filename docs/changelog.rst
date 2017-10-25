@@ -2,7 +2,7 @@
 Changelog
 =========
 
-.. topic::  Version 0.3.4
+.. topic::  Version 0.3.5
 
     * Better support for building pipelines from code books using Blueprints
     * Set data label, concept path, and word mapping from clinical variable abstraction
