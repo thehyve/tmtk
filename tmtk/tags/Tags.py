@@ -74,12 +74,12 @@ class MetaDataTags(FileBase, ValidateMixin):
 
     def apply_blueprint(self, blueprint):
         """
-        Add metadata tags from a blueprint file.
+        Add metadata tags from a blueprint object.
 
-        :param blueprint:
-        :return:
+        :param blueprint: blueprint object.
         """
-        for id_, blueprint_var in blueprint.items():
+        for var in self.parent.Clinical.all_variables.values():
+            blueprint_var = blueprint.get(var.header)
             tags = blueprint_var.get('metadata_tags')
             if not tags:
                 continue
