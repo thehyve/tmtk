@@ -282,3 +282,11 @@ class Variable:
     @property
     def concept_code(self):
         return self.parent.ColumnMapping.select_row(self.var_id)[4] or self.concept_path
+
+    @property
+    def modifier_code(self):
+        return '@'
+
+    @property
+    def trial_visit(self):
+        return 'General'

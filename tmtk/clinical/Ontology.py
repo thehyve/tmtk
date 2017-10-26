@@ -45,17 +45,17 @@ class OntologyMapping(FileBase):
     #     # df.set_index(list(df.columns[[0, 1]]), drop=False, inplace=True)
     #     # df.sort_index(inplace=True)
     #     return df
-    #
-    # def create_df(self):
-    #     """
-    #     Create `pd.DataFrame` with a correct header.
-    #
-    #     :return: `pd.DataFrame`.
-    #     """
-    #     pass
-    #     # df = pd.DataFrame(dtype=str, columns=Mappings.word_mapping_header)
-    #     # df = self.build_index(df)
-    #     # return df
+
+    def create_df(self):
+        """
+        Create `pd.DataFrame` with a correct header.
+
+        :return: `pd.DataFrame`.
+        """
+        return pd.DataFrame()
+        # df = pd.DataFrame(dtype=str, columns=Mappings.word_mapping_header)
+        # df = self.build_index(df)
+        # return df
 
     @property
     def concepts(self):

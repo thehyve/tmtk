@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+from itertools import chain
 
 from .DataFile import DataFile
 from .Variable import Variable, VarID
@@ -207,6 +208,66 @@ class Clinical(ValidateMixin):
         df_name, column = var_id
         datafile = self.get_datafile(df_name)
         return Variable(datafile, column, self)
+
+    def find_variable_by_label(self, label: str) -> list:
+        """
+        Search for variables based on data label. All labels are converted to lower case.
+
+        :param label:
+        :return:
+        """
+        return [var for var in self.all_variables.values() if var.data_label.lower() in label.lower()]
+
+    def get_subj_id_for_var(self, variable):
+
+        for subj_id_var in self.find_variable_by_label('subj_id'):
+            if subj_id_var.var_id[0] == variable.var_id[0]:
+                return subj_id_var
+
+        raise Exception('No SUBJ_ID found for {}'.format(variable))
+
+    def get_patients(self):
+        subj_id_vars = self.find_variable_by_label('subj_id')
+        gender_vars = self.find_variable_by_label('gender')
+        gender_vars += self.find_variable_by_label('sex')
+        age_vars = self.find_variable_by_label('age')
+
+        if len(gender_vars) > 1:
+            raise Exception('More than one gender defined.')
+
+        if len(age_vars) > 1:
+            raise Exception('More than one age defined.')
+
+        # Create dictionary where every subject is a key with value as empty dictionary
+        subjects = {subj_id: {} for var in subj_id_vars for subj_id in var.values}
+
+        if age_vars:
+            age_var = age_vars[0]
+            age_subj_id = self.get_subj_id_for_var(age_var)
+            for i in range(len(age_var.values)):
+                subject = age_subj_id.values[i]
+                subjects[subject]['age'] = age_var.values[i]
+
+        if gender_vars:
+            gender_var = gender_vars[0]
+            gender_subj_id = self.get_subj_id_for_var(gender_var)
+            for i in range(len(gender_var.values)):
+                subject = gender_subj_id.values[i]
+                subjects[subject]['gender'] = gender_var.values[i]
+
+        return subjects
+
+    def get_trial_visits(self):
+        """
+        Generator that yields all trial visits.
+
+        :return:
+        """
+        default_visit = {'name': 'General',
+                         'relative_time': None,
+                         'time_unit': None}
+
+        yield default_visit
 
     @property
     def all_variables(self):

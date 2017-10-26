@@ -1,8 +1,17 @@
+import pandas as pd
+from .patient_dimension import PatientDimension
+
 
 class PatientMapping:
 
-    def __init__(self):
-        pass
+    def __init__(self, patient_dimension: PatientDimension):
+        self.df = pd.DataFrame({'patient_ide': patient_dimension.df.sourcesystem_cd,
+                                'patient_ide_source': 'SUBJ_ID',
+                                'patient_num': patient_dimension.df.patient_num},
+                               columns=self.columns)
+
+        # A dictionary that can be queried for internal identifier mapping.
+        self.map = dict(zip(self.df.patient_ide, self.df.patient_num))
 
     @property
     def columns(self):

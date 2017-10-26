@@ -194,6 +194,16 @@ class Study(ValidateMixin):
         setattr(self.params, 'TOP_NODE', new_top)
 
     @property
+    def study_blob(self):
+        """ To be implemented """
+        return None
+
+    @study_blob.setter
+    def study_blob(self, value):
+        """ To be implemented """
+        pass
+
+    @property
     def security_required(self) -> bool:
         return self.params.get('SECURITY_REQUIRED', 'Y') == 'Y'
 

@@ -23,6 +23,9 @@ class ClinicalParams(ParamsBase):
             },
             "TAGS_FILE": {
                 'helptext': 'Points to the concepts tags file.'
+            },
+            "ONTOLOGY_MAP_FILE": {
+                'helptext': 'Points to the ontology mapping for this study.'
             }
         }
 
