@@ -4,12 +4,14 @@ from IPython.display import HTML
 import tempfile
 
 from .clinical import Clinical
-from .params import Params
+from .params import Params, ParamsBase
 from .highdim import HighDim
 from .annotation import Annotations
 from .tags import MetaDataTags
-from .utils import Mappings, TransmartBatch, ValidateMixin, Message
+from .utils import Mappings, TransmartBatch, ValidateMixin, FileBase
 from tmtk import utils, arborist
+
+from itertools import chain
 
 
 class Study(ValidateMixin):
@@ -136,7 +138,7 @@ class Study(ValidateMixin):
         :param prop: string equal to the property name.
         :return: generator for the found objects.
         """
-
+        self.msgs.warning("DeprecationWarning: Don't use get_objects_with_prop(), use get_objects() instead.")
         recursion_items = ['parent', '_parent', 'obj', 'msgs']
 
         def iterate_items(d, prop):
@@ -148,6 +150,26 @@ class Study(ValidateMixin):
                     yield obj
 
         return {i for i in iterate_items(self.__dict__, prop)}
+
+    def get_objects(self, of_type):
+        """
+        Search for objects that have inherited from a certain type.
+
+        :param of_type: type to match against.
+        :return: generator for the found objects.
+        """
+
+        recursion_items = ['parent', '_parent', 'obj', 'msgs']
+
+        def iterate_items(d):
+            for key, obj in d.items():
+                if hasattr(obj, '__dict__') and key not in recursion_items:
+                    yield from iterate_items(obj.__dict__)
+
+                if isinstance(obj, of_type):
+                    yield obj
+
+        return {i for i in iterate_items(self.__dict__)}
 
     @property
     def study_id(self) -> str:
@@ -167,12 +189,20 @@ class Study(ValidateMixin):
 
     @study_name.setter
     def study_name(self, value):
-        if self.params.get('TOP_NODE'):
-            new_top = "{}\\{}".format(self.params.get('TOP_NODE', '').rsplit('\\', 1)[0], value)
-        else:
-            pub_priv = 'Public Studies' if self.params.get('SECURITY_REQUIRED') == 'N' else 'Private Studies'
-            new_top = "\\{}\\{}".format(pub_priv, value)
+        pub_priv = 'Private Studies' if self.security_required else 'Public Studies'
+        new_top = "\\{}\\{}".format(pub_priv, value)
         setattr(self.params, 'TOP_NODE', new_top)
+
+    @property
+    def security_required(self) -> bool:
+        return self.params.get('SECURITY_REQUIRED', 'Y') == 'Y'
+
+    @security_required.setter
+    def security_required(self, value: bool):
+        assert value in (True, False)
+        setattr(self.params, 'SECURITY_REQUIRED', 'Y' if value else 'N')
+        # Reset Public/Private in TOP_NODE
+        self.study_name = self.study_name
 
     def call_boris(self, height=650):
         """
@@ -264,7 +294,7 @@ class Study(ValidateMixin):
         new_url = arborist.publish_to_baas(url, json_data, study_name, username)
         return HTML('<a target="_blank" href="{l}">{l}</a>'.format(l=new_url))
 
-    def add_metadata(self):
+    def ensure_metadata(self):
         """Create the Tags object for this study.  Does nothing if it is already present."""
         if hasattr(self, 'Tags'):
             self.msgs.okay("Study metadata tags found.")
@@ -289,7 +319,7 @@ class Study(ValidateMixin):
         if not os.path.exists(root_dir) or not os.path.isdir(root_dir):
             os.makedirs(root_dir, exist_ok=True)
 
-        for obj in self.get_objects_with_prop('path'):
+        for obj in chain(self.get_objects(FileBase), self.get_objects(ParamsBase)):
             # Strip sub_path from leading slash, as os.path.join() will think its an absolute path
             sub_path = obj.path.split(self.study_folder)[1].strip('/')
             new_path = os.path.join(root_dir, sub_path)
@@ -307,6 +337,23 @@ class Study(ValidateMixin):
         else:
             new_path = os.path.join(self.study_folder, 'clinical', 'clinical.params')
             self.Clinical.params = self.Params.add_params(new_path)
+
+    def apply_blueprint(self, blueprint, omit_missing=False):
+        """
+        Apply a blueprint to current study.
+
+        :param blueprint: blueprint dictionary or link to blueprint json on disk.
+        :param omit_missing: if True, then variable that are not present in the blueprint
+        will be set to OMIT.
+        """
+
+        if os.path.exists(blueprint):
+            with open(blueprint) as f:
+                blueprint = json.load(f)
+
+        self.Clinical.apply_blueprint(blueprint, omit_missing)
+        self.ensure_metadata()
+        self.Tags.apply_blueprint(blueprint)
 
     @property
     def load_to(self):
@@ -348,7 +395,7 @@ class Study(ValidateMixin):
             Default is 'WARNING'.
         :return: True if no errors or critical is encountered.
         """
-        return all([obj.validate(verbosity=verbosity) for obj in self.get_objects_with_prop('validate')])
+        return all([obj.validate(verbosity=verbosity) for obj in self.get_objects(ValidateMixin)])
 
     def _validate_study_id(self):
         if bool(self.study_id):

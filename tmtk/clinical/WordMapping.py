@@ -31,7 +31,6 @@ class WordMapping(FileBase, ValidateMixin):
         super().__init__()
         self._initial_word_map = self.word_map_dicts
 
-
     def _validate_dimensions(self):
         if self.df.shape[1] != 4:
             self.msgs.error("Wordmapping file does not have 4 columns!")
@@ -55,6 +54,24 @@ class WordMapping(FileBase, ValidateMixin):
 
         else:
             return {}
+
+    def set_word_map(self, var_id, d):
+        """
+        Set the word mapping for specific variable based on its filename and column number.
+
+        :param var_id: variable identifier tuple.
+        :param d: dictionary that contains the value map.
+        """
+        var_id = tuple(var_id)
+
+        self.df.drop(var_id, inplace=True, errors='ignore')
+
+        self.df = self.df.append(
+                        pd.DataFrame(
+                            [[var_id[0], var_id[1], k, v] for k, v in d.items()],
+                            columns=self.df.columns
+                        ),
+                        ignore_index=True)
 
     @property
     def included_datafiles(self):

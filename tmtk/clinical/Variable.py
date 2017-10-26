@@ -128,6 +128,16 @@ class Variable:
             return False
 
     @property
+    def min(self):
+        if self.is_numeric_in_datafile:
+            return min(set(map(float, self.values)))
+
+    @property
+    def max(self):
+        if self.is_numeric_in_datafile:
+            return max(set(map(float, self.values)))
+
+    @property
     def is_numeric(self):
         """
         True if transmart-batch will load this concept as numerical. This includes
@@ -159,8 +169,11 @@ class Variable:
         :return: str.
         """
         cp = self.parent.ColumnMapping.get_concept_path(self.var_id)
-        cp = path_converter(cp)
-        return cp.replace('_', ' ')
+        return path_converter(cp)
+
+    @concept_path.setter
+    def concept_path(self, value):
+        self.parent.ColumnMapping.set_concept_path(self.var_id, path=value)
 
     @property
     def column_map_data(self):
@@ -201,6 +214,10 @@ class Variable:
         d = dict(zip(values, values))
         d.update(self.parent.WordMapping.get_word_map(self.var_id))
         return d
+
+    @word_map_dict.setter
+    def word_map_dict(self, d):
+        self.parent.WordMapping.set_word_map(self.var_id, d)
 
     @property
     def mapped_values(self):

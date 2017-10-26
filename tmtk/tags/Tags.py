@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from ..utils import Exceptions, FileBase, Mappings, path_converter, TransmartBatch, ValidateMixin
+from ..utils import Exceptions, FileBase, Mappings, path_converter, TransmartBatch, ValidateMixin, path_join
 from ..params import TagsParams
 
 
@@ -36,7 +36,8 @@ class MetaDataTags(FileBase, ValidateMixin):
         study_paths = [node.path for node in self.parent.concept_tree.nodes if node.type != 'tag']
 
         # Add delimiter to both paths comparing so tag_path only matches if a complete node is matched
-        study_paths = ['{0}{1}{0}'.format(delimiter, path_converter(path, internal=False)) for path in study_paths]
+        study_paths = ['{0}{1}{0}'.format(delimiter, path_converter(path)) for path in study_paths]
+        study_paths = ['{0}{1}{0}'.format(delimiter, path_converter(path)) for path in study_paths]
 
         # Add study level path (no nodes)
         study_paths.append(delimiter)
@@ -50,9 +51,12 @@ class MetaDataTags(FileBase, ValidateMixin):
     @staticmethod
     def _convert_path(x):
         starts_with_delim = x.startswith(Mappings.PATH_DELIM) or x.startswith(Mappings.EXT_PATH_DELIM)
-        x = path_converter(x, internal=False)
+        x = path_converter(x)
+
+        # Put back the delimiter if it was removed in the previous step.
         if starts_with_delim:
             x = Mappings.EXT_PATH_DELIM + x
+
         return x.strip()
 
     def get_tags(self):
@@ -67,6 +71,36 @@ class MetaDataTags(FileBase, ValidateMixin):
             tags_dict = {}
             self.df[associated_tags].apply(lambda x: tags_dict.update({x[1]: (x[2], x[3])}), axis=1)
             yield path, tags_dict
+
+    def apply_blueprint(self, blueprint):
+        """
+        Add metadata tags from a blueprint object.
+
+        :param blueprint: blueprint object.
+        """
+        for var in self.parent.Clinical.all_variables.values():
+            blueprint_var = blueprint.get(var.header)
+            tags = blueprint_var.get('metadata_tags')
+            if not tags:
+                continue
+
+            path = Mappings.EXT_PATH_DELIM + path_join(blueprint_var.get('path'), blueprint_var.get('label'))
+
+            for title, description in tags.items():
+                path = self._convert_path(path)
+                one = self.df.iloc[:, 0] == path
+                two = self.df.iloc[:, 1] == title
+                index = self.df[one & two].index
+
+                if len(index):
+                    self.df.drop(index, inplace=True)
+
+                self.df = self.df.append(
+                    pd.DataFrame(
+                        [[path, title, description, 5]],
+                        columns=self.df.columns
+                    ),
+                    ignore_index=True)
 
     @staticmethod
     def create_df():

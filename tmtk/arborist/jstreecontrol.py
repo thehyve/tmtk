@@ -63,7 +63,7 @@ def create_tree_from_study(study, concept_tree=None):
         annotation = study.find_annotation(high_dim_node.platform)
 
         for md5, path in high_dim_node.sample_mapping.get_concept_paths.items():
-            path = path_converter(path, internal=True)
+            path = path_converter(path, to_internal=True)
             hd_args = _get_hd_args(path, high_dim_node, annotation)
             concept_tree.add_node(path, var_id=md5, node_type='highdim',
                                   data_args={'hd_args': hd_args})
@@ -72,7 +72,7 @@ def create_tree_from_study(study, concept_tree=None):
         for i, (path, tags_dict) in enumerate(study.Tags.get_tags()):
             # Don't add empty folder if Tags are at study level
             path_in_tree = path_join(path, Mappings.tags_node_name) if path != "" else Mappings.tags_node_name
-            path_in_tree = path_converter(path_in_tree, internal=True)
+            path_in_tree = path_converter(path_in_tree, to_internal=True)
             data_args = {'tags': tags_dict}
             concept_tree.add_node(path_in_tree,
                                   var_id="tags_id_{}".format(i),
@@ -107,7 +107,7 @@ def create_tree_from_clinical(clinical_object, concept_tree=None):
         # Don't need these, they're in the tree.
         for k in [Mappings.cat_cd_s, Mappings.data_label_s]:
             data_args.pop(k)
-        concept_path = path_converter(variable.concept_path, internal=True)
+        concept_path = path_converter(variable.concept_path, to_internal=True)
         categories = {} if variable.is_numeric else variable.word_map_dict
 
         if categories:
@@ -209,7 +209,8 @@ class ConceptTree:
     @property
     def high_dim_paths(self):
         """ All high dimensional nodes in concept tree as dict """
-        return {node.var_id: path_converter(node.path) for node in self.nodes if node.type == 'highdim'}
+        return {node.var_id: path_converter(node.path, from_internal=True)
+                for node in self.nodes if node.type == 'highdim'}
 
     @property
     def word_mapping(self):
@@ -250,10 +251,9 @@ class ConceptTree:
         if node.type not in {'numeric', 'categorical', 'codeleaf', 'empty'}:
             return
         filename = node.data.get(Mappings.filename_s)
-        full_path = node.path.replace(' ', '_')
 
-        *path, data_label = full_path.rsplit(Mappings.PATH_DELIM, 1)
-        path = path_converter(path[0]) if path else Mappings.EXT_PATH_DELIM
+        *path, data_label = node.path.rsplit(Mappings.PATH_DELIM, 1)
+        path = path_converter(path[0], from_internal=True) if path else Mappings.EXT_PATH_DELIM
 
         # Remove file names from SUBJ_ID, they were added as workaround for unique constraints.
         if data_label.startswith("SUBJ_ID"):
@@ -279,7 +279,7 @@ class ConceptTree:
 
             # Tag paths need to start with slash
             path = node.path.rsplit(Mappings.tags_node_name, 1)[0].strip(Mappings.PATH_DELIM)
-            path = path_converter(path, internal=False)
+            path = path_converter(path, from_internal=True)
             path = Mappings.EXT_PATH_DELIM + path
 
             for title, (description, weight, *_) in tags_dict.items():

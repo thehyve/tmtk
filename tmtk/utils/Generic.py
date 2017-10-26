@@ -3,6 +3,7 @@ import pandas as pd
 import random
 from IPython.display import YouTubeVideo
 import hashlib
+import re
 
 from .Exceptions import *
 from .mappings import Mappings
@@ -141,23 +142,43 @@ def fix_everything():
     return YouTubeVideo('dQw4w9WgXcQ', autoplay=True)
 
 
-def path_converter(path, internal=False):
+def path_converter(path, to_internal=False, from_internal=False):
     """
     Convert paths by creating delimiters of backslash "\" and "+" sign, additionally converting
     underscores "_" to a single space.
 
     :param path: concept path
-    :param internal: if path is for internal use delimit with Mappings.PATH_DELIM
+    :param to_internal: if path is for internal use delimit with Mappings.PATH_DELIM
+    :param from_internal: replace + and _ with escaped versions.
     :return: delimited path
     """
+    delimiter = Mappings.PATH_DELIM
 
-    delimiter = Mappings.PATH_DELIM if internal else Mappings.EXT_PATH_DELIM
-    path = path.replace('\\', delimiter)
-    path = path.replace('+', delimiter)
-    path = path.replace('_', ' ')
+    # is expected to have come from arborist.
+    if from_internal:
+        # Make sure all + and _ are escaped
+        path = re.sub('\\\\*\+', '\\+', path)
+        path = re.sub('\\\\*_', '\\_', path)
+    else:
+        # Using negative look behind replace unescaped _ and +
+        path = re.sub('(?<!\\\\)_', ' ', path)
+        path = re.sub('(?<!\\\\)\\+', delimiter, path)
+
+    # Use negative look ahead to replace all backslashes not
+    # followed by + or _ with a internal delimiter.
+    path = re.sub('\\\\(?![_+])', delimiter, path)
+
     path = path.strip(delimiter)
 
-    if not internal:
+    # Demultiply the path delimiters
+    path = re.sub(r'{}+'.format(delimiter*2), r'{}'.format(delimiter), path)
+
+    if to_internal:
+        # This way the arborist can operate without escaping
+        path = path.replace('\\_', '_')
+        path = path.replace('\\+', '+')
+
+    else:
         path = path.replace(Mappings.PATH_DELIM, Mappings.EXT_PATH_DELIM)
 
     return path
