@@ -8,6 +8,13 @@ import arrow
 
 class ObservationFact:
 
+    VALUETYPE_CD_MAP = {
+        'LAD': 'N',
+        'LAT': 'B',
+        'LAN': 'N',
+        'LAC': 'T'
+    }
+
     def __init__(self, skinny, straight_to_disk=False):
         self.skinny = skinny
         self._now = arrow.now().isoformat(sep=' ')
@@ -15,11 +22,11 @@ class ObservationFact:
         rows = []
         # Loop through all variables in the clinical data and add a row
         for variable in self.skinny.study.Clinical.filtered_variables.values():
-            rows += [*self.build_row(variable)]
+            rows += [*self.build_rows(variable)]
 
         self.df = pd.DataFrame(rows, columns=self.columns)
 
-    def build_row(self, var):
+    def build_rows(self, var):
         """
         Returns all observation fact rows for a given variable.
 
@@ -29,22 +36,20 @@ class ObservationFact:
         subj_id = self.skinny.study.Clinical.get_subj_id_for_var(var)
         concept_cd = I2B2Secure.get_concept_identifier(var, self.skinny.study)
 
+        valtype_cd = self.VALUETYPE_CD_MAP.get(var.visual_attributes)
+
         for i, value in enumerate(var.values):
             if not value:
                 continue
             row = self.row
 
-            row.encounter_num = -1
             row.patient_num = self.skinny.patient_mapping.map[subj_id.values[i]]
             row.concept_cd = concept_cd
-            row.provider_id = '@'
             row.start_date = self._now
-            row.modifier_cd = var.modifier_code
-            row.instance_num = 1
             row.trial_visit_num = self.skinny.trial_visit_dimension.map[var.trial_visit]
-            row.valtype_cd = 'N' if var.is_numeric else 'T'
+            row.valtype_cd = valtype_cd
             row.tval_char = 'E' if var.is_numeric else value
-            row.nval_num = value if var.is_numeric else None
+            row.nval_num = value if valtype_cd == 'N' else None
 
             yield row
 
@@ -55,13 +60,13 @@ class ObservationFact:
         """
         return pd.Series(
             data=[
-                None,  # encounter_num
+                -1,    # encounter_num
                 None,  # patient_num
                 None,  # concept_cd
-                None,  # provider_id
+                '@',   # provider_id
                 None,  # start_date
-                None,  # modifier_cd
-                None,  # instance_num
+                '@',   # modifier_cd
+                1,     # instance_num
                 None,  # trial_visit_num
                 None,  # valtype_cd
                 None,  # tval_char

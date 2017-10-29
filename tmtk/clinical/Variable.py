@@ -55,6 +55,7 @@ class VarID:
         for item in self.filename, self.column, self.category:
             if item:
                 yield item
+
     @property
     def tuple(self):
         return tuple(self)
@@ -277,7 +278,12 @@ class Variable:
 
     @property
     def visual_attributes(self):
-        if self.is_numeric:
+
+        if self.column_type == 'DATE':
+            return 'LAD'
+        elif self.column_type == 'TEXT':
+            return 'LAT'
+        elif self.is_numeric:
             return 'LAN'
         else:
             return 'LAC'
@@ -285,6 +291,10 @@ class Variable:
     @property
     def concept_code(self):
         return self.parent.ColumnMapping.select_row(self.var_id)[5] or self.concept_path
+
+    @property
+    def column_type(self):
+        return self.parent.ColumnMapping.select_row(self.var_id)[6]
 
     @property
     def modifier_code(self):
