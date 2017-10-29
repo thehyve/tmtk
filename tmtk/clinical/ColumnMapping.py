@@ -18,6 +18,7 @@ class ColumnMapping(FileBase, ValidateMixin):
     RESERVED_KEYWORDS = ('SUBJ_ID',
                          'START_DATE',
                          'END_DATE',
+                         'MODIFIER',
                          'TRIAL_VISIT_LABEL',
                          'INSTANCE_NUM',
                          'DATA_LABEL',

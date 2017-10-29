@@ -1,0 +1,10 @@
+Ontology code	Label	Ancestors	Blob
+demographics	Demographics
+general	General
+interests	Interests
+gender	Gender	demographics	"{ "type": "Numeric", "width": 12, "columns": 14, "measure": "Nominal", "valueLabels": {"1":"Female", "2":"Male", "-2": "Not Specified"}, "missingValues": [-2] }"
+height	Height	demographics	"{ "type": "Numeric", "width": 14, "decimals": 2, "columns": 15, "measure": "Scale", "valueLabels": {"-1":"Asked, but not answered"}, "missingValues": [-1] }"
+age	Age	demographics	"{ "uri": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
+favouritebook	Favourite book quote	interests	"{ "type": "Date", "width": 22, "columns": 22, "measure": "Scale" }"
+birthdate	Birth date	demographics	"{ "type": "Date", "width": 22, "columns": 22, "measure": "Scale" }"
+description	Description of weekend	general	"{ "type": "String", "width": 200, "columns": 210, "measure": "Nominal" }"

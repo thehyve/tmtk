@@ -10,9 +10,7 @@ class Mappings:
     data_label = 'Data Label'
     magic_5 = 'Magic 5th'
     ontology_code = 'Ontology Code'
-    concept_type = 'Concept Type'
-    trial_visit_cd = 'trial_visit_code'
-    start_date_col = 'start_date_column'
+    concept_type = 'Column Type'
 
     # Tags
     tags_path = 'Concept Path'

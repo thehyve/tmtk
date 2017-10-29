@@ -1,0 +1,11 @@
+### Mandatory
+# Points to the column file.
+COLUMN_MAP_FILE=column_mapping_file.txt
+
+### Optional
+# Points to the file with dictionary to be used.
+WORD_MAP_FILE=word_mapping_file.txt
+# Points to the ontology mapping for this study.
+ONTOLOGY_MAP_FILE=ontology_mapping_file.txt
+# Points to the modifiers file for this study.
+MODIFIERS_FILE=modifiers_file.txt
