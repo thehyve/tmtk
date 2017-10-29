@@ -9,7 +9,7 @@ class Mappings:
     col_num = 'Column Number'
     data_label = 'Data Label'
     magic_5 = 'Magic 5th'
-    ontology_code = 'ontology_code'
+    ontology_code = 'Ontology Code'
     concept_type = 'Concept Type'
     trial_visit_cd = 'trial_visit_code'
     start_date_col = 'start_date_column'
@@ -29,6 +29,11 @@ class Mappings:
     modifier_path = 'modifier_path'
     modifier_cd = 'modifier_cd'
     name_char = 'name_char'
+
+    # Ontology file
+    term_label = 'Label'
+    blob = 'blob'
+    ancestors = 'Ancestors'
 
     # Jstree json ids
     filename_s = 'fn'
@@ -78,6 +83,11 @@ class Mappings:
     modifiers_header = [modifier_path,
                         modifier_cd,
                         name_char]
+
+    ontology_header = [ontology_code,
+                       term_label,
+                       ancestors,
+                       blob]
 
     annotation_marker_types = {
         'mirna_annotation': 'MIRNA_QPCR',

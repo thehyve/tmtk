@@ -52,14 +52,14 @@ class OntologyMapping(FileBase):
 
         :return: `pd.DataFrame`.
         """
-        return pd.DataFrame()
-        # df = pd.DataFrame(dtype=str, columns=Mappings.word_mapping_header)
+        # return pd.DataFrame()
+        df = pd.DataFrame(dtype=str, columns=Mappings.ontology_header)
         # df = self.build_index(df)
-        # return df
+        return df
 
     @property
     def concepts(self):
-        return self.df.apply(lambda x: Concept(x[2], x[3], x[4], str(x[5]).split(',')),
+        return self.df.apply(lambda x: Concept(x[0], x[1], str(x[2]).split(','), x[3]),
                              axis=1)
 
     @property
@@ -71,10 +71,10 @@ class OntologyMapping(FileBase):
 
 
 class Concept:
-    def __init__(self, code, label, uri, parents=None):
+    def __init__(self, code, label, parents=None, blob=None):
         self.code = code
         self.label = label
-        self.uri = uri
+        self.blob = blob
         self.parents = parents
         self.children = []
 
@@ -82,7 +82,7 @@ class Concept:
         return {'text': self.label,
                 'id': self.code,
                 'data':
-                    {'uri': self.uri,
+                    {'blob': self.blob,
                      'code': self.code,
                      },
                 'children': [child.json() for child in self.children]
