@@ -1,0 +1,43 @@
+Category code	Data label	Ontology code	Label	URI	Ancestors
+Demography	Sex	SNOMEDCT/70256003	Sexual intercourse - finding	http://purl.bioontology.org/ontology/SNOMEDCT/70256003	SNOMEDCT/118202007
+		SNOMEDCT/118202007	Finding of sexual function	http://purl.bioontology.org/ontology/SNOMEDCT/118202007	SNOMEDCT/118199002
+		SNOMEDCT/118199002	Finding relating to sexuality and sexual activity	http://purl.bioontology.org/ontology/SNOMEDCT/118199002	SNOMEDCT/118228005
+		SNOMEDCT/118228005	Functional finding	http://purl.bioontology.org/ontology/SNOMEDCT/118228005	SNOMEDCT/250171008
+		SNOMEDCT/250171008	Clinical history and observation findings	http://purl.bioontology.org/ontology/SNOMEDCT/250171008	SNOMEDCT/404684003
+		SNOMEDCT/404684003	Clinical finding	http://purl.bioontology.org/ontology/SNOMEDCT/404684003	
+Demography	Race	SNOMEDCT/103579009	Race	http://purl.bioontology.org/ontology/SNOMEDCT/103579009	SNOMEDCT/302147001
+		SNOMEDCT/302147001	Demographic history detail	http://purl.bioontology.org/ontology/SNOMEDCT/302147001	SNOMEDCT/160476009
+		SNOMEDCT/160476009	Social / personal history observable	http://purl.bioontology.org/ontology/SNOMEDCT/160476009	SNOMEDCT/363787002
+		SNOMEDCT/363787002	Observable entity	http://purl.bioontology.org/ontology/SNOMEDCT/363787002	
+Vital Signs	Treatment	SNOMEDCT/416280009	Dalrymple treatment	http://purl.bioontology.org/ontology/SNOMEDCT/416280009	SNOMEDCT/16992002
+		SNOMEDCT/16992002	Osteopathic manipulation	http://purl.bioontology.org/ontology/SNOMEDCT/16992002	SNOMEDCT/19207007
+		SNOMEDCT/19207007	Manipulation	http://purl.bioontology.org/ontology/SNOMEDCT/19207007	SNOMEDCT/128927009
+		SNOMEDCT/128927009	Procedure by method	http://purl.bioontology.org/ontology/SNOMEDCT/128927009	SNOMEDCT/71388002
+		SNOMEDCT/71388002	Procedure	http://purl.bioontology.org/ontology/SNOMEDCT/71388002	
+Clinical Chemistry	Treatment	SNOMEDCT/416280009	Dalrymple treatment	http://purl.bioontology.org/ontology/SNOMEDCT/416280009	SNOMEDCT/16992002
+Clinical Chemistry	HDL mg/dl	SNOMEDCT/258797006	mg/dL	http://purl.bioontology.org/ontology/SNOMEDCT/258797006	SNOMEDCT/415777001
+		SNOMEDCT/415777001	Unit of mass concentration	http://purl.bioontology.org/ontology/SNOMEDCT/415777001	SNOMEDCT/258793005
+		SNOMEDCT/258793005	SI-derived unit of concentration	http://purl.bioontology.org/ontology/SNOMEDCT/258793005	SNOMEDCT/258792000
+		SNOMEDCT/258792000	Unit of concentration	http://purl.bioontology.org/ontology/SNOMEDCT/258792000	SNOMEDCT/258666001
+		SNOMEDCT/258666001	Unit	http://purl.bioontology.org/ontology/SNOMEDCT/258666001	SNOMEDCT/362981000
+		SNOMEDCT/362981000	Qualifier value	http://purl.bioontology.org/ontology/SNOMEDCT/362981000	
+Clinical Chemistry	LDL mg/dl	SNOMEDCT/258797006	mg/dL	http://purl.bioontology.org/ontology/SNOMEDCT/258797006	SNOMEDCT/415777001
+Clinical Chemistry	TRIG mg/dl	SNOMEDCT/258797006	mg/dL	http://purl.bioontology.org/ontology/SNOMEDCT/258797006	SNOMEDCT/415777001
+PKConc	Treatment	SNOMEDCT/416280009	Dalrymple treatment	http://purl.bioontology.org/ontology/SNOMEDCT/416280009	SNOMEDCT/16992002
+PKConc	Timepoint Hrs.	SNOMEDCT/167785006	Sperm motility at 6-8 hrs. good >40%	http://purl.bioontology.org/ontology/SNOMEDCT/167785006	SNOMEDCT/365424005
+		SNOMEDCT/365424005	Sperm motility - finding	http://purl.bioontology.org/ontology/SNOMEDCT/365424005	SNOMEDCT/300537000
+		SNOMEDCT/300537000	Sperm finding	http://purl.bioontology.org/ontology/SNOMEDCT/300537000	SNOMEDCT/441742003,SNOMEDCT/250498001
+		SNOMEDCT/441742003	Evaluation finding	http://purl.bioontology.org/ontology/SNOMEDCT/441742003	SNOMEDCT/404684003
+		SNOMEDCT/250498001	Semen finding	http://purl.bioontology.org/ontology/SNOMEDCT/250498001	SNOMEDCT/309794002
+		SNOMEDCT/309794002	Finding of body product	http://purl.bioontology.org/ontology/SNOMEDCT/309794002	SNOMEDCT/118222006
+		SNOMEDCT/118222006	General finding of observation of patient	http://purl.bioontology.org/ontology/SNOMEDCT/118222006	SNOMEDCT/250171008
+PKConc	Conc (ug/mL)	SNOMEDCT/134619001	Liposomal doxorubicin hydrochloride 2mg/mL infusion concentrate 25mL vial	http://purl.bioontology.org/ontology/SNOMEDCT/134619001	SNOMEDCT/418792004,SNOMEDCT/714242003
+		SNOMEDCT/418792004	Doxorubicin liposomal	http://purl.bioontology.org/ontology/SNOMEDCT/418792004	SNOMEDCT/68444001
+		SNOMEDCT/68444001	Doxorubicin	http://purl.bioontology.org/ontology/SNOMEDCT/68444001	SNOMEDCT/108787006
+		SNOMEDCT/108787006	Anthracycline	http://purl.bioontology.org/ontology/SNOMEDCT/108787006	SNOMEDCT/326779007
+		SNOMEDCT/326779007	Cytotoxic antibiotics	http://purl.bioontology.org/ontology/SNOMEDCT/326779007	SNOMEDCT/38181000
+		SNOMEDCT/38181000	Antineoplastic antibiotic	http://purl.bioontology.org/ontology/SNOMEDCT/38181000	SNOMEDCT/27867009
+		SNOMEDCT/27867009	Antineoplastic agent	http://purl.bioontology.org/ontology/SNOMEDCT/27867009	SNOMEDCT/373873005
+		SNOMEDCT/373873005	Pharmaceutical / biologic product	http://purl.bioontology.org/ontology/SNOMEDCT/373873005	
+		SNOMEDCT/714242003	Parenteral form doxorubicin	http://purl.bioontology.org/ontology/SNOMEDCT/714242003	SNOMEDCT/68444001,SNOMEDCT/440132002
+		SNOMEDCT/440132002	Parenteral dosage form product	http://purl.bioontology.org/ontology/SNOMEDCT/440132002	SNOMEDCT/373873005
