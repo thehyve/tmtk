@@ -1,8 +1,13 @@
+import pandas as pd
+
 
 class ModifierDimension:
 
-    def __init__(self):
-        pass
+    def __init__(self, study):
+        assert all([c in self.columns for c in study.Clinical.Modifiers.df.columns]), \
+            'Not all columns are legal.'
+
+        self.df = pd.DataFrame(columns=self.columns).append(study.Clinical.Modifiers.df)
 
     @property
     def columns(self):

@@ -419,3 +419,8 @@ class Study(ValidateMixin):
             self.msgs.okay('Study params found on disk.')
         else:
             self.msgs.error('Study params not on disk.')
+
+    def get_dimensions(self):
+        """ Returns a list of dimensions applicable to study """
+        # TODO: an actual implementation
+        return ['study', 'concept', 'patient', 'start time']

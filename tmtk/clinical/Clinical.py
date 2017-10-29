@@ -1,6 +1,5 @@
 import pandas as pd
 import os
-from itertools import chain
 
 from .DataFile import DataFile
 from .Variable import Variable, VarID
@@ -8,6 +7,7 @@ from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
 from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin, path_converter
 from .Ontology import OntologyMapping
+from .modifier import Modifiers
 
 from .. import arborist
 from ..utils.batch import TransmartBatch
@@ -26,6 +26,7 @@ class Clinical(ValidateMixin):
         self._WordMapping = None
         self._ColumnMapping = None
         self._OntologyMapping = None
+        self._Modifiers = None
         self._params = clinical_params
 
     def __str__(self):
@@ -44,6 +45,7 @@ class Clinical(ValidateMixin):
         self.ColumnMapping = ColumnMapping(params=self.params)
         self.WordMapping = WordMapping(params=self.params)
         self.OntologyMapping = OntologyMapping(params=self.params)
+        self.Modifiers = Modifiers(params=self.params)
 
     @property
     def ColumnMapping(self):
@@ -71,6 +73,14 @@ class Clinical(ValidateMixin):
     @OntologyMapping.setter
     def OntologyMapping(self, value):
         self._OntologyMapping = value
+
+    @property
+    def Modifiers(self):
+        return self._Modifiers
+
+    @Modifiers.setter
+    def Modifiers(self, value):
+        self._Modifiers = value
 
     def apply_blueprint(self, blueprint, omit_missing=False):
         """
@@ -268,6 +278,7 @@ class Clinical(ValidateMixin):
                          'time_unit': None}
 
         yield default_visit
+        # To be added later: yield all other trial visits.
 
     @property
     def all_variables(self):
