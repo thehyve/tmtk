@@ -23,6 +23,9 @@ class ConceptDimension:
         tmp_df.columns = self.columns[:3]
         self.df = self.df.append(tmp_df, ignore_index=True)
 
+        # Put back the right order of columns after concatenating the two dataframes
+        self.df = self.df.reindex(self.columns, axis=1)
+
     def _build_ontology_row(self, concept):
         row = self.row
         row.concept_cd, row.concept_path, row.name_char = concept

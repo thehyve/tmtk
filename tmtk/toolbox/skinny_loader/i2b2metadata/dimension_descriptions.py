@@ -14,12 +14,30 @@ class DimensionDescription:
 
 
     @property
-    def columns(self):
-        return ['id',
+    def row(self):
+        """
+        :return: Row with defaults
+        """
+        return pd.Series(
+            data=[
+                None,  #id
+                None,  #density
+                None,  #modifier_code
+                None,  #value_type
+                None,  #name
+                None,  #packable
+                None,  #size_cd
+            ],
+            index=[
+                'id',
                 'density',
                 'modifier_code',
                 'value_type',
                 'name',
                 'packable',
                 'size_cd',
-                ]
+            ])
+
+    @property
+    def columns(self):
+        return self.row.keys()

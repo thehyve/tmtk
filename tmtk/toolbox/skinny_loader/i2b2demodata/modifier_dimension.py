@@ -7,11 +7,33 @@ class ModifierDimension:
         assert all([c in self.columns for c in study.Clinical.Modifiers.df.columns]), \
             'Not all columns are legal.'
 
-        self.df = pd.DataFrame(columns=self.columns).append(study.Clinical.Modifiers.df)
+        self.df = pd.DataFrame(data={
+            'modifier_path': study.Clinical.Modifiers.df.iloc[:, 0],
+            'modifier_cd': study.Clinical.Modifiers.df.iloc[:, 1],
+            'name_char': study.Clinical.Modifiers.df.iloc[:, 2]
+        }, columns=self.columns)
 
     @property
-    def columns(self):
-        return ['modifier_path',
+    def row(self):
+        """
+        :return: Row with defaults
+        """
+        return pd.Series(
+            data=[
+                None,  # modifier_path
+                None,  # modifier_cd
+                None,  # name_char
+                None,  # modifier_blob
+                None,  # update_date
+                None,  # download_date
+                None,  # import_date
+                None,  # sourcesystem_cd
+                None,  # upload_id
+                None,  # modifier_level
+                None,  # modifier_node_type
+            ],
+            index=[
+                'modifier_path',
                 'modifier_cd',
                 'name_char',
                 'modifier_blob',
@@ -22,4 +44,8 @@ class ModifierDimension:
                 'upload_id',
                 'modifier_level',
                 'modifier_node_type',
-                ]
+            ])
+
+    @property
+    def columns(self):
+        return self.row.keys()

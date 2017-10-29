@@ -14,8 +14,25 @@ class PatientMapping:
         self.map = dict(zip(self.df.patient_ide, self.df.patient_num))
 
     @property
-    def columns(self):
-        return ['patient_ide',
+    def row(self):
+        """
+        :return: Row with defaults
+        """
+        return pd.Series(
+            data=[
+                None,  # patient_ide
+                None,  # patient_ide_source
+                None,  # patient_num
+                None,  # patient_ide_status
+                None,  # upload_date
+                None,  # update_date
+                None,  # download_date
+                None,  # import_date
+                None,  # sourcesystem_cd
+                None,  # upload_id
+            ],
+            index=[
+                'patient_ide',
                 'patient_ide_source',
                 'patient_num',
                 'patient_ide_status',
@@ -25,4 +42,8 @@ class PatientMapping:
                 'import_date',
                 'sourcesystem_cd',
                 'upload_id',
-                ]
+            ])
+
+    @property
+    def columns(self):
+        return self.row.keys()

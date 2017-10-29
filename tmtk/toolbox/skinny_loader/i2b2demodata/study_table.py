@@ -18,10 +18,26 @@ class StudyTable:
         self.df.iloc[:, 0] = self.df.index
 
     @property
-    def columns(self):
-        return ['study_num',
+    def row(self):
+        """
+        :return: Row with defaults
+        """
+        return pd.Series(
+            data=[
+                None,  # study_num
+                None,  # bio_experiment_id
+                None,  # study_id
+                None,  # secure_obj_token
+                None,  # study_blob
+            ],
+            index=[
+                'study_num',
                 'bio_experiment_id',
                 'study_id',
                 'secure_obj_token',
                 'study_blob',
-                ]
+            ])
+
+    @property
+    def columns(self):
+        return self.row.keys()
