@@ -288,6 +288,16 @@ class Clinical(ValidateMixin):
         """
         return {VarID(var_id): self.get_variable(var_id) for var_id in self.ColumnMapping.ids}
 
+    @property
+    def filtered_variables(self):
+        """
+        Dictionary where {`tmtk.VarID`: `tmtk.Variable`} for all variables in
+        the column mapping file that do not have a data label in the RESERVED_KEYWORDS list
+        """
+        vars_ = {VarID(var_id): self.get_variable(var_id) for var_id in self.ColumnMapping.ids}
+        vars_ = {k: v for k, v in vars_.items() if v.data_label not in self.ColumnMapping.RESERVED_KEYWORDS}
+        return vars_
+
     def call_boris(self, height=650):
         """
         Use The Arborist to modify only information in the column and word mapping files.

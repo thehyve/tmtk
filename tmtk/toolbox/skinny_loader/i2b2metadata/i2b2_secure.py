@@ -9,8 +9,7 @@ class I2B2Secure:
 
         self.study = study
 
-        row_list = [self.build_variable_row(var) for var in study.Clinical.all_variables.values()
-                    if var.data_label not in Defaults.RESERVED_LIST]
+        row_list = [self.build_variable_row(var) for var in study.Clinical.filtered_variables.values()]
 
         row_list += [*self.add_top_nodes()]
 
@@ -21,6 +20,10 @@ class I2B2Secure:
 
     def calc_hlevel(self, path):
         return len(path.strip(Defaults.DELIMITER).split(Defaults.DELIMITER)) - 1
+
+    @staticmethod
+    def get_concept_identifier(variable, study):
+        return variable.concept_code or '{}{}{}'.format(study.top_node, Defaults.DELIMITER, variable.concept_path)
 
     def add_folders(self, path):
         parent = path.rsplit('\\', 2)[0] + '\\'
@@ -34,11 +37,11 @@ class I2B2Secure:
 
         row = self.row
 
-        row.c_fullname = '{}\\{}\\'.format(self.study.params.TOP_NODE, var.concept_path)
+        row.c_fullname = '{}\\{}\\'.format(self.study.top_node, var.concept_path)
         row.c_hlevel = self.calc_hlevel(row.c_fullname)
         row.c_name = var.data_label
         row.c_visualattributes = var.visual_attributes
-        row.c_basecode = var.concept_code
+        row.c_basecode = self.get_concept_identifier(var, self.study)
         row.c_dimcode = row.c_fullname
 
         return row
@@ -50,7 +53,7 @@ class I2B2Secure:
 
         row = self.row
 
-        row.c_fullname = self.study.params.TOP_NODE + '\\'
+        row.c_fullname = self.study.top_node + '\\'
         row.c_hlevel = self.calc_hlevel(row.c_fullname)
         row.c_visualattributes = 'FAS'
         row.c_facttablecolumn = '@'

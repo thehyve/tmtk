@@ -1,5 +1,7 @@
 from .. import Defaults
 
+from ..i2b2metadata.i2b2_secure import I2B2Secure
+
 import pandas as pd
 import arrow
 
@@ -8,12 +10,11 @@ class ObservationFact:
 
     def __init__(self, skinny, straight_to_disk=False):
         self.skinny = skinny
+        self._now = arrow.now().isoformat(sep=' ')
 
         rows = []
         # Loop through all variables in the clinical data and add a row
-        for variable in self.skinny.study.Clinical.all_variables.values():
-            if variable.data_label in Defaults.RESERVED_LIST:
-                continue
+        for variable in self.skinny.study.Clinical.filtered_variables.values():
             rows += [*self.build_row(variable)]
 
         self.df = pd.DataFrame(rows, columns=self.columns)
@@ -26,6 +27,7 @@ class ObservationFact:
         :return:
         """
         subj_id = self.skinny.study.Clinical.get_subj_id_for_var(var)
+        concept_cd = I2B2Secure.get_concept_identifier(var, self.skinny.study)
 
         for i, value in enumerate(var.values):
             if not value:
@@ -34,9 +36,9 @@ class ObservationFact:
 
             row.encounter_num = -1
             row.patient_num = self.skinny.patient_mapping.map[subj_id.values[i]]
-            row.concept_cd = var.concept_code
+            row.concept_cd = concept_cd
             row.provider_id = '@'
-            row.start_date = arrow.now().isoformat(sep=' ')
+            row.start_date = self._now
             row.modifier_cd = var.modifier_code
             row.instance_num = 1
             row.trial_visit_num = self.skinny.trial_visit_dimension.map[var.trial_visit]

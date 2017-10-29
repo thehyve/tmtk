@@ -189,9 +189,8 @@ class Study(ValidateMixin):
 
     @study_name.setter
     def study_name(self, value):
-        pub_priv = 'Private Studies' if self.security_required else 'Public Studies'
-        new_top = "\\{}\\{}".format(pub_priv, value)
-        setattr(self.params, 'TOP_NODE', new_top)
+        container = '\\'.join(self.top_node.strip('\\').split('\\')[:-1])
+        self.top_node = "\\{}\\{}".format(container, value)
 
     @property
     def study_blob(self):
@@ -204,6 +203,18 @@ class Study(ValidateMixin):
         pass
 
     @property
+    def top_node(self) -> str:
+        if self.params.get('TOP_NODE'):
+            return self.params.get('TOP_NODE')
+
+        pub_priv = 'Private Studies' if self.security_required else 'Public Studies'
+        return "\\{}\\{}".format(pub_priv, self.study_id)
+
+    @top_node.setter
+    def top_node(self, value: str):
+        setattr(self.params, 'TOP_NODE', value)
+
+    @property
     def security_required(self) -> bool:
         return self.params.get('SECURITY_REQUIRED', 'Y') == 'Y'
 
@@ -212,7 +223,10 @@ class Study(ValidateMixin):
         assert value in (True, False)
         setattr(self.params, 'SECURITY_REQUIRED', 'Y' if value else 'N')
         # Reset Public/Private in TOP_NODE
-        self.study_name = self.study_name
+        top = self.params.get('TOP_NODE')
+        if top.startswith('\\Public Studies\\') or top.startswith('\\Private Studies\\'):
+            pub_priv = 'Private Studies' if value else 'Public Studies'
+            self.top_node = "\\{}\\{}".format(pub_priv, self.study_name)
 
     def call_boris(self, height=650):
         """

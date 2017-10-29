@@ -13,6 +13,20 @@ class ColumnMapping(FileBase, ValidateMixin):
     Can be initiated with by giving a clinical params file object.
     """
 
+    # Data label terms that should not be considered variables. These provide metadata
+    # for all other column in the row of this data file.
+    RESERVED_KEYWORDS = ('SUBJ_ID',
+                         'START_DATE',
+                         'END_DATE',
+                         'TRIAL_VISIT_LABEL',
+                         'INSTANCE_NUM',
+                         'DATA_LABEL',
+                         'VISIT_NAME',
+                         'SITE_ID',
+                         '\\',
+                         'OMIT',
+                         'PATIENT_VISIT')
+
     def __init__(self, params=None):
         """
         Initialize by giving a parameter object.

@@ -277,7 +277,10 @@ class Variable:
 
     @property
     def visual_attributes(self):
-        return 'LAN' if self.is_numeric else 'LAC'
+        if self.is_numeric:
+            return 'LAN'
+        else:
+            return 'LAC'
 
     @property
     def concept_code(self):
@@ -285,8 +288,10 @@ class Variable:
 
     @property
     def modifier_code(self):
+        """ Requires implementation, always returns '@'."""
         return '@'
 
     @property
     def trial_visit(self):
+        """ Requires implementation, always returns 'General'."""
         return 'General'
