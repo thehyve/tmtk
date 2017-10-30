@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import json
 
 from ..utils import FileBase, Exceptions, Mappings
 from ..params import ClinicalParams

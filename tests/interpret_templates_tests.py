@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 import tmtk.toolbox
+from tmtk.utils import PathError
 
 
 class InterpretTemplatesTests(unittest.TestCase):
@@ -52,6 +53,12 @@ class InterpretTemplatesTests(unittest.TestCase):
             # assert filecmp.cmp(str(file_path), str(test_file_path))
             if not filecmp.cmp(str(file_path), str(test_file_path)):
                 print(str(file_path), str(test_file_path))
+
+    def test_write_study(self):
+        with self.assertRaises(PathError):
+            self.study.write_to(self.temp_dir)
+        new_study = self.study.write_to(os.path.join(self.temp_dir, 'new-folder'))
+        self.assertNotEquals(new_study.params.path, self.study.params.path)
 
 
 if __name__ == '__main__':

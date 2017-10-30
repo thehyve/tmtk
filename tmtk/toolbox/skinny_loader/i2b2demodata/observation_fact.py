@@ -21,9 +21,11 @@ class ObservationFact:
             self.df = pd.DataFrame(rows, columns=self.columns)
         else:
             with open(straight_to_disk, 'w') as f:
+                f.write('\t'.join(self.columns) + '\n')
                 for variable in tqdm(self.skinny.study.Clinical.filtered_variables.values()):
-                    for row in self.build_rows(variable):
-                        f.write(row.to_csv(sep='\t'))
+                    pd.DataFrame(
+                        [*self.build_rows(variable)]
+                    ).to_csv(f, sep='\t', index=False, header=False)
 
     def build_rows(self, var):
         """
@@ -40,7 +42,7 @@ class ObservationFact:
             :param visual_attributes: visual attributes determine the type of variable (unfortunately).
             :return: updated row.
             """
-            if visual_attributes == var.DATE:
+            if visual_attributes == var.VIS_DATE:
                 row_.valtype_cd = 'N'
                 row_.tval_char = 'E'
                 # Unix time
@@ -48,16 +50,16 @@ class ObservationFact:
                 # UTC
                 row_.observation_blob = value_
 
-            elif visual_attributes == var.TEXT:
+            elif visual_attributes == var.VIS_TEXT:
                 row_.valtype_cd = 'B'
                 row_.observation_blob = value_
 
-            elif visual_attributes == var.NUMERIC:
+            elif visual_attributes == var.VIS_NUMERIC:
                 row_.valtype_cd = 'N'
                 row_.tval_char = 'E'
                 row_.nval_num = value_
 
-            elif visual_attributes == var.CATEGORICAL:
+            elif visual_attributes == var.VIS_CATEGORICAL:
                 row_.valtype_cd = 'T'
                 row_.tval_char = value_
 

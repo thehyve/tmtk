@@ -131,26 +131,6 @@ class Study(ValidateMixin):
         """Find dataframes that have changed since they have been loaded."""
         return [obj for obj in self.all_files if obj.df_has_changed]
 
-    def get_objects_with_prop(self, prop: all):
-        """
-        Search for objects with a certain property.
-
-        :param prop: string equal to the property name.
-        :return: generator for the found objects.
-        """
-        self.msgs.warning("DeprecationWarning: Don't use get_objects_with_prop(), use get_objects() instead.")
-        recursion_items = ['parent', '_parent', 'obj', 'msgs']
-
-        def iterate_items(d, prop):
-            for key, obj in d.items():
-                if hasattr(obj, '__dict__') and key not in recursion_items:
-                    yield from iterate_items(obj.__dict__, prop)
-
-                if hasattr(obj, prop):
-                    yield obj
-
-        return {i for i in iterate_items(self.__dict__, prop)}
-
     def get_objects(self, of_type):
         """
         Search for objects that have inherited from a certain type.
@@ -436,5 +416,16 @@ class Study(ValidateMixin):
 
     def get_dimensions(self):
         """ Returns a list of dimensions applicable to study """
-        # TODO: an actual implementation
-        return ['study', 'concept', 'patient', 'start time']
+        dimensions = ['study', 'concept', 'patient']
+
+        if self.Clinical.find_variables_by_label('START_DATE'):
+            dimensions.append('start time')
+
+        if self.Clinical.find_variables_by_label('TRIAL_VISIT_LABEL'):
+            dimensions.append('trial visit')
+
+        for modifier in self.Clinical.find_variables_by_label('MODIFIER'):
+            mod_name = self.Clinical.Modifiers.df.loc[modifier.modifier_code, self.Clinical.Modifiers.df.columns[2]]
+            dimensions.append(mod_name)
+
+        return dimensions

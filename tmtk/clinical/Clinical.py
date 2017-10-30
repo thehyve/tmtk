@@ -44,8 +44,10 @@ class Clinical(ValidateMixin):
         self._params = value
         self.ColumnMapping = ColumnMapping(params=self.params)
         self.WordMapping = WordMapping(params=self.params)
-        self.OntologyMapping = OntologyMapping(params=self.params)
-        self.Modifiers = Modifiers(params=self.params)
+        if hasattr(self.params, 'ONTOLOGY_MAP_FILE'):
+            self.OntologyMapping = OntologyMapping(params=self.params)
+        if hasattr(self.params, 'MODIFIERS_FILE'):
+            self.Modifiers = Modifiers(params=self.params)
 
     @property
     def ColumnMapping(self):

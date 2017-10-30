@@ -30,31 +30,13 @@ class OntologyMapping(FileBase):
 
         super().__init__()
 
-    # def build_index(self, df=None):
-    #     """
-    #     Build and sort multi-index for dataframe based on filename and
-    #     column number columns. If no df parameter is not set, build index
-    #     for self.df.
-    #
-    #     :param df: `pd.DataFrame`.
-    #     :return: `pd.DataFrame`.
-    #     """
-    #     # pass
-    #     # if not isinstance(df, pd.DataFrame):
-    #     #     df = self.df
-    #     # df.set_index(list(df.columns[[0, 1]]), drop=False, inplace=True)
-    #     # df.sort_index(inplace=True)
-    #     return df
-
     def create_df(self):
         """
         Create `pd.DataFrame` with a correct header.
 
         :return: `pd.DataFrame`.
         """
-        # return pd.DataFrame()
         df = pd.DataFrame(dtype=str, columns=Mappings.ontology_header)
-        # df = self.build_index(df)
         return df
 
     @property

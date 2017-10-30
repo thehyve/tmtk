@@ -7,7 +7,7 @@ class ConceptDimension:
         self.study = study
 
         row_list = []
-        if study.Clinical.OntologyMapping.df.shape[0] > 1:
+        if study.Clinical.OntologyMapping and study.Clinical.OntologyMapping.df.shape[0] > 1:
             row_list += [self._build_ontology_row(c)
                          for c in study.Clinical.OntologyMapping.tree.get_concept_rows()]
 

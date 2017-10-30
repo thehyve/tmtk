@@ -23,7 +23,8 @@ class SkinnyExport:
         self.patient_mapping = self._build_patient_mapping()
         self.study_table = self._build_study_table()
         self.trial_visit_dimension = self._build_trial_visit_dimension()
-        self.modifier_dimension = self._build_modifier_dimension()
+        if study.Clinical.Modifiers:
+            self.modifier_dimension = self._build_modifier_dimension()
         self.dimension_description = self._build_dimension_description()
         self.study_dimension_descriptions = self._build_study_dimension_descriptions()
 

@@ -82,10 +82,10 @@ class Variable:
     Base class for clinical variables
     """
 
-    DATE = 'LAD'
-    TEXT = 'LAT'
-    NUMERIC = 'LAN'
-    CATEGORICAL = 'LAC'
+    VIS_DATE = 'LAD'
+    VIS_TEXT = 'LAT'
+    VIS_NUMERIC = 'LAN'
+    VIS_CATEGORICAL = 'LAC'
 
     def __init__(self, datafile, column: int = None, clinical_parent=None):
         self.datafile = datafile
@@ -288,13 +288,13 @@ class Variable:
     def visual_attributes(self):
 
         if self.column_type == 'DATE':
-            return self.DATE
+            return self.VIS_DATE
         elif self.column_type == 'TEXT':
-            return self.TEXT
+            return self.VIS_TEXT
         elif self.is_numeric:
-            return self.NUMERIC
+            return self.VIS_NUMERIC
         else:
-            return self.CATEGORICAL
+            return self.VIS_CATEGORICAL
 
     @property
     def reference_column(self):
@@ -314,7 +314,10 @@ class Variable:
         if self.data_label == 'MODIFIER':
             return self.parent.Modifiers.df.loc[self.modifier_code, self.parent.Modifiers.df.columns[3]]
         else:
-            return self.parent.ColumnMapping.select_row(self.var_id)[6]
+            try:
+                return self.parent.ColumnMapping.select_row(self.var_id)[6]
+            except IndexError:
+                return None
 
     @property
     def modifier_code(self):
