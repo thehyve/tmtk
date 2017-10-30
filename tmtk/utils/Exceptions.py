@@ -52,5 +52,5 @@ class TooManyValues(BaseException):
         return "Found {} values for {}, expected {}.".format(self.found, self.expected, self.id_)
 
 
-class NotYetImplemented(BaseException):
+class ReservedKeywordException(Exception):
     pass

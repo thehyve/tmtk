@@ -30,6 +30,20 @@ class Modifiers(FileBase):
 
         super().__init__()
 
+    def build_index(self, df=None):
+        """
+        Build index for the column mapping dataframe.  If `pd.DataFrame`
+        (optional) is given, modify and return that.
+
+        :param df: `pd.DataFrame`.
+        :return: `pd.DataFrame`.
+        """
+        if not isinstance(df, pd.DataFrame):
+            df = self.df
+        df.set_index(df.columns[1], drop=False, inplace=True)
+        df.sort_index(inplace=True)
+        return df
+
     def create_df(self):
         """
         Create `pd.DataFrame` with a correct header.
@@ -37,5 +51,5 @@ class Modifiers(FileBase):
         :return: `pd.DataFrame`.
         """
         df = pd.DataFrame(dtype=str, columns=Mappings.modifiers_header)
-        # df = self.build_index(df)
+        df = self.build_index(df)
         return df

@@ -1,2 +1,2 @@
-modifier_path	modifier_cd	name_char
-\Missing Value	MISSVAL	Missing Value
+modifier_path	modifier_cd	name_char	Data Type
+\Missing Value	MISSVAL	Missing Value	CATEGORICAL

@@ -9,11 +9,14 @@ from .skinny_loader.i2b2demodata.trial_visit_dimension import TrialVisitDimensio
 from .skinny_loader.i2b2metadata.dimension_descriptions import DimensionDescription
 from .skinny_loader.i2b2metadata.study_dimension_descriptions import StudyDimensionDescription
 
+import os
+
 
 class SkinnyExport:
 
-    def __init__(self, study):
+    def __init__(self, study, export_directory=None):
         self.study = study
+        self.export_directory = export_directory
         self.i2b2_secure = self._build_i2b2_secure()
         self.concept_dimension = self._build_concept_dimension()
         self.patient_dimension = self._build_patient_dimension()
@@ -57,4 +60,7 @@ class SkinnyExport:
         self.observation_fact = ObservationFact(self)
 
     def observation_fact_to_disk(self):
-        ObservationFact(self, straight_to_disk=True)
+        dir_path = os.path.join(self.export_directory, 'i2b2demodata')
+        os.makedirs(dir_path, exist_ok=True)
+
+        ObservationFact(self, straight_to_disk=os.path.join(dir_path, 'observation_fact.tsv'))

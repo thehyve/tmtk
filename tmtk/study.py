@@ -223,7 +223,7 @@ class Study(ValidateMixin):
         assert value in (True, False)
         setattr(self.params, 'SECURITY_REQUIRED', 'Y' if value else 'N')
         # Reset Public/Private in TOP_NODE
-        top = self.params.get('TOP_NODE')
+        top = self.params.get('TOP_NODE', '')
         if top.startswith('\\Public Studies\\') or top.startswith('\\Private Studies\\'):
             pub_priv = 'Private Studies' if value else 'Public Studies'
             self.top_node = "\\{}\\{}".format(pub_priv, self.study_name)

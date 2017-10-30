@@ -1,4 +1,6 @@
-from ..utils import Mappings, path_converter, is_numeric, path_join
+from ..utils import Mappings, path_converter, is_numeric, path_join, ReservedKeywordException
+
+import pandas as pd
 
 
 class VarID:
@@ -80,8 +82,14 @@ class Variable:
     Base class for clinical variables
     """
 
+    DATE = 'LAD'
+    TEXT = 'LAT'
+    NUMERIC = 'LAN'
+    CATEGORICAL = 'LAC'
+
     def __init__(self, datafile, column: int = None, clinical_parent=None):
         self.datafile = datafile
+        self.filename = datafile.name
         self.column = column
         self._zero_column = column - 1
         self.parent = clinical_parent
@@ -196,7 +204,7 @@ class Variable:
 
         :return: str.
         """
-        return self.column_map_data.get(Mappings.data_label_s)
+        return self.parent.ColumnMapping.select_row(self.var_id)[3]
 
     @data_label.setter
     def data_label(self, value):
@@ -231,12 +239,12 @@ class Variable:
 
     @property
     def forced_categorical(self):
-        """Check if forced categorical by entering 'CATEGORICAL' in 7th column.
+        """Check if forced categorical by entering 'CATEGORICAL' in data type column.
         Can be changed by setting this to True or False.
 
         :return: bool.
         """
-        return self.column_map_data.get(Mappings.concept_type_s) == 'CATEGORICAL'
+        return self.column_type == 'CATEGORICAL'
 
     @forced_categorical.setter
     def forced_categorical(self, value: bool):
@@ -280,28 +288,83 @@ class Variable:
     def visual_attributes(self):
 
         if self.column_type == 'DATE':
-            return 'LAD'
+            return self.DATE
         elif self.column_type == 'TEXT':
-            return 'LAT'
+            return self.TEXT
         elif self.is_numeric:
-            return 'LAN'
+            return self.NUMERIC
         else:
-            return 'LAC'
+            return self.CATEGORICAL
+
+    @property
+    def reference_column(self):
+        return self.parent.ColumnMapping.select_row(self.var_id)[4]
 
     @property
     def concept_code(self):
-        return self.parent.ColumnMapping.select_row(self.var_id)[5] or self.concept_path
+        return self.parent.ColumnMapping.select_row(self.var_id)[5]
 
     @property
     def column_type(self):
-        return self.parent.ColumnMapping.select_row(self.var_id)[6]
+        """
+        Column data type setting can be found in modifiers file for MODIFIER vars,
+        else it is in the DataType column of column mapping. If it is not found, it will
+        be either numerical or categorical based on the datafile values.
+        """
+        if self.data_label == 'MODIFIER':
+            return self.parent.Modifiers.df.loc[self.modifier_code, self.parent.Modifiers.df.columns[3]]
+        else:
+            return self.parent.ColumnMapping.select_row(self.var_id)[6]
 
     @property
     def modifier_code(self):
         """ Requires implementation, always returns '@'."""
-        return '@'
+        return self.parent.ColumnMapping.select_row(self.var_id)[6] if self.data_label == 'MODIFIER' else '@'
+
+    def _get_one_or_none(self, label: str):
+        """
+        Will look for a variable in the same data file based a label. Will raise
+        ReservedKeywordException if more than 1 is found.
+
+        :param str label: data label.
+        :return: variable.
+        """
+        vars_ = self.parent.find_variables_by_label(label, self.var_id.filename)
+        if len(vars_) > 2:
+            raise ReservedKeywordException('Multiple {} found for {}'.format(label, self))
+        elif vars_:
+            return vars_[0]
+
+    @property
+    def subj_id(self):
+        subj_id = self._get_one_or_none('SUBJ_ID')
+        if subj_id:
+            return subj_id
+        else:
+            raise ReservedKeywordException('No SUBJ_ID found for {}'.format(self))
+
+    @property
+    def start_date(self):
+        return self._get_one_or_none('START_DATE')
+
+    @property
+    def end_date(self):
+        return self._get_one_or_none('END_DATE')
 
     @property
     def trial_visit(self):
-        """ Requires implementation, always returns 'General'."""
-        return 'General'
+        return self._get_one_or_none('TRIAL_VISIT_LABEL') or 'General'
+
+    @property
+    def modifiers(self):
+        """
+        Returns a list of all modifier variable that apply to this variable.
+        The data label for these variables have to be 'MODIFIER' and the
+        fifth column (reference column) has to either be empty or the column
+        this variable has.
+
+        :return: list of modifier variables.
+        """
+        vars_ = self.parent.find_variables_by_label('MODIFIER', self.filename)
+        inclusion_criteria = (None, pd.np.nan, str(self.column))
+        return [var for var in vars_ if var.reference_column in inclusion_criteria]

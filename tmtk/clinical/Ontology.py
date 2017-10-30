@@ -74,7 +74,10 @@ class Concept:
     def __init__(self, code, label, parents=None, blob=None):
         self.code = code
         self.label = label
-        self.blob = blob
+        try:
+            self.blob = json.loads(blob)
+        except TypeError:
+            self.blob = blob
         self.parents = parents
         self.children = []
 
@@ -153,12 +156,13 @@ class OntologyTree:
             return json.dumps(tree)
 
     def get_concept_rows(self):
-        yield from self._get_next_concept_row(self.json(as_object=True), path='')
+        for node in self.json(as_object=True):
+            yield from self._get_next_concept_row(node, path='')
 
-    def _get_next_concept_row(self, children, path):
-        for node in children:
-            path += '\\' + node.get('text')
-            if node.get('children'):
-                yield from self._get_next_concept_row(node.get('children'), path)
-            if node.get('id'):
-                yield node.get('id'), path, node.get('text')
+    def _get_next_concept_row(self, node, path):
+
+        path += '\\' + node.get('text')
+        for child in node.get('children'):
+            yield from self._get_next_concept_row(child, path)
+        if node.get('id'):
+            yield node.get('id'), path, node.get('text'), node.get('data').get('blob')

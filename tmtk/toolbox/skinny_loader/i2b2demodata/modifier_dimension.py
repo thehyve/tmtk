@@ -4,8 +4,6 @@ import pandas as pd
 class ModifierDimension:
 
     def __init__(self, study):
-        assert all([c in self.columns for c in study.Clinical.Modifiers.df.columns]), \
-            'Not all columns are legal.'
 
         self.df = pd.DataFrame(data={
             'modifier_path': study.Clinical.Modifiers.df.iloc[:, 0],

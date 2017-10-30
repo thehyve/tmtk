@@ -10,7 +10,7 @@ class Mappings:
     data_label = 'Data Label'
     magic_5 = 'Magic 5th'
     ontology_code = 'Ontology Code'
-    concept_type = 'Column Type'
+    concept_type = 'Data Type'
 
     # Tags
     tags_path = 'Concept Path'
@@ -27,6 +27,7 @@ class Mappings:
     modifier_path = 'modifier_path'
     modifier_cd = 'modifier_cd'
     name_char = 'name_char'
+    column_type = 'Data Type'
 
     # Ontology file
     term_label = 'Label'
@@ -80,7 +81,8 @@ class Mappings:
 
     modifiers_header = [modifier_path,
                         modifier_cd,
-                        name_char]
+                        name_char,
+                        column_type]
 
     ontology_header = [ontology_code,
                        term_label,

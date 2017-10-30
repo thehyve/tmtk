@@ -7,7 +7,7 @@ class ConceptDimension:
         self.study = study
 
         row_list = []
-        if hasattr(study.Clinical, 'OntologyMapping'):
+        if study.Clinical.OntologyMapping.df.shape[0] > 1:
             row_list += [self._build_ontology_row(c)
                          for c in study.Clinical.OntologyMapping.tree.get_concept_rows()]
 
@@ -24,11 +24,11 @@ class ConceptDimension:
         self.df = self.df.append(tmp_df, ignore_index=True)
 
         # Put back the right order of columns after concatenating the two dataframes
-        self.df = self.df.reindex(self.columns, axis=1)
+        self.df = self.df.reindex(columns=self.columns)
 
     def _build_ontology_row(self, concept):
         row = self.row
-        row.concept_cd, row.concept_path, row.name_char = concept
+        row.concept_cd, row.concept_path, row.name_char, row.concept_blob = concept
         return row
 
     @property

@@ -219,28 +219,29 @@ class Clinical(ValidateMixin):
         datafile = self.get_datafile(df_name)
         return Variable(datafile, column, self)
 
-    def find_variable_by_label(self, label: str) -> list:
+    def find_variables_by_label(self, label: str, in_file: str=None) -> list:
         """
         Search for variables based on data label. All labels are converted to lower case.
 
         :param label:
+        :param in_file:
         :return:
         """
-        return [var for var in self.all_variables.values() if var.data_label.lower() in label.lower()]
-
-    def get_subj_id_for_var(self, variable):
-
-        for subj_id_var in self.find_variable_by_label('subj_id'):
-            if subj_id_var.var_id[0] == variable.var_id[0]:
-                return subj_id_var
-
-        raise Exception('No SUBJ_ID found for {}'.format(variable))
+        sliced = self.ColumnMapping.df.iloc[:, 3] == label
+        if in_file:
+            sliced = sliced & (self.ColumnMapping.df.iloc[:, 0] == in_file)
+        return [self.get_variable(x[0]) for x in self.ColumnMapping.df[sliced].iterrows()]
 
     def get_patients(self):
-        subj_id_vars = self.find_variable_by_label('subj_id')
-        gender_vars = self.find_variable_by_label('gender')
-        gender_vars += self.find_variable_by_label('sex')
-        age_vars = self.find_variable_by_label('age')
+        subj_id_vars = self.find_variables_by_label('SUBJ_ID')
+        gender_vars = self.find_variables_by_label('Gender')
+        gender_vars += self.find_variables_by_label('gender')
+        gender_vars += self.find_variables_by_label('GENDER')
+        gender_vars += self.find_variables_by_label('Sex')
+        gender_vars += self.find_variables_by_label('sex')
+        gender_vars += self.find_variables_by_label('SEX')
+        age_vars = self.find_variables_by_label('age')
+        age_vars += self.find_variables_by_label('Age')
 
         if len(gender_vars) > 1:
             raise Exception('More than one gender defined.')
@@ -253,14 +254,14 @@ class Clinical(ValidateMixin):
 
         if age_vars:
             age_var = age_vars[0]
-            age_subj_id = self.get_subj_id_for_var(age_var)
+            age_subj_id = age_var.subj_id
             for i in range(len(age_var.values)):
                 subject = age_subj_id.values[i]
                 subjects[subject]['age'] = age_var.values[i]
 
         if gender_vars:
             gender_var = gender_vars[0]
-            gender_subj_id = self.get_subj_id_for_var(gender_var)
+            gender_subj_id = gender_var.subj_id
             for i in range(len(gender_var.values)):
                 subject = gender_subj_id.values[i]
                 subjects[subject]['gender'] = gender_var.values[i]
