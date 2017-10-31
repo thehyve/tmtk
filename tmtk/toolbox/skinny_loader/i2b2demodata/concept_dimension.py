@@ -1,10 +1,13 @@
+from ..generic import TableRow
+
 import pandas as pd
 
 
-class ConceptDimension:
+class ConceptDimension(TableRow):
 
     def __init__(self, study, i2b2_secure):
         self.study = study
+        super().__init__()
 
         row_list = []
         if study.Clinical.OntologyMapping and study.Clinical.OntologyMapping.df.shape[0] > 1:
@@ -32,10 +35,7 @@ class ConceptDimension:
         return row
 
     @property
-    def row(self):
-        """
-        :return: Row with defaults
-        """
+    def _row_definition(self):
         return pd.Series(
             data=[
                 None,  # concept_cd
@@ -61,7 +61,3 @@ class ConceptDimension:
                 'upload_id',
                 'table_name'
             ])
-
-    @property
-    def columns(self):
-        return self.row.keys()

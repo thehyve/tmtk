@@ -1,10 +1,13 @@
-import pandas as pd
 from .patient_dimension import PatientDimension
+from ..generic import TableRow
+
+import pandas as pd
 
 
-class PatientMapping:
+class PatientMapping(TableRow):
 
     def __init__(self, patient_dimension: PatientDimension):
+        super().__init__()
         self.df = pd.DataFrame({'patient_ide': patient_dimension.df.sourcesystem_cd,
                                 'patient_ide_source': 'SUBJ_ID',
                                 'patient_num': patient_dimension.df.patient_num},
@@ -14,10 +17,7 @@ class PatientMapping:
         self.map = dict(zip(self.df.patient_ide, self.df.patient_num))
 
     @property
-    def row(self):
-        """
-        :return: Row with defaults
-        """
+    def _row_definition(self):
         return pd.Series(
             data=[
                 None,  # patient_ide
@@ -43,7 +43,3 @@ class PatientMapping:
                 'sourcesystem_cd',
                 'upload_id',
             ])
-
-    @property
-    def columns(self):
-        return self.row.keys()

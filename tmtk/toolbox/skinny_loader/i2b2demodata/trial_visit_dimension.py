@@ -1,12 +1,12 @@
-from .. import Defaults
+from ..generic import TableRow, Defaults
 
 import pandas as pd
 
 
-class TrialVisitDimension:
+class TrialVisitDimension(TableRow):
 
     def __init__(self, study):
-
+        super().__init__()
         self.df = pd.DataFrame([self.build_row(trial_visit) for trial_visit in study.Clinical.get_trial_visits()],
                                columns=self.columns)
 
@@ -23,10 +23,7 @@ class TrialVisitDimension:
         return row
 
     @property
-    def row(self):
-        """
-        :return: Row with defaults
-        """
+    def _row_definition(self):
         return pd.Series(
             data=[
                 None,                 # trial_visit_num
@@ -42,7 +39,3 @@ class TrialVisitDimension:
                 'rel_time_num',
                 'rel_time_label',
             ])
-
-    @property
-    def columns(self):
-        return self.row.keys()

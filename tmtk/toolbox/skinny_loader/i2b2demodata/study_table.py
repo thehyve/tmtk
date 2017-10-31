@@ -1,11 +1,13 @@
-from .. import Defaults
+from ..generic import TableRow, Defaults
 
 import pandas as pd
 
 
-class StudyTable:
+class StudyTable(TableRow):
 
     def __init__(self, study):
+        super().__init__()
+
         self.df = pd.DataFrame(
             data={
                 'study_num': Defaults.STUDY_NUM,
@@ -18,10 +20,7 @@ class StudyTable:
         self.df.iloc[:, 0] = self.df.index
 
     @property
-    def row(self):
-        """
-        :return: Row with defaults
-        """
+    def _row_definition(self):
         return pd.Series(
             data=[
                 None,  # study_num
@@ -37,7 +36,3 @@ class StudyTable:
                 'secure_obj_token',
                 'study_blob',
             ])
-
-    @property
-    def columns(self):
-        return self.row.keys()

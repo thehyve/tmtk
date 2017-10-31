@@ -1,15 +1,17 @@
-from ..i2b2metadata.i2b2_secure import I2B2Secure
+from ..generic import TableRow, get_concept_identifier
 
 import pandas as pd
 import arrow
 from tqdm import tqdm
 
 
-class ObservationFact:
+class ObservationFact(TableRow):
 
     def __init__(self, skinny, straight_to_disk=False):
+
         self.skinny = skinny
         self._now = arrow.now().isoformat(sep=' ')
+        super().__init__()
 
         rows = []
 
@@ -72,7 +74,7 @@ class ObservationFact:
         trial_visit = var.trial_visit
         visual_attributes = var.visual_attributes
 
-        concept_cd = I2B2Secure.get_concept_identifier(var, self.skinny.study)
+        concept_cd = get_concept_identifier(var, self.skinny.study)
 
         for i, value in enumerate(var.values):
 
@@ -108,10 +110,7 @@ class ObservationFact:
         return not value or pd.isnull(value)
 
     @property
-    def row(self):
-        """
-        :return: Row with defaults
-        """
+    def _row_definition(self):
         return pd.Series(
             data=[
                 -1,    # encounter_num
@@ -165,7 +164,3 @@ class ObservationFact:
                 'upload_id',
                 'sample_cd',
             ])
-
-    @property
-    def columns(self):
-        return self.row.keys()

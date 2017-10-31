@@ -1,29 +1,22 @@
-from .. import Defaults
+from ..generic import TableRow, Defaults, calc_hlevel, get_concept_identifier
 
 import pandas as pd
 
 
-class I2B2Secure:
+class I2B2Secure(TableRow):
 
     def __init__(self, study):
 
         self.study = study
+        super().__init__()
 
         row_list = [self.build_variable_row(var) for var in study.Clinical.filtered_variables.values()]
-
         row_list += [*self.add_top_nodes()]
 
         self.df = pd.DataFrame(row_list, columns=self.columns)
 
         # Add rows for all parent folders not present yet.
         self.df.apply(lambda x: self.add_folders(x.c_fullname), axis=1)
-
-    def calc_hlevel(self, path):
-        return len(path.strip(Defaults.DELIMITER).split(Defaults.DELIMITER)) - 1
-
-    @staticmethod
-    def get_concept_identifier(variable, study):
-        return variable.concept_code or '{}{}{}'.format(study.top_node, Defaults.DELIMITER, variable.concept_path)
 
     def add_folders(self, path):
         parent = path.rsplit('\\', 2)[0] + '\\'
@@ -38,10 +31,10 @@ class I2B2Secure:
         row = self.row
 
         row.c_fullname = '{}\\{}\\'.format(self.study.top_node, var.concept_path)
-        row.c_hlevel = self.calc_hlevel(row.c_fullname)
+        row.c_hlevel = calc_hlevel(row.c_fullname)
         row.c_name = var.data_label
         row.c_visualattributes = var.visual_attributes
-        row.c_basecode = self.get_concept_identifier(var, self.study)
+        row.c_basecode = get_concept_identifier(var, self.study)
         row.c_dimcode = row.c_fullname
 
         return row
@@ -54,7 +47,7 @@ class I2B2Secure:
         row = self.row
 
         row.c_fullname = self.study.top_node + '\\'
-        row.c_hlevel = self.calc_hlevel(row.c_fullname)
+        row.c_hlevel = calc_hlevel(row.c_fullname)
         row.c_visualattributes = 'FAS'
         row.c_facttablecolumn = '@'
         row.c_tablename = 'STUDY'
@@ -86,15 +79,12 @@ class I2B2Secure:
     def add_folder_row(self, path):
         row = self.row
         row.c_fullname = path
-        row.c_hlevel = self.calc_hlevel(path)
+        row.c_hlevel = calc_hlevel(path)
         row.c_name = path.strip(Defaults.DELIMITER).split(Defaults.DELIMITER)[-1]
         self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
 
     @property
-    def row(self):
-        """
-        :return: Row with defaults
-        """
+    def _row_definition(self):
         return pd.Series(
             data=[
                 None,                   # c_hlevel
@@ -152,9 +142,3 @@ class I2B2Secure:
                 'c_symbol',
                 'i2b2_id',
                 'secure_obj_token'])
-
-    @property
-    def columns(self):
-        return self.row.keys()
-
-

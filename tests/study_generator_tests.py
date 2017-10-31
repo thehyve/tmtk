@@ -27,5 +27,11 @@ class GeneratorTests(unittest.TestCase):
         assert 'Demographics' in list(self.study.Clinical.ColumnMapping.df.iloc[:, 1])
         assert 'Gender' in list(self.study.Clinical.ColumnMapping.df.iloc[:, 3])
 
+    def test_export_to_skinny(self):
+        export = tmtk.toolbox.SkinnyExport(self.study)
+        export.build_observation_fact()
+        assert export.observation_fact.df.shape[0] > 1
+
+
 if __name__ == '__main__':
     unittest.main()

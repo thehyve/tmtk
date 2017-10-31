@@ -1,1 +1,1 @@
-from .dictionaries.defaults import Defaults
+from .generic import Defaults, TableRow

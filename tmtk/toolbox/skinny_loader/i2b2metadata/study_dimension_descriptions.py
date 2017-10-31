@@ -1,12 +1,12 @@
-from .. import Defaults
+from ..generic import TableRow, Defaults
 
 import pandas as pd
 
 
-class StudyDimensionDescription:
+class StudyDimensionDescription(TableRow):
 
     def __init__(self, dimension_description):
-
+        super().__init__()
         row_list = []
         for dimension_id in dimension_description.df['id']:
             row = self.row
@@ -15,12 +15,8 @@ class StudyDimensionDescription:
 
         self.df = pd.DataFrame(row_list)
 
-
     @property
-    def row(self):
-        """
-        :return: Row with defaults
-        """
+    def _row_definition(self):
         return pd.Series(
             data=[
                 None,                # dimension_description_id
@@ -30,7 +26,3 @@ class StudyDimensionDescription:
                 'dimension_description_id',
                 'study_id',
             ])
-
-    @property
-    def columns(self):
-        return self.row.keys()

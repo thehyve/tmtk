@@ -1,9 +1,11 @@
+from ..generic import TableRow
 import pandas as pd
 
 
-class ModifierDimension:
+class ModifierDimension(TableRow):
 
     def __init__(self, study):
+        super().__init__()
 
         self.df = pd.DataFrame(data={
             'modifier_path': study.Clinical.Modifiers.df.iloc[:, 0],
@@ -12,10 +14,7 @@ class ModifierDimension:
         }, columns=self.columns)
 
     @property
-    def row(self):
-        """
-        :return: Row with defaults
-        """
+    def _row_definition(self):
         return pd.Series(
             data=[
                 None,  # modifier_path
@@ -43,7 +42,3 @@ class ModifierDimension:
                 'modifier_level',
                 'modifier_node_type',
             ])
-
-    @property
-    def columns(self):
-        return self.row.keys()

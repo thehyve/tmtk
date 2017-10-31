@@ -1,32 +1,58 @@
+from ..generic import TableRow
+
 import pandas as pd
-import os
 
 
-class DimensionDescription:
+class DimensionDescription(TableRow):
 
     def __init__(self, study):
+
+        self.study = study
+        super().__init__()
+
         self.df = pd.DataFrame(
             {'name': study.get_dimensions()},
             columns=self.columns
         )
+        self.adapt_rows_from_modifier_dimension()
 
         self.df.iloc[:, 0] = self.df.index
 
+    def build_row_from_study_dimension(self, dimension):
+        row = self.row
+        row.name = dimension
+        return row
+
+    def adapt_rows_from_modifier_dimension(self):
+
+        def adapt_df_row(x):
+
+            modifier_row = self.df.name == x[2]
+            if not any(modifier_row):
+                return
+
+            self.df.loc[modifier_row, 'modifier_code'] = x[1]
+            self.df.loc[modifier_row, 'value_type'] = 'T' if x[3] == 'CATEGORICAL' else 'N'
+
+            # Some hardcoded stuff
+            self.df.loc[modifier_row, 'density'] = 'DENSE'
+            self.df.loc[modifier_row, 'packable'] = 'NOT_PACKABLE'
+            self.df.loc[modifier_row, 'size_cd'] = 'SMALL'
+
+        if self.study.Clinical.Modifiers:
+            self.study.Clinical.Modifiers.df.apply(adapt_df_row, axis=1)
 
     @property
-    def row(self):
-        """
-        :return: Row with defaults
-        """
+    def _row_definition(self):
         return pd.Series(
             data=[
-                None,  #id
-                None,  #density
-                None,  #modifier_code
-                None,  #value_type
-                None,  #name
-                None,  #packable
-                None,  #size_cd
+                None,  # id
+                None,  # density
+                None,  # modifier_code
+                None,  # value_type
+                None,  # name
+                None,  # packable
+                None,  # size_cd
             ],
             index=[
                 'id',
@@ -37,7 +63,3 @@ class DimensionDescription:
                 'packable',
                 'size_cd',
             ])
-
-    @property
-    def columns(self):
-        return self.row.keys()

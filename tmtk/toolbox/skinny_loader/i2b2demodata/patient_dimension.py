@@ -1,10 +1,12 @@
+from ..generic import TableRow
 import pandas as pd
 
 
-class PatientDimension:
+class PatientDimension(TableRow):
 
     def __init__(self, study):
         self.study = study
+        super().__init__()
 
         self.df = pd.DataFrame(
             [self.build_row(id_, age_gender) for id_, age_gender in study.Clinical.get_patients().items()],
@@ -21,10 +23,7 @@ class PatientDimension:
         return row
 
     @property
-    def row(self):
-        """
-        :return: Row with defaults
-        """
+    def _row_definition(self):
         return pd.Series(
             data=[
                 None,  # patient_num
@@ -68,7 +67,3 @@ class PatientDimension:
                 'sourcesystem_cd',
                 'upload_id',
             ])
-
-    @property
-    def columns(self):
-        return self.row.keys()
