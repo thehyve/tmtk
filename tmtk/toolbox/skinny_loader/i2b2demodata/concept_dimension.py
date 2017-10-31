@@ -16,6 +16,9 @@ class ConceptDimension(TableRow):
 
         self.df = pd.DataFrame(row_list, columns=self.columns)
 
+        # Add Ontology paths as nodes in tree
+        i2b2_secure.back_populate_ontology(self)
+
         # Find all concept nodes in i2b2 secure by checking for visualattributes starting with LA
         concept_nodes = i2b2_secure.df.c_visualattributes.str.startswith('LA')
         unmapped_concepts = i2b2_secure.df.c_basecode.apply(lambda x: not any(self.df.concept_cd == x))

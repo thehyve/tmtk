@@ -1,13 +1,13 @@
-from .skinny_loader.i2b2demodata.patient_mapping import PatientMapping
-from .skinny_loader.i2b2demodata.study_table import StudyTable
-from .skinny_loader.i2b2metadata.i2b2_secure import I2B2Secure
-from .skinny_loader.i2b2demodata.concept_dimension import ConceptDimension
-from .skinny_loader.i2b2demodata.modifier_dimension import ModifierDimension
-from .skinny_loader.i2b2demodata.observation_fact import ObservationFact
-from .skinny_loader.i2b2demodata.patient_dimension import PatientDimension
-from .skinny_loader.i2b2demodata.trial_visit_dimension import TrialVisitDimension
-from .skinny_loader.i2b2metadata.dimension_descriptions import DimensionDescription
-from .skinny_loader.i2b2metadata.study_dimension_descriptions import StudyDimensionDescription
+from .i2b2demodata.patient_mapping import PatientMapping
+from .i2b2demodata.study_table import StudyTable
+from .i2b2metadata.i2b2_secure import I2B2Secure
+from .i2b2demodata.concept_dimension import ConceptDimension
+from .i2b2demodata.modifier_dimension import ModifierDimension
+from .i2b2demodata.observation_fact import ObservationFact
+from .i2b2demodata.patient_dimension import PatientDimension
+from .i2b2demodata.trial_visit_dimension import TrialVisitDimension
+from .i2b2metadata.dimension_descriptions import DimensionDescription
+from .i2b2metadata.study_dimension_descriptions import StudyDimensionDescription
 
 import os
 
@@ -17,8 +17,14 @@ class SkinnyExport:
     def __init__(self, study, export_directory=None):
         self.study = study
         self.export_directory = export_directory
+
+        # Start by creating the tree in i2b2_secure
         self.i2b2_secure = self._build_i2b2_secure()
+        # Nodes from concept dimension are added to i2b2_secure
         self.concept_dimension = self._build_concept_dimension()
+        # We have to go back to add all missing folders
+        self.i2b2_secure.add_missing_folders()
+
         self.patient_dimension = self._build_patient_dimension()
         self.patient_mapping = self._build_patient_mapping()
         self.study_table = self._build_study_table()
@@ -28,6 +34,7 @@ class SkinnyExport:
         self.dimension_description = self._build_dimension_description()
         self.study_dimension_descriptions = self._build_study_dimension_descriptions()
 
+        # Observation fact has to be created explicitly, because it is the only expensive operation
         self.observation_fact = None
 
     def _build_i2b2_secure(self):

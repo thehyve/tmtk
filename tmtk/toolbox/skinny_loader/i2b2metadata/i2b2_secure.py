@@ -15,16 +15,17 @@ class I2B2Secure(TableRow):
 
         self.df = pd.DataFrame(row_list, columns=self.columns)
 
-        # Add rows for all parent folders not present yet.
-        self.df.apply(lambda x: self.add_folders(x.c_fullname), axis=1)
+    def add_missing_folders(self):
+        """ Add rows for all parent folders not present yet. """
+        self.df.apply(lambda x: self._add_folders(x.c_fullname), axis=1)
 
-    def add_folders(self, path):
+    def _add_folders(self, path):
         parent = path.rsplit('\\', 2)[0] + '\\'
         if parent == '\\':
             return
         if not any(self.df.c_fullname == parent):
             self.add_folder_row(parent)
-        self.add_folders(parent)
+        self._add_folders(parent)
 
     def build_variable_row(self, var):
 
@@ -38,6 +39,17 @@ class I2B2Secure(TableRow):
         row.c_dimcode = row.c_fullname
 
         return row
+
+    def back_populate_ontology(self, concept_dimension):
+        for concept_row in concept_dimension.df.itertuples():
+            concept_code = concept_row[1]
+            concept_path = concept_row[2]
+            concept_name = concept_row[3]
+            row = self.df[self.df.c_basecode == concept_code].copy()
+            row.c_fullname = concept_path
+            row.c_hlevel = calc_hlevel(concept_path)
+            row.c_name = concept_name
+            self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
 
     def add_top_nodes(self):
         """
