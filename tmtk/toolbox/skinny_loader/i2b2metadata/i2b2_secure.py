@@ -41,10 +41,8 @@ class I2B2Secure(TableRow):
         row.c_facttablecolumn = '@'
         row.c_tablename = 'STUDY'
         row.c_columnname = 'STUDY_ID'
-        row.c_operator = 'T'
+        row.c_operator = '='
         row.c_name = self.study.study_name
-        row.c_synonym_cd = 'N'
-        row.c_columndatatype = 'T'
         row.c_dimcode = row.c_fullname
 
         yield row
@@ -60,7 +58,7 @@ class I2B2Secure(TableRow):
             row.c_visualattributes = 'CA'
             row.c_tablename = '@'
             row.c_columnname = '@'
-            row.secure_obj_token = None
+            row.secure_obj_token = Defaults.PUBLIC_TOKEN
             row.sourcesystem_cd = None
 
             yield row
@@ -76,7 +74,7 @@ class I2B2Secure(TableRow):
             row.c_hlevel = calc_hlevel(concept_path)
             row.c_name = concept_name
             row.sourcesystem_cd = None
-            row.secure_obj_token = None
+            row.secure_obj_token = Defaults.PUBLIC_TOKEN
             self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
 
     def add_missing_folders(self):
@@ -97,8 +95,11 @@ class I2B2Secure(TableRow):
         row.c_fullname = path
         row.c_hlevel = calc_hlevel(path)
         row.c_name = path.strip(Defaults.DELIMITER).split(Defaults.DELIMITER)[-1]
-        row.sourcesystem_cd = self.study.study_id if path.startswith(self.study.top_node) else None
-        row.secure_obj_token = row.sourcesystem_cd
+
+        if not path.startswith(self.study.top_node):
+            row.sourcesystem_cd = None
+            row.secure_obj_token = Defaults.PUBLIC_TOKEN
+
         self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
 
     @property
@@ -131,7 +132,7 @@ class I2B2Secure(TableRow):
                 None,                   # c_path
                 None,                   # c_symbol
                 None,                   # i2b2_id
-                self.study.study_id],   # secure_obj_token
+                self.study.study_id if self.study.security_required else Defaults.PUBLIC_TOKEN],   # secure_obj_token
             index=[
                 'c_hlevel',
                 'c_fullname',

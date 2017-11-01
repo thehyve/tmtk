@@ -42,7 +42,8 @@ class SurveyTests(unittest.TestCase):
 
         self.assertEqual(i2b2_df.shape, (21, 27))
         self.assertIn('\\Ontology\\Demographics\\', set(i2b2_df.c_fullname))
-        self.assertIsNone(i2b2_df.loc[i2b2_df.c_fullname == '\\Ontology\\Demographics\\', 'secure_obj_token'].values[0])
+        self.assertEqual(i2b2_df.loc[i2b2_df.c_fullname == '\\Ontology\\Demographics\\', 'secure_obj_token'].values[0],
+                         'PUBLIC')
         self.assertEqual(
             i2b2_df.loc[i2b2_df.c_fullname == '\\Projects\\Survey 1\\Interests\\', 'secure_obj_token'].values[0],
             'SURVEY'
