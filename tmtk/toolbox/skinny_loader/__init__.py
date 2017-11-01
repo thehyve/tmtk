@@ -1,1 +1,1 @@
-from .generic import Defaults, TableRow
+from .shared import Defaults, TableRow

@@ -1,3 +1,4 @@
+from ...utils import path_converter
 
 
 class TableRow:
@@ -51,4 +52,20 @@ def calc_hlevel(path):
 
 def get_concept_identifier(variable, study):
     """ Based on a variable concept_code and study, determine the concept identifier. """
-    return variable.concept_code or '{}{}{}'.format(study.top_node, Defaults.DELIMITER, variable.concept_path)
+    if variable.concept_code:
+        return variable.concept_code
+    return get_full_path(variable, study)
+
+
+def get_full_path(variable, study):
+    """ Concatenates study top_node and variable concept path """
+    path = '{}\\{}'.format(study.top_node, variable.concept_path)
+    return path_slash_all(path_converter(path))
+
+
+def path_slash_all(path):
+    if not path.startswith('\\'):
+        path = '\\' + path
+    if not path.endswith('\\'):
+        path += '\\'
+    return path

@@ -1,4 +1,4 @@
-from ..generic import TableRow
+from ..shared import TableRow
 
 import pandas as pd
 
@@ -10,17 +10,19 @@ class DimensionDescription(TableRow):
         self.study = study
         super().__init__()
 
-        self.df = pd.DataFrame(
-            {'name': study.get_dimensions()},
-            columns=self.columns
-        )
+        self.df = pd.DataFrame([self.build_row_from_study_dimension(d) for d in study.get_dimensions()],
+                               columns=self.columns)
+
+        # Add additional information for the modifiers
         self.adapt_rows_from_modifier_dimension()
 
         self.df.iloc[:, 0] = self.df.index
 
-    def build_row_from_study_dimension(self, dimension):
+    def build_row_from_study_dimension(self, dimension: str):
         row = self.row
-        row.name = dimension
+        # Cannot use dot notation here because name is an attribute of
+        # pd.Series and that causes a collision.
+        row['name'] = dimension
         return row
 
     def adapt_rows_from_modifier_dimension(self):

@@ -1,7 +1,8 @@
 Ontology code	Label	Ancestors	Blob
-demographics	Demographics
-general	General
-interests	Interests
+ONTOLOGY_NODE	Ontology		
+demographics	Demographics	ONTOLOGY_NODE	
+general	General	ONTOLOGY_NODE
+interests	Interests	ONTOLOGY_NODE
 gender	Gender	demographics	{ "type": "Numeric", "width": 12, "columns": 14, "measure": "Nominal", "valueLabels": {"1":"Female", "2":"Male", "-2": "Not Specified"}, "missingValues": [-2] }
 height	Height	demographics	{ "type": "Numeric", "width": 14, "decimals": 2, "columns": 15, "measure": "Scale", "valueLabels": {"-1":"Asked, but not answered"}, "missingValues": [-1] }
 age	Age	demographics	{ "uri": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}

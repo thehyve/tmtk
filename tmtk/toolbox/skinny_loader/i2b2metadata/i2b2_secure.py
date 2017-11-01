@@ -1,4 +1,4 @@
-from ..generic import TableRow, Defaults, calc_hlevel, get_concept_identifier
+from ..shared import TableRow, Defaults, calc_hlevel, get_concept_identifier, get_full_path, path_slash_all
 
 import pandas as pd
 
@@ -11,27 +11,15 @@ class I2B2Secure(TableRow):
         super().__init__()
 
         row_list = [self.build_variable_row(var) for var in study.Clinical.filtered_variables.values()]
-        row_list += [*self.add_top_nodes()]
+        row_list += [r for r in self.add_top_nodes()]
 
         self.df = pd.DataFrame(row_list, columns=self.columns)
 
-    def add_missing_folders(self):
-        """ Add rows for all parent folders not present yet. """
-        self.df.apply(lambda x: self._add_folders(x.c_fullname), axis=1)
-
-    def _add_folders(self, path):
-        parent = path.rsplit('\\', 2)[0] + '\\'
-        if parent == '\\':
-            return
-        if not any(self.df.c_fullname == parent):
-            self.add_folder_row(parent)
-        self._add_folders(parent)
-
     def build_variable_row(self, var):
+        """ Create a row for a variable object. """
 
         row = self.row
-
-        row.c_fullname = '{}\\{}\\'.format(self.study.top_node, var.concept_path)
+        row.c_fullname = get_full_path(var, self.study)
         row.c_hlevel = calc_hlevel(row.c_fullname)
         row.c_name = var.data_label
         row.c_visualattributes = var.visual_attributes
@@ -40,17 +28,6 @@ class I2B2Secure(TableRow):
 
         return row
 
-    def back_populate_ontology(self, concept_dimension):
-        for concept_row in concept_dimension.df.itertuples():
-            concept_code = concept_row[1]
-            concept_path = concept_row[2]
-            concept_name = concept_row[3]
-            row = self.df[self.df.c_basecode == concept_code].copy()
-            row.c_fullname = concept_path
-            row.c_hlevel = calc_hlevel(concept_path)
-            row.c_name = concept_name
-            self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
-
     def add_top_nodes(self):
         """
         Generate add study node itself and any preceding nodes as 'CA' containers.
@@ -58,7 +35,7 @@ class I2B2Secure(TableRow):
 
         row = self.row
 
-        row.c_fullname = self.study.top_node + '\\'
+        row.c_fullname = path_slash_all(self.study.top_node)
         row.c_hlevel = calc_hlevel(row.c_fullname)
         row.c_visualattributes = 'FAS'
         row.c_facttablecolumn = '@'
@@ -87,6 +64,31 @@ class I2B2Secure(TableRow):
             row.sourcesystem_cd = None
 
             yield row
+
+    def back_populate_ontology(self, concept_dimension):
+        """ Create rows for ontology terms. """
+        for concept_row in concept_dimension.df.itertuples():
+            concept_code = concept_row[1]
+            concept_path = concept_row[2]
+            concept_name = concept_row[3]
+            row = self.df[self.df.c_basecode == concept_code].copy()
+            row.c_fullname = concept_path
+            row.c_hlevel = calc_hlevel(concept_path)
+            row.c_name = concept_name
+            self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
+
+    def add_missing_folders(self):
+        """ Add rows for all parent folders not present yet. """
+        self.df.apply(lambda x: self._add_folders(x.c_fullname), axis=1)
+
+    def _add_folders(self, path):
+        """ Strips the path leaf and adds it to the frame if it does not exist. """
+        parent = path.rsplit('\\', 2)[0] + '\\'
+        if parent == '\\':
+            return
+        if not any(self.df.c_fullname == parent):
+            self.add_folder_row(parent)
+        self._add_folders(parent)
 
     def add_folder_row(self, path):
         row = self.row

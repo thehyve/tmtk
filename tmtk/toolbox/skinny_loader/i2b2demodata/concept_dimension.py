@@ -1,4 +1,4 @@
-from ..generic import TableRow
+from ..shared import TableRow, path_slash_all
 
 import pandas as pd
 
@@ -34,7 +34,9 @@ class ConceptDimension(TableRow):
 
     def _build_ontology_row(self, concept):
         row = self.row
-        row.concept_cd, row.concept_path, row.name_char, row.concept_blob = concept
+        row.concept_cd, cpath, row.name_char, row.concept_blob = concept
+        # Ensure slashes in first and last position for robustness
+        row.concept_path = path_slash_all(cpath)
         return row
 
     @property

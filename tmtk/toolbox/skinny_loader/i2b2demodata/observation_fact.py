@@ -1,4 +1,4 @@
-from ..generic import TableRow, get_concept_identifier
+from ..shared import TableRow, get_concept_identifier
 
 import pandas as pd
 import arrow
@@ -18,7 +18,7 @@ class ObservationFact(TableRow):
         if not straight_to_disk:
             # Loop through all variables in the clinical data and add a row
             for variable in tqdm(self.skinny.study.Clinical.filtered_variables.values()):
-                rows += [*self.build_rows(variable)]
+                rows += [r for r in self.build_rows(variable)]
 
             self.df = pd.DataFrame(rows, columns=self.columns)
         else:
@@ -26,21 +26,19 @@ class ObservationFact(TableRow):
                 f.write('\t'.join(self.columns) + '\n')
                 for variable in tqdm(self.skinny.study.Clinical.filtered_variables.values()):
                     pd.DataFrame(
-                        [*self.build_rows(variable)]
+                        [r for r in self.build_rows(variable)]
                     ).to_csv(f, sep='\t', index=False, header=False)
 
     def build_rows(self, var):
         """
         Returns all observation fact rows for a given variable.
-
-        :param var:
-        :return:
         """
         def set_value_fields(row_, value_, visual_attributes):
             """
+            Update a row object with its value based on visual_attributes
 
-            :param row_:
-            :param value_:
+            :param row_: row to modify
+            :param value_: value to be set
             :param visual_attributes: visual attributes determine the type of variable (unfortunately).
             :return: updated row.
             """

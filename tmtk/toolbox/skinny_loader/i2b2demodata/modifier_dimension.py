@@ -1,4 +1,4 @@
-from ..generic import TableRow
+from ..shared import TableRow
 import pandas as pd
 
 

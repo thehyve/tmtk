@@ -13,6 +13,12 @@ import os
 
 
 class SkinnyExport:
+    """
+    This object creates pd.Dataframes that resemble tranSMART data base tables
+    by transforming the tmtk.Study object. The goal is to create files that can
+    be used by the skinny loader, which aims to do as little transformations as
+    possible.
+    """
 
     def __init__(self, study, export_directory=None):
         self.study = study
@@ -64,11 +70,48 @@ class SkinnyExport:
     def _build_study_dimension_descriptions(self):
         return StudyDimensionDescription(self.dimension_description)
 
+    def to_disk(self):
+
+        DEMO = 'i2b2demodata'
+        META = 'i2b2metadata'
+
+        attribute_to_disk_map = {
+                             'i2b2_secure': (META, 'i2b2_secure.tsv'),
+                       'concept_dimension': (DEMO, 'concept_dimension.tsv'),
+                       'patient_dimension': (DEMO, 'patient_dimension.tsv'),
+                         'patient_mapping': (DEMO, 'patient_mapping.tsv'),
+                             'study_table': (DEMO, 'study.tsv'),
+                   'trial_visit_dimension': (DEMO, 'trial_visit_dimension.tsv'),
+                      'modifier_dimension': (DEMO, 'modifier_dimension.tsv'),
+                   'dimension_description': (META, 'dimension_description.tsv'),
+            'study_dimension_descriptions': (META, 'study_dimension_descriptions.tsv')
+        }
+        self._ensure_dirs()
+        for attribute, file_tuple in attribute_to_disk_map.items():
+
+            table_obj = getattr(self, attribute)
+
+            if not table_obj:
+                continue
+            path = os.path.join(self.export_directory, file_tuple[0], file_tuple[1])
+            with open(path, 'w') as f:
+                print('Writing table to disk: {}'.format(path))
+                table_obj.df.to_csv(f, sep='\t', index=False)
+
+        self.observation_fact_to_disk()
+
     def build_observation_fact(self):
         self.observation_fact = ObservationFact(self)
 
     def observation_fact_to_disk(self):
-        dir_path = os.path.join(self.export_directory, 'i2b2demodata')
-        os.makedirs(dir_path, exist_ok=True)
+        self._ensure_dirs()
+        path = os.path.join(self.export_directory, 'i2b2demodata', 'observation_fact.tsv')
+        print('Writing table to disk: {}'.format(path))
+        ObservationFact(self, straight_to_disk=path)
 
-        ObservationFact(self, straight_to_disk=os.path.join(dir_path, 'observation_fact.tsv'))
+    def _ensure_dirs(self):
+        if self.export_directory:
+            for dir_ in ('i2b2demodata', 'i2b2metadata'):
+                os.makedirs(os.path.join(self.export_directory, dir_), exist_ok=True)
+        else:
+            raise Exception('Need to set export_directory.')

@@ -1,5 +1,5 @@
 from .patient_dimension import PatientDimension
-from ..generic import TableRow
+from ..shared import TableRow
 
 import pandas as pd
 
