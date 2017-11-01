@@ -38,8 +38,15 @@ class SurveyTests(unittest.TestCase):
         self.assertIn('Missing Value', self.study.get_dimensions())
 
     def test_back_populate_ontology(self):
-        self.assertIn('\\Ontology\\Demographics\\', set(self.export.i2b2_secure.df.c_fullname))
-        self.assertEqual(self.export.i2b2_secure.df.shape, (21, 27))
+        i2b2_df = self.export.i2b2_secure.df
+
+        self.assertEqual(i2b2_df.shape, (21, 27))
+        self.assertIn('\\Ontology\\Demographics\\', set(i2b2_df.c_fullname))
+        self.assertIsNone(i2b2_df.loc[i2b2_df.c_fullname == '\\Ontology\\Demographics\\', 'secure_obj_token'].values[0])
+        self.assertEqual(
+            i2b2_df.loc[i2b2_df.c_fullname == '\\Projects\\Survey 1\\Interests\\', 'secure_obj_token'].values[0],
+            'SURVEY'
+        )
 
     def test_visualattributes(self):
         vis_attrs = {'CA', 'FA', 'FAS', 'LAC', 'LAD', 'LAN', 'LAT'}

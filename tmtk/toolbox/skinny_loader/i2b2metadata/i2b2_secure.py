@@ -75,6 +75,8 @@ class I2B2Secure(TableRow):
             row.c_fullname = concept_path
             row.c_hlevel = calc_hlevel(concept_path)
             row.c_name = concept_name
+            row.sourcesystem_cd = None
+            row.secure_obj_token = None
             self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
 
     def add_missing_folders(self):
@@ -95,6 +97,8 @@ class I2B2Secure(TableRow):
         row.c_fullname = path
         row.c_hlevel = calc_hlevel(path)
         row.c_name = path.strip(Defaults.DELIMITER).split(Defaults.DELIMITER)[-1]
+        row.sourcesystem_cd = self.study.study_id if path.startswith(self.study.top_node) else None
+        row.secure_obj_token = row.sourcesystem_cd
         self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
 
     @property
