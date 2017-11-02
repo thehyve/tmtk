@@ -10,6 +10,9 @@ class I2B2Secure(TableRow):
         self.study = study
         super().__init__()
 
+        # To be used for faster lookups in add_missing_paths method
+        self._paths_set = set()
+
         row_list = [self.build_variable_row(var) for var in study.Clinical.filtered_variables.values()]
         row_list += [r for r in self.add_top_nodes()]
 
@@ -79,6 +82,7 @@ class I2B2Secure(TableRow):
 
     def add_missing_folders(self):
         """ Add rows for all parent folders not present yet. """
+        self._paths_set = set(self.df.c_fullname)
         self.df.apply(lambda x: self._add_folders(x.c_fullname), axis=1)
 
     def _add_folders(self, path):
@@ -86,7 +90,7 @@ class I2B2Secure(TableRow):
         parent = path.rsplit('\\', 2)[0] + '\\'
         if parent == '\\':
             return
-        if not any(self.df.c_fullname == parent):
+        if parent not in self._paths_set:
             self.add_folder_row(parent)
         self._add_folders(parent)
 
@@ -100,6 +104,7 @@ class I2B2Secure(TableRow):
             row.sourcesystem_cd = None
             row.secure_obj_token = Defaults.PUBLIC_TOKEN
 
+        self._paths_set.add(path)
         self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
 
     @property

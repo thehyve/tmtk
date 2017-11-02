@@ -16,21 +16,34 @@ class ConceptDimension(TableRow):
 
         self.df = pd.DataFrame(row_list, columns=self.columns)
 
-        # Add Ontology paths as nodes in tree
+        # Add Ontology paths as nodes in tree. This creates paths in i2b2_secure for
+        # each term defined in ontology mapping.
         i2b2_secure.back_populate_ontology(self)
 
-        # Find all concept nodes in i2b2 secure by checking for visualattributes starting with LA
-        concept_nodes = i2b2_secure.df.c_visualattributes.str.startswith('LA')
-        unmapped_concepts = i2b2_secure.df.c_basecode.apply(lambda x: not any(self.df.concept_cd == x))
-
-        to_be_mapped = concept_nodes & unmapped_concepts
-
-        tmp_df = i2b2_secure.df.loc[to_be_mapped, ['c_basecode', 'c_fullname', 'c_name']]
-        tmp_df.columns = self.columns[:3]
-        self.df = self.df.append(tmp_df, ignore_index=True)
+        # Add 'unmapped' variables from i2b2_secure to concept dimension
+        self._add_one_timer_concepts(i2b2_secure)
 
         # Put back the right order of columns after concatenating the two dataframes
         self.df = self.df.reindex(columns=self.columns)
+
+    def _add_one_timer_concepts(self, i2b2_secure):
+        """
+        All variables are represented in i2b2_secure, though some might not have
+        been mapped to an ontology code via the column mapping file. This method adds
+        'project specific' concepts to the concept dimension.
+        """
+        # Find all concept nodes in i2b2 secure by checking for visualattributes starting with LA
+        variable_nodes = i2b2_secure.df.c_visualattributes.str.startswith('LA')
+        current_concept_codes = set(self.df.concept_cd)
+        unmapped_concepts = i2b2_secure.df.c_basecode.apply(lambda x: x not in current_concept_codes)
+
+        # Bool vector operation to find i2b2_secure rows that are variables and not mapped.
+        to_be_mapped = variable_nodes & unmapped_concepts
+        # Subset and transform to concept_dimension rows.
+        tmp_df = i2b2_secure.df.loc[to_be_mapped, ['c_basecode', 'c_fullname', 'c_name']]
+        tmp_df.columns = self.columns[:3]
+
+        self.df = self.df.append(tmp_df, ignore_index=True)
 
     def _build_ontology_row(self, concept):
         row = self.row
