@@ -3,6 +3,7 @@ import unittest
 import tempfile
 import shutil
 from pathlib import Path
+import pandas as pd
 
 
 class SurveyTests(unittest.TestCase):
@@ -33,6 +34,13 @@ class SurveyTests(unittest.TestCase):
         self.assertEqual(var.column_type, 'CATEGORICAL')
         self.assertEqual(var.data_label, 'MODIFIER')
         self.assertIn('Missing Value', self.export.dimension_description.df.name.values)
+
+    def test_modifier_observations(self):
+        obs_df = self.export.observation_fact.df
+        values = list(obs_df.loc[obs_df.concept_cd == 'description', 'tval_char'])
+        self.assertIn(pd.np.nan, values)
+        self.assertIn('Not Specified', values)
+        self.assertIn('Bradwurst', values)
 
     def test_get_dimensions(self):
         self.assertIn('Missing Value', self.study.get_dimensions())
