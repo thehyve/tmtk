@@ -1,4 +1,4 @@
-from ..shared import TableRow, get_concept_identifier
+from ..shared import TableRow, get_concept_identifier, Defaults
 
 import pandas as pd
 import arrow
@@ -32,95 +32,105 @@ class ObservationFact(TableRow):
         with open(path, 'w') as f:
             f.write('\t'.join(self.columns) + '\n')
             for variable in tqdm(self.skinny.study.Clinical.filtered_variables.values()):
-                pd.DataFrame(
-                    [r for r in self.build_rows(variable)]
-                ).to_csv(f, sep='\t', index=False, header=False)
+                for df in self.build_rows(variable):
+                    df.to_csv(f, sep='\t', index=False, header=False)
 
-    def build_rows(self, var):
+    def build_rows(self, var) -> pd.DataFrame:
         """
-        Returns all observation fact rows for a given variable.
+        Returns all observation fact rows for a given variable as multiple pd.DataFrames.
+        It returns a DataFrame for all normal observations and one for each applicable modifier.
         """
 
-        def get_value_fields(values, visual_attributes):
+        def get_value_fields(values, visual_attributes_):
             """
             Update a row object with its value based on visual_attributes
 
-            :param row_: row to modify
-            :param value_: value to be set
-            :param visual_attributes: visual attributes determine the type of variable (unfortunately).
-            :return: updated row.
+            :param values: values series.
+            :param visual_attributes_: visual attributes determine the type of variable (unfortunately).
+            :return: dictionary with variable type appropriate mapping.
             """
-            if visual_attributes == var.VIS_DATE:
+            if visual_attributes_ == var.VIS_DATE:
                 return {'valtype_cd': 'N',
                         'tval_char': 'E',
-                        # Unix time
-                        'nval_num': values.apply(lambda x: arrow.get(x).format('X')),
-                        # UTC
-                        'observation_blob': values}
+                        'nval_num': values.apply(lambda x: arrow.get(x).format('X')),  # Unix time
+                        'observation_blob': values}  # UTC
 
-            elif visual_attributes == var.VIS_TEXT:
+            elif visual_attributes_ == var.VIS_TEXT:
                 return {'valtype_cd': 'B',
+                        'tval_char': pd.np.nan,
+                        'nval_num': pd.np.nan,
                         'observation_blob': values}
 
-            elif visual_attributes == var.VIS_NUMERIC:
+            elif visual_attributes_ == var.VIS_NUMERIC:
                 return {'valtype_cd': 'N',
                         'tval_char': 'E',
-                        'nval_num': values}
+                        'nval_num': values,
+                        'observation_blob': pd.np.nan}
 
-            elif visual_attributes == var.VIS_CATEGORICAL:
+            elif visual_attributes_ == var.VIS_CATEGORICAL:
                 return {'valtype_cd': 'T',
-                        'tval_char': values}
+                        'tval_char': values,
+                        'nval_num': pd.np.nan,
+                        'observation_blob': pd.np.nan}
 
         # Preload these, so we don't have to get them for every value in the current variable
         modifiers = var.modifiers
         start_date = var.start_date
-        subj_id = var.subj_id
-        trial_visit = var.trial_visit
-        visual_attributes = var.visual_attributes
 
         var_wide_data = {
             'encounter_num': -1,
             'patient_num': var.subj_id.values.apply(lambda x: self.skinny.patient_mapping.map[x]),
             'concept_cd': get_concept_identifier(var, self.skinny.study),
             'provider_id': '@',
-            'start_date': start_date.values[i] if start_date else None,
+            'start_date': start_date.values if start_date else None,
             'modifier_cd': '@',
+            # trial visits other than default 'General' are currently not supported
+            'trial_visit_num': self.skinny.trial_visit_dimension.map[Defaults.TRIAL_VISIT],
             'instance_num': 1}
-        var_wide_data.update(get_value_fields(var.values, visual_attributes))
 
-        df = pd.DataFrame(var_wide_data, columns=self.columns)
-        yield df
+        var_wide_data.update(
+            get_value_fields(var.values, var.visual_attributes)
+        )
 
-    #         for i, (value, subj_id_value) in enumerate(zip(var.values, subj_id.values)):
+        # This dataframe contains all normal values, but also rows for missing values.
+        main_df = pd.DataFrame(var_wide_data, columns=self.columns)
 
-    #             if self.not_a_value(value):
-    #                 # Check if there are any modifier values for this 'normal' values
-    #                 # We want to insert an 'empty' normal observation if there are modified observations.
-    #                 # This is useful to annotated missing values.
-    #                 if all([self.not_a_value(mod.values[i]) for mod in modifiers]):
-    #                     continue
+        if not modifiers:
+            # Keep only observations that respond False to self.not_a_value
+            yield main_df.loc[~var.values.apply(self.not_a_value)]
 
-    #             base_row = self.row
-    #             base_row.patient_num = self.skinny.patient_mapping.map[subj_id_value]
+        else:
+            # We have to also return the rows for the applicable modifier
+            # variables and cleanup of empty observations is a bit more complicated.
+            # Container for DataFrames for the applicable modifier variables.
+            modifier_dfs = []
 
-    #             base_row.concept_cd = concept_cd
-    #             base_row.start_date = start_date.values[i] if start_date else None
-    #             # trial visits other than 'General' are currently not supported
-    #             base_row.trial_visit_num = self.skinny.trial_visit_dimension.map[trial_visit]
+            for modifier_variable in modifiers:
+                var_wide_data['modifier_cd'] = modifier_variable.modifier_code
 
-    #             yield set_value_fields(base_row.copy(), value, visual_attributes)
+                var_wide_data.update(
+                    get_value_fields(modifier_variable.values, modifier_variable.visual_attributes)
+                )
+                modifier_dfs.append(pd.DataFrame(var_wide_data, columns=self.columns))
 
-    #             for modifier_variable in modifiers:
+            # To cleanup of 'empty' observations, we first remove observations that are empty
+            # themselves and have no modifier exists with a value either. To do this we create
+            # boolean series using the self.not_a_value method. The rule here is that if any
+            # observation exists for a given patient/concept (etc..) combination, we keep the
+            # empty observation. Modifiers without value will always be dropped.
+            modifier_empty = [mod.values.apply(self.not_a_value) for mod in modifiers]
+            all_observations_empty = modifier_empty + [var.values.apply(self.not_a_value)]
+            no_values_present = pd.DataFrame(all_observations_empty).all()
 
-    #                 modifier_value = modifier_variable.values[i]
+            # subset on inverted boolean series
+            yield main_df.loc[~no_values_present]
 
-    #                 if self.not_a_value(modifier_value):
-    #                     continue
-
-    #                 modifier_row = base_row.copy()
-    #                 modifier_row.modifier_cd = modifier_variable.modifier_code
-
-    #                 yield set_value_fields(modifier_row, modifier_value, modifier_variable.visual_attributes)
+            # Strip modifier DataFrames of empty observations
+            for i, modifier_variable in enumerate(modifiers):
+                mod_df = modifier_dfs[i]
+                mod_not_a_value = modifier_empty[i]
+                # subset inverted boolean series
+                yield mod_df.loc[~mod_not_a_value]
 
     @staticmethod
     def not_a_value(value) -> bool:
@@ -130,13 +140,13 @@ class ObservationFact(TableRow):
     def _row_definition(self):
         return pd.Series(
             data=[
-                -1,  # encounter_num
+                -1,    # encounter_num
                 None,  # patient_num
                 None,  # concept_cd
-                '@',  # provider_id
+                '@',   # provider_id
                 None,  # start_date
-                '@',  # modifier_cd
-                1,  # instance_num
+                '@',   # modifier_cd
+                1,     # instance_num
                 None,  # trial_visit_num
                 None,  # valtype_cd
                 None,  # tval_char
