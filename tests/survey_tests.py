@@ -63,7 +63,7 @@ class SurveyTests(unittest.TestCase):
         p = Path(self.temp_dir)
         self.assertIn('i2b2demodata', [f.name for f in p.glob('i2b2*')])
         self.assertIn('i2b2metadata', [f.name for f in p.glob('i2b2*')])
-        self.assertEqual(len([f for f in p.glob('*/*tsv')]), 10)
+        self.assertEqual(len([f for f in p.glob('*/*tsv')]), 11)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,9 @@
+tags_path	title	description	weight
+\Projects\Survey 1\Demographics\Gender\	keywords	keyword1, keyword2	5
+\Projects\Survey 1\Demographics\Gender\	item_name	sex	5
+\Projects\Survey 1\Demographics\Gender\	project_versions	1	5
+\Projects\Survey 1\Demographics\Gender\	project_name	S	5
+\Projects\Survey 1\Demographics\Gender\	project_type	survey	5
+\Projects\Survey 1\Demographics\Gender\	project_line_of_research	line1	5
+\Projects\Survey 1\Demographics\Gender\	project_description	description	5
+\Projects\Survey 1\Demographics\Gender\	coding	a, b, c	5

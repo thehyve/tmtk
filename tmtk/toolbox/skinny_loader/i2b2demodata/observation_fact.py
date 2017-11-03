@@ -13,21 +13,29 @@ class ObservationFact(TableRow):
         self._now = arrow.now().isoformat(sep=' ')
         super().__init__()
 
-        rows = []
+        self.df = None
 
         if not straight_to_disk:
-            # Loop through all variables in the clinical data and add a row
-            for variable in tqdm(self.skinny.study.Clinical.filtered_variables.values()):
-                rows += [r for r in self.build_rows(variable)]
-
-            self.df = pd.DataFrame(rows, columns=self.columns)
+            self._build_in_memory()
         else:
-            with open(straight_to_disk, 'w') as f:
-                f.write('\t'.join(self.columns) + '\n')
-                for variable in tqdm(self.skinny.study.Clinical.filtered_variables.values()):
-                    pd.DataFrame(
-                        [r for r in self.build_rows(variable)]
-                    ).to_csv(f, sep='\t', index=False, header=False)
+            self.write_to_disk(straight_to_disk)
+
+    def _build_in_memory(self):
+        rows = []
+
+        # Loop through all variables in the clinical data and add a row
+        for variable in tqdm(self.skinny.study.Clinical.filtered_variables.values()):
+            rows += [r for r in self.build_rows(variable)]
+
+        self.df = pd.DataFrame(rows, columns=self.columns)
+
+    def write_to_disk(self, path):
+        with open(path, 'w') as f:
+            f.write('\t'.join(self.columns) + '\n')
+            for variable in tqdm(self.skinny.study.Clinical.filtered_variables.values()):
+                pd.DataFrame(
+                    [r for r in self.build_rows(variable)]
+                ).to_csv(f, sep='\t', index=False, header=False)
 
     def build_rows(self, var):
         """
@@ -87,6 +95,7 @@ class ObservationFact(TableRow):
             base_row.patient_num = self.skinny.patient_mapping.map[subj_id.values[i]]
             base_row.concept_cd = concept_cd
             base_row.start_date = start_date.values[i] if start_date else None
+            # trial visits other than 'General' are currently not supported
             base_row.trial_visit_num = self.skinny.trial_visit_dimension.map[trial_visit]
 
             yield set_value_fields(base_row.copy(), value, visual_attributes)
