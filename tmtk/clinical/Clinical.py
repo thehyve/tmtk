@@ -235,38 +235,36 @@ class Clinical(ValidateMixin):
         return [self.get_variable(x[0]) for x in self.ColumnMapping.df[sliced].iterrows()]
 
     def get_patients(self):
+        """
+        Creates a dictionary that has subject identifiers as keys and each value is a map
+        that contains an nothing or an 'age' and/or 'gender' key that maps to this value.
+
+        :return: patients dict.
+        """
         subj_id_vars = self.find_variables_by_label('SUBJ_ID')
-        gender_vars = self.find_variables_by_label('Gender')
-        gender_vars += self.find_variables_by_label('gender')
-        gender_vars += self.find_variables_by_label('GENDER')
-        gender_vars += self.find_variables_by_label('Sex')
-        gender_vars += self.find_variables_by_label('sex')
-        gender_vars += self.find_variables_by_label('SEX')
-        age_vars = self.find_variables_by_label('age')
-        age_vars += self.find_variables_by_label('Age')
+
+        gender_labels = ('gender', 'Gender', 'GENDER', 'sex', 'Sex', 'SEX')
+        gender_vars = [v for label in gender_labels for v in self.find_variables_by_label(label)]
+
+        age_labels = ('Age', 'age', 'AGE')
+        age_vars = [v for label in age_labels for v in self.find_variables_by_label(label)]
 
         if len(gender_vars) > 1:
-            raise Exception('More than one gender defined.')
+            print("More than one 'gender' defined, will pick last value found for each subject.")
 
         if len(age_vars) > 1:
-            raise Exception('More than one age defined.')
+            print("More than one 'age' defined, will pick last value found for each subject.")
 
         # Create dictionary where every subject is a key with value as empty dictionary
         subjects = {subj_id: {} for var in subj_id_vars for subj_id in var.values}
 
-        if age_vars:
-            age_var = age_vars[0]
-            age_subj_id = age_var.subj_id
-            for i in range(len(age_var.values)):
-                subject = age_subj_id.values[i]
-                subjects[subject]['age'] = age_var.values[i]
+        for var in age_vars:
+            for k, v in zip(var.subj_id.values, var.values):
+                subjects[k].update({'age': v})
 
-        if gender_vars:
-            gender_var = gender_vars[0]
-            gender_subj_id = gender_var.subj_id
-            for i in range(len(gender_var.values)):
-                subject = gender_subj_id.values[i]
-                subjects[subject]['gender'] = gender_var.values[i]
+        for var in gender_vars:
+            for k, v in zip(var.subj_id.values, var.values):
+                subjects[k].update({'gender': v})
 
         return subjects
 
