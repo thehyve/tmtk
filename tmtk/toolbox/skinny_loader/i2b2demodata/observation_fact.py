@@ -13,6 +13,7 @@ class ObservationFact(TableRow):
         super().__init__()
 
         self.df = None
+        self._subject_id_cache = {}
 
         if not straight_to_disk:
             self._build_in_memory()
@@ -77,9 +78,16 @@ class ObservationFact(TableRow):
         modifiers = var.modifiers
         start_date = var.start_date
 
+        try:
+            internal_subj_ids = self._subject_id_cache[var.filename]
+        except KeyError:
+            internal_subj_ids = var.subj_id.values.map(self.skinny.patient_mapping.map)
+            self._subject_id_cache[var.filename] = internal_subj_ids
+
         var_wide_data = {
             'encounter_num': -1,
-            'patient_num': var.subj_id.values.apply(lambda x: self.skinny.patient_mapping.map[x]),
+            # Find the internal identifiers for a given series of external identifers
+            'patient_num': internal_subj_ids,
             'concept_cd': get_concept_identifier(var, self.skinny.study),
             'provider_id': '@',
             'start_date': start_date.values if start_date else None,
@@ -96,8 +104,8 @@ class ObservationFact(TableRow):
         main_df = pd.DataFrame(var_wide_data, columns=self.columns)
 
         if not modifiers:
-            # Keep only observations that respond False to self.not_a_value
-            yield main_df.loc[~var.values.apply(self.not_a_value)]
+            # Keep only observations that respond are non pd.np.nan
+            yield main_df.loc[var.values.notnull()]
 
         else:
             # We have to also return the rows for the applicable modifier
@@ -114,27 +122,21 @@ class ObservationFact(TableRow):
                 modifier_dfs.append(pd.DataFrame(var_wide_data, columns=self.columns))
 
             # To cleanup of 'empty' observations, we first remove observations that are empty
-            # themselves and have no modifier exists with a value either. To do this we create
-            # boolean series using the self.not_a_value method. The rule here is that if any
-            # observation exists for a given patient/concept (etc..) combination, we keep the
+            # themselves and have no modifier exists with a value either. The rule here is that
+            # if any observation exists for a given patient/concept (etc..) combination, we keep the
             # empty observation. Modifiers without value will always be dropped.
-            modifier_empty = [mod.values.apply(self.not_a_value) for mod in modifiers]
-            all_observations_empty = modifier_empty + [var.values.apply(self.not_a_value)]
-            no_values_present = pd.DataFrame(all_observations_empty).all()
+            observations_present = [mod.values.notnull() for mod in modifiers] + [var.values.notnull()]
+            any_present = pd.DataFrame(observations_present).any()
 
             # subset on inverted boolean series
-            yield main_df.loc[~no_values_present]
+            yield main_df.loc[any_present]
 
             # Strip modifier DataFrames of empty observations
             for i, modifier_variable in enumerate(modifiers):
                 mod_df = modifier_dfs[i]
-                mod_not_a_value = modifier_empty[i]
+                mod_value_present = observations_present[i]
                 # subset inverted boolean series
-                yield mod_df.loc[~mod_not_a_value]
-
-    @staticmethod
-    def not_a_value(value) -> bool:
-        return not value or pd.isnull(value)
+                yield mod_df.loc[mod_value_present]
 
     @property
     def _row_definition(self):
