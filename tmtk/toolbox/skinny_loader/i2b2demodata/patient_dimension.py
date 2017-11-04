@@ -8,19 +8,12 @@ class PatientDimension(TableRow):
         self.study = study
         super().__init__()
 
-        self.df = pd.DataFrame(
-            [self.build_row(id_, age_gender) for id_, age_gender in study.Clinical.get_patients().items()],
-            columns=self.columns)
+        self.df = pd.DataFrame.from_dict(study.Clinical.get_patients(), orient='index')
+        self.df.reset_index(drop=False, inplace=True)
+        self.df.columns = ['sourcesystem_cd', 'age_in_years_num', 'sex_cd']
+        self.df = self.df.reindex(columns=self.columns)
 
         self.df.iloc[:, 0] = self.df.index
-
-    def build_row(self, patient_id, age_gender):
-
-        row = self.row
-        row.sex_cd = age_gender.get('gender')
-        row.age_in_years_num = age_gender.get('age')
-        row.sourcesystem_cd = patient_id
-        return row
 
     @property
     def _row_definition(self):
