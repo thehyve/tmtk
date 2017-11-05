@@ -1,4 +1,4 @@
-from ..utils import Mappings, path_converter, is_numeric, path_join, ReservedKeywordException
+from ..utils import Mappings, path_converter, ReservedKeywordException, is_not_a_value
 
 import pandas as pd
 
@@ -156,10 +156,15 @@ class Variable:
         """
         if self.forced_categorical:
             return False
-        if not self.is_in_wordmap and self.is_numeric_in_datafile:
-            return True
+
+        if not self.is_in_wordmap:
+            return self.is_numeric_in_datafile
         else:
-            return is_numeric(self.mapped_values)
+            try:
+                set(map(float, self.mapped_values))
+                return True
+            except ValueError:
+                return False
 
     @property
     def is_empty(self):
@@ -168,7 +173,7 @@ class Variable:
 
         :return: bool.
         """
-        return not self.values.any(skipna=True)
+        return self.values.apply(is_not_a_value).all()
 
     @property
     def concept_path(self):
@@ -219,7 +224,7 @@ class Variable:
 
         :return: dict.
         """
-        values = self.values
+        values = set(self.values)
         d = dict(zip(values, values))
         d.update(self.parent.WordMapping.get_word_map(self.var_id))
         return d
@@ -235,7 +240,10 @@ class Variable:
 
         :return: list.
         """
-        return [v for k, v in self.word_map_dict.items()]
+        if self.is_in_wordmap:
+            return self.values.map(self.word_map_dict)
+        else:
+            return self.values
 
     @property
     def forced_categorical(self):
