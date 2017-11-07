@@ -46,7 +46,7 @@ class I2B2Secure(TableRow):
         row.c_columnname = 'STUDY_ID'
         row.c_operator = '='
         row.c_name = self.study.study_name
-        row.c_dimcode = row.c_fullname
+        row.c_dimcode = self.study.study_id
 
         yield row
 
@@ -61,6 +61,7 @@ class I2B2Secure(TableRow):
             row.c_visualattributes = 'CA'
             row.c_tablename = '@'
             row.c_columnname = '@'
+            row.c_dimcode = '@'
             row.secure_obj_token = Defaults.PUBLIC_TOKEN
             row.sourcesystem_cd = None
 

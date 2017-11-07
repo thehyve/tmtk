@@ -14,6 +14,8 @@ class StudyDimensionDescription(TableRow):
             row_list.append(row)
 
         self.df = pd.DataFrame(row_list)
+        self.df.dimension_description_id = self.df.dimension_description_id.astype(pd.np.int64)
+        self.df.study_id = self.df.study_id.astype(pd.np.int64)
 
     @property
     def _row_definition(self):

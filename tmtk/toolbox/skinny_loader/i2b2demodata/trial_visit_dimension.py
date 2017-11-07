@@ -11,6 +11,8 @@ class TrialVisitDimension(TableRow):
                                columns=self.columns)
 
         self.df.iloc[:, 0] = self.df.index
+        self.df.study_num = self.df.study_num.astype(pd.np.int64)
+
         self.map = dict(zip(self.df.rel_time_label, self.df.trial_visit_num))
 
     def build_row(self, trial_visit):

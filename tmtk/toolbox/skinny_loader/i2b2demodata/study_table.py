@@ -18,6 +18,7 @@ class StudyTable(TableRow):
             index=[0])
 
         self.df.iloc[:, 0] = self.df.index
+        self.df.iloc[:, 0].astype(pd.np.int64, inplace=True)
 
     @property
     def _row_definition(self):
