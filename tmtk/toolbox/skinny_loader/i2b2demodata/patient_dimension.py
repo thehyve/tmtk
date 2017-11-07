@@ -10,7 +10,14 @@ class PatientDimension(TableRow):
 
         self.df = pd.DataFrame.from_dict(study.Clinical.get_patients(), orient='index')
         self.df.reset_index(drop=False, inplace=True)
-        self.df.columns = ['sourcesystem_cd', 'age_in_years_num', 'sex_cd']
+
+        # Due to non deterministic behaviour of dictionaries need to check the order
+        # in the temporary dataframe.
+        if self.df.columns[1] == 'gender':
+            self.df.columns = ['sourcesystem_cd', 'sex_cd', 'age_in_years_num']
+        else:
+            self.df.columns = ['sourcesystem_cd', 'age_in_years_num', 'sex_cd']
+
         self.df = self.df.reindex(columns=self.columns)
 
         self.df.iloc[:, 0] = self.df.index
