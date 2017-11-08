@@ -50,13 +50,6 @@ def calc_hlevel(path):
     return len(path.strip(Defaults.DELIMITER).split(Defaults.DELIMITER)) - 1
 
 
-def get_concept_identifier(variable, study):
-    """ Based on a variable concept_code and study, determine the concept identifier. """
-    if variable.concept_code:
-        return variable.concept_code
-    return get_full_path(variable, study)
-
-
 def get_full_path(variable, study):
     """ Concatenates study top_node and variable concept path """
     path = '{}\\{}'.format(study.top_node, variable.concept_path)

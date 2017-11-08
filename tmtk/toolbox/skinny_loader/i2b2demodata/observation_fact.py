@@ -1,4 +1,4 @@
-from ..shared import TableRow, get_concept_identifier, Defaults
+from ..shared import TableRow, Defaults, get_full_path
 
 import pandas as pd
 import arrow
@@ -9,6 +9,7 @@ class ObservationFact(TableRow):
     def __init__(self, skinny, straight_to_disk=False):
 
         self.skinny = skinny
+        self.study = skinny.study
         self._now = arrow.now().isoformat(sep=' ')
         super().__init__()
 
@@ -24,7 +25,7 @@ class ObservationFact(TableRow):
 
         dfs = []
         # Loop through all variables in the clinical data and add a row
-        for variable in tqdm(self.skinny.study.Clinical.filtered_variables.values()):
+        for variable in tqdm(self.study.Clinical.filtered_variables.values()):
             dfs += [r for r in self.build_rows(variable)]
 
         self.df = pd.concat(dfs, ignore_index=True)
@@ -32,7 +33,7 @@ class ObservationFact(TableRow):
     def write_to_disk(self, path):
         with open(path, 'w') as f:
             f.write('\t'.join(self.columns) + '\n')
-            for variable in tqdm(self.skinny.study.Clinical.filtered_variables.values()):
+            for variable in tqdm(self.study.Clinical.filtered_variables.values()):
                 for df in self.build_rows(variable):
                     df.to_csv(f, sep='\t', index=False, header=False)
 
@@ -77,6 +78,7 @@ class ObservationFact(TableRow):
         # Preload these, so we don't have to get them for every value in the current variable
         modifiers = var.modifiers
         start_date = var.start_date
+        var_full_path = get_full_path(var, self.study)
 
         try:
             internal_subj_ids = self._subject_id_cache[var.filename]
@@ -86,9 +88,9 @@ class ObservationFact(TableRow):
 
         var_wide_data = {
             'encounter_num': -1,
-            # Find the internal identifiers for a given series of external identifers
+            # Find the internal identifiers for a given series of external identifiers
             'patient_num': internal_subj_ids,
-            'concept_cd': get_concept_identifier(var, self.skinny.study),
+            'concept_cd': var.concept_code or self.skinny.concept_dimension.map.get(var_full_path),
             'provider_id': '@',
             'start_date': start_date.values if start_date else None,
             'modifier_cd': '@',

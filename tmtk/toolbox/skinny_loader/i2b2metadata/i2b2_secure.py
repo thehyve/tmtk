@@ -1,6 +1,7 @@
-from ..shared import TableRow, Defaults, calc_hlevel, get_concept_identifier, get_full_path, path_slash_all
+from ..shared import TableRow, Defaults, calc_hlevel, get_full_path, path_slash_all
 
 import pandas as pd
+import uuid
 
 
 class I2B2Secure(TableRow):
@@ -26,7 +27,7 @@ class I2B2Secure(TableRow):
         row.c_hlevel = calc_hlevel(row.c_fullname)
         row.c_name = var.data_label
         row.c_visualattributes = var.visual_attributes
-        row.c_basecode = get_concept_identifier(var, self.study)
+        row.c_basecode = var.concept_code or str(uuid.uuid4())
         row.c_dimcode = row.c_fullname
 
         return row

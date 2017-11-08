@@ -26,6 +26,8 @@ class ConceptDimension(TableRow):
         # Put back the right order of columns after concatenating the two dataframes
         self.df = self.df.reindex(columns=self.columns)
 
+        self.map = dict(zip(self.df.concept_path, self.df.concept_cd))
+
     def _add_one_timer_concepts(self, i2b2_secure):
         """
         All variables are represented in i2b2_secure, though some might not have
