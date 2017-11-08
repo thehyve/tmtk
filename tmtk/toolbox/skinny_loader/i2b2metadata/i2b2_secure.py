@@ -2,6 +2,7 @@ from ..shared import TableRow, Defaults, calc_hlevel, get_full_path, path_slash_
 
 import pandas as pd
 import uuid
+from tqdm import tqdm
 
 
 class I2B2Secure(TableRow):
@@ -14,7 +15,7 @@ class I2B2Secure(TableRow):
         # To be used for faster lookups in add_missing_paths method
         self._paths_set = set()
 
-        row_list = [self.build_variable_row(var) for var in study.Clinical.filtered_variables.values()]
+        row_list = [self.build_variable_row(var) for var in tqdm(study.Clinical.filtered_variables.values())]
         row_list += [r for r in self.add_top_nodes()]
 
         self.df = pd.DataFrame(row_list, columns=self.columns)

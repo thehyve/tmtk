@@ -1,6 +1,7 @@
 from ..shared import TableRow, Defaults
 
 import pandas as pd
+import json
 
 
 class StudyTable(TableRow):
@@ -13,7 +14,7 @@ class StudyTable(TableRow):
                 'study_num': Defaults.STUDY_NUM,
                 'study_id': study.study_id,
                 'secure_obj_token': study.study_id if study.security_required else Defaults.PUBLIC_TOKEN,
-                'study_blob': study.study_blob},
+                'study_blob': json.dumps(study.study_blob)},
             columns=self.columns,
             index=[0])
 

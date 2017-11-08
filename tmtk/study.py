@@ -174,13 +174,30 @@ class Study(ValidateMixin):
 
     @property
     def study_blob(self):
-        """ To be implemented """
-        return None
+        """
+        JSON data that can be loaded in the study blob. This will be added
+        as a separate file next to the study.params. The STUDY_JSON_BLOB
+        parameter will be set to point to this file.
+        """
+
+        if self.params.json_blob:
+            return self.params.json_blob
+
+        blob_param = self.params.get('STUDY_JSON_BLOB')
+        if blob_param:
+            with open(os.path.join(self.study_folder, blob_param), 'r') as f:
+                self.params.json_blob = json.load(f)
+                return self.params.json_blob
+        else:
+            self.msgs.info('STUDY_JSON_BLOB not set.')
 
     @study_blob.setter
     def study_blob(self, value):
-        """ To be implemented """
-        pass
+        blob_param = self.params.get('STUDY_JSON_BLOB')
+        if not blob_param:
+            self.params.set('STUDY_JSON_BLOB', 'study_blob.json')
+
+        self.params.json_blob = value
 
     @property
     def top_node(self) -> str:

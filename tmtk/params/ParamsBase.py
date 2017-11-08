@@ -45,6 +45,9 @@ class ParamsBase(ValidateMixin):
         """
         return self.__dict__.get(parameter.upper(), default)
 
+    def set(self, parameter, value):
+        self.__dict__[parameter.upper()] = value
+
     @property
     def _params_in_file(self):
         """ Dictionary with all variables in file."""

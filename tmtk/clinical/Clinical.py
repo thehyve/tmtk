@@ -241,30 +241,25 @@ class Clinical(ValidateMixin):
 
         :return: patients dict.
         """
+
+        def add_patient_properties(subjects_dict, destination, labels):
+            vars_ = [v for label in labels for v in self.find_variables_by_label(label)]
+
+            if len(vars_) > 1:
+                print("More than one {!r} defined, will pick last "
+                      "value found for each subject.".format(destination))
+
+            for var in vars_:
+                for k, v in zip(var.subj_id.values, var.values):
+                    subjects_dict[k].update({destination: v})
+
         subj_id_vars = self.find_variables_by_label('SUBJ_ID')
-
-        gender_labels = ('gender', 'Gender', 'GENDER', 'sex', 'Sex', 'SEX')
-        gender_vars = [v for label in gender_labels for v in self.find_variables_by_label(label)]
-
-        age_labels = ('Age', 'age', 'AGE')
-        age_vars = [v for label in age_labels for v in self.find_variables_by_label(label)]
-
-        if len(gender_vars) > 1:
-            print("More than one 'gender' defined, will pick last value found for each subject.")
-
-        if len(age_vars) > 1:
-            print("More than one 'age' defined, will pick last value found for each subject.")
 
         # Create dictionary where every subject is a key with value as empty dictionary
         subjects = {subj_id: {} for var in subj_id_vars for subj_id in var.values}
 
-        for var in age_vars:
-            for k, v in zip(var.subj_id.values, var.values):
-                subjects[k].update({'age': v})
-
-        for var in gender_vars:
-            for k, v in zip(var.subj_id.values, var.values):
-                subjects[k].update({'gender': v})
+        add_patient_properties(subjects, 'gender', ('gender', 'Gender', 'GENDER', 'sex', 'Sex', 'SEX'))
+        add_patient_properties(subjects, 'age', ('Age', 'age', 'AGE'))
 
         return subjects
 

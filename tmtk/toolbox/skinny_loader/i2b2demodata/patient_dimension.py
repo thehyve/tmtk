@@ -20,6 +20,9 @@ class PatientDimension(TableRow):
 
         self.df = self.df.reindex(columns=self.columns)
 
+        # Database will round, so we have to floor age here.
+        self.df.age_in_years_num = self.df.age_in_years_num.astype(pd.np.float64) // 1
+
         self.df.iloc[:, 0] = self.df.index
 
     @property
