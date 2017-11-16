@@ -79,7 +79,7 @@ class MetaDataTags(FileBase, ValidateMixin):
         :param blueprint: blueprint object.
         """
         for var in self.parent.Clinical.all_variables.values():
-            blueprint_var = blueprint.get(var.header)
+            blueprint_var = blueprint.get(var.header, {})
             tags = blueprint_var.get('metadata_tags')
             if not tags:
                 continue

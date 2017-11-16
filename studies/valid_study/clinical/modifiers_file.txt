@@ -1,0 +1,1 @@
+modifier_path	modifier_cd	name_char	Data Type

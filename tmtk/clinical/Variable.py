@@ -133,7 +133,7 @@ class Variable:
         try:
             set(map(float, self.values))
             return True
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
     @property
@@ -163,7 +163,7 @@ class Variable:
             try:
                 set(map(float, self.mapped_values))
                 return True
-            except ValueError:
+            except (ValueError, TypeError):
                 return False
 
     @property
@@ -256,7 +256,7 @@ class Variable:
 
     @forced_categorical.setter
     def forced_categorical(self, value: bool):
-        self.parent.ColumnMapping.force_categorical(self.var_id, bool(value))
+        self.column_type = 'CATEGORICAL' if bool(value) else ''
 
     @property
     def is_in_wordmap(self):
@@ -308,9 +308,17 @@ class Variable:
     def reference_column(self):
         return self.parent.ColumnMapping.select_row(self.var_id)[4]
 
+    @reference_column.setter
+    def reference_column(self, value):
+        return self.parent.ColumnMapping.set_reference_column(self.var_id, value)
+
     @property
     def concept_code(self):
         return self.parent.ColumnMapping.select_row(self.var_id)[5]
+
+    @concept_code.setter
+    def concept_code(self, value):
+        self.parent.ColumnMapping.set_concept_code(self.var_id, value)
 
     @property
     def column_type(self):
@@ -326,6 +334,10 @@ class Variable:
                 return self.parent.ColumnMapping.select_row(self.var_id)[6]
             except IndexError:
                 return None
+
+    @column_type.setter
+    def column_type(self, value):
+        self.parent.ColumnMapping.set_column_type(self.var_id, value)
 
     @property
     def modifier_code(self):

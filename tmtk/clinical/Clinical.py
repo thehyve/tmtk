@@ -44,10 +44,8 @@ class Clinical(ValidateMixin):
         self._params = value
         self.ColumnMapping = ColumnMapping(params=self.params)
         self.WordMapping = WordMapping(params=self.params)
-        if hasattr(self.params, 'ONTOLOGY_MAP_FILE'):
-            self.OntologyMapping = OntologyMapping(params=self.params)
-        if hasattr(self.params, 'MODIFIERS_FILE'):
-            self.Modifiers = Modifiers(params=self.params)
+        self.OntologyMapping = OntologyMapping(params=self.params)
+        self.Modifiers = Modifiers(params=self.params)
 
     @property
     def ColumnMapping(self):
@@ -96,6 +94,7 @@ class Clinical(ValidateMixin):
               "GENDER": {
                 "path": "Characteristics\\Demographics",
                 "label": "Gender",
+                "concept_code": "SNOMEDCT/263495000",
                 "metadata_tags": {
                   "Info": "As measured when born."
                 },
@@ -127,7 +126,7 @@ class Clinical(ValidateMixin):
             blueprint_var = blueprint.get(variable.header.strip())
 
             if not blueprint_var:
-                self.msgs.info("Removing column with header {!r}. Not found in blueprint.".format(variable.header))
+                self.msgs.info("Column with header {!r}. Not found in blueprint.".format(variable.header))
                 if omit_missing:
                     variable.data_label = 'OMIT'
                 continue
@@ -143,6 +142,9 @@ class Clinical(ValidateMixin):
 
             if blueprint_var.get('word_map'):
                 variable.word_map_dict = blueprint_var.get('word_map')
+
+            if blueprint_var.get('concept_code'):
+                variable.concept_code = blueprint_var.get('concept_code')
 
             expected_numerical = blueprint_var.get('expected_numerical')
             if expected_numerical and variable.is_numeric_in_datafile:

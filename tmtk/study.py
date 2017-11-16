@@ -188,8 +188,6 @@ class Study(ValidateMixin):
             with open(os.path.join(self.study_folder, blob_param), 'r') as f:
                 self.params.json_blob = json.load(f)
                 return self.params.json_blob
-        else:
-            self.msgs.info('STUDY_JSON_BLOB not set.')
 
     @study_blob.setter
     def study_blob(self, value):
@@ -363,12 +361,12 @@ class Study(ValidateMixin):
         """
         Apply a blueprint to current study.
 
-        :param blueprint: blueprint dictionary or link to blueprint json on disk.
+        :param blueprint: blueprint object (e.g. dictionary) or link to blueprint json on disk.
         :param omit_missing: if True, then variable that are not present in the blueprint
         will be set to OMIT.
         """
 
-        if os.path.exists(blueprint):
+        if isinstance(blueprint, str) and os.path.exists(blueprint):
             with open(blueprint) as f:
                 blueprint = json.load(f)
 
@@ -442,7 +440,12 @@ class Study(ValidateMixin):
             dimensions.append('trial visit')
 
         for modifier in self.Clinical.find_variables_by_label('MODIFIER'):
-            mod_name = self.Clinical.Modifiers.df.loc[modifier.modifier_code, self.Clinical.Modifiers.df.columns[2]]
-            dimensions.append(mod_name)
+            try:
+                mod_name = self.Clinical.Modifiers.df.loc[modifier.modifier_code,
+                                                          self.Clinical.Modifiers.df.columns[2]]
+                dimensions.append(mod_name)
+            except KeyError:
+                self.msgs.error('Cannot retrieve modifier {!r}, as it is not in modifiers file.'.format(modifier))
+                raise
 
         return dimensions

@@ -117,14 +117,33 @@ class ColumnMapping(FileBase, ValidateMixin):
 
         self.df.loc[tuple(var_id), columns_to_update] = new_values
 
-    def force_categorical(self, var_id: tuple, enable=True):
+    def set_reference_column(self, var_id: tuple, value):
         """
-        Set variable to be forced categorical.
+        Set the reference column for a variable, this is used for modifiers
+        to specify which columns are affected by this modifier variable.
 
         :param var_id: tuple of filename and column number.
-        :param enable: if True add the 'CATEGORICAL' parameter, else remove it.
+        :param value: value to set reference column to.
         """
-        self.df.loc[tuple(var_id), self.df.columns[6]] = 'CATEGORICAL' if enable else ''
+        self.df.loc[tuple(var_id), self.df.columns[4]] = value
+
+    def set_concept_code(self, var_id: tuple, value):
+        """
+        Set the concept code for a variable.
+
+        :param var_id: tuple of filename and column number.
+        :param value: value to set concept code to.
+        """
+        self.df.loc[tuple(var_id), self.df.columns[5]] = value
+
+    def set_column_type(self, var_id: tuple, value: str):
+        """
+        Set variable to a given data type.
+
+        :param var_id: tuple of filename and column number.
+        :param value: value to set column type to.
+        """
+        self.df.loc[tuple(var_id), self.df.columns[6]] = value
 
     @staticmethod
     def _df_mods(df):
