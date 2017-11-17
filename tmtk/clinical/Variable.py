@@ -107,6 +107,10 @@ class Variable:
         """
         return self.datafile.df.iloc[:, self._zero_column]
 
+    @values.setter
+    def values(self, series: pd.Series):
+        self.datafile.df.iloc[:, self._zero_column] = series
+
     @property
     def unique_values(self):
         """
@@ -310,7 +314,7 @@ class Variable:
 
     @reference_column.setter
     def reference_column(self, value):
-        return self.parent.ColumnMapping.set_reference_column(self.var_id, value)
+        self.parent.ColumnMapping.set_reference_column(self.var_id, value)
 
     @property
     def concept_code(self):
