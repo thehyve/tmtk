@@ -1,4 +1,4 @@
-from ..shared import TableRow, Defaults, get_full_path
+from ..shared import TableRow, Defaults, get_full_path, get_unix_timestamp
 
 import pandas as pd
 import arrow
@@ -54,7 +54,7 @@ class ObservationFact(TableRow):
             if visual_attributes_ == var.VIS_DATE:
                 return {'valtype_cd': 'N',
                         'tval_char': 'E',
-                        'nval_num': values.apply(lambda x: arrow.get(x).format('X')),  # Unix time
+                        'nval_num': values.apply(get_unix_timestamp),  # Unix time
                         'observation_blob': values}  # UTC
 
             elif visual_attributes_ == var.VIS_TEXT:

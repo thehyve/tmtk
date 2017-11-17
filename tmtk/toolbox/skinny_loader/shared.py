@@ -1,5 +1,7 @@
 from ...utils import path_converter
 
+import arrow
+import pandas as pd
 
 class TableRow:
     """ Used as base class to create table rows from a pd.Series object defined in child class. """
@@ -62,3 +64,11 @@ def path_slash_all(path):
     if not path.endswith('\\'):
         path += '\\'
     return path
+
+
+def get_unix_timestamp(date):
+    """ Returns timestamp if date is not None or pd.np.nan, else returns nan """
+    if date not in (None, pd.np.nan):
+        return arrow.get(date).format('X')
+    else:
+        return pd.np.nan
