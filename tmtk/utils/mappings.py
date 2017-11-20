@@ -9,8 +9,8 @@ class Mappings:
     col_num = 'Column Number'
     data_label = 'Data Label'
     magic_5 = 'Magic 5th'
-    magic_6 = 'Magic 6th'
-    concept_type = 'Concept Type'
+    ontology_code = 'Ontology Code'
+    concept_type = 'Data Type'
 
     # Tags
     tags_path = 'Concept Path'
@@ -22,6 +22,17 @@ class Mappings:
     # Word mapping file
     df_value = 'Datafile Value'
     map_value = 'Mapping Value'
+
+    # Modifiers file
+    modifier_path = 'modifier_path'
+    modifier_cd = 'modifier_cd'
+    name_char = 'name_char'
+    column_type = 'Data Type'
+
+    # Ontology file
+    term_label = 'Label'
+    blob = 'blob'
+    ancestors = 'Ancestors'
 
     # Jstree json ids
     filename_s = 'fn'
@@ -44,7 +55,7 @@ class Mappings:
                              col_num,
                              data_label,
                              magic_5,
-                             magic_6,
+                             ontology_code,
                              concept_type,
                              ]
 
@@ -67,6 +78,16 @@ class Mappings:
                    tags_title,
                    tags_description,
                    tags_weight]
+
+    modifiers_header = [modifier_path,
+                        modifier_cd,
+                        name_char,
+                        column_type]
+
+    ontology_header = [ontology_code,
+                       term_label,
+                       ancestors,
+                       blob]
 
     annotation_marker_types = {
         'mirna_annotation': 'MIRNA_QPCR',

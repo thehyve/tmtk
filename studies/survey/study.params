@@ -1,0 +1,7 @@
+### Mandatory
+# Identifier of the study.
+STUDY_ID=SURVEY
+
+### Optional
+TOP_NODE=\Projects\Survey 1
+STUDY_JSON_BLOB=study_blob.json

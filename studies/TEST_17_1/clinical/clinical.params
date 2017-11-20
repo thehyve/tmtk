@@ -1,0 +1,4 @@
+COLUMN_MAP_FILE=OBS336-201_columns.txt
+ONTOLOGY_MAP_FILE=OBS336-201_ontology_codes.txt
+MODIFIERS_FILE=modifiers.txt
+

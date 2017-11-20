@@ -7,22 +7,30 @@ class ClinicalParams(ParamsBase):
 
     @property
     def mandatory(self):
-        return {'COLUMN_MAP_FILE': {
-            'mandatory': True,
-            'helptext': 'Points to the column file.'
-        }
+        return {
+            'COLUMN_MAP_FILE': {
+                'mandatory': True,
+                'helptext': 'Points to the column file.'
+            }
         }
 
     @property
     def optional(self):
-        return {"WORD_MAP_FILE": {
-            'helptext': 'Points to the file with dictionary to be used.'
-        },
+        return {
+            "WORD_MAP_FILE": {
+                'helptext': 'Points to the file with dictionary to be used.'
+            },
             "XTRIAL_FILE": {
                 'helptext': 'Points to the cross study concepts file.'
             },
             "TAGS_FILE": {
                 'helptext': 'Points to the concepts tags file.'
+            },
+            "ONTOLOGY_MAP_FILE": {
+                'helptext': 'Points to the ontology mapping for this study.'
+            },
+            "MODIFIERS_FILE": {
+                'helptext': 'Points to the modifiers file for this study.'
             }
         }
 

@@ -24,6 +24,7 @@ class ArboristTests(unittest.TestCase):
         tmtk.arborist.update_study_from_json(self.study, json_data)
         assert self.study.Clinical.WordMapping.df.shape == (4, 4)
         assert '"text": "SW48_MAPPED"' in self.study.concept_tree.jstree.json_data_string
+        assert self.study.Clinical.WordMapping.word_map_changes(silent=True)
 
 
 if __name__ == '__main__':

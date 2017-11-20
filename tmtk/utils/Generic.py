@@ -111,25 +111,11 @@ def find_fully_unique_columns(df):
     return list(df.columns[unique_cols])
 
 
-def is_numeric(values):
+def is_not_a_value(value):
     """
-    Check if list of values are numeric.
-
-    :param values: iterable
+    Returns whether value is None, pd.np.nan, or an empty string
     """
-    for v in values:
-        if not numeric(v):
-            return False
-    return True
-
-
-def numeric(x):
-    try:
-        if x != 'inf':
-            float(x)
-            return True
-    except ValueError:
-        return False
+    return value is None or value is pd.np.nan or value == ''
 
 
 def fix_everything():

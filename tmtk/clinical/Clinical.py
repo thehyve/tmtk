@@ -6,6 +6,9 @@ from .Variable import Variable, VarID
 from .ColumnMapping import ColumnMapping
 from .WordMapping import WordMapping
 from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin, path_converter
+from .Ontology import OntologyMapping
+from .modifier import Modifiers
+
 from .. import arborist
 from ..utils.batch import TransmartBatch
 
@@ -22,6 +25,8 @@ class Clinical(ValidateMixin):
     def __init__(self, clinical_params=None):
         self._WordMapping = None
         self._ColumnMapping = None
+        self._OntologyMapping = None
+        self._Modifiers = None
         self._params = clinical_params
 
     def __str__(self):
@@ -39,6 +44,8 @@ class Clinical(ValidateMixin):
         self._params = value
         self.ColumnMapping = ColumnMapping(params=self.params)
         self.WordMapping = WordMapping(params=self.params)
+        self.OntologyMapping = OntologyMapping(params=self.params)
+        self.Modifiers = Modifiers(params=self.params)
 
     @property
     def ColumnMapping(self):
@@ -59,6 +66,22 @@ class Clinical(ValidateMixin):
     def WordMapping(self, value):
         self._WordMapping = value
 
+    @property
+    def OntologyMapping(self):
+        return self._OntologyMapping
+
+    @OntologyMapping.setter
+    def OntologyMapping(self, value):
+        self._OntologyMapping = value
+
+    @property
+    def Modifiers(self):
+        return self._Modifiers
+
+    @Modifiers.setter
+    def Modifiers(self, value):
+        self._Modifiers = value
+
     def apply_blueprint(self, blueprint, omit_missing=False):
         """
         Update the column mapping by applying a template.
@@ -71,6 +94,7 @@ class Clinical(ValidateMixin):
               "GENDER": {
                 "path": "Characteristics\\Demographics",
                 "label": "Gender",
+                "concept_code": "SNOMEDCT/263495000",
                 "metadata_tags": {
                   "Info": "As measured when born."
                 },
@@ -102,7 +126,7 @@ class Clinical(ValidateMixin):
             blueprint_var = blueprint.get(variable.header.strip())
 
             if not blueprint_var:
-                self.msgs.info("Removing column with header {!r}. Not found in blueprint.".format(variable.header))
+                self.msgs.info("Column with header {!r}. Not found in blueprint.".format(variable.header))
                 if omit_missing:
                     variable.data_label = 'OMIT'
                 continue
@@ -118,6 +142,9 @@ class Clinical(ValidateMixin):
 
             if blueprint_var.get('word_map'):
                 variable.word_map_dict = blueprint_var.get('word_map')
+
+            if blueprint_var.get('concept_code'):
+                variable.concept_code = blueprint_var.get('concept_code')
 
             expected_numerical = blueprint_var.get('expected_numerical')
             if expected_numerical and variable.is_numeric_in_datafile:
@@ -196,6 +223,61 @@ class Clinical(ValidateMixin):
         datafile = self.get_datafile(df_name)
         return Variable(datafile, column, self)
 
+    def find_variables_by_label(self, label: str, in_file: str=None) -> list:
+        """
+        Search for variables based on data label. All labels are converted to lower case.
+
+        :param label:
+        :param in_file:
+        :return:
+        """
+        sliced = self.ColumnMapping.df.iloc[:, 3] == label
+        if in_file:
+            sliced = sliced & (self.ColumnMapping.df.iloc[:, 0] == in_file)
+        return [self.get_variable(x[0]) for x in self.ColumnMapping.df[sliced].iterrows()]
+
+    def get_patients(self):
+        """
+        Creates a dictionary that has subject identifiers as keys and each value is a map
+        that contains an nothing or an 'age' and/or 'gender' key that maps to this value.
+
+        :return: patients dict.
+        """
+
+        def add_patient_properties(subjects_dict, destination, labels):
+            vars_ = [v for label in labels for v in self.find_variables_by_label(label)]
+
+            if len(vars_) > 1:
+                print("More than one {!r} defined, will pick last "
+                      "value found for each subject.".format(destination))
+
+            for var in vars_:
+                for k, v in zip(var.subj_id.values, var.values):
+                    subjects_dict[k].update({destination: v})
+
+        subj_id_vars = self.find_variables_by_label('SUBJ_ID')
+
+        # Create dictionary where every subject is a key with value as empty dictionary
+        subjects = {subj_id: {} for var in subj_id_vars for subj_id in var.values}
+
+        add_patient_properties(subjects, 'gender', ('gender', 'Gender', 'GENDER', 'sex', 'Sex', 'SEX'))
+        add_patient_properties(subjects, 'age', ('Age', 'age', 'AGE'))
+
+        return subjects
+
+    def get_trial_visits(self):
+        """
+        Generator that yields all trial visits.
+
+        :return:
+        """
+        default_visit = {'name': 'General',
+                         'relative_time': None,
+                         'time_unit': None}
+
+        yield default_visit
+        # To be added later: yield all other trial visits.
+
     @property
     def all_variables(self):
         """
@@ -203,6 +285,16 @@ class Clinical(ValidateMixin):
         the column mapping file.
         """
         return {VarID(var_id): self.get_variable(var_id) for var_id in self.ColumnMapping.ids}
+
+    @property
+    def filtered_variables(self):
+        """
+        Dictionary where {`tmtk.VarID`: `tmtk.Variable`} for all variables in
+        the column mapping file that do not have a data label in the RESERVED_KEYWORDS list
+        """
+        vars_ = {VarID(var_id): self.get_variable(var_id) for var_id in self.ColumnMapping.ids}
+        vars_ = {k: v for k, v in vars_.items() if v.data_label not in self.ColumnMapping.RESERVED_KEYWORDS}
+        return vars_
 
     def call_boris(self, height=650):
         """

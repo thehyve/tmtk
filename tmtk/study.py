@@ -131,26 +131,6 @@ class Study(ValidateMixin):
         """Find dataframes that have changed since they have been loaded."""
         return [obj for obj in self.all_files if obj.df_has_changed]
 
-    def get_objects_with_prop(self, prop: all):
-        """
-        Search for objects with a certain property.
-
-        :param prop: string equal to the property name.
-        :return: generator for the found objects.
-        """
-        self.msgs.warning("DeprecationWarning: Don't use get_objects_with_prop(), use get_objects() instead.")
-        recursion_items = ['parent', '_parent', 'obj', 'msgs']
-
-        def iterate_items(d, prop):
-            for key, obj in d.items():
-                if hasattr(obj, '__dict__') and key not in recursion_items:
-                    yield from iterate_items(obj.__dict__, prop)
-
-                if hasattr(obj, prop):
-                    yield obj
-
-        return {i for i in iterate_items(self.__dict__, prop)}
-
     def get_objects(self, of_type):
         """
         Search for objects that have inherited from a certain type.
@@ -189,9 +169,45 @@ class Study(ValidateMixin):
 
     @study_name.setter
     def study_name(self, value):
+        container = '\\'.join(self.top_node.strip('\\').split('\\')[:-1])
+        self.top_node = "\\{}\\{}".format(container, value)
+
+    @property
+    def study_blob(self):
+        """
+        JSON data that can be loaded in the study blob. This will be added
+        as a separate file next to the study.params. The STUDY_JSON_BLOB
+        parameter will be set to point to this file.
+        """
+
+        if self.params.json_blob:
+            return self.params.json_blob
+
+        blob_param = self.params.get('STUDY_JSON_BLOB')
+        if blob_param:
+            with open(os.path.join(self.study_folder, blob_param), 'r') as f:
+                self.params.json_blob = json.load(f)
+                return self.params.json_blob
+
+    @study_blob.setter
+    def study_blob(self, value):
+        blob_param = self.params.get('STUDY_JSON_BLOB')
+        if not blob_param:
+            self.params.set('STUDY_JSON_BLOB', 'study_blob.json')
+
+        self.params.json_blob = value
+
+    @property
+    def top_node(self) -> str:
+        if self.params.get('TOP_NODE'):
+            return self.params.get('TOP_NODE')
+
         pub_priv = 'Private Studies' if self.security_required else 'Public Studies'
-        new_top = "\\{}\\{}".format(pub_priv, value)
-        setattr(self.params, 'TOP_NODE', new_top)
+        return "\\{}\\{}".format(pub_priv, self.study_id)
+
+    @top_node.setter
+    def top_node(self, value: str):
+        setattr(self.params, 'TOP_NODE', value)
 
     @property
     def security_required(self) -> bool:
@@ -202,7 +218,10 @@ class Study(ValidateMixin):
         assert value in (True, False)
         setattr(self.params, 'SECURITY_REQUIRED', 'Y' if value else 'N')
         # Reset Public/Private in TOP_NODE
-        self.study_name = self.study_name
+        top = self.params.get('TOP_NODE', '')
+        if top.startswith('\\Public Studies\\') or top.startswith('\\Private Studies\\'):
+            pub_priv = 'Private Studies' if value else 'Public Studies'
+            self.top_node = "\\{}\\{}".format(pub_priv, self.study_name)
 
     def call_boris(self, height=650):
         """
@@ -342,12 +361,12 @@ class Study(ValidateMixin):
         """
         Apply a blueprint to current study.
 
-        :param blueprint: blueprint dictionary or link to blueprint json on disk.
+        :param blueprint: blueprint object (e.g. dictionary) or link to blueprint json on disk.
         :param omit_missing: if True, then variable that are not present in the blueprint
         will be set to OMIT.
         """
 
-        if os.path.exists(blueprint):
+        if isinstance(blueprint, str) and os.path.exists(blueprint):
             with open(blueprint) as f:
                 blueprint = json.load(f)
 
@@ -409,3 +428,24 @@ class Study(ValidateMixin):
             self.msgs.okay('Study params found on disk.')
         else:
             self.msgs.error('Study params not on disk.')
+
+    def get_dimensions(self):
+        """ Returns a list of dimensions applicable to study """
+        dimensions = ['study', 'concept', 'patient']
+
+        if self.Clinical.find_variables_by_label('START_DATE'):
+            dimensions.append('start time')
+
+        if self.Clinical.find_variables_by_label('TRIAL_VISIT_LABEL'):
+            dimensions.append('trial visit')
+
+        for modifier in self.Clinical.find_variables_by_label('MODIFIER'):
+            try:
+                mod_name = self.Clinical.Modifiers.df.loc[modifier.modifier_code,
+                                                          self.Clinical.Modifiers.df.columns[2]]
+                dimensions.append(mod_name)
+            except KeyError:
+                self.msgs.error('Cannot retrieve modifier {!r}, as it is not in modifiers file.'.format(modifier))
+                raise
+
+        return dimensions

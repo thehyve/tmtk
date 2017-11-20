@@ -1,0 +1,26 @@
+Ontology code	Label	Ancestors	Blob
+SNOMEDCT/184100006	Patient sex	SNOMEDCT/302147001	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/184100006"}
+SNOMEDCT/302147001	Demographic history detail	SNOMEDCT/160476009	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/302147001"}
+SNOMEDCT/160476009	Social / personal history observable	SNOMEDCT/363787002	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/160476009"}
+SNOMEDCT/363787002	Observable entity		{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/363787002"}
+SNOMEDCT/184099003	Date of birth	SNOMEDCT/302147001	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/184099003"}
+SNOMEDCT/248333004	Standing height	SNOMEDCT/50373000	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/248333004"}
+SNOMEDCT/50373000	Body height measure	SNOMEDCT/271603002	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/50373000"}
+SNOMEDCT/271603002	Height / growth measure	SNOMEDCT/248326004	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/271603002"}
+SNOMEDCT/248326004	Body measure	SNOMEDCT/363789004	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/248326004"}
+SNOMEDCT/363789004	General characteristic of patient	SNOMEDCT/363788007	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/363789004"}
+SNOMEDCT/363788007	Clinical history/examination observable	SNOMEDCT/363787002	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/363788007"}
+SNOMEDCT/425024002	Body weight without shoes	SNOMEDCT/27113001	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/425024002"}
+SNOMEDCT/27113001	Body weight	SNOMEDCT/363808001	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/27113001"}
+SNOMEDCT/363808001	Body weight measure	SNOMEDCT/363804004	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/363808001"}
+SNOMEDCT/363804004	Body weight characteristic	SNOMEDCT/248326004	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/363804004"}
+SNOMEDCT/17888004	High density lipoprotein measurement	SNOMEDCT/104789001	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/17888004"}
+SNOMEDCT/104789001	Lipoproteins measurement	SNOMEDCT/74040009,SNOMEDCT/104780002	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/104789001"}
+SNOMEDCT/74040009	Protein measurement	SNOMEDCT/430925007	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/74040009"}
+SNOMEDCT/104780002	Lipids measurement	SNOMEDCT/430925007	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/104780002"}
+SNOMEDCT/430925007	Measurement of substance	SNOMEDCT/122869004	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/430925007"}
+SNOMEDCT/122869004	Measurement	SNOMEDCT/386053000	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/122869004"}
+SNOMEDCT/386053000	Evaluation procedure	SNOMEDCT/128927009	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/386053000"}
+SNOMEDCT/128927009	Procedure by method	SNOMEDCT/71388002	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/128927009"}
+SNOMEDCT/71388002	Procedure		{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/71388002"}
+SNOMEDCT/22644003	Low density lipoprotein measurement	SNOMEDCT/104789001	{"uri": "http://purl.bioontology.org/ontology/SNOMEDCT/22644003"}

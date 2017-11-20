@@ -1,0 +1,10 @@
+Filename	Category Code	Column Number	Data Label	Reference Column	ontology_code	Data Type
+survey_data.tsv	Demographics	1	Age		age	
+survey_data.tsv	Interests	2	Favourite book quote		favouritebook	TEXT
+survey_data.tsv	Demographics	3	Birth date		birthdate	DATE
+survey_data.tsv	Demographics	4	Gender		gender	
+survey_data.tsv	General	5	Description		description	
+survey_data.tsv	\	6	SUBJ_ID			
+survey_data.tsv	Demographics	7	Height		height	
+survey_data.tsv	\	8	START_DATE			
+survey_data.tsv	\	9	MODIFIER	5		MISSVAL

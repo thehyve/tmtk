@@ -25,6 +25,8 @@ class ReloadTests(unittest.TestCase):
         assert not self.study.params.get('TOP_NODE')
         self.study.study_name = 'Cell lines'
         assert self.study.params.get('TOP_NODE') == '\\Private Studies\\Cell lines'
+        self.study.security_required = False
+        assert self.study.top_node == '\\Public Studies\\Cell lines'
 
 
 if __name__ == '__main__':
