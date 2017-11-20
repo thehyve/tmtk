@@ -8,20 +8,35 @@ class PatientDimension(TableRow):
         self.study = study
         super().__init__()
 
-        self.df = pd.DataFrame.from_dict(study.Clinical.get_patients(), orient='index')
+        # Due to implementation details on pd.from_dict() method we need to add
+        # something to the patients dictionary if neither age or gender are present.
+        patient_dict = self.study.Clinical.get_patients()
+        patient_dict.update({p: {'age': pd.np.nan} for p, v in patient_dict.items() if not v})
+
+        self.df = pd.DataFrame.from_dict(patient_dict, orient='index')
         self.df.reset_index(drop=False, inplace=True)
 
         # Due to non deterministic behaviour of dictionaries need to check the order
         # in the temporary dataframe.
-        if self.df.columns[1] == 'gender':
-            self.df.columns = ['sourcesystem_cd', 'sex_cd', 'age_in_years_num']
-        else:
-            self.df.columns = ['sourcesystem_cd', 'age_in_years_num', 'sex_cd']
+        new_columns = list(self.df.columns)
+        new_columns[0] = 'sourcesystem_cd'
+
+        try:
+            new_columns[new_columns.index('age')] = 'age_in_years_num'
+
+            # Database will round, so we have to floor age here.
+            self.df.age = self.df.age.astype(pd.np.float64) // 1
+        except ValueError:
+            pass
+
+        try:
+            new_columns[new_columns.index('gender')] = 'sex_cd'
+        except ValueError:
+            pass
+
+        self.df.columns = new_columns
 
         self.df = self.df.reindex(columns=self.columns)
-
-        # Database will round, so we have to floor age here.
-        self.df.age_in_years_num = self.df.age_in_years_num.astype(pd.np.float64) // 1
 
         self.df.iloc[:, 0] = self.df.index
 
