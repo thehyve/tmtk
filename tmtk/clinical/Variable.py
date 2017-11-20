@@ -182,15 +182,26 @@ class Variable:
     @property
     def concept_path(self):
         """
-        Concept path after conversions by transmart-batch.
+        Concept path after conversions by transmart-batch. Combination
+        of self.category_code and self.data_label. Cannot be set.
 
         :return: str.
         """
         cp = self.parent.ColumnMapping.get_concept_path(self.var_id)
         return path_converter(cp)
 
-    @concept_path.setter
-    def concept_path(self, value):
+    @property
+    def category_code(self):
+        """
+        The second column of the column mapping file for this variable.
+        This combines with self.data_label to create self.concept_path.
+
+        :return: str.
+        """
+        return self.parent.ColumnMapping.select_row(self.var_id)[1]
+
+    @category_code.setter
+    def category_code(self, value):
         self.parent.ColumnMapping.set_concept_path(self.var_id, path=value)
 
     @property

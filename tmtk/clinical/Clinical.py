@@ -132,7 +132,7 @@ class Clinical(ValidateMixin):
                 continue
 
             if blueprint_var.get('path'):
-                variable.concept_path = path_converter(blueprint_var.get('path'))
+                variable.category_code = path_converter(blueprint_var.get('path'))
 
             if blueprint_var.get('label'):
                 variable.data_label = blueprint_var.get('label')
