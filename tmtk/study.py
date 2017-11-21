@@ -443,9 +443,9 @@ class Study(ValidateMixin):
 
         for modifier in self.Clinical.find_variables_by_label('MODIFIER'):
 
-            _mods_found.add(modifier.modifier_code)
             if modifier.modifier_code in _mods_found:
                 continue
+            _mods_found.add(modifier.modifier_code)
 
             try:
                 mod_name = self.Clinical.Modifiers.df.loc[modifier.modifier_code,
