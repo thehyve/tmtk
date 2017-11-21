@@ -439,7 +439,14 @@ class Study(ValidateMixin):
         if self.Clinical.find_variables_by_label('TRIAL_VISIT_LABEL'):
             dimensions.append('trial visit')
 
+        _mods_found = set()
+
         for modifier in self.Clinical.find_variables_by_label('MODIFIER'):
+
+            _mods_found.add(modifier.modifier_code)
+            if modifier.modifier_code in _mods_found:
+                continue
+
             try:
                 mod_name = self.Clinical.Modifiers.df.loc[modifier.modifier_code,
                                                           self.Clinical.Modifiers.df.columns[2]]
