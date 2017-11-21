@@ -1,4 +1,5 @@
-from ..shared import TableRow
+from ..shared import TableRow, path_slash_all
+from tmtk.utils import path_converter
 
 import pandas as pd
 
@@ -16,6 +17,9 @@ class I2B2Tags(TableRow):
                                 'tags_idx': study.Tags.df.iloc[:, 3],
                                 }, columns=self.columns)
 
+        self.df.path = self.df.path.apply(lambda x:
+                                          path_slash_all(path_converter('{}\\{}'.format(self.study.top_node, x)))
+                                          )
         self.df.tags_idx = self.df.tags_idx.astype(pd.np.int64)
 
         self.df.iloc[:, 0] = self.df.index

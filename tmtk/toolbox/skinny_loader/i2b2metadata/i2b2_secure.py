@@ -111,6 +111,7 @@ class I2B2Secure(TableRow):
     def add_folder_row(self, path):
         row = self.row
         row.c_fullname = path
+        row.c_dimcode = path
         row.c_hlevel = calc_hlevel(path)
         row.c_name = path.strip(Defaults.DELIMITER).split(Defaults.DELIMITER)[-1]
 

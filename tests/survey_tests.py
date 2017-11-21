@@ -57,6 +57,14 @@ class SurveyTests(unittest.TestCase):
             'SURVEY'
         )
 
+    def test_c_dimcode(self):
+        self.assertEqual(self.export.i2b2_secure.df.shape, (21, 27))
+        self.assertIn('\\Ontology\\Demographics\\Height\\', set(self.export.i2b2_secure.df.c_dimcode))
+        self.assertIn('\\Projects\\Survey 1\\Interests\\', set(self.export.i2b2_secure.df.c_dimcode))
+
+    def test_tags(self):
+        self.assertIn('\\Projects\\Survey 1\\Demographics\\Gender\\', set(self.export.i2b2_tags.df.path))
+
     def test_visualattributes(self):
         vis_attrs = {'CA', 'FA', 'FAS', 'LAC', 'LAD', 'LAN', 'LAT'}
         found = set(self.export.i2b2_secure.df.c_visualattributes)
