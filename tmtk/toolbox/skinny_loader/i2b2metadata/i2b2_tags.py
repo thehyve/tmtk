@@ -16,6 +16,8 @@ class I2B2Tags(TableRow):
                                 'tags_idx': study.Tags.df.iloc[:, 3],
                                 }, columns=self.columns)
 
+        self.df.tags_idx = self.df.tags_idx.astype(pd.np.int64)
+
         self.df.iloc[:, 0] = self.df.index
 
     @property
