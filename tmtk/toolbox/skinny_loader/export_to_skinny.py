@@ -25,14 +25,11 @@ class SkinnyExport:
         self.study = study
         self.export_directory = export_directory
 
-        # Start by creating the tree in i2b2_secure
-        self.i2b2_secure = I2B2Secure(self.study)
+        # Start by creating the concept_dimension
+        self.concept_dimension = ConceptDimension(self.study)
 
-        # Nodes from concept dimension are added to i2b2_secure
-        self.concept_dimension = ConceptDimension(self.study, self.i2b2_secure)
-
-        # We have to go back to add all missing folders
-        self.i2b2_secure.add_missing_folders()
+        # Nodes from concept dimension
+        self.i2b2_secure = I2B2Secure(self.study, self.concept_dimension)
 
         # First we build the patient_dimension and then the patient mapping based on that
         self.patient_dimension = PatientDimension(self.study)
