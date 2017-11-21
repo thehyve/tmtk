@@ -7,9 +7,10 @@ from tqdm import tqdm
 
 class I2B2Secure(TableRow):
 
-    def __init__(self, study):
+    def __init__(self, study, concept_dimension):
 
         self.study = study
+        self.concept_dimension = concept_dimension
         super().__init__()
 
         # To be used for faster lookups in add_missing_paths method
@@ -20,6 +21,16 @@ class I2B2Secure(TableRow):
 
         self.df = pd.DataFrame(row_list, columns=self.columns)
 
+        # Add Ontology paths as nodes in tree. This creates paths in i2b2_secure for
+        # each term defined in ontology mapping.
+        self.back_populate_ontology(concept_dimension)
+
+        # Add 'unmapped' variables from i2b2_secure to concept dimension
+        self.concept_dimension.add_one_timer_concepts(self)
+
+        # We have to go back to add all missing folders
+        self.add_missing_folders()
+
     def build_variable_row(self, var):
         """ Create a row for a variable object. """
 
@@ -29,7 +40,7 @@ class I2B2Secure(TableRow):
         row.c_name = var.data_label
         row.c_visualattributes = var.visual_attributes
         row.c_basecode = var.concept_code or str(uuid.uuid4())
-        row.c_dimcode = row.c_fullname
+        row.c_dimcode = self.concept_dimension.get_path_for_code(var.concept_code) or row.c_fullname
 
         return row
 

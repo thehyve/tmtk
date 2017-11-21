@@ -5,7 +5,7 @@ import pandas as pd
 
 class ConceptDimension(TableRow):
 
-    def __init__(self, study, i2b2_secure):
+    def __init__(self, study):
         self.study = study
         super().__init__()
 
@@ -16,19 +16,18 @@ class ConceptDimension(TableRow):
 
         self.df = pd.DataFrame(row_list, columns=self.columns)
 
-        # Add Ontology paths as nodes in tree. This creates paths in i2b2_secure for
-        # each term defined in ontology mapping.
-        i2b2_secure.back_populate_ontology(self)
-
-        # Add 'unmapped' variables from i2b2_secure to concept dimension
-        self._add_one_timer_concepts(i2b2_secure)
-
         # Put back the right order of columns after concatenating the two dataframes
         self.df = self.df.reindex(columns=self.columns)
 
         self.map = dict(zip(self.df.concept_path, self.df.concept_cd))
 
-    def _add_one_timer_concepts(self, i2b2_secure):
+    def get_path_for_code(self, concept_cd):
+        try:
+            return self.df.loc[self.df.concept_cd == concept_cd, 'concept_path'].values[0]
+        except IndexError:
+            return None
+
+    def add_one_timer_concepts(self, i2b2_secure):
         """
         All variables are represented in i2b2_secure, though some might not have
         been mapped to an ontology code via the column mapping file. This method adds
