@@ -131,10 +131,10 @@ class Clinical(ValidateMixin):
                     variable.data_label = 'OMIT'
                 continue
 
-            if blueprint_var.get('path'):
+            if blueprint_var.get('path') is not None:
                 variable.category_code = path_converter(blueprint_var.get('path'))
 
-            if blueprint_var.get('label'):
+            if blueprint_var.get('label') is not None:
                 variable.data_label = blueprint_var.get('label')
 
             if blueprint_var.get('force_categorical'):

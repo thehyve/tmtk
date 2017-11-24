@@ -103,15 +103,15 @@ class ColumnMapping(FileBase, ValidateMixin):
         :param path: new value for path.
         :param label: new value for data label.
         """
-        if not (path or label):
+        if path is None and label is None:
             raise Exception('Need to give path or label')
 
         columns_to_update = [self.df.columns[1], self.df.columns[3]]
         new_values = [path, label]
-        if not path:
+        if path is None:
             columns_to_update.pop(0)
             new_values = new_values[1]
-        if not label:
+        if label is None:
             columns_to_update.pop(1)
             new_values = new_values[0]
 
