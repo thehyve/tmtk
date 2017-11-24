@@ -1,4 +1,4 @@
-from ..shared import TableRow, Defaults, calc_hlevel, get_full_path, path_slash_all
+from ..shared import TableRow, Defaults, calc_hlevel, get_full_path, path_slash_all, path_converter
 
 import pandas as pd
 import uuid
@@ -31,6 +31,11 @@ class I2B2Secure(TableRow):
         # We have to go back to add all missing folders
         self.add_missing_folders()
 
+    @staticmethod
+    def sanitize_path(path):
+        """ Convert paths and ensure start and end with single backslash """
+        return path_slash_all(path_converter(path))
+
     def build_variable_row(self, var):
         """ Create a row for a variable object. """
 
@@ -51,14 +56,14 @@ class I2B2Secure(TableRow):
 
         row = self.row
 
-        row.c_fullname = path_slash_all(self.study.top_node)
+        row.c_fullname = self.sanitize_path(self.study.top_node)
         row.c_hlevel = calc_hlevel(row.c_fullname)
         row.c_visualattributes = 'FAS'
         row.c_facttablecolumn = '@'
         row.c_tablename = 'STUDY'
         row.c_columnname = 'STUDY_ID'
         row.c_operator = '='
-        row.c_name = self.study.study_name
+        row.c_name = path_converter(self.study.study_name)
         row.c_dimcode = self.study.study_id
 
         yield row
@@ -115,7 +120,7 @@ class I2B2Secure(TableRow):
         row.c_hlevel = calc_hlevel(path)
         row.c_name = path.strip(Defaults.DELIMITER).split(Defaults.DELIMITER)[-1]
 
-        if not path.startswith(self.study.top_node):
+        if not path.startswith(self.sanitize_path(self.study.top_node)):
             row.sourcesystem_cd = None
             row.secure_obj_token = Defaults.PUBLIC_TOKEN
 

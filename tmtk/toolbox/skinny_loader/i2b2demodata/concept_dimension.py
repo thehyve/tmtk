@@ -1,6 +1,7 @@
 from ..shared import TableRow, path_slash_all
 
 import pandas as pd
+import json
 
 
 class ConceptDimension(TableRow):
@@ -49,6 +50,10 @@ class ConceptDimension(TableRow):
     def _build_ontology_row(self, concept):
         row = self.row
         row.concept_cd, cpath, row.name_char, row.concept_blob = concept
+
+        if isinstance(row.concept_blob, dict):
+            row.concept_blob = json.dumps(row.concept_blob)
+
         # Ensure slashes in first and last position for robustness
         row.concept_path = path_slash_all(cpath)
         return row
