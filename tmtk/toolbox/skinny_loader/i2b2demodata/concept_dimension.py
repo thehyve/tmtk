@@ -20,6 +20,7 @@ class ConceptDimension(TableRow):
         # Put back the right order of columns after concatenating the two dataframes
         self.df = self.df.reindex(columns=self.columns)
 
+        # Has to be updated after setting one timer concepts
         self.map = dict(zip(self.df.concept_path, self.df.concept_cd))
 
     def get_path_for_code(self, concept_cd):
@@ -46,6 +47,11 @@ class ConceptDimension(TableRow):
         tmp_df.columns = self.columns[:3]
 
         self.df = self.df.append(tmp_df, ignore_index=True)
+
+        # update the map.
+        self.map.update(
+            dict(zip(self.df.concept_path, self.df.concept_cd))
+        )
 
     def _build_ontology_row(self, concept):
         row = self.row

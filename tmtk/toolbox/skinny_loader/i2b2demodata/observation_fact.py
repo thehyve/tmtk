@@ -80,6 +80,11 @@ class ObservationFact(TableRow):
         start_date = var.start_date
         var_full_path = get_full_path(var, self.study)
 
+        concept_code = var.concept_code or self.skinny.concept_dimension.map.get(var_full_path)
+
+        if not concept_code:
+            raise Exception('No concept code found for {}'.format(var))
+
         try:
             internal_subj_ids = self._subject_id_cache[var.filename]
         except KeyError:
