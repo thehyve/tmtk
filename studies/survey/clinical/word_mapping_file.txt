@@ -1,1 +1,3 @@
 Filename	Column Number	Datafile Value	Mapping Value
+survey_data.tsv	4	M	Male
+survey_data.tsv	4	F	Female

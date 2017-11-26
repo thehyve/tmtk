@@ -42,6 +42,10 @@ class SurveyTests(unittest.TestCase):
         self.assertIn('Not Specified', values)
         self.assertIn('Bradwurst', values)
 
+    def test_word_map_export(self):
+        for gender in ('Male', 'Female'):
+            self.assertIn(gender, set(self.export.observation_fact.df.tval_char))
+
     def test_get_dimensions(self):
         self.assertIn('Missing Value', self.study.get_dimensions())
 

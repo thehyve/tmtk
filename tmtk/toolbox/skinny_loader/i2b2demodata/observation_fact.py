@@ -104,7 +104,7 @@ class ObservationFact(TableRow):
             'instance_num': 1}
 
         var_wide_data.update(
-            get_value_fields(var.values, var.visual_attributes)
+            get_value_fields(var.mapped_values, var.visual_attributes)
         )
 
         # This dataframe contains all normal values, but also rows for missing values.
@@ -112,7 +112,7 @@ class ObservationFact(TableRow):
 
         if not modifiers:
             # Keep only observations that respond are non pd.np.nan
-            yield main_df.loc[var.values.notnull()]
+            yield main_df.loc[var.mapped_values.notnull()]
 
         else:
             # We have to also return the rows for the applicable modifier
@@ -124,7 +124,7 @@ class ObservationFact(TableRow):
                 var_wide_data['modifier_cd'] = modifier_variable.modifier_code
 
                 var_wide_data.update(
-                    get_value_fields(modifier_variable.values, modifier_variable.visual_attributes)
+                    get_value_fields(modifier_variable.mapped_values, modifier_variable.visual_attributes)
                 )
                 modifier_dfs.append(pd.DataFrame(var_wide_data, columns=self.columns))
 
@@ -132,7 +132,7 @@ class ObservationFact(TableRow):
             # themselves and have no modifier exists with a value either. The rule here is that
             # if any observation exists for a given patient/concept (etc..) combination, we keep the
             # empty observation. Modifiers without value will always be dropped.
-            observations_present = [mod.values.notnull() for mod in modifiers] + [var.values.notnull()]
+            observations_present = [mod.mapped_values.notnull() for mod in modifiers] + [var.mapped_values.notnull()]
             any_present = pd.DataFrame(observations_present).any()
 
             # subset on inverted boolean series
