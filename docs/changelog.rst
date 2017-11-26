@@ -2,6 +2,12 @@
 Changelog
 =========
 
+.. topic::  Version 0.4.0
+    * Added support to export to skinny format (toolbox.SkinnyExport)
+    * Support for modifiers and ontology concepts
+        * known issue: the Arborist does not have full support yet.
+    * Variable objects are more powerful with more setters.
+
 .. topic::  Version 0.3.5
 
     * Better support for building pipelines from code books using Blueprints
