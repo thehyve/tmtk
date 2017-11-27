@@ -165,7 +165,7 @@ class Study(ValidateMixin):
     @property
     def study_name(self) -> str:
         """The study name, extracted from study param TOP_NODE."""
-        return self.params.get('TOP_NODE', self.study_id).rsplit('\\', 1)[-1]
+        return self.params.get('TOP_NODE', self.study_id).strip('\\').rsplit('\\', 1)[-1]
 
     @study_name.setter
     def study_name(self, value):
