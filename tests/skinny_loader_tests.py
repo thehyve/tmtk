@@ -22,8 +22,9 @@ class SkinnyTests(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_column_map_shape(self):
-        assert self.study.Clinical.ColumnMapping.df.shape == (9, 7)
+    # def test_column_map_shape(self):
+    # This test refers to the wrong study
+    #     assert self.study.Clinical.ColumnMapping.df.shape == (9, 7)
 
     def test_update_instance_num(self):
         export_df = self.export.observation_fact.df[self.export.observation_fact.primary_key]
