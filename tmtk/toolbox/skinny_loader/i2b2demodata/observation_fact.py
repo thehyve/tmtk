@@ -37,6 +37,21 @@ class ObservationFact(TableRow):
                 for df in self.build_rows(variable):
                     df.to_csv(f, sep='\t', index=False, header=False)
 
+    def update_instance_num(self, df) -> pd.DataFrame:
+        """
+        Checks the observations rows for duplicates based on the primary key.
+        Updates the instance num for each duplicate to create unique primary keys.
+
+        :param df: observation fact df
+        :return df: observation fact df with unique primary keys
+        """
+        n = 1
+        duplicates = df[self.primary_key].duplicated(keep='first')
+        while duplicates.sum() > 0:
+            df.loc[duplicates, 'instance_num'] = n
+            n += 1
+            duplicates = df[self.primary_key].duplicated(keep='first')
+
     def build_rows(self, var) -> pd.DataFrame:
         """
         Returns all observation fact rows for a given variable as multiple pd.DataFrames.
@@ -112,7 +127,9 @@ class ObservationFact(TableRow):
 
         if not modifiers:
             # Keep only observations that respond are non pd.np.nan
-            yield main_df.loc[var.mapped_values.notnull()]
+            main_df = main_df.loc[var.mapped_values.notnull()]
+            self.update_instance_num(main_df)
+            yield main_df
 
         else:
             # We have to also return the rows for the applicable modifier
@@ -136,7 +153,9 @@ class ObservationFact(TableRow):
             any_present = pd.DataFrame(observations_present).any()
 
             # subset on inverted boolean series
-            yield main_df.loc[any_present]
+            main_df = main_df.loc[any_present]
+            self.update_instance_num(main_df)
+            yield main_df
 
             # Strip modifier DataFrames of empty observations
             for i, modifier_variable in enumerate(modifiers):
@@ -200,3 +219,15 @@ class ObservationFact(TableRow):
                 'upload_id',
                 'sample_cd',
             ])
+
+    @property
+    def primary_key(self):
+        return [
+                'encounter_num',
+                'patient_num',
+                'concept_cd',
+                'provider_id',
+                'start_date',
+                'modifier_cd',
+                'instance_num'
+        ]

@@ -404,5 +404,5 @@ class Variable:
         :return: list of modifier variables.
         """
         vars_ = self.parent.find_variables_by_label('MODIFIER', self.filename)
-        inclusion_criteria = (None, pd.np.nan, str(self.column))
+        inclusion_criteria = (None, pd.np.nan, str(self.column), '')
         return [var for var in vars_ if var.reference_column in inclusion_criteria]

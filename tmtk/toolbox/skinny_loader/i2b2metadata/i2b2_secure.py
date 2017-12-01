@@ -3,6 +3,7 @@ from ..shared import TableRow, Defaults, calc_hlevel, get_full_path, path_slash_
 import pandas as pd
 import uuid
 from tqdm import tqdm
+from hashlib import sha1
 
 
 class I2B2Secure(TableRow):
@@ -44,7 +45,7 @@ class I2B2Secure(TableRow):
         row.c_hlevel = calc_hlevel(row.c_fullname)
         row.c_name = var.data_label
         row.c_visualattributes = var.visual_attributes
-        row.c_basecode = var.concept_code or str(uuid.uuid4())
+        row.c_basecode = var.concept_code or sha1(row.c_fullname.encode()).hexdigest()
         row.c_dimcode = self.concept_dimension.get_path_for_code(var.concept_code) or row.c_fullname
 
         return row
