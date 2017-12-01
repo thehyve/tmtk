@@ -27,7 +27,7 @@ class SkinnyTests(unittest.TestCase):
 
     def test_update_instance_num(self):
         export_df = self.export.observation_fact.df[self.export.observation_fact.primary_key]
-        assert export_df.duplicate().sum() == 0
+        assert export_df.duplicated().sum() == 0
 
     def test_row_wide_modifiers(self):
         # Requires test study to be extended with modifiers
