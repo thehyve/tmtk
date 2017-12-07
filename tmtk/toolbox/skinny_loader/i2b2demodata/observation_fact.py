@@ -43,7 +43,6 @@ class ObservationFact(TableRow):
         Updates the instance num for each duplicate to create unique primary keys.
 
         :param df: observation fact df
-        :return df: observation fact df with unique primary keys
         """
         n = 1
         duplicates = df[self.primary_key].duplicated(keep='first')
@@ -162,7 +161,9 @@ class ObservationFact(TableRow):
                 mod_df = modifier_dfs[i]
                 mod_value_present = observations_present[i]
                 # subset inverted boolean series
-                yield mod_df.loc[mod_value_present]
+                mod_df = mod_df.loc[mod_value_present]
+                self.update_instance_num(mod_df)
+                yield mod_df
 
     @property
     def _row_definition(self):

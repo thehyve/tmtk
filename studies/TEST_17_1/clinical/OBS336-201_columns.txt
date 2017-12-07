@@ -20,7 +20,8 @@ OBS336-201_labs.txt	Clinical Chemistry	4	START_DATE
 OBS336-201_labs.txt	Clinical Chemistry	5	Treatment				
 OBS336-201_labs.txt	Clinical Chemistry	6	HDL mg/dl				
 OBS336-201_labs.txt	Clinical Chemistry	7	LDL mg/dl				
-OBS336-201_labs.txt	Clinical Chemistry	8	TRIG mg/dl				
+OBS336-201_labs.txt	Clinical Chemistry	8	TRIG mg/dl
+OBS336-201_labs.txt	Clinical Chemistry	9	MODIFIER			SAMPLE	
 OBS336-201_pk.txt	PKConc	1	SUBJ_ID				
 OBS336-201_pk.txt	PKConc	2	VISIT_NAME				
 OBS336-201_pk.txt	PKConc	3	TRIAL_VISIT_LABEL				

@@ -22,23 +22,22 @@ class SkinnyTests(unittest.TestCase):
     def setUp(self):
         pass
 
-    # def test_column_map_shape(self):
-    # This test refers to the wrong study
-    #     assert self.study.Clinical.ColumnMapping.df.shape == (9, 7)
-
     def test_update_instance_num(self):
         export_df = self.export.observation_fact.df[self.export.observation_fact.primary_key]
         assert export_df.duplicated().sum() == 0
 
     def test_row_wide_modifiers(self):
-        # Requires test study to be extended with modifiers
-        # TODO: Extend TEST_17_1 with modifiers with empty reference column (so row wide)
-        assert 'a' == 'a'
+        assert 'SAMPLE' in set(self.export.observation_fact.df.modifier_cd)
 
     def test_sha_concept_path(self):
-        # Need to extract simple path from the study to compare the SHA1 for
-        assert 'a' == 'a'
+        df = self.export.concept_dimension.df
+        path = df.loc[df.concept_cd=='3066e2d821aff5bf1e579fb06ea938da62caec93','concept_path'].values[0]
+        assert path == '\\Public Studies\\TEST 17 1\\PKConc\\Timepoint Hrs.\\'
 
+    def test_modifier_instance_num(self):
+        df = self.export.observation_fact.df
+        instance_num = set(df[df.modifier_cd=='SAMPLE']['instance_num'])
+        assert 2 in instance_num
 
 if __name__ == '__main__':
     unittest.main()
