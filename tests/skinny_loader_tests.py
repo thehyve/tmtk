@@ -2,8 +2,6 @@ import tmtk
 import unittest
 import tempfile
 import shutil
-from pathlib import Path
-import pandas as pd
 
 
 class SkinnyTests(unittest.TestCase):
@@ -31,13 +29,13 @@ class SkinnyTests(unittest.TestCase):
 
     def test_sha_concept_path(self):
         df = self.export.concept_dimension.df
-        path = df.loc[df.concept_cd=='3066e2d821aff5bf1e579fb06ea938da62caec93','concept_path'].values[0]
+        path = df.loc[df.concept_cd == '3066e2d821aff5bf1e579fb06ea938da62caec93', 'concept_path'].values[0]
         assert path == '\\Public Studies\\TEST 17 1\\PKConc\\Timepoint Hrs.\\'
 
     def test_modifier_instance_num(self):
         df = self.export.observation_fact.df
-        instance_num = set(df[df.modifier_cd=='SAMPLE']['instance_num'])
-        assert 2 in instance_num
+        assert len(set(df[df.modifier_cd == 'SAMPLE']['instance_num'])) == 2
+
 
 if __name__ == '__main__':
     unittest.main()

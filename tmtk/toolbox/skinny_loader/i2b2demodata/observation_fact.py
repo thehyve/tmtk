@@ -37,20 +37,6 @@ class ObservationFact(TableRow):
                 for df in self.build_rows(variable):
                     df.to_csv(f, sep='\t', index=False, header=False)
 
-    def update_instance_num(self, df) -> pd.DataFrame:
-        """
-        Checks the observations rows for duplicates based on the primary key.
-        Updates the instance num for each duplicate to create unique primary keys.
-
-        :param df: observation fact df
-        """
-        n = 1
-        duplicates = df[self.primary_key].duplicated(keep='first')
-        while duplicates.sum() > 0:
-            df.loc[duplicates, 'instance_num'] = n
-            n += 1
-            duplicates = df[self.primary_key].duplicated(keep='first')
-
     def build_rows(self, var) -> pd.DataFrame:
         """
         Returns all observation fact rows for a given variable as multiple pd.DataFrames.
@@ -115,7 +101,10 @@ class ObservationFact(TableRow):
             'modifier_cd': '@',
             # trial visits other than default 'General' are currently not supported
             'trial_visit_num': self.skinny.trial_visit_dimension.map[Defaults.TRIAL_VISIT],
-            'instance_num': 1}
+            # because of poorly suited primary key on observation_fact
+            # we are forced to use instance_num to adhere to unique constraint.
+            'instance_num': range(len(var.values))
+        }
 
         var_wide_data.update(
             get_value_fields(var.mapped_values, var.visual_attributes)
@@ -127,7 +116,6 @@ class ObservationFact(TableRow):
         if not modifiers:
             # Keep only observations that respond are non pd.np.nan
             main_df = main_df.loc[var.mapped_values.notnull()]
-            self.update_instance_num(main_df)
             yield main_df
 
         else:
@@ -151,18 +139,16 @@ class ObservationFact(TableRow):
             observations_present = [mod.mapped_values.notnull() for mod in modifiers] + [var.mapped_values.notnull()]
             any_present = pd.DataFrame(observations_present).any()
 
-            # subset on inverted boolean series
+            # subset on boolean series
             main_df = main_df.loc[any_present]
-            self.update_instance_num(main_df)
             yield main_df
 
             # Strip modifier DataFrames of empty observations
             for i, modifier_variable in enumerate(modifiers):
                 mod_df = modifier_dfs[i]
                 mod_value_present = observations_present[i]
-                # subset inverted boolean series
+                # subset boolean series
                 mod_df = mod_df.loc[mod_value_present]
-                self.update_instance_num(mod_df)
                 yield mod_df
 
     @property
