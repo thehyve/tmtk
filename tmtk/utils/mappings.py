@@ -34,6 +34,11 @@ class Mappings:
     blob = 'blob'
     ancestors = 'Ancestors'
 
+    # Trial Visits file
+    tv_label = 'name'
+    tv_value = 'relative_time'
+    tv_unit = 'time_unit'
+
     # Jstree json ids
     filename_s = 'fn'
     cat_cd_s = 'ccd'
@@ -88,6 +93,10 @@ class Mappings:
                        term_label,
                        ancestors,
                        blob]
+
+    trial_visits_header = [tv_label,
+                           tv_value,
+                           tv_unit]
 
     annotation_marker_types = {
         'mirna_annotation': 'MIRNA_QPCR',

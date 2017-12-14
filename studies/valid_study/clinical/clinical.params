@@ -9,3 +9,4 @@ WORD_MAP_FILE=Cell-line_wordmap.txt
 ONTOLOGY_MAP_FILE=ontology_mapping_file.txt
 # Points to the modifiers file for this study.
 MODIFIERS_FILE=modifiers_file.txt
+TRIAL_VISITS_FILE=trial_visits.tsv

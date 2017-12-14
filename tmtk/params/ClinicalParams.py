@@ -31,6 +31,9 @@ class ClinicalParams(ParamsBase):
             },
             "MODIFIERS_FILE": {
                 'helptext': 'Points to the modifiers file for this study.'
+            },
+            "TRIAL_VISITS_FILE": {
+                'helptext': 'Points to the trial visits file for this study.'
             }
         }
 

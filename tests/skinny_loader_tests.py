@@ -25,7 +25,7 @@ class SkinnyTests(unittest.TestCase):
         assert export_df.duplicated().sum() == 0
 
     def test_row_wide_modifiers(self):
-        assert 'SAMPLE' in set(self.export.observation_fact.df.modifier_cd)
+        assert 'TRANSMART:SAMPLE_CODE' in set(self.export.observation_fact.df.modifier_cd)
 
     def test_sha_concept_path(self):
         df = self.export.concept_dimension.df
@@ -34,7 +34,13 @@ class SkinnyTests(unittest.TestCase):
 
     def test_modifier_instance_num(self):
         df = self.export.observation_fact.df
-        assert len(set(df[df.modifier_cd == 'SAMPLE']['instance_num'])) == 2
+        assert len(set(df[df.modifier_cd == 'TRANSMART:SAMPLE_CODE']['instance_num'])) == 2
+
+    def test_trial_visit_dimension(self):
+        df = self.export.trial_visit_dimension.df
+        self.assertEqual(df.shape[0], 8)
+        self.assertEqual(int(df.loc[df.rel_time_label == 'Week 6', 'rel_time_num'].values[0]), 6)
+        self.assertEqual(len(self.export.observation_fact.df.trial_visit_num.unique()), 7)
 
 
 if __name__ == '__main__':

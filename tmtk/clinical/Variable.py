@@ -391,7 +391,7 @@ class Variable:
 
     @property
     def trial_visit(self):
-        return self._get_one_or_none('TRIAL_VISIT_LABEL') or 'General'
+        return self._get_one_or_none('TRIAL_VISIT_LABEL')
 
     @property
     def modifiers(self):
