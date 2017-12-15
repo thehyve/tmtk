@@ -1,2 +1,2 @@
 modifier_path	modifier_cd	name_char	Data type
-\Sample	SAMPLE	Sample identifier	CATEGORICAL
+\Sample Code	TRANSMART:SAMPLE_CODE	sample_code	CATEGORICAL

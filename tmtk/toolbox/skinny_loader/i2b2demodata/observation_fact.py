@@ -78,6 +78,12 @@ class ObservationFact(TableRow):
         # Preload these, so we don't have to get them for every value in the current variable
         modifiers = var.modifiers
         start_date = var.start_date
+
+        if var.trial_visit:
+            trial_visit_num = var.trial_visit.values.map(self.skinny.trial_visit_dimension.get_num)
+        else:
+            trial_visit_num = self.skinny.trial_visit_dimension.get_num(Defaults.TRIAL_VISIT)
+
         var_full_path = get_full_path(var, self.study)
 
         concept_code = var.concept_code or self.skinny.concept_dimension.map.get(var_full_path)
@@ -100,7 +106,7 @@ class ObservationFact(TableRow):
             'start_date': start_date.values if start_date else None,
             'modifier_cd': '@',
             # trial visits other than default 'General' are currently not supported
-            'trial_visit_num': self.skinny.trial_visit_dimension.map[Defaults.TRIAL_VISIT],
+            'trial_visit_num': trial_visit_num,
             # because of poorly suited primary key on observation_fact
             # we are forced to use instance_num to adhere to unique constraint.
             'instance_num': range(len(var.values))
