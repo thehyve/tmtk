@@ -40,7 +40,9 @@ class SkinnyTests(unittest.TestCase):
         df = self.export.trial_visit_dimension.df
         self.assertEqual(df.shape[0], 8)
         self.assertEqual(int(df.loc[df.rel_time_label == 'Week 6', 'rel_time_num'].values[0]), 6)
-        self.assertEqual(len(self.export.observation_fact.df.trial_visit_num.unique()), 7)
+        self.assertEqual(len(self.export.observation_fact.df.trial_visit_num.unique()), 8)
+        tv_num_general = df.loc[df.rel_time_label == 'General', 'trial_visit_num'].values[0]
+        self.assertIn(tv_num_general, set(self.export.observation_fact.df.trial_visit_num))
 
 
 if __name__ == '__main__':

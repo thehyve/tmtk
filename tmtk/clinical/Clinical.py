@@ -296,6 +296,11 @@ class Clinical(ValidateMixin):
                  'time_unit': x[2]}
             ), axis=1
         )
+        for missing in ('', None, pd.np.nan):
+            try:
+                visit_labels.pop(missing)
+            except KeyError:
+                pass
 
         return list(visit_labels.values())
 
