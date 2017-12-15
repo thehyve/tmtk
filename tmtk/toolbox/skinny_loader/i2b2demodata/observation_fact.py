@@ -78,6 +78,12 @@ class ObservationFact(TableRow):
         # Preload these, so we don't have to get them for every value in the current variable
         modifiers = var.modifiers
         start_date = var.start_date
+
+        if var.trial_visit:
+            trial_visit_num = var.trial_visit.values.map(self.skinny.trial_visit_dimension.get_num)
+        else:
+            trial_visit_num = self.skinny.trial_visit_dimension.get_num(Defaults.TRIAL_VISIT)
+
         var_full_path = get_full_path(var, self.study)
 
         concept_code = var.concept_code or self.skinny.concept_dimension.map.get(var_full_path)
@@ -100,8 +106,11 @@ class ObservationFact(TableRow):
             'start_date': start_date.values if start_date else None,
             'modifier_cd': '@',
             # trial visits other than default 'General' are currently not supported
-            'trial_visit_num': self.skinny.trial_visit_dimension.map[Defaults.TRIAL_VISIT],
-            'instance_num': 1}
+            'trial_visit_num': trial_visit_num,
+            # because of poorly suited primary key on observation_fact
+            # we are forced to use instance_num to adhere to unique constraint.
+            'instance_num': range(len(var.values))
+        }
 
         var_wide_data.update(
             get_value_fields(var.mapped_values, var.visual_attributes)
@@ -112,7 +121,8 @@ class ObservationFact(TableRow):
 
         if not modifiers:
             # Keep only observations that respond are non pd.np.nan
-            yield main_df.loc[var.mapped_values.notnull()]
+            main_df = main_df.loc[var.mapped_values.notnull()]
+            yield main_df
 
         else:
             # We have to also return the rows for the applicable modifier
@@ -135,15 +145,17 @@ class ObservationFact(TableRow):
             observations_present = [mod.mapped_values.notnull() for mod in modifiers] + [var.mapped_values.notnull()]
             any_present = pd.DataFrame(observations_present).any()
 
-            # subset on inverted boolean series
-            yield main_df.loc[any_present]
+            # subset on boolean series
+            main_df = main_df.loc[any_present]
+            yield main_df
 
             # Strip modifier DataFrames of empty observations
             for i, modifier_variable in enumerate(modifiers):
                 mod_df = modifier_dfs[i]
                 mod_value_present = observations_present[i]
-                # subset inverted boolean series
-                yield mod_df.loc[mod_value_present]
+                # subset boolean series
+                mod_df = mod_df.loc[mod_value_present]
+                yield mod_df
 
     @property
     def _row_definition(self):
@@ -200,3 +212,15 @@ class ObservationFact(TableRow):
                 'upload_id',
                 'sample_cd',
             ])
+
+    @property
+    def primary_key(self):
+        return [
+                'encounter_num',
+                'patient_num',
+                'concept_cd',
+                'provider_id',
+                'start_date',
+                'modifier_cd',
+                'instance_num'
+        ]
