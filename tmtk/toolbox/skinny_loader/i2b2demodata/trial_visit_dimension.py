@@ -15,6 +15,16 @@ class TrialVisitDimension(TableRow):
 
         self.map = dict(zip(self.df.rel_time_label, self.df.trial_visit_num))
 
+    def get_num(self, label):
+        """
+        Get the trial_visit_num for a given label, or the one of General if the
+        label cannot be found.
+
+        :param label: str label
+        :return: pd.np.int64
+        """
+        return self.map.get(label, self.map.get(Defaults.TRIAL_VISIT))
+
     def build_row(self, trial_visit):
         row = self.row
 

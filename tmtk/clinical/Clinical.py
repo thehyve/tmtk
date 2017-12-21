@@ -1,15 +1,15 @@
-import pandas as pd
 import os
+import pandas as pd
 
-from .DataFile import DataFile
-from .Variable import Variable, VarID
 from .ColumnMapping import ColumnMapping
-from .WordMapping import WordMapping
-from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin, path_converter
+from .DataFile import DataFile
 from .Ontology import OntologyMapping
+from .Variable import Variable, VarID
+from .WordMapping import WordMapping
 from .modifier import Modifiers
-
+from .trial_vists import TrialVisits
 from .. import arborist
+from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin, path_converter
 from ..utils.batch import TransmartBatch
 
 
@@ -27,6 +27,7 @@ class Clinical(ValidateMixin):
         self._ColumnMapping = None
         self._OntologyMapping = None
         self._Modifiers = None
+        self._TrialVisits = None
         self._params = clinical_params
 
     def __str__(self):
@@ -46,6 +47,7 @@ class Clinical(ValidateMixin):
         self.WordMapping = WordMapping(params=self.params)
         self.OntologyMapping = OntologyMapping(params=self.params)
         self.Modifiers = Modifiers(params=self.params)
+        self.TrialVisits = TrialVisits(params=self.params)
 
     @property
     def ColumnMapping(self):
@@ -81,6 +83,14 @@ class Clinical(ValidateMixin):
     @Modifiers.setter
     def Modifiers(self, value):
         self._Modifiers = value
+
+    @property
+    def TrialVisits(self):
+        return self._TrialVisits
+
+    @TrialVisits.setter
+    def TrialVisits(self, value):
+        self._TrialVisits = value
 
     def apply_blueprint(self, blueprint, omit_missing=False):
         """
@@ -267,16 +277,32 @@ class Clinical(ValidateMixin):
 
     def get_trial_visits(self):
         """
-        Generator that yields all trial visits.
+        Returns a list of all trial visits present in this study. Visits are identified
+        by the TRIAL_VISIT_LABEL keyword in column mapping and can be annotated with
+        a value and unit using the TrialVisits object.
 
-        :return:
+        :return: list of dicts.
         """
-        default_visit = {'name': 'General',
-                         'relative_time': None,
-                         'time_unit': None}
 
-        yield default_visit
-        # To be added later: yield all other trial visits.
+        visit_labels = {'General': {'name': 'General'}}
+        visit_labels.update({l: {'name': l}
+                             for var in self.find_variables_by_label('TRIAL_VISIT_LABEL')
+                             for l in var.values})
+        visit_labels.update({l: {'name': l} for l in self.TrialVisits.df.iloc[:, 0]})
+
+        self.TrialVisits.df.apply(
+            lambda x: visit_labels[x[0]].update(
+                {'relative_time': x[1],
+                 'time_unit': x[2]}
+            ), axis=1
+        )
+        for missing in ('', None, pd.np.nan):
+            try:
+                visit_labels.pop(missing)
+            except KeyError:
+                pass
+
+        return list(visit_labels.values())
 
     @property
     def all_variables(self):
