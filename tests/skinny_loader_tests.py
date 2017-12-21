@@ -44,6 +44,13 @@ class SkinnyTests(unittest.TestCase):
         tv_num_general = df.loc[df.rel_time_label == 'General', 'trial_visit_num'].values[0]
         self.assertIn(tv_num_general, set(self.export.observation_fact.df.trial_visit_num))
 
+    def test_non_missing_modifiers(self):
+        df = self.export.observation_fact.df
+        self.assertEqual((983, 24), df.shape)
+        self.assertEqual(5, sum(df.modifier_cd != '@'))
+        self.assertEqual(2, sum(df.tval_char == 'sample2'))
+        self.assertEqual(3, sum(df.tval_char == 'sample1'))
+
 
 if __name__ == '__main__':
     unittest.main()

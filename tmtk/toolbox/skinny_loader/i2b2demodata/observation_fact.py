@@ -4,6 +4,8 @@ import pandas as pd
 import arrow
 from tqdm import tqdm
 
+MISSING_VALUE_MOD = 'MISSVAL'  # Special case modifier where empty observations should be added to database
+
 
 class ObservationFact(TableRow):
     def __init__(self, skinny, straight_to_disk=False):
@@ -139,11 +141,16 @@ class ObservationFact(TableRow):
                 modifier_dfs.append(pd.DataFrame(var_wide_data, columns=self.columns))
 
             # To cleanup of 'empty' observations, we first remove observations that are empty
-            # themselves and have no modifier exists with a value either. The rule here is that
+            # themselves and have no MISSVAL modifier with a value either. The rule here is that
             # if any observation exists for a given patient/concept (etc..) combination, we keep the
             # empty observation. Modifiers without value will always be dropped.
-            observations_present = [mod.mapped_values.notnull() for mod in modifiers] + [var.mapped_values.notnull()]
-            any_present = pd.DataFrame(observations_present).any()
+            missing_value_present = [mod.mapped_values.notnull() for mod in modifiers
+                                     if mod.modifier_code == MISSING_VALUE_MOD]
+            main_value_present = var.mapped_values.notnull()
+
+            main_and_missing = missing_value_present + [main_value_present]
+
+            any_present = pd.DataFrame(main_and_missing).any()
 
             # subset on boolean series
             main_df = main_df.loc[any_present]
@@ -152,9 +159,12 @@ class ObservationFact(TableRow):
             # Strip modifier DataFrames of empty observations
             for i, modifier_variable in enumerate(modifiers):
                 mod_df = modifier_dfs[i]
-                mod_value_present = observations_present[i]
-                # subset boolean series
-                mod_df = mod_df.loc[mod_value_present]
+                load_mod_value = modifier_variable.mapped_values.notnull()
+
+                if modifier_variable.modifier_code != MISSING_VALUE_MOD:
+                    load_mod_value = load_mod_value & main_value_present
+
+                mod_df = mod_df.loc[load_mod_value]
                 yield mod_df
 
     @property
