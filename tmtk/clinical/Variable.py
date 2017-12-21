@@ -420,3 +420,4 @@ class Variable:
         :return: list of modifier variables.
         """
         return self._get_all('MODIFIER')
+
