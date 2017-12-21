@@ -359,15 +359,31 @@ class Variable:
         """ Requires implementation, always returns '@'."""
         return self.parent.ColumnMapping.select_row(self.var_id)[6] if self.data_label == 'MODIFIER' else '@'
 
+    def _get_all(self, label: str):
+        """
+        Will look for keyword variables in the same data file based a label and
+        check whether it applies to self. The reference column can be used to
+        specify to which columns a keyword applies. Providing a comma separated
+        list of column indices is supported.
+
+        :param str label: data label.
+        :return list: a list of variables.
+        """
+        vars_ = self.parent.find_variables_by_label(label, self.var_id.filename)
+        inclusion_criteria = (None, pd.np.nan, '')
+        return [var for var in vars_
+                if var.reference_column in inclusion_criteria
+                or str(self.column) in str(var.reference_column).split(',')]
+
     def _get_one_or_none(self, label: str):
         """
-        Will look for a variable in the same data file based a label. Will raise
+        Will look for a keyword variable that applies to self. Will raise
         ReservedKeywordException if more than 1 is found.
 
         :param str label: data label.
         :return: variable.
         """
-        vars_ = self.parent.find_variables_by_label(label, self.var_id.filename)
+        vars_ = self._get_all(label)
         if len(vars_) > 2:
             raise ReservedKeywordException('Multiple {} found for {}'.format(label, self))
         elif vars_:
@@ -403,6 +419,4 @@ class Variable:
 
         :return: list of modifier variables.
         """
-        vars_ = self.parent.find_variables_by_label('MODIFIER', self.filename)
-        inclusion_criteria = (None, pd.np.nan, str(self.column), '')
-        return [var for var in vars_ if var.reference_column in inclusion_criteria]
+        return self._get_all('MODIFIER')
