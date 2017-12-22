@@ -1,19 +1,17 @@
-import setuptools
-from setuptools.command.install import install
-from setuptools.command.develop import develop
-from distutils import log
-
 import os
-import re
+import setuptools
+from distutils import log
+from setuptools.command.develop import develop
+from setuptools.command.install import install
 
-VERSIONFILE=os.path.join('tmtk', '__init__.py')
-verstrline = open(VERSIONFILE, "rt").read()
-VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
-mo = re.search(VSRE, verstrline, re.M)
-if mo:
-    version_string = mo.group(1)
-else:
-    raise RuntimeError("Unable to find version string in {}.".format(VERSIONFILE,))
+pjoin = os.path.join
+here = os.path.abspath(os.path.dirname(__file__))
+
+# Get the current package version.
+version_ns = {}
+with open(pjoin(here, 'tmtk', 'version.py')) as f:
+    exec(f.read(), {}, version_ns)
+    version_string = version_ns['__version__']
 
 with open("requirements.txt", 'r') as f:
     required_packages = f.read().splitlines()
