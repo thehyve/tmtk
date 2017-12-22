@@ -1,11 +1,18 @@
-"""tmtk - A toolkit for ETL curation for the tranSMART data warehouse."""
+"""
+Copyright (c) 2017  The Hyve B.V.
+This file is distributed under the GNU General Public License
+  (see accompanying file LICENSE).
+
+tmtk - A toolkit for ETL curation for the tranSMART data warehouse.
+"""
+
 from .study import Study
-from .clinical import Clinical
-from .toolbox import wizard
+from .toolbox.skinny_loader.export_to_skinny import SkinnyExport
 
-__version__ = "0.4.0"
+
+version_info = (0, 4, 1, 'dev0')
+__version__ = '.'.join(map(str, version_info))
+
 __author__ = 'Jochem Bijlard <j.bijlard@gmail.com>'
-__all__ = []
 
-if __name__ == '__main__':
-    print('This is not meant to run directly.')
+__all__ = ['Study', 'SkinnyExport']
