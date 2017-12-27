@@ -156,6 +156,12 @@ class Clinical(ValidateMixin):
             if blueprint_var.get('concept_code'):
                 variable.concept_code = blueprint_var.get('concept_code')
 
+            # TODO: find name of variable column
+            if blueprint_var.get('data_type'):
+                variable.column_type = blueprint_var.get('data_type')
+
+            # TODO: add reference columns to blueprint mapping
+
             expected_numerical = blueprint_var.get('expected_numerical')
             if expected_numerical and variable.is_numeric_in_datafile:
                 min_expected = expected_numerical.get('min', '')
