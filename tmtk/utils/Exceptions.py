@@ -1,4 +1,4 @@
-class ClassError(BaseException):
+class ClassError(Exception):
     """
     Error raised when unexpected class is found.
 
@@ -14,7 +14,7 @@ class ClassError(BaseException):
         return "Got {} where {} was expected.".format(self.found, self.expected)
 
 
-class DatatypeError(BaseException):
+class DatatypeError(Exception):
     """
     Error raised when incorrect datatype is found.
 
@@ -30,7 +30,7 @@ class DatatypeError(BaseException):
         return "Got {} where {} was expected.".format(self.found, self.expected)
 
 
-class PathError(BaseException):
+class PathError(Exception):
     """Error raised when an incorrect path is given."""
 
     def __init__(self, found=None):
@@ -40,7 +40,7 @@ class PathError(BaseException):
         return "{}.".format(self.found)
 
 
-class TooManyValues(BaseException):
+class TooManyValues(Exception):
     """Error raised when too many values are found."""
 
     def __init__(self, found=None, expected=None, id_=None):
@@ -53,4 +53,8 @@ class TooManyValues(BaseException):
 
 
 class ReservedKeywordException(Exception):
+    pass
+
+
+class BlueprintException(Exception):
     pass
