@@ -9,7 +9,7 @@ from .WordMapping import WordMapping
 from .modifier import Modifiers
 from .trial_vists import TrialVisits
 from .. import arborist
-from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin, path_converter
+from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin, path_converter, BlueprintException
 from ..utils.batch import TransmartBatch
 
 
@@ -147,20 +147,23 @@ class Clinical(ValidateMixin):
             if blueprint_var.get('label') is not None:
                 variable.data_label = blueprint_var.get('label')
 
-            if blueprint_var.get('force_categorical'):
-                variable.forced_categorical = blueprint_var.get('force_categorical') == "Y"
-
             if blueprint_var.get('word_map'):
                 variable.word_map_dict = blueprint_var.get('word_map')
 
             if blueprint_var.get('concept_code'):
                 variable.concept_code = blueprint_var.get('concept_code')
 
-            # TODO: find name of variable column
+            if blueprint_var.get('force_categorical') and blueprint_var.get('data_type'):
+                msg = "Both 'force_categorical' and 'data_type' found for {!r}".format(variable.header)
+                raise BlueprintException(msg)
+
             if blueprint_var.get('data_type'):
                 variable.column_type = blueprint_var.get('data_type')
 
-            # TODO: add reference columns to blueprint mapping
+            if blueprint_var.get('force_categorical'):
+                variable.forced_categorical = blueprint_var.get('force_categorical') == "Y"
+
+            # TODO: find name of variable column to add reference columns to blueprint mapping
 
             expected_numerical = blueprint_var.get('expected_numerical')
             if expected_numerical and variable.is_numeric_in_datafile:
