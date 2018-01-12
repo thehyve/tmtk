@@ -1,0 +1,2 @@
+modifier_path	modifier_cd	name_char	Data type
+\Test mod Code	TEST_MOD	test_mod	CATEGORICAL
