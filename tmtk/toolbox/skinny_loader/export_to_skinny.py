@@ -21,7 +21,7 @@ class SkinnyExport:
     possible.
     """
 
-    def __init__(self, study, export_directory=None):
+    def __init__(self, study, export_directory=None, add_top_node=True):
         self.study = study
         self.export_directory = export_directory
 
@@ -29,7 +29,7 @@ class SkinnyExport:
         self.concept_dimension = ConceptDimension(self.study)
 
         # Nodes from concept dimension
-        self.i2b2_secure = I2B2Secure(self.study, self.concept_dimension)
+        self.i2b2_secure = I2B2Secure(self.study, self.concept_dimension, add_top_node)
 
         # First we build the patient_dimension and then the patient mapping based on that
         self.patient_dimension = PatientDimension(self.study)

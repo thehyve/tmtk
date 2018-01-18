@@ -2,9 +2,10 @@ import tmtk
 import tempfile
 import pandas as pd
 import unittest
+import shutil
 
 
-class BlueprintTests(unittest.TestCase):
+class BlueprintModifierTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -22,7 +23,7 @@ class BlueprintTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        pass
+        shutil.rmtree(cls.temp_dir)
 
     def setUp(self):
         pass
@@ -34,7 +35,6 @@ class BlueprintTests(unittest.TestCase):
 
     def test_apply_force_categorical(self):
         self.assertEqual(sum(self.study.Clinical.ColumnMapping.df['Data Type'] == "CATEGORICAL"), 1)
-
 
     def test_modifier_added(self):
         self.assertEqual(sum(self.study.Clinical.ColumnMapping.df['Data Type'] == "TEST_MOD"), 1)
@@ -52,14 +52,6 @@ class BlueprintTests(unittest.TestCase):
         var = self.study.Clinical.get_variable(('datafile.tsv', 1))
         self.assertEqual(var.min, 57.468)
         self.assertEqual(var.max, 280.0)
-
-    def test_underscore_plus(self):
-        assert '\\Demographics\\_information\\+other' in self.study.Clinical.ColumnMapping.df['Category Code'][1]
-        # json_data = self.study.concept_tree_json
-        # assert 'Demographics_information+other' in json_data
-    #     json_data = json_data.replace('_information', '_info+_mation')
-    #     tmtk.arborist.update_study_from_json(self.study, json_data)
-    #     assert '\\Demographics\\_info\\+\\_mation\\+other' in self.study.Clinical.ColumnMapping.df['Category Code'][1]
 
 
 if __name__ == '__main__':
