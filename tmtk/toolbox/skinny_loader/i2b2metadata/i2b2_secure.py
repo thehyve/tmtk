@@ -8,9 +8,13 @@ from hashlib import sha1
 
 class I2B2Secure(TableRow):
 
-    def __init__(self, study, concept_dimension):
+    def __init__(self, study, concept_dimension, add_top_node=True):
 
         self.study = study
+
+        if not add_top_node:
+            study.top_node = '\\'
+
         self.concept_dimension = concept_dimension
         super().__init__()
 
@@ -18,7 +22,9 @@ class I2B2Secure(TableRow):
         self._paths_set = set()
 
         row_list = [self.build_variable_row(var) for var in tqdm(study.Clinical.filtered_variables.values())]
-        row_list += [r for r in self.add_top_nodes()]
+
+        if add_top_node:
+            row_list += [r for r in self.add_top_nodes()]
 
         self.df = pd.DataFrame(row_list, columns=self.columns)
 
