@@ -157,13 +157,19 @@ class Clinical(ValidateMixin):
                 msg = "Both 'force_categorical' and 'data_type' found for {!r}".format(variable.header)
                 raise BlueprintException(msg)
 
-            if blueprint_var.get('data_type'):
+            elif blueprint_var.get('data_type'):
                 variable.column_type = blueprint_var.get('data_type')
 
-            if blueprint_var.get('force_categorical'):
+            elif blueprint_var.get('force_categorical'):
                 variable.forced_categorical = blueprint_var.get('force_categorical') == "Y"
 
-            # TODO: find name of variable column to add reference columns to blueprint mapping
+            reference_column = blueprint_var.get('reference_column')
+            if reference_column is not None:
+                try:
+                    variable.reference_column = variable.datafile.df.columns.get_loc(reference_column) + 1
+                except KeyError:
+                    msg = 'Cannot find reference column {!r} within dataframe header'.format(reference_column)
+                    raise BlueprintException(msg)
 
             expected_numerical = blueprint_var.get('expected_numerical')
             if expected_numerical and variable.is_numeric_in_datafile:
