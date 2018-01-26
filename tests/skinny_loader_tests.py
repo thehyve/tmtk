@@ -46,7 +46,7 @@ class SkinnyTests(unittest.TestCase):
 
     def test_non_missing_modifiers(self):
         df = self.export.observation_fact.df
-        self.assertEqual((983, 24), df.shape)
+        self.assertEqual((989, 24), df.shape)
         self.assertEqual(5, sum(df.modifier_cd != '@'))
         self.assertEqual(2, sum(df.tval_char == 'sample2'))
         self.assertEqual(3, sum(df.tval_char == 'sample1'))
