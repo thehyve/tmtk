@@ -6,6 +6,8 @@ OBS336-201_demog.txt	Demography	4	START_DATE
 OBS336-201_demog.txt	Demography	5	Sex		SNOMEDCT/184100006	CATEGORICAL
 OBS336-201_demog.txt	Demography	6	Race			
 OBS336-201_demog.txt	Demography	7	YOB			
+OBS336-201_demog.txt	Demography	8	Birth_date			DATE
+OBS336-201_demog.txt	Demography	9	Empty_dates			DATE
 OBS336-201_vitals.txt	Vital Signs	1	SUBJ_ID			
 OBS336-201_vitals.txt	Vital Signs	2	VISIT_NAME			
 OBS336-201_vitals.txt	Vital Signs	3	TRIAL_VISIT_LABEL			
