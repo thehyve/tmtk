@@ -69,6 +69,9 @@ def path_slash_all(path):
 def get_unix_timestamp(date):
     """ Returns timestamp if date is not None or pd.np.nan, else returns nan """
     if date not in (None, pd.np.nan):
-        return arrow.get(date).format('X') + '000'  # transmart needs milliseconds
+        try:
+            return arrow.get(date).format('X') + '000'  # transmart needs milliseconds
+        except OSError:
+            return pd.np.nan
     else:
         return pd.np.nan
