@@ -29,5 +29,10 @@
   "test_mod": {
     "label": "MODIFIER",
     "data_type":"TEST_MOD"
+  },
+  "single_mod": {
+    "label": "MODIFIER",
+    "data_type":"TEST_MOD_SINGLE",
+    "reference_column": "BPBASE"
   }
 }

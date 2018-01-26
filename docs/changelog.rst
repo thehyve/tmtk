@@ -2,7 +2,15 @@
 Changelog
 =========
 
+.. topic::  Version 0.4.1
+
+    * Data types and modifiers support in blueprint.
+    * Fixed issue with empty date columns
+    * Export studies without including a top node
+    * Better support for modifiers other than MISSVAL
+
 .. topic::  Version 0.4.0
+
     * Added support to export to skinny format (toolbox.SkinnyExport)
     * Support for modifiers and ontology concepts
         * known issue: the Arborist does not have full support yet.

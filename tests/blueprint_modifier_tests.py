@@ -31,7 +31,7 @@ class BlueprintModifierTests(unittest.TestCase):
     def test_df_shapes(self):
         self.assertEqual(self.study.Tags.df.shape, (1, 4))
         self.assertEqual(self.study.Clinical.WordMapping.df.shape, (2, 4))
-        self.assertEqual(self.study.Clinical.ColumnMapping.df.shape, (4, 7))
+        self.assertEqual(self.study.Clinical.ColumnMapping.df.shape, (5, 7))
 
     def test_apply_force_categorical(self):
         self.assertEqual(sum(self.study.Clinical.ColumnMapping.df['Data Type'] == "CATEGORICAL"), 1)
@@ -41,17 +41,24 @@ class BlueprintModifierTests(unittest.TestCase):
 
     def test_non_missing_modifiers(self):
         df = self.export.observation_fact.df
-        pat = self.export.patient_dimension.df[['patient_num','sourcesystem_cd']].merge(
+        pat = self.export.patient_dimension.df[['patient_num', 'sourcesystem_cd']].merge(
             df, how='left', on='patient_num')
-        self.assertEqual((24, 24), df.shape)
-        self.assertEqual(12, sum(df.modifier_cd != '@'))
+        self.assertEqual((30, 24), df.shape)
+        self.assertEqual(18, sum(df.modifier_cd != '@'))
         self.assertEqual(2, sum(df.tval_char == 'RANDOM6'))
-        self.assertEqual(8, sum(pat.sourcesystem_cd_x == 'SUBJECT4'))
+        self.assertEqual(10, sum(pat.sourcesystem_cd_x == 'SUBJECT4'))
 
     def test_var_min_max(self):
         var = self.study.Clinical.get_variable(('datafile.tsv', 1))
         self.assertEqual(var.min, 57.468)
         self.assertEqual(var.max, 280.0)
+
+    def test_blueprint_reference_column(self):
+        bpbase = self.study.Clinical.find_variables_by_label("Blood pressure (baseline)")[0]
+        self.assertEqual(2, len(bpbase.modifiers))
+        gender = self.study.Clinical.find_variables_by_label("Gender")[0]
+        self.assertEqual(1, len(gender.modifiers))
+        self.assertEqual(1, self.study.Clinical.ColumnMapping.df.iloc[4, 4])
 
 
 if __name__ == '__main__':
