@@ -68,15 +68,18 @@ author = 'Jochem Bijlard'
 # built documents.
 #
 # The short X.Y version.
-VERSIONFILE=os.path.join('..', 'tmtk', '__init__.py')
-verstrline = open(VERSIONFILE, "rt").read()
-VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
-mo = re.search(VSRE, verstrline, re.M)
-if mo:
-    version = mo.group(1)
-    print("Building docs for version {!r}.".format(version))
+version_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'tmtk', 'version.py')
+
+# Get the current package version.
+version_ns = {}
+with open(version_file) as f:
+    exec(f.read(), {}, version_ns)
+    version = version_ns['__version__']
+
+if version:
+    print("Building docs for version {!r}.".format(__file__))
 else:
-    raise RuntimeError("Unable to find version string in {}.".format(VERSIONFILE,))
+    raise RuntimeError("Unable to find version string in {}.".format(version_file))
 
 # The full version, including alpha/beta/rc tags.
 # release = '0.1'
