@@ -278,6 +278,9 @@ class Clinical(ValidateMixin):
 
             for var in vars_:
                 for k, v in zip(var.subj_id.values, var.values):
+                    if v in (None, '', pd.np.nan):
+                        continue
+
                     subjects_dict[k].update({destination: v})
 
         subj_id_vars = self.find_variables_by_label('SUBJ_ID')

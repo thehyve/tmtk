@@ -3,6 +3,8 @@ import unittest
 import tempfile
 import shutil
 
+import pandas as pd
+
 
 class SkinnyTests(unittest.TestCase):
 
@@ -50,6 +52,10 @@ class SkinnyTests(unittest.TestCase):
         self.assertEqual(5, sum(df.modifier_cd != '@'))
         self.assertEqual(2, sum(df.tval_char == 'sample2'))
         self.assertEqual(3, sum(df.tval_char == 'sample1'))
+
+    def test_patient_dimension_nans(self):
+        df = self.export.patient_dimension.df
+        self.assertNotIn(pd.np.nan, set(df.sex_cd))
 
 
 if __name__ == '__main__':
