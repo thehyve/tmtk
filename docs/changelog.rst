@@ -1,6 +1,9 @@
 =========
 Changelog
 =========
+.. topic::  Version 0.4.2
+
+    * Fixed call_boris and related tests and examples.
 
 .. topic::  Version 0.4.1
 
