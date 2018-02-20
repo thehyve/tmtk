@@ -58,3 +58,7 @@ class ReservedKeywordException(Exception):
 
 class BlueprintException(Exception):
     pass
+
+
+class ArboristException(Exception):
+    pass
