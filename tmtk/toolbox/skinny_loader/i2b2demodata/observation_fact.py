@@ -107,7 +107,6 @@ class ObservationFact(TableRow):
             'provider_id': '@',
             'start_date': start_date.values if start_date else None,
             'modifier_cd': '@',
-            # trial visits other than default 'General' are currently not supported
             'trial_visit_num': trial_visit_num,
             # because of poorly suited primary key on observation_fact
             # we are forced to use instance_num to adhere to unique constraint.

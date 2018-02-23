@@ -8,7 +8,6 @@ from .Variable import Variable, VarID
 from .WordMapping import WordMapping
 from .modifier import Modifiers
 from .trial_vists import TrialVisits
-from .. import arborist
 from ..utils import PathError, clean_for_namespace, FileBase, ValidateMixin, path_converter, BlueprintException
 from ..utils.batch import TransmartBatch
 
@@ -339,13 +338,6 @@ class Clinical(ValidateMixin):
         vars_ = {VarID(var_id): self.get_variable(var_id) for var_id in self.ColumnMapping.ids}
         vars_ = {k: v for k, v in vars_.items() if v.data_label not in self.ColumnMapping.RESERVED_KEYWORDS}
         return vars_
-
-    def call_boris(self, height=650):
-        """
-        Use The Arborist to modify only information in the column and word mapping files.
-        :param height: set the height of the output cell
-        """
-        arborist.call_boris(self, height=height)
 
     def validate_all(self, verbosity=3):
         for key, obj in self.__dict__.items():

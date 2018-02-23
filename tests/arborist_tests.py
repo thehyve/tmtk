@@ -1,5 +1,8 @@
-import tmtk
 import unittest
+from unittest.mock import patch
+
+import tmtk
+from tmtk.utils import ArboristException
 
 
 class ArboristTests(unittest.TestCase):
@@ -25,6 +28,10 @@ class ArboristTests(unittest.TestCase):
         assert self.study.Clinical.WordMapping.df.shape == (4, 4)
         assert '"text": "SW48_MAPPED"' in self.study.concept_tree.jstree.json_data_string
         assert self.study.Clinical.WordMapping.word_map_changes(silent=True)
+
+    @patch("time.sleep", side_effect=KeyboardInterrupt)
+    def test_call_boris(self, mocked_sleep):
+        self.assertRaises(ArboristException, self.study.call_boris)
 
 
 if __name__ == '__main__':
