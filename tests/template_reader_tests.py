@@ -6,14 +6,14 @@ from tmtk.toolbox.template_reader.sheets import TreeSheet, ModifierSheet, TrialV
     ValueSubstitutionSheet
 from tmtk.toolbox.template_reader.create_study_from_templates import COMMENT, EXPECTED_SHEETS, get_template_sheets
 from tmtk.utils.mappings import Mappings
-from tmtk.toolbox.template_reader.sheet_exceptions import ValueSubstitutionError
+from tmtk.toolbox.template_reader.sheet_exceptions import ValueSubstitutionError, MetaDataException
 from tmtk.study import Study
 
 class TemplateReaderTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.template_dir = os.path.join('studies', 'template_reader')
-        cls.template = pd.ExcelFile('../studies/template_reader/Clinical_data_2017_mock_study_V2.xlsx')
+        cls.template = pd.ExcelFile('studies/template_reader/Clinical_data_2017_mock_study_V2.xlsx')
         cls.study = Study()
 
     @classmethod
@@ -40,8 +40,10 @@ class TemplateReaderTests(unittest.TestCase):
         assert tags_df.shape == (7, 4)
         assert tags_df.columns.tolist() == Mappings.tags_header
 
-    def test_meta_tags(self):
-        pass
+    def test_meta_tags_fail(self):
+        tree_sheet = TreeSheet(self.template.parse(EXPECTED_SHEETS['TreeSheet'], comment=COMMENT).iloc[:,:-1])
+        self.assertRaises(MetaDataException, tree_sheet.create_metadata_tags_file)
+
 
     def test_modifier_sheet(self):
         modifier_sheet = ModifierSheet(self.template.parse(EXPECTED_SHEETS['ModifierSheet'], comment=COMMENT))
@@ -58,7 +60,6 @@ class TemplateReaderTests(unittest.TestCase):
         assert modifier_sheet.modifier_blueprint['Blood@UNIT'] == {'label': 'MODIFIER',
                                                                    'data_type': data_type,
                                                                    'reference_column': reference_column}
-
 
     def test_value_substitution_sheet(self):
         value_substitution_sheet = ValueSubstitutionSheet(self.template.parse(EXPECTED_SHEETS['ValueSubstitutionSheet'], comment=COMMENT))
@@ -89,4 +90,8 @@ class TemplateReaderTests(unittest.TestCase):
         self.assertRaises(ValueSubstitutionError, ValueSubstitutionSheet, value_df)
 
     def test_blue_print_file(self):
-        pass
+        tree_sheet = TreeSheet(self.template.parse(EXPECTED_SHEETS['TreeSheet'], comment=COMMENT))
+        b = BlueprintFile(tree_sheet)
+        assert 'Blood_Volume' in b.blueprint
+        assert len(b.blueprint) == 29
+        assert {'label', 'path'}.issubset(b.blueprint['Blood_Volume'])
