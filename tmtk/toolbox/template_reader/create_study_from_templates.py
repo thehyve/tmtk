@@ -7,14 +7,14 @@ from .sheet_exceptions import TemplateException
 
 COMMENT = '#'
 EXPECTED_SHEETS = {
-    'TreeSheet'             : 'tree structure',
-    'ModifierSheet'         : 'modifier',
-    'TrialVisitSheet'       : 'trial_visit',
-    'ValueSubstitutionSheet': 'value substitution'
+    'TreeSheet'             : 'Tree structure',
+    'ModifierSheet'         : 'Modifier',
+    'TrialVisitSheet'       : 'Trial_visit',
+    'ValueSubstitutionSheet': 'Value substitution'
 }
 
 
-def create_study_from_templates(template_filename, source_dir=None) -> Study:
+def template_reader(template_filename, source_dir=None) -> Study:
     """
     Create tranSMART files in designated output_dir for all data provided in templates in the source_dir.
 
@@ -37,7 +37,7 @@ def create_study_from_templates(template_filename, source_dir=None) -> Study:
         source_dir = os.path.dirname(template_file)
 
     template = pd.ExcelFile(template_file, comment=COMMENT)
-    tree_sheet, modifier_sheet, value_substitution_sheet, trial_visit_sheet = get_template_sheets(template_file)
+    tree_sheet, modifier_sheet, value_substitution_sheet, trial_visit_sheet = get_template_sheets(template)
 
     # Create the initial blueprint from the tree_sheet and update with the value substitution sheet
     blueprint = BlueprintFile(tree_sheet)
@@ -62,9 +62,10 @@ def create_study_from_templates(template_filename, source_dir=None) -> Study:
             pass
 
     # Generate a dict object with modifiers to be added to the blueprint
+    modifier_sheet._set_initial_modifier_blueprint(study.Clinical.Modifiers.df)
     for var_id, var in study.Clinical.all_variables.items():
         if '@' in var.header:
-            modifier_sheet.modifier_blueprint.update_modifier_blueprint(var.header)
+            modifier_sheet.update_modifier_blueprint(var.header)
     blueprint.update_blueprint(modifier_sheet.modifier_blueprint)
 
     study.Clinical.Modifiers.df = study.Clinical.Modifiers.df.append(modifier_sheet.df)
@@ -82,7 +83,7 @@ def create_study_from_templates(template_filename, source_dir=None) -> Study:
 
 
 def get_template_sheets(template):
-    if set(EXPECTED_SHEETS.values()).issubset([l.lower() for l in template.sheet_names]):
+    if set(EXPECTED_SHEETS.values()).issubset(template.sheet_names):
         tree_sheet = TreeSheet(template.parse(EXPECTED_SHEETS['TreeSheet'], comment=COMMENT))
         modifier_sheet = ModifierSheet(template.parse(EXPECTED_SHEETS['ModifierSheet'], comment=COMMENT))
         value_substitution_sheet = ValueSubstitutionSheet(template.parse(EXPECTED_SHEETS['ValueSubstitutionSheet'], comment=COMMENT))
@@ -91,4 +92,4 @@ def get_template_sheets(template):
         return tree_sheet, modifier_sheet, value_substitution_sheet, trial_visit_sheet
     else:
         raise TemplateException('Missing mandatory template sheets.\nExpected {}\nBut found {}'.format(
-            [l.capitalize() for l in EXPECTED_SHEETS]), template.sheet_names)
+            EXPECTED_SHEETS.values(), template.sheet_names))

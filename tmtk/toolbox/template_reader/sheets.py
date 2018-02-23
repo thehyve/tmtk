@@ -87,20 +87,20 @@ class ModifierSheet:
         self.df.columns = lower_columns
         self.df.rename(columns=self.modifier_column_map, inplace=True)
         self.df['modifier_path'] = self.df['modifier_cd']
+        self.df = self.df[Mappings.modifiers_header]
         self.df.set_index('modifier_cd', drop=False, inplace=True)
-        def _set_modifier_blueprint(self):
-            d = {}
-            for modifier in self.df.iterrows():
-                value = modifier.modifier_cd
-                d.update({value: {
-                    'label': 'MODIFIER',
-                    'data_type': value
-                }
-                })
-            return d
+        self.modifier_blueprint = {}
 
-        self.modifier_blueprint = _set_modifier_blueprint()
-
+    def _set_initial_modifier_blueprint(self, df):
+        d = {}
+        for i,modifier in df.iterrows():
+            value = modifier['modifier_cd']
+            d.update({value: {
+                'label': 'MODIFIER',
+                'data_type': value
+            }
+            })
+        self.modifier_blueprint.update(d)
 
     def update_modifier_blueprint(self, item):
         reference_column, data_type = item.split('@')
@@ -176,7 +176,7 @@ class BlueprintFile:
                 'label': 'SUBJ_ID'
             }, 'TRIAL_VISIT': {
                 'path': 'reserved_keywords',
-                'label': 'TRAIL_VISIT'
+                'label': 'TRIAL_VISIT_LABEL'
             }, 'START_DATE': {
                 'path': 'reserved_keywords',
                 'label': 'START_DATE'
