@@ -71,6 +71,7 @@ class TrialVisitSheet:
         df.rename(index=None, columns=self.column_name_map, inplace=True)
         self.df = df
         self.df.set_index('name', drop=False, inplace=True)
+        self.df = self.df[Mappings.trial_visits_header]
 
 
 class ModifierSheet:
@@ -92,15 +93,15 @@ class ModifierSheet:
         self.modifier_blueprint = {}
 
     def _set_initial_modifier_blueprint(self, df):
-        d = {}
         for i,modifier in df.iterrows():
             value = modifier['modifier_cd']
-            d.update({value: {
-                'label': 'MODIFIER',
-                'data_type': value
-            }
-            })
-        self.modifier_blueprint.update(d)
+            self.modifier_blueprint.update(
+                {value: {
+                    'label': 'MODIFIER',
+                    'data_type': value
+                    }
+                }
+            )
 
     def update_modifier_blueprint(self, item):
         reference_column, data_type = item.split('@')
@@ -108,7 +109,6 @@ class ModifierSheet:
              'data_type': data_type,
              'reference_column': reference_column}
         self.modifier_blueprint.update({item: d})
-        return d
 
 
 class ValueSubstitutionSheet:
@@ -118,9 +118,9 @@ class ValueSubstitutionSheet:
         lower_columns = df.columns.str.lower()
         self.df = df.applymap(str)
         self.df.columns = lower_columns
-        self.word_map = self._generate_word_map()
+        self._generate_word_map()
 
-    def _generate_word_map(self) -> dict:
+    def _generate_word_map(self):
         if self.df.iloc[:, 1:3].duplicated().any():
             columns = self.df.iloc[:, 1:3].columns
             raise ValueSubstitutionError('Found duplicate mappings for COLUMN_NAME and FROM VALUE:\n{}'. \
@@ -134,8 +134,7 @@ class ValueSubstitutionSheet:
             return pd.Series(d)
 
         word_map_df = map_df.groupby(level=0).apply(get_word_map_dict)
-        map_dict = word_map_df.T.to_dict()
-        return map_dict
+        self.word_map = word_map_df.T.to_dict()
 
 
 class BlueprintFile:
