@@ -21,8 +21,8 @@ class TreeSheet:
         df.replace(r'^\s+$', pd.np.nan, regex=True, inplace=True)
         trailing_nans = df.loc[:, self.level_columns].bfill(axis=1).isnull()
         ffilled = df.loc[:, self.level_columns].ffill()
-        ffilled[trailing_nans] = ""
-        df.loc[:, self.level_columns] = ffilled
+        ffilled_masked = ffilled.mask(trailing_nans, other="")
+        df.loc[:, self.level_columns] = ffilled_masked
         return df
 
     def create_metadata_tags_file(self) -> pd.DataFrame:
