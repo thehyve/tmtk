@@ -127,7 +127,7 @@ class RandomNormal:
         self.round = around
 
     def pick(self, x):
-        array = np.random.normal(self.mean, self.sigma, x)
+        array = pd.Series(np.random.normal(self.mean, self.sigma, x))
         if self.round:
             array = array.astype(int)
         return array
@@ -142,7 +142,7 @@ class RandomChoice:
         self.probabilities = probabilities
 
     def pick(self, x):
-        return np.random.choice(a=self.choices, size=x, p=self.probabilities)
+        return pd.Series(np.random.choice(a=self.choices, size=x, p=self.probabilities))
 
     def __repr__(self):
         return '<(RandomChoice(choices={}, probabilities={})>'.format(self.choices, self.probabilities)
@@ -150,13 +150,23 @@ class RandomChoice:
 
 class RandomStudy(Study):
 
-    def __init__(self, subjects=0, numerical=0, categorical=0, max_depth=None):
+    def __init__(self, subjects=0, numerical=0, categorical=0, max_depth=None, sparsity: float=0.0):
+        """
+        Creates a randomly generated study.
+
+        :param subjects:
+        :param numerical:
+        :param categorical:
+        :param max_depth:
+        :param float sparsity:
+        """
         super().__init__()
-        self.subjects = subjects
+        self._n_subjects = subjects
         self.study_id = 'RANDOM_STUDY_{}'.format(random.randint(1000, 9999))
         self._ids = {'SUBJ_ID', 'AGE', 'GENDER', 'RACE'}
-        self._subject_ids = ["{}_SUBJECT{}".format(self.study_id, i) for i in range(self.subjects)]
-        self.max_depth = max_depth
+        self._subject_ids = ["{}_SUBJECT{}".format(self.study_id, i) for i in range(self._n_subjects)]
+        self._max_depth = max_depth
+        self._sparsity = sparsity
         total_columns = numerical + categorical
         proportion_numerical = numerical / total_columns
 
@@ -174,30 +184,31 @@ class RandomStudy(Study):
             self.Clinical.add_datafile(filename='random_clinical_data{}.tsv'.format(i + 1), dataframe=new_df)
             del new_df
 
-        self.Clinical.apply_blueprint(self._build_tree_template())
+        self.Clinical.apply_blueprint(self._build_blueprint())
 
     def create_clinical_df(self, numerical=0, categorical=0, first=False):
-        clinical_dict = {'SUBJ_ID': self._subject_ids}
+
+        clinical_dict = {'SUBJ_ID': ["{}_SUBJECT{}".format(self.study_id, i) for i in range(self._n_subjects)]}
 
         if numerical and first:
-            clinical_dict.update({"AGE": RandomNormal(mean=50, sigma=15).pick(self.subjects)})
+            clinical_dict["AGE"] = RandomNormal(mean=50, sigma=15).pick(self._n_subjects)
             numerical -= 1
 
         if categorical and first:
-            clinical_dict.update({"GENDER": RandomChoice(['Male', 'Female'], [0.48, 0.52]).pick(self.subjects)})
-            clinical_dict.update({"RACE": RandomChoice(['ELf', 'Smurf', 'Orc', 'Cowboy', 'Android']).pick(self.subjects)})
+            clinical_dict["GENDER"] = RandomChoice(['Male', 'Female'], [0.48, 0.52]).pick(self._n_subjects)
+            clinical_dict["RACE"] = RandomChoice(['ELf', 'Smurf', 'Orc', 'Cowboy', 'Android']).pick(self._n_subjects)
             categorical -= 2
 
         for i in range(numerical):
-            clinical_dict[self.new_id()] = RandomNormal(mean=random.randint(i+2 * 20, i+2 * 40),
-                                                        sigma=random.randint(i+1 * 3, i+1 * 5)
-                                                        ).pick(self.subjects)
+            series = RandomNormal(mean=random.randint(i+2 * 20, i+2 * 40),
+                                  sigma=random.randint(i+1 * 3, i+1 * 5)
+                                  ).pick(self._n_subjects)
+            clinical_dict[self.new_id()] = series.apply(self._crazy_monkey)
 
         for i in range(max(categorical, 0)):
-            clinical_dict[self.new_id()] = RandomChoice(random.sample(the_bio_glossary, random.randint(1, 9))
-                                                        ).pick(self.subjects)
-
-        clinical_dict.update({'SUBJ_ID': ["{}_SUBJECT{}".format(self.study_id, i) for i in range(self.subjects)]})
+            series = RandomChoice(random.sample(the_bio_glossary, random.randint(1, 9))
+                                  ).pick(self._n_subjects)
+            clinical_dict[self.new_id()] = series.apply(self._crazy_monkey)
 
         return_df = pd.DataFrame(clinical_dict)
 
@@ -213,6 +224,12 @@ class RandomStudy(Study):
             # try again.
             return self.new_id()
 
+    def _crazy_monkey(self, value):
+        """
+        Returns input or pd.np.nan, based on chance.
+        """
+        return value if random.random() > self._sparsity else pd.np.nan
+
     @staticmethod
     def _get_combined_parent():
         space = random.sample(the_space_glossary, 1)
@@ -220,8 +237,8 @@ class RandomStudy(Study):
 
         return " ".join(space + wrestling)
 
-    def _build_tree_template(self):
-        """ generate random concept tree template dictionary for a list of ids """
+    def _build_blueprint(self):
+        """ Generate random concept tree template dictionary for a list of ids """
         path_de_dup = {}
         template_dict = {}
 
@@ -258,7 +275,7 @@ class RandomStudy(Study):
         """ generate random list of parents proportional to n """
         parents = [['']]
         total_parents = int(n / 5 + 1)
-        parents_list = [self._get_combined_parent() for i in range(total_parents)]
+        parents_list = [self._get_combined_parent() for _ in range(total_parents)]
 
         overflow = []
 
@@ -267,7 +284,7 @@ class RandomStudy(Study):
 
             append_to = parents[random_pick].copy()
 
-            if self.max_depth and (len(append_to) + 1) > self.max_depth:
+            if self._max_depth and (len(append_to) + 1) > self._max_depth:
                 overflow.append(append_to + [parent])
             else:
                 # Add create copy and add current path to list of possible parents
