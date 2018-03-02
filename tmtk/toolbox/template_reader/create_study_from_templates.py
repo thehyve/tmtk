@@ -1,15 +1,15 @@
+import os
+import pandas as pd
+
+from .sheet_exceptions import TemplateException
 from .sheets import TreeSheet, ModifierSheet, ValueSubstitutionSheet, TrialVisitSheet, BlueprintFile
 from ...study import Study
-import pandas as pd
-from glob import glob
-import os
-from .sheet_exceptions import TemplateException
 
 COMMENT = '#'
 EXPECTED_SHEETS = {
-    'TreeSheet'             : 'Tree structure',
-    'ModifierSheet'         : 'Modifier',
-    'TrialVisitSheet'       : 'Trial_visit',
+    'TreeSheet': 'Tree structure',
+    'ModifierSheet': 'Modifier',
+    'TrialVisitSheet': 'Trial_visit',
     'ValueSubstitutionSheet': 'Value substitution'
 }
 
@@ -25,7 +25,7 @@ def template_reader(template_filename, source_dir=None) -> Study:
     - Value substitution
     Note: The sheets need to be present, they can be empty
 
-    :param template: Template Excel file to parse
+    :param template_filename: Template Excel file to parse
     :param source_dir: directory containing all the templates.
 
     :return: tmtk.Study
@@ -62,7 +62,8 @@ def template_reader(template_filename, source_dir=None) -> Study:
             pass
 
     # Generate a dict object with modifiers to be added to the blueprint
-    modifier_sheet._set_initial_modifier_blueprint(study.Clinical.Modifiers.df)
+    modifier_sheet.set_initial_modifier_blueprint(study.Clinical.Modifiers.df)
+
     for var_id, var in study.Clinical.all_variables.items():
         if '@' in var.header:
             modifier_sheet.update_modifier_blueprint(var.header)
@@ -84,12 +85,14 @@ def template_reader(template_filename, source_dir=None) -> Study:
 
 def get_template_sheets(template):
     if set(EXPECTED_SHEETS.values()).issubset(template.sheet_names):
-        tree_sheet = TreeSheet(template.parse(EXPECTED_SHEETS['TreeSheet'], comment=COMMENT))
-        modifier_sheet = ModifierSheet(template.parse(EXPECTED_SHEETS['ModifierSheet'], comment=COMMENT))
-        value_substitution_sheet = ValueSubstitutionSheet(template.parse(EXPECTED_SHEETS['ValueSubstitutionSheet'], comment=COMMENT))
-        trial_visit_sheet = TrialVisitSheet(template.parse(EXPECTED_SHEETS['TrialVisitSheet'], comment=COMMENT))
+        sheets = [(TreeSheet, 'TreeSheet'),
+                  (ModifierSheet, 'ModifierSheet'),
+                  (ValueSubstitutionSheet, 'ValueSubstitutionSheet'),
+                  (TrialVisitSheet, 'TrialVisitSheet')]
 
-        return tree_sheet, modifier_sheet, value_substitution_sheet, trial_visit_sheet
+        return [cls(template.parse(EXPECTED_SHEETS[sheet_name], comment=COMMENT))
+                for cls, sheet_name in sheets]
+
     else:
         raise TemplateException('Missing mandatory template sheets.\nExpected {}\nBut found {}'.format(
             EXPECTED_SHEETS.values(), template.sheet_names))

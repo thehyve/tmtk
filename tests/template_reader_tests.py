@@ -1,14 +1,14 @@
 import unittest
-import pandas as pd
-import os
 
-from tmtk.toolbox.template_reader.sheets import TreeSheet, ModifierSheet, TrialVisitSheet, BlueprintFile, \
-    ValueSubstitutionSheet
+import pandas as pd
+
+from tmtk.study import Study
 from tmtk.toolbox.template_reader.create_study_from_templates import COMMENT, EXPECTED_SHEETS, get_template_sheets, \
     template_reader
-from tmtk.utils.mappings import Mappings
 from tmtk.toolbox.template_reader.sheet_exceptions import ValueSubstitutionError, MetaDataException, TemplateException
-from tmtk.study import Study
+from tmtk.toolbox.template_reader.sheets import TreeSheet, ModifierSheet, TrialVisitSheet, BlueprintFile, \
+    ValueSubstitutionSheet
+from tmtk.utils.mappings import Mappings
 
 
 class TemplateReaderTests(unittest.TestCase):
@@ -44,9 +44,9 @@ class TemplateReaderTests(unittest.TestCase):
         self.assertListEqual(tree_sheet.data_sources,
                              ['Low-dimensional data (Mock)', 'SAMPLE (Mock)', 'TRIAL_VISIT_Data (Mock)'])
         self.assertTupleEqual(tree_sheet.df.shape, (25, 12))
-        l = [l for l in tree_sheet.get_meta_columns_iter()]
+        l_ = [l for l in tree_sheet.get_meta_columns_iter()]
         mt_l = [('Level 4 metadata tag', 'Level 4 metadata value'), ('Level 5 metadata tag', 'Level 5 metadata value')]
-        self.assertListEqual(l, mt_l)
+        self.assertListEqual(l_, mt_l)
         tags_df = tree_sheet.create_metadata_tags_file()
         self.assertTupleEqual(tags_df.shape, (7, 4))
         self.assertListEqual(tags_df.columns.tolist(), Mappings.tags_header)
@@ -60,15 +60,15 @@ class TemplateReaderTests(unittest.TestCase):
         self.assertTupleEqual(modifier_sheet.df.shape, (3, 4))
         self.assertDictEqual(modifier_sheet.modifier_blueprint, {})
 
-        modifier_sheet._set_initial_modifier_blueprint(self.study.Clinical.Modifiers.df)
+        modifier_sheet.set_initial_modifier_blueprint(self.study.Clinical.Modifiers.df)
         self.assertIn('SAMPLE_ID', modifier_sheet.modifier_blueprint)
 
         modifier_sheet.update_modifier_blueprint('Blood@UNIT')
         self.assertIn('Blood@UNIT', modifier_sheet.modifier_blueprint)
         reference_column = 'Blood'
         data_type = 'UNIT'
-        self.assertDictEqual(modifier_sheet.modifier_blueprint['Blood@UNIT'], {'label'           : 'MODIFIER',
-                                                                               'data_type'       : data_type,
+        self.assertDictEqual(modifier_sheet.modifier_blueprint['Blood@UNIT'], {'label': 'MODIFIER',
+                                                                               'data_type': data_type,
                                                                                'reference_column': reference_column})
 
     def test_value_substitution_sheet(self):
@@ -85,16 +85,16 @@ class TemplateReaderTests(unittest.TestCase):
 
     def test_trial_visit_sheet_exception(self):
         value_df = pd.DataFrame.from_dict({
-            'column name'         : {
+            'column name': {
                 0: 'QLQ-C30_Q04',
                 1: 'QLQ-C30_Q04'},
-            'from value'          : {
+            'from value': {
                 0: '4',
                 1: '4'},
             'sheet name/file name': {
                 0: 'TRIAL_VISIT_Data (Mock)',
                 1: 'TRIAL_VISIT_Data (Mock)'},
-            'to value'            : {
+            'to value': {
                 0: '4. Very much',
                 1: '4. Test_wrong'}
         })
@@ -108,23 +108,23 @@ class TemplateReaderTests(unittest.TestCase):
         self.assertDictEqual(
             {
                 'label': 'Blood volume',
-                'path' : '3. Biobank\\Blood'
+                'path': '3. Biobank\\Blood'
             },
             b.blueprint['Blood_Volume']
         )
 
         update_item = {'Blood_Volume':
             {
-                'label'   : 'Volume of blood',
-                'path'    : '3. Biobank',
+                'label': 'Volume of blood',
+                'path': '3. Biobank',
                 'new_item': 'test'
             }
         }
         b.update_blueprint_item(update_item)
         self.assertDictEqual(
             {
-                'label'   : 'Volume of blood',
-                'path'    : '3. Biobank',
+                'label': 'Volume of blood',
+                'path': '3. Biobank',
                 'new_item': 'test'
             },
             b.blueprint['Blood_Volume']
@@ -133,7 +133,7 @@ class TemplateReaderTests(unittest.TestCase):
         new_item = {'test_item':
             {
                 'label': 'this is a test',
-                'path' : 'some path',
+                'path': 'some path',
             }
         }
 
@@ -141,7 +141,7 @@ class TemplateReaderTests(unittest.TestCase):
         self.assertDictEqual(
             {
                 'label': 'this is a test',
-                'path' : 'some path',
+                'path': 'some path',
             }, b.blueprint['test_item']
         )
 
@@ -150,7 +150,6 @@ class TemplateReaderTests(unittest.TestCase):
         col_map = study.Clinical.ColumnMapping.df
         modifiers = study.Clinical.Modifiers.df
         self.assertTupleEqual(col_map.shape, (39,7))
-
 
         used_modifiers = col_map.iloc[:,-1].unique().tolist()
         [self.assertIn(item, modifiers.modifier_cd.unique().tolist()+[''])

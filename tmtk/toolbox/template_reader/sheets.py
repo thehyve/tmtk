@@ -1,4 +1,5 @@
 import pandas as pd
+
 from .sheet_exceptions import MetaDataException, ValueSubstitutionError
 from ...utils import Mappings
 
@@ -59,7 +60,7 @@ class TreeSheet:
 
 
 class TrialVisitSheet:
-    """ Concers with the trial visits. """
+    """ Concerns with the trial visits. """
 
     column_name_map = {
         'Label': 'name',
@@ -92,16 +93,15 @@ class ModifierSheet:
         self.df.set_index('modifier_cd', drop=False, inplace=True)
         self.modifier_blueprint = {}
 
-    def _set_initial_modifier_blueprint(self, df):
-        for i,modifier in df.iterrows():
+    def set_initial_modifier_blueprint(self, df):
+        for i, modifier in df.iterrows():
             value = modifier['modifier_cd']
-            self.modifier_blueprint.update(
-                {value: {
+            self.modifier_blueprint.update({
+                value: {
                     'label': 'MODIFIER',
                     'data_type': value
-                    }
                 }
-            )
+            })
 
     def update_modifier_blueprint(self, item):
         reference_column, data_type = item.split('@')
@@ -123,7 +123,7 @@ class ValueSubstitutionSheet:
     def _generate_word_map(self):
         if self.df.iloc[:, 1:3].duplicated().any():
             columns = self.df.iloc[:, 1:3].columns
-            raise ValueSubstitutionError('Found duplicate mappings for COLUMN_NAME and FROM VALUE:\n{}'. \
+            raise ValueSubstitutionError('Found duplicate mappings for COLUMN_NAME and FROM VALUE:\n{}'.
                                          format(self.df.loc[self.df[columns].duplicated(), columns]))
 
         map_df = self.df.drop('sheet name/file name', axis=1).set_index(['column name', 'from value'])

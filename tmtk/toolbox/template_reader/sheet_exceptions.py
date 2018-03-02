@@ -1,6 +1,7 @@
 class MetaDataException(Exception):
     pass
 
+
 class ValueSubstitutionError(Exception):
     pass
 
