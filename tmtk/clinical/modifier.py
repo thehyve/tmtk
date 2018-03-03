@@ -45,10 +45,17 @@ class Modifiers(FileBase):
 
     def create_df(self):
         """
-        Create `pd.DataFrame` with a correct header.
+        Create `pd.DataFrame` with a correct header and base reference values for modifiers.
 
         :return: `pd.DataFrame`.
         """
-        df = pd.DataFrame(dtype=str, columns=Mappings.modifiers_header)
+        df = pd.DataFrame(dtype=str,
+                          columns=Mappings.modifiers_header,
+                          data={
+                              'modifier_path': ['\Missing Value', '\Sample_id'],
+                              'modifier_cd': ['MISSVAL', 'SAMPLE_ID'],
+                              'name_char': ['Missing Value','Sample identifier'],
+                              'Data Type': ['CATEGORICAL', 'CATEGORICAL']}
+                          )
         df = self.build_index(df)
         return df
