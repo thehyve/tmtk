@@ -26,7 +26,7 @@ def template_reader(template_filename, source_dir=None) -> Study:
     Note: The sheets need to be present, they can be empty
 
     :param template_filename: Template Excel file to parse
-    :param source_dir: directory containing all the templates.
+    :param source_dir: directory containing all the templates (currently not used).
 
     :return: tmtk.Study
     """
