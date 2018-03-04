@@ -5,7 +5,7 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
-from tmtk.toolbox import template_validation as Validity
+from . import template_validation as Validity
 from .template_data import TemplatedStudy, HighDim
 
 

@@ -340,7 +340,7 @@ class Study(ValidateMixin):
 
         for obj in chain(self.get_objects(FileBase), self.get_objects(ParamsBase)):
             # Strip sub_path from leading slash, as os.path.join() will think its an absolute path
-            sub_path = obj.path.split(self.study_folder)[1].strip('/')
+            sub_path = obj.path.split(self.study_folder)[1].strip(os.sep)
             new_path = os.path.join(root_dir, sub_path)
             self.msgs.info("Writing file to {}".format(new_path))
             obj.write_to(new_path, overwrite=overwrite)
