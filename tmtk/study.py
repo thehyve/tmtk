@@ -27,6 +27,10 @@ class Study(ValidateMixin):
     This will create the study object which can be used as a starting point
     for custom curation or directly in The Arborist.
 
+    To use the more limited 16.2 data model with transmart-batch set this option
+    before creating this object.
+
+    >>> tmtk.options.transmart_batch_mode = True
     """
 
     def __init__(self, study_params_path=None, minimal=False):
