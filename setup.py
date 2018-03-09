@@ -38,7 +38,8 @@ class HookedInstall(install):
             log.info("Cannot find module 'notebook'. Aborting automated install.")
             return
 
-        if notebook.__version__ < '4.2.0':
+        notebook_version = getattr(notebook, '__version__')
+        if notebook_version is None or notebook_version < '4.2.0':
             log.info("Version of notebook package should be at least 4.2.0 for Arborist, consider:")
             log.info("    $ pip3 install --upgrade notebook")
             log.info('Aborting automated install.')
