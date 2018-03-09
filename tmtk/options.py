@@ -34,7 +34,8 @@ def register_option(key, default, doc=None, validator=None, callback=None):
     :param doc: docstrings are shown for the properties.
     :param validator: callable that checks input for setter,
         should raise ValueError otherwise.
-    :param callback: callable
+    :param callback: callable that will be executed when key is set to valid value.
+        The callable will have the key as first argument and value as second.
     """
 
     def getter_(self):
@@ -71,8 +72,20 @@ Set this to True before creating the tmtk.Study object to prevent
 creation of parameters invalid for usage with transmart-batch. 
 To be omitted are support for modifiers, trial visits, and ontology mapping.
 """
-
 register_option('transmart_batch_mode', default=False, doc=transmart_batch_mode_doc, validator=is_bool)
-register_option('strict_paths_mode', default=True, doc='\nNot used currently.', validator=is_bool)
+
+simple_paths_mode_doc = """
+Not yet implemented. 
+
+sIf True this is to provide simpler path handling where the only special
+character is a backslash ('\\') as path separator. 
+
+If False, backward compatibility is achieved by
+also using the plus sign ('+') as a path separator and converting underscores to spaces. In this mode this
+behaviour can be escaped using a backslash.
+"""
+register_option('simple_paths_mode', default=True, doc=simple_paths_mode_doc, validator=is_bool)
+
+
 register_option('arborist_url', default='http://localhost:25482', doc='\nNot used currently.', validator=is_str)
 
