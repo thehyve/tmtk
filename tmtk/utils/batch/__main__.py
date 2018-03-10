@@ -7,7 +7,11 @@ import os
 
 
 def choose_property_files():
-    return click.Choice([p.name for p in list(TransmartBatch().get_property_files())])
+    try:
+        params_ = [p.name for p in list(TransmartBatch().get_property_files())]
+    except EnvironmentError:
+        params_ = []
+    return click.Choice(params_)
 
 
 def _find_study_params_in_parent(path):
@@ -111,5 +115,5 @@ def run_batch(params=None, connection_file=None, validate=False, log=None, no_lo
 
 
 if __name__ == "__main__":
-    sys.exit(run_batch())
+    run_batch()
 
