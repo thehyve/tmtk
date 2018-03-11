@@ -1,3 +1,5 @@
+import os
+
 
 def type_validator(type_):
 
@@ -77,15 +79,30 @@ register_option('transmart_batch_mode', default=False, doc=transmart_batch_mode_
 simple_paths_mode_doc = """
 Not yet implemented. 
 
-sIf True this is to provide simpler path handling where the only special
+If True this is to provide simpler path handling where the only special
 character is a backslash ('\\') as path separator. 
 
 If False, backward compatibility is achieved by
 also using the plus sign ('+') as a path separator and converting underscores to spaces. In this mode this
 behaviour can be escaped using a backslash.
 """
-register_option('simple_paths_mode', default=True, doc=simple_paths_mode_doc, validator=is_bool)
+register_option('simple_paths_mode',
+                default=True,
+                doc=simple_paths_mode_doc,
+                validator=is_bool)
 
 
-register_option('arborist_url', default='http://localhost:25482', doc='\nNot used currently.', validator=is_str)
+transmart_batch_home_doc = """
+Path to transmart-batch home directory that contains the .jar file and 
+property files. By default this is the $TMBATCH_HOME environment variable.
+"""
+register_option('transmart_batch_home',
+                default=os.environ.get('TMBATCH_HOME', ''),
+                doc=transmart_batch_home_doc,
+                validator=is_str)
+
+register_option('arborist_url',
+                default='http://localhost:25482',
+                doc='\nNot used currently.',
+                validator=is_str)
 

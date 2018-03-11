@@ -1,22 +1,27 @@
-import os
-from threading import Thread
+import logging
+import socket
+import subprocess
+from datetime import datetime
 from glob import glob
 from pathlib import Path
-import subprocess
-import socket
-import re
-from datetime import datetime
-import logging
+from threading import Thread
 
-from tqdm import tqdm
 import ipywidgets
+import os
+import re
 from IPython.display import display
+from tqdm import tqdm
 
+from tmtk import options
 from ._job_descriptions import job_map
 from ..Generic import clean_for_namespace
 
 logger = logging.getLogger('tmtk')
 logger.setLevel(level=logging.INFO)
+
+
+class ConfigurationError(Exception):
+    pass
 
 
 class JobProperties:
@@ -106,9 +111,10 @@ class TransmartBatch:
     @property
     def tmbatch_home(self):
         """Path of the TMBATCH_HOME environment variable."""
-        home = os.environ.get('TMBATCH_HOME')
+        home = options.transmart_batch_home or os.environ.get('TMBATCH_HOME')
         if not home:
-            raise EnvironmentError('Environment variable $TMBATCH_HOME not set.')
+            msg = 'Environment variable $TMBATCH_HOME and tmtk.options.transmart_batch_home not set.'
+            raise ConfigurationError(msg)
         return home
 
     def run_job(self, properties_file=None, param=None, log=True, silent=False,
@@ -153,7 +159,7 @@ class TransmartBatch:
     def batch_jar(self):
         jars = [str(p) for p in Path(self.tmbatch_home).glob('**/*transmart*batch*.jar')]
         if not jars:
-            raise Exception("No transmart-batch .jar file found in $TMBATCH_HOME.")
+            raise ConfigurationError("No transmart-batch .jar file found in $TMBATCH_HOME.")
 
         if len(jars) > 1:
             logger.warning("Multiple transmart-batch .jar files found in $TMBATCH_HOME, using youngest.")

@@ -1,4 +1,4 @@
-from ._wrapper import TransmartBatch
+from ._wrapper import TransmartBatch, ConfigurationError
 from ...study import Study
 
 import sys
@@ -9,7 +9,7 @@ import os
 def choose_property_files():
     try:
         params_ = [p.name for p in list(TransmartBatch().get_property_files())]
-    except EnvironmentError:
+    except ConfigurationError:
         params_ = []
     return click.Choice(params_)
 
@@ -27,15 +27,22 @@ def _find_study_params_in_parent(path):
 def list_connection_files(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
-    click.echo("Property files in $TMBATCH_HOME:")
 
-    for p in TransmartBatch().get_property_files():
-        click.echo("  {} ({}):".format(p.name, p.path))
-        click.echo("  ..batch.jdbc.driver={}".format(p.driver))
-        click.echo("  ..batch.jdbc.url={}".format(p.url))
-        click.echo("  ..batch.jdbc.user={}".format(p.user))
-        click.echo("  ..batch.jdbc.password={}\n".format(p.password))
+    click.echo("Property files in $TMBATCH_HOME:")
+    try:
+        for p in TransmartBatch().get_property_files():
+            click.echo("  {} ({}):".format(p.name, p.path))
+            click.echo("  ..batch.jdbc.driver={}".format(p.driver))
+            click.echo("  ..batch.jdbc.url={}".format(p.url))
+            click.echo("  ..batch.jdbc.user={}".format(p.user))
+            click.echo("  ..batch.jdbc.password={}\n".format(p.password))
+
+    except ConfigurationError:
+        click.echo("transmart-batch home directory not set.")
+        pass
+
     ctx.exit()
+
 
 
 @click.command()

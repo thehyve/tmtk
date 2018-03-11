@@ -5,7 +5,6 @@ This file is distributed under the GNU General Public License
 
 tmtk - A toolkit for ETL curation for the tranSMART data warehouse.
 """
-
 from .options import options
 
 from .study import Study
@@ -14,4 +13,4 @@ from .version import __version__
 
 __author__ = 'Jochem Bijlard <j.bijlard@gmail.com>'
 
-__all__ = ['Study', 'SkinnyExport', '__version__', 'options']
+__all__ = ['arborist', 'Study', 'SkinnyExport', 'toolbox', '__version__', 'options']

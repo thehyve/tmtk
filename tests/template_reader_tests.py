@@ -1,7 +1,7 @@
-import unittest
-
+import os
 import pandas as pd
 
+from tests.commons import TestBase
 from tmtk.study import Study
 from tmtk.toolbox.template_reader.create_study_from_templates import COMMENT, EXPECTED_SHEETS, get_template_sheets, \
     template_reader
@@ -11,23 +11,15 @@ from tmtk.toolbox.template_reader.sheets import TreeSheet, ModifierSheet, TrialV
 from tmtk.utils.mappings import Mappings
 
 
-class TemplateReaderTests(unittest.TestCase):
+class TemplateReaderTests(TestBase):
+
     @classmethod
-    def setUpClass(cls):
-        cls.template_file = 'studies/template_reader/Clinical_data_2017_mock_study_V2.xlsx'
+    def setup_class_hook(cls):
+        template_dir = os.path.join(cls.studies_dir, 'template_reader')
+        cls.template_file = os.path.join(template_dir, 'Clinical_data_2017_mock_study_V2.xlsx')
         cls.template = pd.ExcelFile(cls.template_file)
-        cls.incorrect_template = pd.ExcelFile('studies/template_reader/Clinical_data_2017_mock_study_errors.xlsx')
+        cls.incorrect_template = pd.ExcelFile(os.path.join(template_dir, 'Clinical_data_2017_mock_study_errors.xlsx'))
         cls.study = Study()
-
-    @classmethod
-    def tearDownClass(cls):
-        pass
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
 
     def test_get_template_sheets(self):
         t, m, vs, tv = get_template_sheets(self.template)
@@ -154,5 +146,3 @@ class TemplateReaderTests(unittest.TestCase):
         used_modifiers = col_map.iloc[:,-1].unique().tolist()
         [self.assertIn(item, modifiers.modifier_cd.unique().tolist()+[''])
          for item in used_modifiers]
-
-

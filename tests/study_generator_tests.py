@@ -1,37 +1,27 @@
 import tmtk
-import unittest
+from tests.commons import TestBase
 
 
-class GeneratorTests(unittest.TestCase):
+class GeneratorTests(TestBase):
+
     @classmethod
-    def setUpClass(cls):
+    def setup_class_hook(cls):
         cls.study = tmtk.toolbox.RandomStudy(10, 5, 5)
 
-    @classmethod
-    def tearDownClass(cls):
-        pass
-
-    def setUp(self):
-        pass
-
     def test_has_subj_id(self):
-        assert 'SUBJ_ID' in self.study.concept_tree_json
+        self.assertIn('SUBJ_ID', self.study.concept_tree_json)
 
     def test_study_id(self):
-        assert self.study.study_id.startswith('RANDOM_STUDY_')
+        self.assertTrue(self.study.study_id.startswith('RANDOM_STUDY_'))
 
     def test_n_var(self):
-        assert len(self.study.Clinical.all_variables) == 11
+        self.assertEqual(len(self.study.Clinical.all_variables), 11)
 
     def test_column_mapping_template_dict(self):
-        assert 'Demographics' in list(self.study.Clinical.ColumnMapping.df.iloc[:, 1])
-        assert 'Gender' in list(self.study.Clinical.ColumnMapping.df.iloc[:, 3])
+        self.assertIn('Demographics', list(self.study.Clinical.ColumnMapping.df.iloc[:, 1]))
+        self.assertIn('Gender', list(self.study.Clinical.ColumnMapping.df.iloc[:, 3]))
 
     def test_export_to_skinny(self):
         export = tmtk.toolbox.SkinnyExport(self.study)
         export.build_observation_fact()
-        assert export.observation_fact.df.shape[0] > 1
-
-
-if __name__ == '__main__':
-    unittest.main()
+        self.assertGreater(export.observation_fact.df.shape[0], 1)
