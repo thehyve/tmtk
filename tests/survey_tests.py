@@ -1,32 +1,23 @@
 import tmtk
-import unittest
-import tempfile
-import shutil
 from pathlib import Path
 import pandas as pd
 
+from tests.commons import TestBase, create_study_from_dir
 
-class SurveyTests(unittest.TestCase):
+
+class SurveyTests(TestBase):
 
     @classmethod
-    def setUpClass(cls):
-        cls.study = tmtk.Study('studies/survey/study.params')
-        cls.temp_dir = tempfile.mkdtemp()
+    def setup_class_hook(cls):
+        cls.study = create_study_from_dir('survey')
         cls.export = tmtk.toolbox.SkinnyExport(cls.study, cls.temp_dir)
         cls.export.build_observation_fact()
 
-    @classmethod
-    def tearDownClass(cls):
-        shutil.rmtree(cls.temp_dir)
-
-    def setUp(self):
-        pass
-
     def test_column_map_shape(self):
-        assert self.study.Clinical.ColumnMapping.df.shape == (9, 7)
+        self.assertEqual(self.study.Clinical.ColumnMapping.df.shape, (9, 7))
 
     def test_observation_count(self):
-        assert self.export.observation_fact.df.shape == (13, 24)
+        self.assertEqual(self.export.observation_fact.df.shape, (13, 24))
 
     def test_modifier_type(self):
         var = self.study.Clinical.get_variable(('survey_data.tsv', 9))
@@ -84,7 +75,3 @@ class SurveyTests(unittest.TestCase):
         self.assertIn('i2b2demodata', [f.name for f in p.glob('i2b2*')])
         self.assertIn('i2b2metadata', [f.name for f in p.glob('i2b2*')])
         self.assertEqual(len([f for f in p.glob('*/*tsv')]), 11)
-
-
-if __name__ == '__main__':
-    unittest.main()

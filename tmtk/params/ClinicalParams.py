@@ -1,5 +1,7 @@
-from .ParamsBase import ParamsBase
 import os
+
+import tmtk
+from .ParamsBase import ParamsBase
 
 
 class ClinicalParams(ParamsBase):
@@ -16,7 +18,7 @@ class ClinicalParams(ParamsBase):
 
     @property
     def optional(self):
-        return {
+        params_ = {
             "WORD_MAP_FILE": {
                 'helptext': 'Points to the file with dictionary to be used.'
             },
@@ -25,17 +27,21 @@ class ClinicalParams(ParamsBase):
             },
             "TAGS_FILE": {
                 'helptext': 'Points to the concepts tags file.'
-            },
-            "ONTOLOGY_MAP_FILE": {
-                'helptext': 'Points to the ontology mapping for this study.'
-            },
-            "MODIFIERS_FILE": {
-                'helptext': 'Points to the modifiers file for this study.'
-            },
-            "TRIAL_VISITS_FILE": {
-                'helptext': 'Points to the trial visits file for this study.'
             }
         }
+        if not tmtk.options.transmart_batch_mode:
+            params_.update({
+                "ONTOLOGY_MAP_FILE": {
+                    'helptext': 'Points to the ontology mapping for this study.'
+                },
+                "MODIFIERS_FILE": {
+                    'helptext': 'Points to the modifiers file for this study.'
+                },
+                "TRIAL_VISITS_FILE": {
+                    'helptext': 'Points to the trial visits file for this study.'
+                }
+            })
+        return params_
 
     def is_viable(self):
         """

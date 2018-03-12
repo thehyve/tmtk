@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 
+import tmtk
 from .ColumnMapping import ColumnMapping
 from .DataFile import DataFile
 from .Ontology import OntologyMapping
@@ -22,11 +23,11 @@ class Clinical(ValidateMixin):
     """
 
     def __init__(self, clinical_params=None):
-        self._WordMapping = None
         self._ColumnMapping = None
-        self._OntologyMapping = None
-        self._Modifiers = None
-        self._TrialVisits = None
+        self.WordMapping = None
+        self.OntologyMapping = None
+        self.Modifiers = None
+        self.TrialVisits = None
         self._params = clinical_params
 
     def __str__(self):
@@ -44,9 +45,11 @@ class Clinical(ValidateMixin):
         self._params = value
         self.ColumnMapping = ColumnMapping(params=self.params)
         self.WordMapping = WordMapping(params=self.params)
-        self.OntologyMapping = OntologyMapping(params=self.params)
-        self.Modifiers = Modifiers(params=self.params)
-        self.TrialVisits = TrialVisits(params=self.params)
+
+        if not tmtk.options.transmart_batch_mode:
+            self.OntologyMapping = OntologyMapping(params=self.params)
+            self.Modifiers = Modifiers(params=self.params)
+            self.TrialVisits = TrialVisits(params=self.params)
 
     @property
     def ColumnMapping(self):
@@ -58,38 +61,6 @@ class Clinical(ValidateMixin):
         for file in self.ColumnMapping.included_datafiles:
             clinical_data_path = os.path.join(self.params.dirname, file)
             self.add_datafile(clinical_data_path)
-
-    @property
-    def WordMapping(self):
-        return self._WordMapping
-
-    @WordMapping.setter
-    def WordMapping(self, value):
-        self._WordMapping = value
-
-    @property
-    def OntologyMapping(self):
-        return self._OntologyMapping
-
-    @OntologyMapping.setter
-    def OntologyMapping(self, value):
-        self._OntologyMapping = value
-
-    @property
-    def Modifiers(self):
-        return self._Modifiers
-
-    @Modifiers.setter
-    def Modifiers(self, value):
-        self._Modifiers = value
-
-    @property
-    def TrialVisits(self):
-        return self._TrialVisits
-
-    @TrialVisits.setter
-    def TrialVisits(self, value):
-        self._TrialVisits = value
 
     def apply_blueprint(self, blueprint, omit_missing=False):
         """
@@ -335,9 +306,8 @@ class Clinical(ValidateMixin):
         Dictionary where {`tmtk.VarID`: `tmtk.Variable`} for all variables in
         the column mapping file that do not have a data label in the RESERVED_KEYWORDS list
         """
-        vars_ = {VarID(var_id): self.get_variable(var_id) for var_id in self.ColumnMapping.ids}
-        vars_ = {k: v for k, v in vars_.items() if v.data_label not in self.ColumnMapping.RESERVED_KEYWORDS}
-        return vars_
+        return {k: v for k, v in self.all_variables.items()
+                if v.data_label not in self.ColumnMapping.RESERVED_KEYWORDS}
 
     def validate_all(self, verbosity=3):
         for key, obj in self.__dict__.items():

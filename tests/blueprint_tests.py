@@ -1,21 +1,17 @@
+import os
+
 import tmtk
-import unittest
+from tests.commons import TestBase
 
 
-class BlueprintTests(unittest.TestCase):
+class BlueprintTests(TestBase):
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class_hook(cls):
         cls.study = tmtk.Study()
-        cls.study.Clinical.add_datafile('./studies/blueprinted/datafile.tsv')
-        cls.study.apply_blueprint('./studies/blueprinted/blueprint.json')
-
-    @classmethod
-    def tearDownClass(cls):
-        pass
-
-    def setUp(self):
-        pass
+        dir_ = os.path.join(cls.studies_dir, 'blueprinted')
+        cls.study.Clinical.add_datafile(os.path.join(dir_, 'datafile.tsv'))
+        cls.study.apply_blueprint(os.path.join(dir_, 'blueprint.json'))
 
     def test_df_shapes(self):
         self.assertEqual(self.study.Tags.df.shape, (1, 4))
@@ -31,13 +27,11 @@ class BlueprintTests(unittest.TestCase):
         self.assertEqual(var.max, 263.671)
 
     def test_underscore_plus(self):
-        assert '\\Demographics\\_information\\+other' in self.study.Clinical.ColumnMapping.df['Category Code'][1]
+        self.assertIn('\\Demographics\\_information\\+other',
+                      self.study.Clinical.ColumnMapping.df['Category Code'][1])
         json_data = self.study.concept_tree_json
-        assert 'Demographics_information+other' in json_data
+        self.assertIn('Demographics_information+other', json_data)
         json_data = json_data.replace('_information', '_info+_mation')
         tmtk.arborist.update_study_from_json(self.study, json_data)
-        assert '\\Demographics\\_info\\+\\_mation\\+other' in self.study.Clinical.ColumnMapping.df['Category Code'][1]
-
-
-if __name__ == '__main__':
-    unittest.main()
+        self.assertIn('\\Demographics\\_info\\+\\_mation\\+other',
+                      self.study.Clinical.ColumnMapping.df['Category Code'][1])

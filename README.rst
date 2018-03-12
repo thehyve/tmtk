@@ -94,7 +94,7 @@ These dependencies will have to be installed:
 Licence
 -------
 
-GPLv3
+LGPL-3.0
 
 .. _transmart-batch: https://github.com/thehyve/transmart-batch/
 .. _virtualenvwrapper: https://virtualenvwrapper.readthedocs.io
