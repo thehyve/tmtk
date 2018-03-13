@@ -5,6 +5,8 @@ from tmtk.utils import ArboristException
 
 from tests.commons import TestBase, create_study_from_dir
 
+from requests.exceptions import InvalidSchema
+
 
 class ArboristTests(TestBase):
 
@@ -25,3 +27,6 @@ class ArboristTests(TestBase):
     def test_call_boris(self, mocked_sleep):
         self.assertRaises(ArboristException, self.study.call_boris)
 
+    def test_publish_baas(self):
+        with self.assertRaises(InvalidSchema):
+            self.study.publish_to_baas('mock://mocked-arborist-host.nl', username='test')

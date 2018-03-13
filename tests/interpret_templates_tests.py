@@ -1,4 +1,3 @@
-import filecmp
 import os
 from pathlib import Path
 
@@ -6,6 +5,22 @@ import tmtk.toolbox
 from tmtk.utils import PathError
 
 from tests.commons import TestBase
+
+
+def compare_two_files(file1, file2):
+    with open(str(file1), 'r') as reader1:
+        with open(str(file2)) as reader2:
+            reader1 = reader1.readlines()
+            reader2 = reader2.readlines()
+
+            if len(reader1) != len(reader2):
+                return False
+
+            for i in range(len(reader1)):
+                if reader1[i].strip() != reader2[i].strip():
+                    return False
+
+    return True
 
 
 class InterpretTemplatesTests(TestBase):
@@ -37,9 +52,9 @@ class InterpretTemplatesTests(TestBase):
     def test_file_equality(self):
         self.assertEqual(self.control_files.keys(), self.test_files.keys())
 
-        # for file_name, file_path in self.control_files.items():
-        #     test_file_path = self.test_files[file_name]
-        #     self.assertTrue(filecmp.cmp(str(file_path), str(test_file_path)))
+        for file_name, file_path in self.control_files.items():
+            test_file_path = self.test_files[file_name]
+            self.assertTrue(compare_two_files(str(file_path), str(test_file_path)))
 
     def test_write_study(self):
         with self.assertRaises(PathError):
