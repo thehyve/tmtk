@@ -1,17 +1,21 @@
-import os
 from pathlib import Path
 
-import tmtk.toolbox
-from tmtk.utils import PathError
+import os
+import re
 
+import tmtk.toolbox
 from tests.commons import TestBase
+from tmtk.utils import PathError
 
 
 def compare_two_files(file1, file2):
     with open(str(file1), 'r') as reader1:
         with open(str(file2)) as reader2:
-            reader1 = reader1.readlines()
-            reader2 = reader2.readlines()
+
+            # windows line endings :(
+            split_pattern = r'[~\r\n]+'
+            reader1 = re.split(split_pattern, reader1.read())
+            reader2 = re.split(split_pattern, reader2.read())
 
             if len(reader1) != len(reader2):
                 return False
