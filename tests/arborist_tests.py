@@ -6,6 +6,7 @@ from requests.exceptions import InvalidSchema
 import tmtk
 from tests.commons import TestBase, create_study_from_dir
 from tmtk.arborist.jupyter_extension import TransmartArborist
+from tmtk.arborist.connect_to_baas import json_url, PathError
 from tmtk.utils import ArboristException
 
 
@@ -28,9 +29,11 @@ def create_mock_request(jsn):
     class MockedRequests:
         def __init__(self):
             self.request = nested_namespace({
-                'arguments': None
+                'arguments': None,
+                'headers': None
             })
             self.request.arguments = {'treefile': [jsn]}
+            self.request.headers = {'Referer': 'treefile={}'.format(jsn)}
             self.log = nested_namespace({
                 'info': print
             })
@@ -40,6 +43,9 @@ def create_mock_request(jsn):
 
         def breakpoint(self, *args, **kwargs):
             raise Breakpoint
+
+        def get_json_body(self):
+            return '{"test": 123}'
 
     return MockedRequests()
 
@@ -83,7 +89,24 @@ class ArboristTests(TestBase):
         with self.assertRaises(InvalidSchema):
             self.study.publish_to_baas('mock://mocked-arborist-host.nl', username='test')
 
+    def test_json_url(self):
+        self.assertEqual(
+            'http://transmart-arborist.thehyve.nl/trees/study-name/1',
+            json_url('http://transmart-arborist.thehyve.nl/trees/study-name/1/~edit/asf')
+        )
+        with self.assertRaises(PathError):
+            json_url('http://transmart-arborist.thehyve.nl/trees/')
+
     def test_server_extension_get(self):
         req = create_mock_request(self.tree_file)
         with self.assertRaises(Breakpoint):
             TransmartArborist.get(req)
+
+    def test_server_extension_post(self):
+        req = create_mock_request(self.tree_file)
+        TransmartArborist.post(req)
+        done_file = os.path.join(os.path.dirname(self.tree_file), 'DONE')
+        self.assertTrue(os.path.exists(done_file))
+
+    def test_tree_pretty(self):
+        self.study.concept_tree.jstree.__repr__()
