@@ -44,13 +44,11 @@ def create_mock_request(jsn):
         def breakpoint(self, *args, **kwargs):
             raise Breakpoint
 
-        def get_json_body(self):
+        @staticmethod
+        def get_json_body():
             return '{"test": 123}'
 
     return MockedRequests()
-
-
-req = create_mock_request('hoi')
 
 
 class ArboristTests(TestBase):
@@ -80,6 +78,13 @@ class ArboristTests(TestBase):
 
         self.study.update_from_treefile(self.tree_file)
         self.assertEqual(8, len(self.study.Clinical.ColumnMapping.path_changes(silent=True)))
+
+    def test_changes_clinical(self):
+        study = create_study_from_dir('valid_study')
+        json_data = self.json_data.replace('"text": "Characteristics"', '"text": "Characteristic"')
+        json_data = json_data.replace('"text": "SW48"', '"text": "SW48_MAPPED"')
+        tmtk.arborist.update_study_from_json(study, json_data)
+        self.assertEqual(9, len(study.Clinical.show_changes()))
 
     @patch("time.sleep", side_effect=KeyboardInterrupt)
     def test_call_boris(self, mocked_sleep):
