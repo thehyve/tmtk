@@ -3,6 +3,8 @@ import glob as _glob
 
 from ..study import Study as _Study
 
+get_input = input
+
 
 def create_study(path):
     """
@@ -42,17 +44,6 @@ def _base_dir(path):
     return path
 
 
-def _clinical_param_or_none(study):
-    """
-    Return study clinical params if it exists, else returns None.
-
-    :param study: study object
-    :return: params object or None
-    """
-    clinical_params = study.find_params_for_datatype('clinical')
-    return clinical_params[0] if clinical_params else None
-
-
 def _select_files(path, text):
     files_in_dir = [f for f in _glob.iglob(_os.path.join(path, '**'), recursive=True)
                     if not _os.path.isdir(f)]
@@ -64,7 +55,7 @@ def _select_files(path, text):
         print('-    {}. {}'.format(i, f))
 
     while True:
-        number = input('Pick number:  ')
+        number = get_input('Pick number:  ')
 
         if not number:
             break
