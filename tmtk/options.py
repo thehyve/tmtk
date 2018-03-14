@@ -62,7 +62,7 @@ def register_option(key, default, doc=None, validator=None, callback=None):
 
         if hasattr(validator, 'allowed_values'):
             doc_prefix = '{}Allowed values: {}\n'.format(doc_prefix, validator.allowed_values)
-    doc = doc_prefix + doc
+    doc = '{}{}'.format(doc_prefix, doc)
 
     OptionWrapper.__opt_dict__[key] = default
     prop_ = property(fget=getter_, fset=setter_, doc=doc)

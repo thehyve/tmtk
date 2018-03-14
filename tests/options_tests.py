@@ -23,6 +23,26 @@ class OptionsTests(TestBase):
                             default=True,
                             validator=is_str)
 
+    def test_callback(self):
+
+        class Counter:
+            def __init__(self):
+                self.value = 0
+
+            def __call__(self, *args, **kwargs):
+                self.value += 1
+                return self.value
+        counter = Counter()
+
+        register_option('counter',
+                        default=True,
+                        callback=counter)
+        self.assertEqual(0, counter.value)
+        options.counter = False
+        self.assertEqual(1, counter.value)
+        options.counter = False
+        self.assertEqual(2, counter.value)
+
     def test_transmart_batch_mode_clinical_params(self):
         params_ = ('MODIFIERS_FILE', 'TRIAL_VISITS_FILE', 'ONTOLOGY_MAP_FILE')
         default = options.transmart_batch_mode
