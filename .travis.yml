@@ -1,12 +1,19 @@
 language: python
 
+matrix:
+  exclude:
+  - python: 3.4
+    env: TOX_ENV=pandas0.21
+  - python: 3.4
+    env: TOX_ENV=pandas0.22
+
 os:
   - linux
 
 python:
-  - "3.4"
-  - "3.5"
-  - "3.6"
+  - 3.4
+  - 3.5
+  - 3.6
 
 env:
   - TOX_ENV=pandas0.19

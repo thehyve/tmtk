@@ -1,5 +1,5 @@
 import os as _os
-import glob as _glob
+from pathlib import Path as _Path
 
 from ..study import Study as _Study
 
@@ -45,8 +45,8 @@ def _base_dir(path):
 
 
 def _select_files(path, text):
-    files_in_dir = [f for f in _glob.iglob(_os.path.join(path, '**'), recursive=True)
-                    if not _os.path.isdir(f)]
+    files_in_dir = [str(f) for f in _Path(path).glob('**/*')
+                    if not _os.path.isdir(str(f))]
     selected_files = []
 
     print('#####  {}  #####'.format(text))
