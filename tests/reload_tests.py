@@ -1,6 +1,14 @@
+from unittest.mock import patch
+
 import os
 
 from tests.commons import TestBase, create_study_from_dir
+
+valid_inputs = ['0', '1', '', ''] * 3
+
+
+def get_valid_input(*args, **kwargs):
+    return valid_inputs.pop(0)
 
 
 class ReloadTests(TestBase):
@@ -26,9 +34,19 @@ class ReloadTests(TestBase):
         self.assertEqual(self.study.top_node, '\\Public Studies\\Cell lines')
 
     def test_write_study(self):
+        self.study.study_blob = {'test': 123}
         self.study.write_to(os.path.join(self.temp_dir, 'test_write'))
         self.assertTrue(
             os.path.exists(
                 os.path.join(self.temp_dir, 'test_write', 'study.params')
             )
         )
+        self.assertTrue(
+            os.path.exists(
+                os.path.join(self.temp_dir, 'test_write', 'study_blob.json')
+            )
+        )
+
+    @patch('tmtk.params.base.get_input', side_effect=get_valid_input)
+    def test_update_params(self, x):
+        self.study.Clinical.params.update()

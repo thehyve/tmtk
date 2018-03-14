@@ -3,6 +3,8 @@ import glob
 
 from ..utils import PathError, merge_two_dicts, ValidateMixin
 
+get_input = input
+
 
 class ParamsBase(ValidateMixin):
     """
@@ -128,7 +130,7 @@ class ParamsBase(ValidateMixin):
                 for i, f in enumerate(files_in_dir):
                     print('-    {}. {}'.format(i, f))
 
-            new_setting = input('Change to:  ')
+            new_setting = get_input('Change to:  ')
 
             if is_file:
                 try:
