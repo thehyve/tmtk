@@ -102,4 +102,17 @@ class ValidationTests(TestBase):
 
     def test_sample_mapping_study_id(self):
         self.assertFalse(self.invalid_study.HighDim.cnv.sample_mapping.study_id)
+        self.assertFalse(self.invalid_study.HighDim.cnv._validate_sample_mapping_study_id())
 
+    def test_sample_mapping(self):
+        with StringIO() as buffer, redirect_stdout(buffer):
+            self.assertFalse(self.invalid_study.HighDim.cnv.validate())
+            messages = buffer.getvalue().splitlines()
+        present_once = [
+            'Data file has less data than annotations',
+            'Samples not in mapping file: ACGH.COLO205',
+            'Samples not in datafile: ACGH.COLO205_MISSMATCH!',
+            'Missing annotations found.',
+        ]
+        for subtext in present_once:
+            self.assertTrue(1, len([msg for msg in messages if subtext in msg]))
