@@ -1,0 +1,13 @@
+### Mandatory
+# Points to the annotations file.
+ANNOTATIONS_FILE=chromosomal_regions.tsv
+# Short identifier for platform.
+PLATFORM=ACGH_ANNOT
+# Platform description.
+TITLE=Test Acgh Platform
+
+### Optional
+# Something like hg19 or hg38.  Only required when genomic coordinates are provided in the file.
+GENOME_RELEASE=hg19
+# Usually Homo sapiens.
+ORGANISM=Homo Sapiens

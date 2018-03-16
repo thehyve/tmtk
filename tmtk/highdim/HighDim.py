@@ -19,7 +19,7 @@ class HighDim(ValidateMixin):
             except PathError:
                 continue
 
-    def validate_all(self, verbosity=3):
+    def validate_all(self, verbosity='INFO'):
         for key, obj in self.__dict__.items():
             if hasattr(obj, 'validate'):
                 obj.validate(verbosity=verbosity)
