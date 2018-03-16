@@ -115,3 +115,12 @@ class ArboristTests(TestBase):
 
     def test_tree_pretty(self):
         self.study.concept_tree.jstree.__repr__()
+
+    def test_update_highdim_paths(self):
+        prot_paths = self.study.HighDim.proteomics.sample_mapping.df.cat_cd.unique
+        self.assertEqual(1, len(prot_paths()))
+        self.assertTrue(prot_paths()[0].endswith('MZ ratios'))
+        json_data = self.json_data.replace('"text": "MZ ratios"', '"text": "Mass spec ratios"')
+        tmtk.arborist.update_study_from_json(self.study, json_data)
+        self.assertEqual(1, len(prot_paths()))
+        self.assertTrue(prot_paths()[0].endswith('Mass spec ratios'))

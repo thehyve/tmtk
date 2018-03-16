@@ -98,7 +98,8 @@ class ValidationTests(TestBase):
         self.assertFalse(self.invalid_study.HighDim.cnv._validate_probabilities())
 
     def test_expression_header(self):
-        self.assertFalse(self.invalid_study.HighDim.expression._validate_id_ref())
+        self.assertFalse(self.invalid_study.HighDim.expression_dataset1._validate_id_ref())
 
-
+    def test_sample_mapping_study_id(self):
+        self.assertFalse(self.invalid_study.HighDim.cnv.sample_mapping.study_id)
 
