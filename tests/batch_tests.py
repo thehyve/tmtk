@@ -1,13 +1,18 @@
+from contextlib import redirect_stdout
+from unittest.mock import patch
+
 import io
 import os
 import re
+import sys
+
 from tests.commons import TestBase, create_study_from_dir
-from tmtk.utils.batch import _wrapper, __main__ as main
 from tmtk import options
+from tmtk.utils.batch import _wrapper, __main__ as main
 
 properties_file = """\
 batch.jdbc.driver=org.postgresql.Driver
-batch.jdbc.url=jdbc:postgresql://localhost:5434/transmart
+batch.jdbc.url=jdbc:postgresql://localhost:95434/transmart
 batch.jdbc.user=tm_cz
 batch.jdbc.password=tm_cz
 """
@@ -19,6 +24,7 @@ class BatchTests(TestBase):
     def setup_class_hook(cls):
         cls.study = create_study_from_dir('valid_study')
         cls.tmp_batch_home = os.path.join(cls.temp_dir, 'batch_home')
+        options.transmart_batch_home = cls.tmp_batch_home
         os.makedirs(cls.tmp_batch_home)
 
         cls.properties_file = os.path.join(cls.tmp_batch_home, 'batchdb.properties')
@@ -85,6 +91,36 @@ class BatchTests(TestBase):
     def test_cli_list(self):
         with self.assertRaises(SystemExit):
             main.run_batch(['--list'])
+
+    def test_bad_params(self):
+        with io.StringIO() as buffer, redirect_stdout(buffer):
+            with self.assertRaises(SystemExit):
+                main.run_batch_cmd(params=self.study.params.path + '.bad')
+            messages = buffer.getvalue().splitlines()
+
+        self.assertEqual("Aborted: 'study.params.bad' is not a .params file.",
+                         messages[0])
+
+    def test_study_params(self):
+        with io.StringIO() as buffer, redirect_stdout(buffer):
+            main.run_batch_cmd(params=self.study.params.path, connection_file='batchdb')
+            messages = buffer.getvalue().splitlines()
+
+        self.assertTrue(messages[0].startswith('Something is wrong with the connection to localhost:95434'))
+
+    @patch('tmtk.utils.batch.__main__.get_input', return_value='y')
+    def test_clinical_params(self, x):
+        with io.StringIO() as buffer, redirect_stdout(buffer):
+            main.run_batch_cmd(params=self.study.Clinical.params.path, connection_file='batchdb', validate=True)
+            messages = buffer.getvalue().splitlines()
+
+        self.assertTrue(messages[0].startswith('Something is wrong with the connection to localhost:95434'))
+
+        with io.StringIO() as buffer, redirect_stdout(buffer):
+            main.run_batch_cmd(params=self.study.Clinical.params.path, connection_file='batchdb', validate=False)
+            messages = buffer.getvalue().splitlines()
+
+        self.assertTrue(messages[0].startswith('Something is wrong with the connection to localhost:95434'))
 
     def test_properties(self):
         options.transmart_batch_home = self.tmp_batch_home
