@@ -16,11 +16,8 @@ def create_concept_tree(column_object):
     if isinstance(column_object, tmtk.Study):
         concept_tree = create_tree_from_study(column_object)
 
-    elif isinstance(column_object, tmtk.Clinical):
-        concept_tree = create_tree_from_clinical(column_object)
-
     else:
-        raise Exceptions.ClassError(type(column_object, 'tmtk.Clinical or tmtk.Study'))
+        raise Exceptions.ClassError(type(column_object, 'tmtk.Study'))
 
     return concept_tree.jstree.json_data_string
 
@@ -462,7 +459,7 @@ class JSTree:
             root = self._root
         fmt = "%s%s/" if root.children else "%s%s"
         s = fmt % (" " * depth * spacing, root.text)
-        for child in root.children:
+        for child in root.children.values():
             s += "\n%s" % self.pretty(child, depth + 1, spacing)
         return s
 

@@ -1,4 +1,4 @@
-from .ParamsBase import ParamsBase
+from .base import ParamsBase
 
 import os
 import json
@@ -37,16 +37,6 @@ class StudyParams(ParamsBase):
                 'helptext': 'Points to JSON file that will be loaded as study blob.'
             }
         }
-
-    def is_viable(self):
-        """
-
-        :return: True if STUDY_ID has been set.
-        """
-        if self.get('STUDY_ID', None):
-            return True
-        else:
-            return False
 
     def write_to(self, path, *args, **kwargs):
 

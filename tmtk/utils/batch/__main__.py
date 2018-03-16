@@ -5,6 +5,8 @@ import sys
 import click
 import os
 
+get_input = input
+
 
 def choose_property_files():
     try:
@@ -44,6 +46,40 @@ def list_connection_files(ctx, param, value):
     ctx.exit()
 
 
+def run_batch_cmd(params=None, connection_file=None, validate=False, log=None, no_log=False):
+    if params:
+        if not params.endswith('.params'):
+            click.echo('Aborted: {!r} is not a .params file.'.format(os.path.basename(params)))
+            sys.exit(1)
+
+        params = os.path.abspath(params)
+        if params.endswith('study.params'):
+            study_params = params
+            is_study_job = True
+        else:
+            study_params = _find_study_params_in_parent(params)
+            is_study_job = False
+    else:
+        return
+
+    if not study_params:
+        sys.exit('Aborted: study.params not found in parent directories. Is params part of study?')
+
+    study = Study(study_params)
+
+    if validate:
+        study.validate_all(5)
+        if connection_file and get_input('Continue loading y/n?').lower() != 'y':
+            return
+
+    if connection_file:
+        log = log or not no_log
+        if is_study_job:
+            getattr(study.load_to, connection_file)(log=log, non_html=True)
+        else:
+            item_to_load = study.get_object_from_params_path(params)
+            getattr(item_to_load.load_to, connection_file)(log=log, non_html=True)
+
 
 @click.command()
 @click.option('-c', '--connection-file', type=choose_property_files(),
@@ -58,7 +94,10 @@ def list_connection_files(ctx, param, value):
               is_eager=True, help="shows list of available connection files ")
 @click.version_option(prog_name="tmtk's transmart-batch wrapper")
 def run_batch(params=None, connection_file=None, validate=False, log=None, no_log=False):
-    """
+    run_batch_cmd(params, connection_file, validate, log, no_log)
+
+
+__cmd_doc = """\
     A wrapper for starting transmart-batch or the validator. Requires $TMBATCH_HOME environment variable
     to be set, and a path to the transmart-batch parameter file to load.
 
@@ -88,37 +127,8 @@ def run_batch(params=None, connection_file=None, validate=False, log=None, no_lo
     For more info, visit www.github.com/thehyve/transmart-batch.
     """
 
-    if params:
-        if not params.endswith('.params'):
-            sys.exit('Aborted: {!r} is not a .params file.'.format(os.path.basename(params)))
 
-        params = os.path.abspath(params)
-        if params.endswith('study.params'):
-            study_params = params
-            is_study_job = True
-        else:
-            study_params = _find_study_params_in_parent(params)
-            is_study_job = False
-    else:
-        return
-
-    if not study_params:
-        sys.exit('Aborted: study.params not found in parent directories. Is params part of study?')
-
-    study = Study(study_params)
-
-    if validate:
-        study.validate_all(5)
-        if connection_file and input('Continue loading y/n?').lower() != 'y':
-            return
-
-    if connection_file:
-        log = log or not no_log
-        if is_study_job:
-            getattr(study.load_to, connection_file)(log=log, non_html=True)
-        else:
-            item_to_load = study.get_object_from_params_path(params)
-            getattr(item_to_load.load_to, connection_file)(log=log, non_html=True)
+run_batch_cmd.__doc__ = run_batch.__doc__ = __cmd_doc
 
 
 if __name__ == "__main__":

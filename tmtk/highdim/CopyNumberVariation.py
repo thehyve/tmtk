@@ -40,8 +40,8 @@ class CopyNumberVariation(HighDimBase):
         for sample in set(self.samples):
             columns = self.header.str.contains(sample + '.prob')
             sample_df = self.df.iloc[:, columns].astype(float)
-            sample_df = sample_df.dropna()
-            not_near_1 = ~sample_df.sum(axis=1).between(0.99, 1.01)
+            not_full_nan = ~sample_df.isnull().all(axis=1)
+            not_near_1 = ~sample_df.sum(axis=1).between(0.99, 1.01) & not_full_nan
             if any(not_near_1):
                 everything_okay = False
                 bad_samples.append(sample)

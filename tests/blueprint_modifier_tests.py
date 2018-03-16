@@ -17,7 +17,7 @@ class BlueprintModifierTests(TestBase):
         cls.study.Clinical.Modifiers.df = cls.modifiers
         cls.study.study_id = 'test'
         cls.study.top_node = '\\Public Studies\\Test\\'
-        cls.study.apply_blueprint('./studies/blueprinted_modifier/blueprint.json')
+        cls.study.apply_blueprint(os.path.join(cls.studies_dir, 'blueprinted_modifier', 'blueprint.json'))
         cls.export = tmtk.toolbox.SkinnyExport(cls.study, cls.temp_dir)
         cls.export.build_observation_fact()
 

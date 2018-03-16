@@ -1,7 +1,5 @@
-import os
-
 import tmtk
-from .ParamsBase import ParamsBase
+from .base import ParamsBase
 
 
 class ClinicalParams(ParamsBase):
@@ -42,14 +40,3 @@ class ClinicalParams(ParamsBase):
                 }
             })
         return params_
-
-    def is_viable(self):
-        """
-
-        :return: True if both the column mapping file is located, else returns False.
-        """
-        if self.get('COLUMN_MAP_FILE', None):
-            file_found = os.path.exists(os.path.join(self.dirname, self.COLUMN_MAP_FILE))
-            return file_found
-        else:
-            return False

@@ -81,7 +81,7 @@ class ValidationTests(TestBase):
         with StringIO() as buffer, redirect_stdout(buffer):
             self.invalid_study.Clinical.validate(validate.WARNING)
             messages = [line.strip("'") for line in buffer.getvalue().splitlines() if line != '']
-        
+
         self.assertEqual(len(messages), 4, "Messages length is {} instead of 4".format(len(messages)))
         missing_file_error = "The file {} isn't included in the column map".format('Not_present_file.txt')
         self.assertEqual(messages[1], error_template.format(missing_file_error))
@@ -93,3 +93,26 @@ class ValidationTests(TestBase):
                            "However the value is not present in the column".format("Not_present", 8,
                                                                                    'Cell-line_clinical.txt')
         self.assertEqual(messages[3], warning_template.format(unmapped_warning))
+
+    def test_cnv_probs(self):
+        self.assertFalse(self.invalid_study.HighDim.cnv._validate_probabilities())
+
+    def test_expression_header(self):
+        self.assertFalse(self.invalid_study.HighDim.expression_dataset1._validate_id_ref())
+
+    def test_sample_mapping_study_id(self):
+        self.assertFalse(self.invalid_study.HighDim.cnv.sample_mapping.study_id)
+        self.assertFalse(self.invalid_study.HighDim.cnv._validate_sample_mapping_study_id())
+
+    def test_sample_mapping(self):
+        with StringIO() as buffer, redirect_stdout(buffer):
+            self.assertFalse(self.invalid_study.HighDim.cnv.validate())
+            messages = buffer.getvalue().splitlines()
+        present_once = [
+            'Data file has less data than annotations',
+            'Samples not in mapping file: ACGH.COLO205',
+            'Samples not in datafile: ACGH.COLO205_MISSMATCH!',
+            'Missing annotations found.',
+        ]
+        for subtext in present_once:
+            self.assertTrue(1, len([msg for msg in messages if subtext in msg]))
