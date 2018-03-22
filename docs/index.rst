@@ -91,13 +91,16 @@ Contents
 
     changelog
     usage
+    Data formats overview <data_formats/index>
     api
     data_templates
+
 
 
 Contributors
 ============
 
+    - Wibo Pipping
     - Stefan Payrable
     - Ward Weistra
 
