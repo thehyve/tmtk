@@ -1,6 +1,9 @@
 ====
 tmtk
 ====
+
+Master:
+
 .. image:: https://travis-ci.org/thehyve/tmtk.svg?branch=master
     :target: https://travis-ci.org/thehyve/tmtk
 
@@ -10,6 +13,20 @@ tmtk
 .. image:: https://readthedocs.org/projects/tmtk/badge/?version=latest
     :target: http://tmtk.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
+
+Develop:
+
+.. image:: https://travis-ci.org/thehyve/tmtk.svg?branch=develop
+    :target: https://travis-ci.org/thehyve/tmtk
+
+.. image:: https://codecov.io/gh/thehyve/tmtk/branch/develop/graph/badge.svg
+    :target: https://codecov.io/gh/thehyve/tmtk
+
+
+Anaconda Cloud latest package:
+
+.. image:: https://anaconda.org/conda-forge/tmtk/badges/version.svg
+    :target: https://anaconda.org/conda-forge/tmtk
 
 
 A toolkit for ETL curation for the tranSMART data warehouse. The
@@ -21,16 +38,26 @@ For general documentation visit `readthedocs`_.
 Installation
 ------------
 
-Clone the repo
-^^^^^^^^^^^^^^
+Installing via Anaconda Cloud or Pypi package managers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: bash
+Anaconda:
 
-    $ git clone https://github.com/thehyve/tmtk
-    $ cd tmtk
+.. code:: sh
+
+    $   conda install -c conda-forge tmtk
+
+Pypi:
+
+.. code:: sh
+
+    $   pip3 install tmtk
+
+Installing manually
+^^^^^^^^^^^^^^^^^^^
 
 Initialize a virtualenv
-^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: bash
 
@@ -50,17 +77,11 @@ For mac users it will most likely be
 or do this using `virtualenvwrapper`_.
 
 
-Installing
-^^^^^^^^^^
+Installation from source
+~~~~~~~~~~~~~~~~~~~~~~
 
 To install *tmtk* and all dependencies into your Python environment,
 and enable the Arborist Jupyter notebook extension, run:
-
-.. code:: sh
-
-    $   pip3 install tmtk
-
-or..
 
 .. code:: sh
 
@@ -76,10 +97,11 @@ or if you want to run the tool from code in development mode:
     $   jupyter-nbextension install --py tmtk.arborist
     $   jupyter-serverextension enable tmtk.arborist
 
+
 Requirements
 ^^^^^^^^^^^^
 
-These dependencies will have to be installed:
+These dependencies will have be installed:
  - pandas>=0.19.2
  - ipython>=5.3.0
  - jupyter>=1.0.0
@@ -89,6 +111,8 @@ These dependencies will have to be installed:
  - notebook>=4.2.0
  - requests>=2.13.0
  - tqdm>=4.11.0
+
+Optional dependencies:
  - mygene>=3.0.0
 
 Licence
