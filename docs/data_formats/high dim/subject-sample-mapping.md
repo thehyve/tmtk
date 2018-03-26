@@ -2,9 +2,13 @@
 
 This is the mapping file format:
 
-| `STUDY_ID` | `SITE_ID` | `SUBJECT_ID`     | `SAMPLE_CD` | `PLATFORM`   | `SAMPLE_TYPE`| `TISSUE_TYPE`  | `TIME_POINT`   | `CATEGORY_CD`                      | `SOURCE_CD` |
+| STUDY_ID | SITE_ID | SUBJECT_ID     | SAMPLE_CD | PLATFORM   | SAMPLE_TYPE| `TISSUE_TYPE`  | `TIME_POINT`   | `CATEGORY_CD`                      | `SOURCE_CD` |
 |------------|-----------|------------------|-------------|--------------|--------------|----------------|----------------|------------------------------------|-------------|
 | GSE8581    |           | GSE8581GSM210005 | GSM210005   | GPL570_BOGUS | Tumor        | Lung           | Week1          | Biomarker_Data+PLATFORM+TISSUETYPE | STD         |
+
+
+
+
 
 The first row is skipped. It must be present, otherwise the first assay will be
 ignored.
