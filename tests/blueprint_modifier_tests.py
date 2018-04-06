@@ -1,32 +1,25 @@
-import tmtk
-import tempfile
+import os
 import pandas as pd
-import unittest
-import shutil
+
+import tmtk
+from tests.commons import TestBase
 
 
-class BlueprintModifierTests(unittest.TestCase):
+class BlueprintModifierTests(TestBase):
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class_hook(cls):
         cls.study = tmtk.Study()
-        cls.study.Clinical.add_datafile('./studies/blueprinted_modifier/datafile.tsv')
-        cls.modifiers = pd.read_csv('./studies/blueprinted_modifier/modifiers.txt', sep='\t')
-        cls.modifiers.set_index('modifier_cd',drop=False,inplace=True)
+        dir_ = os.path.join(cls.studies_dir, 'blueprinted_modifier')
+        cls.study.Clinical.add_datafile(os.path.join(dir_, 'datafile.tsv'))
+        cls.modifiers = pd.read_csv(os.path.join(dir_, 'modifiers.txt'), sep='\t')
+        cls.modifiers.set_index('modifier_cd', drop=False, inplace=True)
         cls.study.Clinical.Modifiers.df = cls.modifiers
         cls.study.study_id = 'test'
         cls.study.top_node = '\\Public Studies\\Test\\'
-        cls.study.apply_blueprint('./studies/blueprinted_modifier/blueprint.json')
-        cls.temp_dir = tempfile.mkdtemp()
+        cls.study.apply_blueprint(os.path.join(cls.studies_dir, 'blueprinted_modifier', 'blueprint.json'))
         cls.export = tmtk.toolbox.SkinnyExport(cls.study, cls.temp_dir)
         cls.export.build_observation_fact()
-
-    @classmethod
-    def tearDownClass(cls):
-        shutil.rmtree(cls.temp_dir)
-
-    def setUp(self):
-        pass
 
     def test_df_shapes(self):
         self.assertEqual(self.study.Tags.df.shape, (1, 4))
@@ -59,7 +52,3 @@ class BlueprintModifierTests(unittest.TestCase):
         gender = self.study.Clinical.find_variables_by_label("Gender")[0]
         self.assertEqual(1, len(gender.modifiers))
         self.assertEqual(1, self.study.Clinical.ColumnMapping.df.iloc[4, 4])
-
-
-if __name__ == '__main__':
-    unittest.main()

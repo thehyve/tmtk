@@ -1,8 +1,4 @@
 import pandas as _pd
-import mygene as _mygene
-
-
-_mg = _mygene.MyGeneInfo()
 
 
 def _match_response_with_query(response_table, query, target):
@@ -35,6 +31,10 @@ def hgnc_to_entrez(iterable):
     :param iterable: HGNC gene symbols.
     :return: pd.Series with equal number of corresponding gene symbols.
     """
+    import mygene as _mygene
+
+    _mg = _mygene.MyGeneInfo()
+
     target = 'entrezgene'
 
     input_iterable = iterable

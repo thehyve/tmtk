@@ -142,7 +142,8 @@ class MessageCollection:
                                  level=CRITICAL, silent=self._suppress_messages))
 
     def remove_below(self, rank):
-        self.msgs = [msg for msg in self.msgs if MSG_RANK[msg.level] >= MSG_RANK[rank.upper()]]
+        msg_rank = rank if isinstance(rank, int) else MSG_RANK[rank.upper()]
+        self.msgs = [msg for msg in self.msgs if MSG_RANK[msg.level] >= msg_rank]
 
     @property
     def has_error(self):

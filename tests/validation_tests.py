@@ -1,84 +1,78 @@
-import unittest
-import tmtk
-import pandas as pd
-from io import StringIO
 from contextlib import redirect_stdout
 
+import pandas as pd
+from io import StringIO
+
 from tmtk.utils import validate
+from tests.commons import TestBase, create_study_from_dir
 
 
-class ValidationTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.study = tmtk.Study('studies/valid_study/study.params')
-        cls.invalid_study = tmtk.Study('studies/invalid_study/study.params')
+class ValidationTests(TestBase):
 
     @classmethod
-    def tearDownClass(cls):
-        pass
-
-    def setUp(self):
-        pass
+    def setup_class_hook(cls):
+        cls.study = create_study_from_dir('valid_study')
+        cls.invalid_study = create_study_from_dir('invalid_study')
 
     def test_cnv_params_loading(self):
-        assert self.study.Params.cnv.datatype == 'cnv'
+        self.assertEqual(self.study.Params.cnv.datatype, 'cnv')
 
     def test_cnv_params_validation(self):
-        assert self.study.Params.cnv.validate()
+        self.assertTrue(self.study.Params.cnv.validate())
 
     def test_cnv_highdim_load(self):
-        assert type(self.study.HighDim.cnv.df) == pd.DataFrame
+        self.assertEqual(type(self.study.HighDim.cnv.df), pd.DataFrame)
 
     def test_cnv_highdim_validation(self):
-        assert self.study.HighDim.cnv.validate()
+        self.assertTrue(self.study.HighDim.cnv.validate())
 
     def test_proteomics_params_loading(self):
-        assert self.study.Params.proteomics.datatype == 'proteomics'
+        self.assertEqual(self.study.Params.proteomics.datatype, 'proteomics')
 
     def test_proteomics_params_validation(self):
-        assert self.study.Params.proteomics.validate()
+        self.assertTrue(self.study.Params.proteomics.validate())
 
     def test_proteomics_highdim_load(self):
-        assert type(self.study.HighDim.proteomics.df) == pd.DataFrame
+        self.assertEqual(type(self.study.HighDim.proteomics.df), pd.DataFrame)
 
     def test_proteomics_highdim_validation(self):
-        assert self.study.HighDim.proteomics.validate()
+        self.assertTrue(self.study.HighDim.proteomics.validate())
 
     def test_clinical_params_loading(self):
-        assert self.study.Params.clinical.datatype == 'clinical'
+        self.assertEqual(self.study.Params.clinical.datatype, 'clinical')
 
     def test_clinical_params_validation(self):
-        assert self.study.Params.clinical.validate()
+        self.assertTrue(self.study.Params.clinical.validate())
 
     def test_rnaseq_params_loading(self):
-        assert self.study.Params.rnaseq.datatype == 'rnaseq'
+        self.assertEqual(self.study.Params.rnaseq.datatype, 'rnaseq')
 
     def test_rnaseq_params_validation(self):
-        assert self.study.Params.rnaseq.validate()
+        self.assertTrue(self.study.Params.rnaseq.validate())
 
     def test_rnaseq_highdim_load(self):
-        assert type(self.study.HighDim.rnaseq.df) == pd.DataFrame
+        self.assertEqual(type(self.study.HighDim.rnaseq.df), pd.DataFrame)
 
     def test_rnaseq_highdim_validation(self):
-        assert self.study.HighDim.rnaseq.validate()
+        self.assertTrue(self.study.HighDim.rnaseq.validate())
 
     def test_annotation_params_loading(self):
-        assert self.study.Params.mrna_annotation_GPL570_bogus_annotation.datatype == 'mrna_annotation'
+        self.assertEqual(self.study.Params.mrna_annotation_GPL570_bogus_annotation.datatype, 'mrna_annotation')
 
     def test_annotation_params_validation(self):
-        assert self.study.Params.mrna_annotation_GPL570_bogus_annotation.validate()
+        self.assertTrue(self.study.Params.mrna_annotation_GPL570_bogus_annotation.validate())
 
     def test_annotation_platform_detections(self):
-        assert self.study.Annotations.mrna_GPL570_BOGUS.platform == 'GPL570_BOGUS'
+        self.assertEqual(self.study.Annotations.mrna_GPL570_BOGUS.platform, 'GPL570_BOGUS')
 
     def test_annotation_load(self):
-        assert type(self.study.Annotations.mrna_GPL570_BOGUS.df) == pd.DataFrame
+        self.assertEqual(type(self.study.Annotations.mrna_GPL570_BOGUS.df), pd.DataFrame)
 
     def test_validate_all(self):
-        assert self.study.validate_all()
+        self.assertTrue(self.study.validate_all())
 
     def test_tags_validation(self):
-        assert self.study.Tags.validate()
+        self.assertTrue(self.study.Tags.validate())
 
     def test_invalid_word_map(self):
         error_template = '>> \033[95m[ERROR] {}\033[0m'
@@ -87,8 +81,8 @@ class ValidationTests(unittest.TestCase):
         with StringIO() as buffer, redirect_stdout(buffer):
             self.invalid_study.Clinical.validate(validate.WARNING)
             messages = [line.strip("'") for line in buffer.getvalue().splitlines() if line != '']
-        
-        assert len(messages) == 4, "Messages length is {} instead of 4".format(len(messages))
+
+        self.assertEqual(len(messages), 4, "Messages length is {} instead of 4".format(len(messages)))
         missing_file_error = "The file {} isn't included in the column map".format('Not_present_file.txt')
         self.assertEqual(messages[1], error_template.format(missing_file_error))
 
@@ -100,6 +94,25 @@ class ValidationTests(unittest.TestCase):
                                                                                    'Cell-line_clinical.txt')
         self.assertEqual(messages[3], warning_template.format(unmapped_warning))
 
+    def test_cnv_probs(self):
+        self.assertFalse(self.invalid_study.HighDim.cnv._validate_probabilities())
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_expression_header(self):
+        self.assertFalse(self.invalid_study.HighDim.expression_dataset1._validate_id_ref())
+
+    def test_sample_mapping_study_id(self):
+        self.assertFalse(self.invalid_study.HighDim.cnv.sample_mapping.study_id)
+        self.assertFalse(self.invalid_study.HighDim.cnv._validate_sample_mapping_study_id())
+
+    def test_sample_mapping(self):
+        with StringIO() as buffer, redirect_stdout(buffer):
+            self.assertFalse(self.invalid_study.HighDim.cnv.validate())
+            messages = buffer.getvalue().splitlines()
+        present_once = [
+            'Data file has less data than annotations',
+            'Samples not in mapping file: ACGH.COLO205',
+            'Samples not in datafile: ACGH.COLO205_MISSMATCH!',
+            'Missing annotations found.',
+        ]
+        for subtext in present_once:
+            self.assertTrue(1, len([msg for msg in messages if subtext in msg]))

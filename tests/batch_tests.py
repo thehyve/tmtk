@@ -1,29 +1,46 @@
-import tmtk
-import unittest
-from tmtk.utils.batch import _wrapper
-import os
+from contextlib import redirect_stdout
+from unittest.mock import patch
+
 import io
+import os
 import re
+import sys
+
+from tests.commons import TestBase, create_study_from_dir
+from tmtk import options
+from tmtk.utils.batch import _wrapper, __main__ as main
+
+properties_file = """\
+batch.jdbc.driver=org.postgresql.Driver
+batch.jdbc.url=jdbc:postgresql://localhost:95434/transmart
+batch.jdbc.user=tm_cz
+batch.jdbc.password=tm_cz
+"""
 
 
-class BatchTests(unittest.TestCase):
+class BatchTests(TestBase):
+    
     @classmethod
-    def setUpClass(cls):
-        cls.study = tmtk.Study('studies/valid_study/study.params')
+    def setup_class_hook(cls):
+        cls.study = create_study_from_dir('valid_study')
+        cls.tmp_batch_home = os.path.join(cls.temp_dir, 'batch_home')
+        options.transmart_batch_home = cls.tmp_batch_home
+        os.makedirs(cls.tmp_batch_home)
 
-    @classmethod
-    def tearDownClass(cls):
-        pass
-
-    def setUp(self):
-        pass
+        cls.properties_file = os.path.join(cls.tmp_batch_home, 'batchdb.properties')
+        cls.fake_jar = os.path.join(cls.tmp_batch_home, 'transmart-batch-fake.jar')
+        with open(cls.properties_file, 'w') as writer:
+            writer.write(properties_file)
+        with open(cls.fake_jar, 'w') as writer:
+            writer.write('')
 
     @staticmethod
     def get_log_to_stream():
-        with open('./tests/batch_fop_log', 'r') as f:
+        log_file = os.path.join(os.path.dirname(__file__), 'batch_fop_log')
+        with open(log_file, 'r') as f:
             tmp_log = f.read()
 
-        tmtk_path = os.path.abspath(os.path.realpath(os.getcwd()))
+        tmtk_path = os.path.abspath(os.path.realpath(os.getcwd().rstrip('\\/tes')))
         for _path in re.findall(r'( /home/vlad-the-impaler/.*?\.params)', tmp_log):
             # replace path in log with local path
             new_path = _path.replace('/home/vlad-the-impaler/tmtk', tmtk_path)
@@ -35,38 +52,84 @@ class BatchTests(unittest.TestCase):
         return io.StringIO(tmp_log)
 
     def test_file_length(self):
-        assert _wrapper.file_length(self.study.Clinical.Cell_line_clinical_txt.path) == 19
+        self.assertEqual(_wrapper.file_length(self.study.Clinical.Cell_line_clinical_txt.path), 19)
 
     def test_job_logger(self):
         log = _wrapper.StatusParser(stdout_stream=self.get_log_to_stream(), non_html=True, log=False, silent=True,
                                     items_expected=self.study._study_total_batch_items)
 
         # Some checks to determine the job ran well
-        assert log.all_jobs_items_n == 284
-        assert log.all_jobs_items_trunc == 282
-        assert log.items_current_step == 2
-        assert log.current_step == 'tagsLoadStep'
+        self.assertEqual(log.all_jobs_items_n, 284)
+        self.assertEqual(log.all_jobs_items_trunc, 282)
+        self.assertEqual(log.items_current_step, 2)
+        self.assertEqual(log.current_step, 'tagsLoadStep')
 
     def test_job_logger_console(self):
         log = _wrapper.StatusParser(stdout_stream=self.get_log_to_stream(), non_html=True, log=False,
                                     items_expected=self.study._study_total_batch_items)
 
         # Some checks to determine the job ran well
-        assert log.all_jobs_items_n == 284
-        assert log.all_jobs_items_trunc == 282
-        assert log.items_current_step == 2
-        assert log.current_step == 'tagsLoadStep'
+        self.assertEqual(log.all_jobs_items_n, 284)
+        self.assertEqual(log.all_jobs_items_trunc, 282)
+        self.assertEqual(log.items_current_step, 2)
+        self.assertEqual(log.current_step, 'tagsLoadStep')
 
     def test_job_logger_javascript(self):
         log = _wrapper.StatusParser(stdout_stream=self.get_log_to_stream(), log=False,
                                     items_expected=self.study._study_total_batch_items)
 
         # Some checks to determine the job ran well
-        assert log.all_jobs_items_n == 284
-        assert log.all_jobs_items_trunc == 282
-        assert log.items_current_step == 2
-        assert log.current_step == 'tagsLoadStep'
+        self.assertEqual(log.all_jobs_items_n, 284)
+        self.assertEqual(log.all_jobs_items_trunc, 282)
+        self.assertEqual(log.items_current_step, 2)
+        self.assertEqual(log.current_step, 'tagsLoadStep')
 
+    def test_cli_help(self):
+        with self.assertRaises(SystemExit):
+            main.run_batch(['--help'])
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_cli_list(self):
+        with self.assertRaises(SystemExit):
+            main.run_batch(['--list'])
+
+    def test_bad_params(self):
+        with io.StringIO() as buffer, redirect_stdout(buffer):
+            with self.assertRaises(SystemExit):
+                main.run_batch_cmd(params=self.study.params.path + '.bad')
+            messages = buffer.getvalue().splitlines()
+
+        self.assertEqual("Aborted: 'study.params.bad' is not a .params file.",
+                         messages[0])
+
+    def test_study_params(self):
+        with io.StringIO() as buffer, redirect_stdout(buffer):
+            main.run_batch_cmd(params=self.study.params.path, connection_file='batchdb')
+            messages = buffer.getvalue().splitlines()
+
+        self.assertTrue(messages[0].startswith('Something is wrong with the connection to localhost:95434'))
+
+    @patch('tmtk.utils.batch.__main__.get_input', return_value='y')
+    def test_clinical_params(self, x):
+        with io.StringIO() as buffer, redirect_stdout(buffer):
+            main.run_batch_cmd(params=self.study.Clinical.params.path, connection_file='batchdb', validate=True)
+            messages = buffer.getvalue().splitlines()
+
+        self.assertTrue(messages[0].startswith('Something is wrong with the connection to localhost:95434'))
+
+        with io.StringIO() as buffer, redirect_stdout(buffer):
+            main.run_batch_cmd(params=self.study.Clinical.params.path, connection_file='batchdb', validate=False)
+            messages = buffer.getvalue().splitlines()
+
+        self.assertTrue(messages[0].startswith('Something is wrong with the connection to localhost:95434'))
+
+    def test_properties(self):
+        options.transmart_batch_home = self.tmp_batch_home
+        self.assertEqual(1, len(self.study.load_to.__dict__.keys()))
+
+    def test_run(self):
+        options.transmart_batch_home = self.tmp_batch_home
+        items_expected = self.study._study_total_batch_items
+        executable = _wrapper.TransmartBatch(self.study.params.path, items_expected)
+        self.assertEqual(executable.tmbatch_home, self.tmp_batch_home)
+        self.assertEqual(executable.batch_jar, self.fake_jar)
+        executable.run_job(properties_file=self.properties_file)

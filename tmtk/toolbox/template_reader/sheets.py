@@ -10,6 +10,14 @@ class TreeSheet:
         lower_columns = df.columns.str.lower()
         self.level_columns = lower_columns.str.contains('level') & ~lower_columns.str.contains('metadata')
         self.meta_columns = lower_columns.str.contains('metadata')
+
+        self.item_name_i = list(lower_columns).index('column_name')
+
+        try:
+            self.ontology_code_i = list(lower_columns).index('ontology code')
+        except ValueError:
+            self.ontology_code_i = None
+
         self.df = self.forward_fill_tree_sheet(df)
         self.data_sources = self.get_data_sources(lower_columns)
 
@@ -40,9 +48,11 @@ class TreeSheet:
             sub_df = self.df.loc[:, [tag, value]]
             sub_df = sub_df.loc[sub_df.notnull().all(axis=1), :]
             tag_df = tag_df.append(sub_df.apply(get_path, axis=1, args=(level_columns,)))
-        tag_df.columns = Mappings.tags_header
 
-        return tag_df
+        # Only return df if there are rows
+        if tag_df.shape[0]:
+            tag_df.columns = Mappings.tags_header
+            return tag_df
 
     def get_meta_columns_iter(self) -> iter:
         """ Get meta column names and generate an iterator that iterates over pairs of columns. """
@@ -137,6 +147,29 @@ class ValueSubstitutionSheet:
         self.word_map = word_map_df.T.to_dict()
 
 
+class OntologyMappingSheet:
+    ONTOLOGY_TOP_NODE_CODE = 'ONTOLOGY'
+
+    def __init__(self, df):
+        df.iloc[:, 2] = df.iloc[:, 2].fillna(self.ONTOLOGY_TOP_NODE_CODE)
+        df[Mappings.ontology_header[-1]] = None
+        df.columns = Mappings.ontology_header
+
+        # Add top node row
+        self.df = df.append(
+            pd.DataFrame(
+                [[self.ONTOLOGY_TOP_NODE_CODE,
+                  'Ontology',
+                  None,
+                  None]],
+                columns=Mappings.ontology_header
+            ), ignore_index=True
+        )
+
+    def update_study(self, study):
+        study.Clinical.OntologyMapping.df = self.df
+
+
 class BlueprintFile:
 
     def __init__(self, tree_sheet):
@@ -147,13 +180,21 @@ class BlueprintFile:
         blueprint = {}
 
         def _get_blueprint_entry(row):
-            if pd.notnull(row["COLUMN_NAME"]):
-                fullname = '\\'.join(row[tree_sheet.level_columns][1:]).strip('\\')
-                path, label = fullname.rsplit('\\', 1)
-                blueprint[row["COLUMN_NAME"]] = {
-                    'path': path,
-                    'label': label
-                }
+            item_name = row[tree_sheet.item_name_i]
+            if pd.isnull(item_name):
+                return
+
+            fullname = '\\'.join(row[tree_sheet.level_columns][1:]).strip('\\')
+            path, label = fullname.rsplit('\\', 1)
+            bpd = dict(
+                path=path,
+                label=label
+            )
+            if tree_sheet.ontology_code_i is not None:
+                if row[tree_sheet.ontology_code_i] not in (None, pd.np.nan):
+                    bpd['concept_code'] = row[tree_sheet.ontology_code_i]
+
+            blueprint[item_name] = bpd
 
         tree_sheet.df.apply(_get_blueprint_entry, axis=1)
         return blueprint
