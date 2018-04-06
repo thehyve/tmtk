@@ -224,8 +224,9 @@ class Study(ValidateMixin):
         # Reset Public/Private in TOP_NODE
         top = self.params.get('TOP_NODE', '')
         if top.startswith('\\Public Studies\\') or top.startswith('\\Private Studies\\'):
-            pub_priv = 'Private Studies' if value else 'Public Studies'
-            self.top_node = "\\{}\\{}".format(pub_priv, self.study_name)
+            pub_priv = ('Public Studies', 'Private Studies')
+            old, new = pub_priv if value else reversed(pub_priv)
+            self.top_node = self.top_node.replace(old, new)
 
     def call_boris(self, height=650):
         """
