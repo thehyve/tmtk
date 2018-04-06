@@ -1,6 +1,15 @@
 =========
 Changelog
 =========
+
+.. topic::  Version 0.4.4
+
+    * Support for Excel templates for 17.1+
+    * Added data density for the random study generator
+    * Added package wide options under tmtk.options
+    * Added builds for Anaconda
+    * Automated testing on Windows
+
 .. topic::  Version 0.4.2
 
     * Fixed call_boris and related tests and examples.
