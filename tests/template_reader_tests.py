@@ -6,8 +6,8 @@ from tmtk.study import Study
 from tmtk.toolbox.template_reader.create_study_from_templates import COMMENT, EXPECTED_SHEETS, get_template_sheets, \
     template_reader
 from tmtk.toolbox.template_reader.sheet_exceptions import ValueSubstitutionError, MetaDataException, TemplateException
-from tmtk.toolbox.template_reader.sheets import TreeSheet, ModifierSheet, TrialVisitSheet, BlueprintFile, \
-    ValueSubstitutionSheet
+from tmtk.toolbox.template_reader.sheets import (TreeSheet, ModifierSheet, TrialVisitSheet, BlueprintFile,
+    ValueSubstitutionSheet, OntologyMappingSheet)
 from tmtk.utils.mappings import Mappings
 
 
@@ -35,7 +35,7 @@ class TemplateReaderTests(TestBase):
         tree_sheet = TreeSheet(self.template.parse(EXPECTED_SHEETS['TreeSheet'], comment=COMMENT))
         self.assertListEqual(tree_sheet.data_sources,
                              ['Low-dimensional data (Mock)', 'SAMPLE (Mock)', 'TRIAL_VISIT_Data (Mock)'])
-        self.assertTupleEqual(tree_sheet.df.shape, (25, 12))
+        self.assertTupleEqual(tree_sheet.df.shape, (25, 13))
         l_ = [l for l in tree_sheet.get_meta_columns_iter()]
         mt_l = [('Level 4 metadata tag', 'Level 4 metadata value'), ('Level 5 metadata tag', 'Level 5 metadata value')]
         self.assertListEqual(l_, mt_l)
@@ -74,6 +74,10 @@ class TemplateReaderTests(TestBase):
         trial_visit_sheet = TrialVisitSheet(self.template.parse(EXPECTED_SHEETS['TrialVisitSheet'], comment=COMMENT))
         self.assertTupleEqual(trial_visit_sheet.df.shape, (7, 3))
         self.assertListEqual(trial_visit_sheet.df.columns.tolist(), Mappings.trial_visits_header)
+
+    def test_ontology_mapping_seet(self):
+        s = OntologyMappingSheet(self.template.parse('Ontology mapping', comment=COMMENT))
+        self.assertEqual((2, 4), s.df.shape)
 
     def test_trial_visit_sheet_exception(self):
         value_df = pd.DataFrame.from_dict({

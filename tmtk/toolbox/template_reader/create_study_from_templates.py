@@ -2,7 +2,8 @@ import os
 import pandas as pd
 
 from .sheet_exceptions import TemplateException
-from .sheets import TreeSheet, ModifierSheet, ValueSubstitutionSheet, TrialVisitSheet, BlueprintFile
+from .sheets import (TreeSheet, ModifierSheet, ValueSubstitutionSheet,
+                     TrialVisitSheet, BlueprintFile, OntologyMappingSheet)
 from ...study import Study
 
 COMMENT = '#'
@@ -11,6 +12,10 @@ EXPECTED_SHEETS = {
     'ModifierSheet': 'Modifier',
     'TrialVisitSheet': 'Trial_visit',
     'ValueSubstitutionSheet': 'Value substitution'
+}
+
+OPTIONAL_SHEETS = {
+    'Ontology mapping': OntologyMappingSheet
 }
 
 
@@ -79,6 +84,14 @@ def template_reader(template_filename, source_dir=None) -> Study:
     study.Tags.df = study.Tags.df.append(
         tags_df,
         ignore_index=True)
+
+    # add optional sheets
+    for name, sheet in OPTIONAL_SHEETS.items():
+        if name not in template.sheet_names:
+            continue
+
+        parsed_sheet = sheet(template.parse(name, comment=COMMENT))
+        parsed_sheet.update_study(study)
 
     return study
 
