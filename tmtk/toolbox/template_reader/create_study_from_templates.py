@@ -39,6 +39,8 @@ def template_reader(template_filename, source_dir=None) -> Study:
     template = pd.ExcelFile(template_file, comment=COMMENT)
     tree_sheet, modifier_sheet, value_substitution_sheet, trial_visit_sheet = get_template_sheets(template)
 
+    #TODO: Create tests on column names of the sheets.
+
     # Create the initial blueprint from the tree_sheet and update with the value substitution sheet
     blueprint = BlueprintFile(tree_sheet)
     blueprint.update_blueprint_item(value_substitution_sheet.word_map)
@@ -84,6 +86,7 @@ def template_reader(template_filename, source_dir=None) -> Study:
 
 
 def get_template_sheets(template):
+    # TODO: make EXPECTED SHEETS check more robust to capitale/space errors by uppercasing and replace(' ','_')
     if set(EXPECTED_SHEETS.values()).issubset(template.sheet_names):
         sheets = [(TreeSheet, 'TreeSheet'),
                   (ModifierSheet, 'ModifierSheet'),

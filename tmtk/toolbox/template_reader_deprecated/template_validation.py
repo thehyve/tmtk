@@ -5,16 +5,7 @@ import pandas as pd
 
 
 class TemplateException(Exception):
-    def __init__(self, Exception):
-        self.epilogue(huge_succes=False)
-
-    @staticmethod
-    def epilogue(huge_succes=True):
-        (ID, start) = "HKIbIC9H_Kg", 9
-        if huge_succes:
-            (ID, start) = "S9x6GMM4UWw", 0
-        IPython.display.display(IPython.display.YouTubeVideo(ID, autoplay=1, width=1, height=1, start=start))
-
+    pass
 
 def check_source_dir(source_path):
     if not os.path.isdir(source_path):
