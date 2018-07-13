@@ -111,22 +111,26 @@ class _ArboristToTemplate:
             self.df.loc[row_index, 'Level {} metadata value'.format(level)] = value
             row_index += 1
 
-    def insert_node_data_into_df(self, node, depth):
-        last_row_index = max(self.df.apply(pd.Series.last_valid_index), default=None)
-        regular_node_cols = [col for col in self.df.columns if not 'metadata' in col]
-        last_regular_node_row_index = max(self.df[regular_node_cols].apply(pd.Series.last_valid_index), default=None)
-        cols_equal_or_higher_level = [col for col in self.df.columns if int(col.split()[1]) >= depth]
-
+    def determine_row_index(self, last_row_index, cols_equal_or_higher_level, last_regular_node_row_index):
+        """Determine the row index on which the current node should be inserted."""
         # The df is still empty
         if last_row_index is None:
             row_index = 0
-        # If all higher levels on this row are empty, add node on the same row
+        # If all >= levels on this row are empty, add node on the same row
         elif all(self.df.loc[last_row_index, cols_equal_or_higher_level].isnull()):
             row_index = last_regular_node_row_index
         # Otherwise insert node on a new row
         else:
             row_index = last_row_index + 1
+        return row_index
 
+    def insert_node_data_into_df(self, node, depth):
+        last_row_index = max(self.df.apply(pd.Series.last_valid_index), default=None)
+        regular_node_cols = [col for col in self.df.columns if 'metadata' not in col]
+        last_regular_node_row_index = max(self.df[regular_node_cols].apply(pd.Series.last_valid_index), default=None)
+        cols_equal_or_higher_level = [col for col in self.df.columns if int(col.split()[1]) >= depth]
+
+        row_index = self.determine_row_index(last_row_index, cols_equal_or_higher_level, last_regular_node_row_index)
         self.df.loc[row_index, 'Level {}'.format(depth)] = node['text']
 
         if 'metadata' in node:
@@ -158,8 +162,7 @@ class _ArboristToTemplate:
 @click.option('--no-metadata', is_flag=True, default=False, show_default=True,
               help='Ignore all metadata in the tree file')
 def _main(tree_input, output_dir, no_metadata):
-    """1. Either a path to a treefile or an arborist URL of a tree."""
-
+    """1. Either a path to a treefile or an Arborist URL of a tree."""
     arborist_to_tree_template(tree_input, output_dir, no_metadata)
 
 
