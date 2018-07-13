@@ -1,7 +1,7 @@
 import pandas as pd
 
 from .sheet_exceptions import MetaDataException, ValueSubstitutionError
-from .tree_sheet_validation import validate_tree_sheet
+from .tree_sheet_validation import TreeValidator
 from ...utils import Mappings
 
 
