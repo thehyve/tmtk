@@ -101,7 +101,7 @@ or if you want to run the tool from code in development mode:
 Requirements
 ^^^^^^^^^^^^
 
-These dependencies will have be installed:
+These dependencies will have to be installed:
  - pandas>=0.19.2
  - ipython>=5.3.0
  - jupyter>=1.0.0
