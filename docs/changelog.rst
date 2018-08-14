@@ -2,6 +2,11 @@
 Changelog
 =========
 
+.. topic::  Version 0.5.0
+
+    * Support for Date observations with value type 'D'
+    * Fixed issue with lower case top node in deprecated template reader
+
 .. topic::  Version 0.4.4
 
     * Support for Excel templates for 17.1+
