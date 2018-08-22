@@ -74,7 +74,7 @@ def md5(s: str):
     return hashlib.md5(s.encode('utf-8')).hexdigest()
 
 
-def df2file(df=None, path=None, overwrite=False):
+def df2file(df=None, path=None, overwrite=False, **kwargs):
     """
     Write a dataframe to file safely.  Does not overwrite existing files
     automatically. This function converts concept path delimiters.
@@ -82,6 +82,7 @@ def df2file(df=None, path=None, overwrite=False):
     :param df: `pd.DataFrame`
     :param path: path to write to
     :param overwrite: False (default) or True
+    :param kwargs: all kwargs are passed on to ``pd.DataFrame.to_csv()``
     """
     if not path:
         raise PathError(path)
@@ -96,7 +97,7 @@ def df2file(df=None, path=None, overwrite=False):
     df.to_csv(path,
               sep='\t',
               index=False,
-              float_format='%.3f')
+              **kwargs)
 
 
 def find_fully_unique_columns(df):

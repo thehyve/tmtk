@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 from tmtk import options
 from ._job_descriptions import job_map
-from ..Generic import clean_for_namespace
+from ..generic import clean_for_namespace
 
 logger = logging.getLogger('tmtk')
 logger.setLevel(level=logging.INFO)
