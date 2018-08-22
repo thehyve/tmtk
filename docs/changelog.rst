@@ -2,6 +2,11 @@
 Changelog
 =========
 
+.. topic::  Version 0.5.2
+
+    * You can now create a template from an existing tree in BaaS
+    * file2df() now reads floats as is
+
 .. topic::  Version 0.5.0
 
     * Support for Date observations with value type 'D'
