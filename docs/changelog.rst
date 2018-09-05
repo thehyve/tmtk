@@ -2,6 +2,10 @@
 Changelog
 =========
 
+.. topic::  Version 0.5.4
+
+    * Create transmart-copy files without setting ``FAS`` on study node.
+
 .. topic::  Version 0.5.2
 
     * You can now create a template from an existing tree in BaaS
