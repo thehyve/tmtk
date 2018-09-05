@@ -15,13 +15,32 @@ import os
 
 class SkinnyExport:
     """
-    This object creates pd.Dataframes that resemble tranSMART data base tables
-    by transforming the tmtk.Study object. The goal is to create files that can
-    be used by the skinny loader, which aims to do as little transformations as
-    possible.
+    This object creates tables like the tranSMART data base tables by
+    transforming the tmtk.Study object. The goal is to create files
+    that can be used as input files by the transmart-copy, which aims
+    to do as little transformations as possible.
+
+    see: https://github.com/thehyve/transmart-core/tree/dev/transmart-copy
     """
 
-    def __init__(self, study, export_directory=None, add_top_node=True):
+    def __init__(self, study, export_directory=None, add_top_node=True, omit_fas=False):
+        """
+        Create input files for transmart-copy.
+
+        Example usage:
+        ```
+            study = tmtk.Study('~/studies/GSE8581/study.params')
+            export = tmtk.toolbox.SkinnyExport(study, '/tmp/transmart-copy-ready/')
+            export.to_disk()
+        ```
+
+        :param study: ``tmtk.Study`` object needs to be transformed.
+        :param export_directory: destination directory for loadable files.
+        :param add_top_node: set to False to not add a study top node to all paths.
+            This prevents Glowing Bear from adding study constraints.
+        :param omit_fas: If True, include the top node, but add it as a normal folder instead
+            of a study node. This prevents Glowing Bear from adding study constraints.
+        """
         self.study = study
         self.export_directory = export_directory
 
@@ -29,7 +48,7 @@ class SkinnyExport:
         self.concept_dimension = ConceptDimension(self.study)
 
         # Nodes from concept dimension
-        self.i2b2_secure = I2B2Secure(self.study, self.concept_dimension, add_top_node)
+        self.i2b2_secure = I2B2Secure(self.study, self.concept_dimension, add_top_node, omit_fas)
 
         # First we build the patient_dimension and then the patient mapping based on that
         self.patient_dimension = PatientDimension(self.study)

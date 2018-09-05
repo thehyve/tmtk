@@ -8,9 +8,10 @@ from hashlib import sha1
 
 class I2B2Secure(TableRow):
 
-    def __init__(self, study, concept_dimension, add_top_node=True):
+    def __init__(self, study, concept_dimension, add_top_node, omit_fas):
 
         self.study = study
+        self.omit_fas = omit_fas
 
         if not add_top_node:
             study.top_node = '\\'
@@ -65,7 +66,7 @@ class I2B2Secure(TableRow):
 
         row.c_fullname = self.sanitize_path(self.study.top_node)
         row.c_hlevel = calc_hlevel(row.c_fullname)
-        row.c_visualattributes = 'FAS'
+        row.c_visualattributes = 'FA' if self.omit_fas else 'FAS'
         row.c_facttablecolumn = '@'
         row.c_tablename = 'STUDY'
         row.c_columnname = 'STUDY_ID'
