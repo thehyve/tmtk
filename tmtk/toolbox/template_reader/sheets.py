@@ -11,7 +11,7 @@ class TreeSheet:
         self.level_columns = lower_columns.str.contains('level') & ~lower_columns.str.contains('metadata')
         self.meta_columns = lower_columns.str.contains('metadata')
 
-        self.item_name_i = list(lower_columns).index('column_name')
+        self.item_name_i = list(lower_columns).index('column name')
 
         try:
             self.ontology_code_i = list(lower_columns).index('ontology code')
@@ -58,7 +58,7 @@ class TreeSheet:
             return tag_df
 
     def get_meta_columns_iter(self) -> iter:
-        """ Get meta column names and generate an iterator that iterates over pairs of columns. """
+        """ Get meta column names and generate an iterator that iterates over pairs of columns."""
         meta_columns = self.df.loc[:, self.meta_columns].columns
         if meta_columns.size % 2 > 0:
             raise MetaDataException('Meta data columns incorrect, found: {}'.format(meta_columns.tolist()))
