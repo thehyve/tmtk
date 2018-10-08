@@ -44,6 +44,11 @@ class TreeSheet:
         for tag, value in self.get_meta_columns_iter():
             level_columns = self.get_level_columns(tag)
             sub_df = self.df.loc[:, [tag, value]]
+
+            # Skip metadata level if it contains no data
+            if sub_df.isnull().all().all():
+                continue
+
             sub_df = sub_df.loc[sub_df.notnull().all(axis=1), :]
             tag_df = tag_df.append(sub_df.apply(get_path, axis=1, args=(level_columns,)))
 
