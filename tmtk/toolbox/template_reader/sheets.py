@@ -35,7 +35,7 @@ class TreeSheet:
     def create_metadata_tags_file(self) -> pd.DataFrame:
         def get_path(row, columns):
             if row.notnull().all():
-                fullname = '\\'.join(self.df.loc[row.name, columns][1:])
+                fullname = '\\' + '\\'.join(self.df.loc[row.name, columns][1:])
                 path_df = [fullname, row[0], row[1], row.name]
                 return pd.Series(path_df)
 
