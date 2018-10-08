@@ -214,16 +214,19 @@ class BlueprintFile:
     def _add_reserved_columns(self):
         """ Adds reserved column names to the blueprint. """
         reserved_d = {
-            'Subjects': {
+            'SUBJ_ID': {
                 'path': 'Subjects',
                 'label': 'SUBJ_ID'
-            }, 'TRIAL_VISIT': {
+            },
+            'TRIAL_VISIT': {
                 'path': 'reserved_keywords',
                 'label': 'TRIAL_VISIT_LABEL'
-            }, 'START_DATE': {
+            },
+            'START_DATE': {
                 'path': 'reserved_keywords',
                 'label': 'START_DATE'
-            }, 'END_DATE': {
+            },
+            'END_DATE': {
                 'path': 'reserved_keywords',
                 'label': 'END_DATE'
             }
