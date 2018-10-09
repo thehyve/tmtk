@@ -26,10 +26,18 @@ class TreeSheet:
         data_sources = self.df.loc[:, data_source_col].iloc[:, 0].dropna().unique().tolist()
         return data_sources
 
+    # def forward_fill_tree_sheet(self, df):
+    #     df.replace(r'^\s+$', pd.np.nan, regex=True, inplace=True)
+    #     ffilled = df.loc[:, self.level_columns].ffill()
+    #     df.loc[:, self.level_columns] = ffilled
+    #     return df
+
     def forward_fill_tree_sheet(self, df):
         df.replace(r'^\s+$', pd.np.nan, regex=True, inplace=True)
+        trailing_nans = df.loc[:, self.level_columns].bfill(axis=1).isnull()
         ffilled = df.loc[:, self.level_columns].ffill()
-        df.loc[:, self.level_columns] = ffilled
+        ffilled_masked = ffilled.mask(trailing_nans, other="")
+        df.loc[:, self.level_columns] = ffilled_masked
         return df
 
     def create_metadata_tags_file(self) -> pd.DataFrame:
