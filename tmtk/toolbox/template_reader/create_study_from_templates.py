@@ -6,6 +6,7 @@ import tmtk
 from .sheets import (TreeSheet, ModifierSheet, ValueSubstitutionSheet,
                      TrialVisitSheet, BlueprintFile, OntologyMappingSheet)
 from ...study import Study
+from .data_validation import DataValidator
 
 COMMENT = '#'
 
@@ -59,8 +60,14 @@ def template_reader(template_filename, source_dir=None) -> Study:
     # Add clinical data files to the study
     for data_source in sheet_dict['tree structure'].data_sources:
         if data_source in template.sheet_names:
-            data_df = template.parse(data_source, comment=COMMENT)
-            study.Clinical.add_datafile(filename='{}.txt'.format(data_source), dataframe=data_df)
+            data_df = template.parse(data_source, comment=None)
+            # Validate data source in DataValidator object
+            data_validator = DataValidator(data_df)
+            if data_validator.is_valid():
+                data_df = template.parse(data_source, comment=COMMENT)
+                # TODO: forced_categorical = True to enforce categorical data type if not all values of
+                # TODO: a column are numeric
+                study.Clinical.add_datafile(filename='{}.txt'.format(data_source), dataframe=data_df)
 
         else:
             # TODO: Look for file in source_dir -> the data source is probably just the file name
