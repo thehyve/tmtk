@@ -147,7 +147,7 @@ def write_study_params(study):
         study_params_file.write("STUDY_ID=" + study.ID + "\n")
         study_params_file.write("SECURITY_REQUIRED=" + study.sec_req + "\n")
         if study.ID != study.name:
-            root_dir = "\\Private studies\\" if study.sec_req == "Y" else "\\Public studies\\"
+            root_dir = "\\Private Studies\\" if study.sec_req == "Y" else "\\Public Studies\\"
             study_params_file.write("TOP_NODE=" + root_dir + study.name + "\n")
 
 

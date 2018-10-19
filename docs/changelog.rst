@@ -1,6 +1,29 @@
 =========
 Changelog
 =========
+
+.. topic::  Version 0.5.4
+
+    * Create transmart-copy files without setting ``FAS`` on study node.
+
+.. topic::  Version 0.5.2
+
+    * You can now create a template from an existing tree in BaaS
+    * file2df() now reads floats as is
+
+.. topic::  Version 0.5.0
+
+    * Support for Date observations with value type 'D'
+    * Fixed issue with lower case top node in deprecated template reader
+
+.. topic::  Version 0.4.4
+
+    * Support for Excel templates for 17.1+
+    * Added data density for the random study generator
+    * Added package wide options under tmtk.options
+    * Added builds for Anaconda
+    * Automated testing on Windows
+
 .. topic::  Version 0.4.2
 
     * Fixed call_boris and related tests and examples.

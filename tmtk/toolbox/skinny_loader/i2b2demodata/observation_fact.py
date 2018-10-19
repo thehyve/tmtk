@@ -54,7 +54,7 @@ class ObservationFact(TableRow):
             :return: dictionary with variable type appropriate mapping.
             """
             if visual_attributes_ == var.VIS_DATE:
-                return {'valtype_cd': 'N',
+                return {'valtype_cd': 'D',
                         'tval_char': 'E',
                         'nval_num': values.apply(get_unix_timestamp),  # Unix time
                         'observation_blob': values}  # UTC
