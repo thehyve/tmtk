@@ -7,4 +7,5 @@ from .random_study_generator import RandomStudy
 from .remap_chromosomal_regions import remap_chromosomal_regions
 from .template_reader import template_reader
 from .arborist_to_template import arborist_to_tree_template
-from .template_reader import DataValidator
+from .template_validation import template_validation
+

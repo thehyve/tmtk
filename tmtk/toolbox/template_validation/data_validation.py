@@ -53,7 +53,7 @@ class DataValidator:
         """Iterate through data_df and check for special characters within data and give error message with
         the location column name and row number.
         """
-        chars = ('-', '#', '+', '>', '<', '*', '&', '^', '%', '\\', 'α', 'β', '—', '–')
+        chars = ('#', '+', '>', '<', '*', '&', '^', '%', '\\', 'α', 'β', '—', '–')
         enter_tab = ('\n', '\t')
         for i in range(len(self.data_df.columns)):
             col_name = self.data_df.columns.values[i]
