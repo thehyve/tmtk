@@ -4,7 +4,7 @@ import pandas as pd
 
 from tests.commons import TestBase
 from tmtk.study import Study
-from tmtk.toolbox.template_reader.create_study_from_templates import COMMENT, _get_template_sheets, template_reader
+from tmtk.toolbox.template_reader.create_study_from_templates import COMMENT, get_template_sheets, template_reader
 from tmtk.toolbox.template_reader.sheet_exceptions import ValueSubstitutionError, MetaDataException
 from tmtk.toolbox.template_reader.sheets import (TreeSheet, ModifierSheet, TrialVisitSheet, BlueprintFile,
                                                  ValueSubstitutionSheet, OntologyMappingSheet)
@@ -22,7 +22,7 @@ class TemplateReaderTests(TestBase):
         cls.study = Study()
 
     def test_get_template_sheets(self):
-        sheet_dict = _get_template_sheets(self.template)
+        sheet_dict = get_template_sheets(self.template)
         self.assertIsInstance(sheet_dict['tree structure'], TreeSheet)
         self.assertIsInstance(sheet_dict['modifier'], ModifierSheet)
         self.assertIsInstance(sheet_dict['value substitution'], ValueSubstitutionSheet)

@@ -46,7 +46,7 @@ def template_reader(template_filename, source_dir=None) -> Study:
         source_dir = os.path.dirname(template_file)
 
     template = pd.ExcelFile(template_file, comment=COMMENT)
-    sheet_dict = _get_template_sheets(template)
+    sheet_dict = get_template_sheets(template)
 
     # Create the initial blueprint from the tree_sheet and update with the value substitution sheet
     blueprint = BlueprintFile(sheet_dict['tree structure'])
@@ -97,7 +97,7 @@ def template_reader(template_filename, source_dir=None) -> Study:
     return study
 
 
-def _get_template_sheets(template):
+def get_template_sheets(template):
     """Return a dictionary with parsed KEYWORD sheets that were found in the template."""
     keyword_sheet_dict = {}
     for sheet in template.sheet_names:
