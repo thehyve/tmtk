@@ -48,6 +48,8 @@ def template_reader(template_filename, source_dir=None) -> Study:
     template = pd.ExcelFile(template_file, comment=COMMENT)
     sheet_dict = get_template_sheets(template)
 
+    #TODO: Create tests on column names of the sheets.
+
     # Create the initial blueprint from the tree_sheet and update with the value substitution sheet
     blueprint = BlueprintFile(sheet_dict['tree structure'])
     blueprint.update_blueprint_item(sheet_dict['value substitution'].word_map)

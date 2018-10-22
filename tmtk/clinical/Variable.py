@@ -105,7 +105,14 @@ class Variable:
 
         :return: All values as found in the datafile.
         """
-        return self.datafile.df.iloc[:, self._zero_column]
+        try:
+            return self.datafile.df.iloc[:, self._zero_column]
+        except IndexError:
+            raise IndexError('single positional indexer is out-of-bounds. Datafile {} has '
+                             '{} columns, but column mapping references column number {} '.\
+                             format(self.datafile.name,
+                                    self.datafile.shape[1],
+                                    self.column))
 
     @values.setter
     def values(self, series: pd.Series):

@@ -585,4 +585,4 @@ def create_study_from_templates(ID, source_dir, output_dir=None, sec_req="Y"):
     write_low_dim_params(study)
     process_high_dim(study)
     print("[INFO] Templates processed successfully!")
-    Validity.TemplateException.epilogue(huge_succes=True)
+    #Validity.TemplateException.epilogue(huge_succes=True)
