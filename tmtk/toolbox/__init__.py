@@ -9,3 +9,5 @@ from .template_reader import template_reader
 
 from .template_reader import TreeValidator
 from .arborist_to_template import arborist_to_tree_template
+from .template_validation import template_validation
+

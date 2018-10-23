@@ -12,7 +12,7 @@ class TreeSheet:
         self.level_columns = lower_columns.str.contains('level') & ~lower_columns.str.contains('metadata')
         self.meta_columns = lower_columns.str.contains('metadata')
 
-        self.item_name_i = list(lower_columns).index('column_name')
+        self.item_name_i = list(lower_columns).index('column name')
 
         try:
             self.ontology_code_i = list(lower_columns).index('ontology code')
@@ -27,6 +27,12 @@ class TreeSheet:
         data_sources = self.df.loc[:, data_source_col].iloc[:, 0].dropna().unique().tolist()
         return data_sources
 
+    # def forward_fill_tree_sheet(self, df):
+    #     df.replace(r'^\s+$', pd.np.nan, regex=True, inplace=True)
+    #     ffilled = df.loc[:, self.level_columns].ffill()
+    #     df.loc[:, self.level_columns] = ffilled
+    #     return df
+
     def forward_fill_tree_sheet(self, df):
         df.replace(r'^\s+$', pd.np.nan, regex=True, inplace=True)
         trailing_nans = df.loc[:, self.level_columns].bfill(axis=1).isnull()
@@ -38,7 +44,7 @@ class TreeSheet:
     def create_metadata_tags_file(self) -> pd.DataFrame:
         def get_path(row, columns):
             if row.notnull().all():
-                fullname = '\\'.join(self.df.loc[row.name, columns][1:])
+                fullname = '\\' + '\\'.join(self.df.loc[row.name, columns][1:])
                 path_df = [fullname, row[0], row[1], row.name]
                 return pd.Series(path_df)
 
@@ -47,6 +53,11 @@ class TreeSheet:
         for tag, value in self.get_meta_columns_iter():
             level_columns = self.get_level_columns(tag)
             sub_df = self.df.loc[:, [tag, value]]
+
+            # Skip metadata level if it contains no data
+            if sub_df.isnull().all().all():
+                continue
+
             sub_df = sub_df.loc[sub_df.notnull().all(axis=1), :]
             tag_df = tag_df.append(sub_df.apply(get_path, axis=1, args=(level_columns,)))
 
@@ -56,7 +67,7 @@ class TreeSheet:
             return tag_df
 
     def get_meta_columns_iter(self) -> iter:
-        """ Get meta column names and generate an iterator that iterates over pairs of columns. """
+        """ Get meta column names and generate an iterator that iterates over pairs of columns."""
         meta_columns = self.df.loc[:, self.meta_columns].columns
         if meta_columns.size % 2 > 0:
             raise MetaDataException('Meta data columns incorrect, found: {}'.format(meta_columns.tolist()))
@@ -212,16 +223,19 @@ class BlueprintFile:
     def _add_reserved_columns(self):
         """ Adds reserved column names to the blueprint. """
         reserved_d = {
-            'Subjects': {
+            'SUBJ_ID': {
                 'path': 'Subjects',
                 'label': 'SUBJ_ID'
-            }, 'TRIAL_VISIT': {
+            },
+            'TRIAL_VISIT': {
                 'path': 'reserved_keywords',
                 'label': 'TRIAL_VISIT_LABEL'
-            }, 'START_DATE': {
+            },
+            'START_DATE': {
                 'path': 'reserved_keywords',
                 'label': 'START_DATE'
-            }, 'END_DATE': {
+            },
+            'END_DATE': {
                 'path': 'reserved_keywords',
                 'label': 'END_DATE'
             }
