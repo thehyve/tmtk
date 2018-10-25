@@ -28,8 +28,10 @@ def validate(template_filename, source_dir = None) -> str:
             data_df = template.parse(data_source, comment=None)
             # Validate data source in DataValidator object
             data_validator = DataValidator(data_df)
-            if data_validator.is_valid():
+            if data_validator.can_continue:
                 return 'Clinical data seems okay.'
+            else:
+                print('Make adjustments to clinical data according to above instructions and re-validate template.')
 
         else:
             # TODO: Look for file in source_dir -> the data source is probably just the file name
