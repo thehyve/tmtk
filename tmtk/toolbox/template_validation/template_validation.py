@@ -3,9 +3,12 @@ import pandas as pd
 
 from ..template_reader.create_study_from_templates import get_template_sheets
 from .data_validation import DataValidator
+# from .tree_sheet_validation import TreeSheetValidator
+
+COMMENT = '#'
 
 
-def validate(template_filename, source_dir = None) -> str:
+def validate(template_filename, source_dir = None):
 
     template_file = os.path.abspath(template_filename)
     if source_dir:
@@ -14,7 +17,15 @@ def validate(template_filename, source_dir = None) -> str:
         source_dir = os.path.dirname(template_file)
 
     template = pd.ExcelFile(template_file, comment=None)
+    # TODO: Check if file is a valid file
+    # TODO: Check if file is Excel
     sheet_dict = get_template_sheets(template)
+    # TODO: Check if mandatory sheets 'Tree structure' and 'Value substitution' are present
+
+    tree_df = template.parse('Tree structure', comment=COMMENT)
+    # tree_sheet_validator = TreeSheetValidator(tree_df)
+    # if tree_sheet_validator.is_valid():
+    #     print('Tree structure sheet seems okay.')
 
     # TODO: Write class TreeValidator in tree_validation.py
     # TODO: Write class ValueSubstValidator in value_subst_validation.py
@@ -25,13 +36,16 @@ def validate(template_filename, source_dir = None) -> str:
 
     for data_source in sheet_dict['tree structure'].data_sources:
         if data_source in template.sheet_names:
-            data_df = template.parse(data_source, comment=None)
+            # load data without comments to check for comments within data fields
+            # load data without first row as header, otherwise, if there are no comments in the head of the data file,
+            # duplicate column names are numbered by pandas
+            data_df = template.parse(data_source, header=None, comment=None)
             # Validate data source in DataValidator object
-            data_validator = DataValidator(data_df)
+            data_validator = DataValidator(data_df, tree_df)
             if data_validator.can_continue:
-                return 'Clinical data seems okay.'
+                print('Clinical data seems okay.')
             else:
-                print('Make adjustments to clinical data according to above instructions and re-validate template.')
+                print('Make adjustments to clinical data according to above instructions and re-validate template. ')
 
         else:
             # TODO: Look for file in source_dir -> the data source is probably just the file name
