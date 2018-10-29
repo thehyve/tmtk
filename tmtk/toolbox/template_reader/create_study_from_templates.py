@@ -3,6 +3,7 @@ import os
 import pandas as pd
 
 import tmtk
+from .sheet_exceptions import TemplateException
 from .sheets import (TreeSheet, ModifierSheet, ValueSubstitutionSheet,
                      TrialVisitSheet, BlueprintFile, OntologyMappingSheet)
 from ...study import Study
@@ -99,6 +100,11 @@ def template_reader(template_filename, source_dir=None) -> Study:
 
 def get_template_sheets(template):
     """Return a dictionary with parsed KEYWORD sheets that were found in the template."""
+    sheets_lower = {sheet.lower() for sheet in template.sheet_names}
+    if not tmtk.options.transmart_batch_mode and not set(KEYWORD_SHEETS).issubset(sheets_lower):
+        raise TemplateException('Missing mandatory template sheets.\nExpected {}\nBut found {}'.format(
+            list(KEYWORD_SHEETS.keys()), template.sheet_names))
+
     keyword_sheet_dict = {}
     for sheet in template.sheet_names:
         sheet_lower = sheet.lower()
