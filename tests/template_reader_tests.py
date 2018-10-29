@@ -1,13 +1,13 @@
 import os
+
 import pandas as pd
 
 from tests.commons import TestBase
 from tmtk.study import Study
-from tmtk.toolbox.template_reader.create_study_from_templates import COMMENT, EXPECTED_SHEETS, get_template_sheets, \
-    template_reader
-from tmtk.toolbox.template_reader.sheet_exceptions import ValueSubstitutionError, MetaDataException, TemplateException
+from tmtk.toolbox.template_reader.create_study_from_templates import COMMENT, get_template_sheets, template_reader
+from tmtk.toolbox.template_reader.sheet_exceptions import ValueSubstitutionError, MetaDataException
 from tmtk.toolbox.template_reader.sheets import (TreeSheet, ModifierSheet, TrialVisitSheet, BlueprintFile,
-    ValueSubstitutionSheet, OntologyMappingSheet)
+                                                 ValueSubstitutionSheet, OntologyMappingSheet)
 from tmtk.utils.mappings import Mappings
 
 
@@ -22,17 +22,14 @@ class TemplateReaderTests(TestBase):
         cls.study = Study()
 
     def test_get_template_sheets(self):
-        t, m, vs, tv = get_template_sheets(self.template)
-        self.assertIsInstance(t, TreeSheet)
-        self.assertIsInstance(m, ModifierSheet)
-        self.assertIsInstance(vs, ValueSubstitutionSheet)
-        self.assertIsInstance(tv, TrialVisitSheet)
-
-    def test_get_template_sheets_error(self):
-        self.assertRaises(TemplateException, get_template_sheets, self.incorrect_template)
+        sheet_dict = get_template_sheets(self.template)
+        self.assertIsInstance(sheet_dict['tree structure'], TreeSheet)
+        self.assertIsInstance(sheet_dict['modifier'], ModifierSheet)
+        self.assertIsInstance(sheet_dict['value substitution'], ValueSubstitutionSheet)
+        self.assertIsInstance(sheet_dict['trial visit'], TrialVisitSheet)
 
     def test_tree_sheet(self):
-        tree_sheet = TreeSheet(self.template.parse(EXPECTED_SHEETS['TreeSheet'], comment=COMMENT))
+        tree_sheet = TreeSheet(self.template.parse('Tree structure', comment=COMMENT))
         self.assertListEqual(tree_sheet.data_sources,
                              ['Low-dimensional data (Mock)', 'SAMPLE (Mock)', 'TRIAL_VISIT_Data (Mock)'])
         self.assertTupleEqual(tree_sheet.df.shape, (25, 13))
@@ -44,11 +41,11 @@ class TemplateReaderTests(TestBase):
         self.assertListEqual(tags_df.columns.tolist(), Mappings.tags_header)
 
     def test_meta_tags_fail(self):
-        tree_sheet = TreeSheet(self.template.parse(EXPECTED_SHEETS['TreeSheet'], comment=COMMENT).iloc[:, :-1])
+        tree_sheet = TreeSheet(self.template.parse('Tree structure', comment=COMMENT).iloc[:, :-1])
         self.assertRaises(MetaDataException, tree_sheet.create_metadata_tags_file)
 
     def test_modifier_sheet(self):
-        modifier_sheet = ModifierSheet(self.template.parse(EXPECTED_SHEETS['ModifierSheet'], comment=COMMENT))
+        modifier_sheet = ModifierSheet(self.template.parse('Modifier', comment=COMMENT))
         self.assertTupleEqual(modifier_sheet.df.shape, (3, 4))
         self.assertDictEqual(modifier_sheet.modifier_blueprint, {})
 
@@ -64,14 +61,13 @@ class TemplateReaderTests(TestBase):
                                                                                'reference_column': reference_column})
 
     def test_value_substitution_sheet(self):
-        value_substitution_sheet = ValueSubstitutionSheet(
-            self.template.parse(EXPECTED_SHEETS['ValueSubstitutionSheet'], comment=COMMENT))
+        value_substitution_sheet = ValueSubstitutionSheet(self.template.parse('Value substitution', comment=COMMENT))
         self.assertTupleEqual(value_substitution_sheet.df.shape, (6, 4))
         key_set = {'Gender', 'QLQ-C30_Q01', 'QLQ-C30_Q02', 'QLQ-C30_Q03', 'QLQ-C30_Q04'}
         self.assertSequenceEqual(value_substitution_sheet.word_map.keys(), key_set)
 
     def test_trial_visit_sheet(self):
-        trial_visit_sheet = TrialVisitSheet(self.template.parse(EXPECTED_SHEETS['TrialVisitSheet'], comment=COMMENT))
+        trial_visit_sheet = TrialVisitSheet(self.template.parse('Trial visit', comment=COMMENT))
         self.assertTupleEqual(trial_visit_sheet.df.shape, (7, 3))
         self.assertListEqual(trial_visit_sheet.df.columns.tolist(), Mappings.trial_visits_header)
 
@@ -97,7 +93,7 @@ class TemplateReaderTests(TestBase):
         self.assertRaises(ValueSubstitutionError, ValueSubstitutionSheet, value_df)
 
     def test_blue_print_file(self):
-        tree_sheet = TreeSheet(self.template.parse(EXPECTED_SHEETS['TreeSheet'], comment=COMMENT))
+        tree_sheet = TreeSheet(self.template.parse('Tree structure', comment=COMMENT))
         b = BlueprintFile(tree_sheet)
         self.assertIn('Blood_Volume', b.blueprint)
         self.assertEqual(len(b.blueprint), 29)
@@ -145,7 +141,7 @@ class TemplateReaderTests(TestBase):
         study = template_reader(self.template_file)
         col_map = study.Clinical.ColumnMapping.df
         modifiers = study.Clinical.Modifiers.df
-        self.assertTupleEqual(col_map.shape, (39,7))
+        self.assertTupleEqual(col_map.shape, (39, 7))
 
         used_modifiers = col_map.iloc[:,-1].unique().tolist()
         [self.assertIn(item, modifiers.modifier_cd.unique().tolist()+[''])
