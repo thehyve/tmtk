@@ -394,7 +394,7 @@ def write_clinical_data_sheets(study, sheets):
     data_files = tree_sheet["Sheet name/File name"].dropna().unique().tolist()
     for file in data_files:
         if file in sheets.keys():
-            clinical_data_sheet = sheets[file].dropna(axis='columns', how='all')
+            clinical_data_sheet = sheets[file]
             write_location = os.path.join(study.clin_output_dir, file) + ".tsv"
             clinical_data_sheet.to_csv(write_location, sep="\t", index=False, na_rep="")
             print("[INFO] Clinical data file written at: {0}".format(write_location))
