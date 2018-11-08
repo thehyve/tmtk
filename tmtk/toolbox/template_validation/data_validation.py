@@ -1,6 +1,7 @@
 import logging
 
-logger = logging.getLogger("Clinical data ")
+logger = logging.getLogger("Clinical data sheet: " + __name__)
+logger.setLevel(logging.DEBUG)
 
 
 class DataValidator:
@@ -17,5 +18,5 @@ class DataValidator:
         self.data_df = data_df
         self.tree_df = tree_df
         self.end_comments = 0
-        self.can_continue = True
+        self.is_valid = True
         self.tests_to_run = {}

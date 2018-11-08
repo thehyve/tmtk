@@ -1,6 +1,7 @@
 import logging
 
-logger = logging.getLogger("Value substitution sheet ")
+logger = logging.getLogger("Value substitution sheet")
+logger.setLevel(logging.DEBUG)
 
 
 class ValueSubstitutionValidator:

@@ -1,6 +1,7 @@
 import logging
 
-logger = logging.getLogger("Tree structure sheet ")
+logger = logging.getLogger("Tree structure sheet")
+logger.setLevel(logging.DEBUG)
 
 
 class TreeValidator:
