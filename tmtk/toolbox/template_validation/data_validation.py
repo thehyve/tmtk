@@ -1,12 +1,11 @@
 import logging
 
-logger = logging.getLogger("Clinical data sheet: " + __name__)
-logger.setLevel(logging.DEBUG)
+logger = logging.getLogger('Clinical data')
 
 
 class DataValidator:
 
-    def __init__(self, data_df, tree_df):
+    def __init__(self, data_df, tree_df, sheet_name):
         """Creates object DataValidator that runs validation tests on clinical data and gives user-friendly
         error messages.
 
@@ -17,6 +16,7 @@ class DataValidator:
         """
         self.data_df = data_df
         self.tree_df = tree_df
+        self.sheet_name = sheet_name
         self.end_comments = 0
         self.is_valid = True
         self.tests_to_run = {}

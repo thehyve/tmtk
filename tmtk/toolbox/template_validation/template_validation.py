@@ -10,8 +10,7 @@ from .value_substitution_validation import ValueSubstitutionValidator
 logger = logging.getLogger("Template validation")
 logger.setLevel(logging.DEBUG)
 
-MANDATORY_SHEETS = {'tree structure': 'tree_sheet',
-                    'value substitution': 'value_substitution'}
+MANDATORY_SHEETS = ['tree structure', 'value substitution']
 
 COMMENT = '#'
 
@@ -40,7 +39,7 @@ def validate(template_filename, source_dir=None):
                          '\n\t'+'\n\t'.join(template.sheet_names))
 
         for sheet in template.sheet_names:
-            if sheet.lower() == list(MANDATORY_SHEETS.keys())[list(MANDATORY_SHEETS.values()).index('tree_sheet')]:
+            if sheet.lower() == 'tree structure':
                 tree_df = template.parse(sheet, comment=COMMENT)
                 data_sources = set(tree_df.iloc[:, 1].tolist())
                 tree_sheet_validator = TreeValidator(tree_df)
@@ -50,8 +49,7 @@ def validate(template_filename, source_dir=None):
                     logger.error('Make adjustments to tree structure sheet according to above instructions and '
                                  're-validate template.')
 
-            if sheet.lower() == \
-                    list(MANDATORY_SHEETS.keys())[list(MANDATORY_SHEETS.values()).index('value_substitution')]:
+            if sheet.lower() == 'value substitution':
                 value_substitution_df = template.parse('Value substitution', comment=COMMENT)
                 value_substitution_validator = ValueSubstitutionValidator(value_substitution_df)
                 if value_substitution_validator.is_valid:
@@ -63,15 +61,16 @@ def validate(template_filename, source_dir=None):
         for data_source in data_sources:
             if data_source in template.sheet_names:
                 # load data without comments to check for comments within data fields and without first row as header,
-                # otherwise duplicate column names are automatically numbered by pandas
+                # otherwise duplicate column names in the same sheet are automatically numbered by pandas
                 data_df = template.parse(data_source, header=None, comment=None)
-                # Validate data source in DataValidator object
-                data_validator = DataValidator(data_df, tree_df)
+                # Validate data source(s) in DataValidator object
+                data_validator = DataValidator(data_df, tree_df, data_source)
+
                 if data_validator.is_valid:
-                    logger.info('Clinical data seems okay.')
+                    logger.info('Clinical data in sheet "{}" seems okay.'.format(data_source))
                 else:
-                    logger.error('Make adjustments to clinical data according to above instructions and '
-                                 're-validate template.')
+                    logger.error('Make adjustments to clinical data in sheet "{}" according to above instructions and '
+                                 're-validate template.'.format(data_source))
 
             else:
                 # TODO: Look for file in source_dir -> the data source is probably just the file name
