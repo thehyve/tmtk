@@ -17,6 +17,9 @@ COMMENT = '#'
 
 def validate(template_filename, source_dir=None):
     """ Validate the structure and data in 16.2 clinical templates.
+
+    :param template_filename: Template Excel file to parse
+    :param source_dir: directory containing all the templates (currently not used).
     """
     if not tmtk.options.transmart_batch_mode:
         logger.fatal('Only 16.2 templates can be validated. Make sure you are loading a 16.2 template and before '
