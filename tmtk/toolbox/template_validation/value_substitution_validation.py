@@ -6,7 +6,7 @@ logger.setLevel(logging.DEBUG)
 
 class ValueSubstitutionValidator:
 
-    def __init__(self, value_substitution_df):
+    def __init__(self, value_substitution_df, source_dir, template):
         """Creates object ValueSubstitutionValidator that runs validation tests on value substitution sheet and
         gives user-friendly error messages.
 

@@ -1,3 +1,5 @@
+import csv
+
 import tmtk
 import logging
 import os
@@ -46,12 +48,12 @@ def validate(template_filename, source_dir=None):
         if not can_continue:
             return
         # validate mandatory sheets and data sources
-        mandatory_sheets_valid = validate_mandatory_sheets(template)
+        mandatory_sheets_valid = validate_mandatory_sheets(template, source_dir)
         invalid_data_sources = validate_data_sources(template, source_dir)
 
         if mandatory_sheets_valid != 2 or invalid_data_sources > 0:
-            logger.error(' Make adjustments to template and possible other input files according to above '
-                         'instructions and re-validate template.')
+            logger.error(' Make adjustments to template and possible other input files to fix errors '
+                         'and re-validate template.')
 
 
 def mandatory_sheets_present(sheet_names) -> bool:
@@ -63,31 +65,31 @@ def mandatory_sheets_present(sheet_names) -> bool:
             if sheet not in sheet_names:
                 missing_sheets.append(sheet)
 
-        logger.error('Missing mandatory sheet(s). Make adjustments to the template and re-validate. Your file '
+        logger.error(' Missing mandatory sheet(s). Make adjustments to the template and re-validate. Your file '
                      'does not contain the following sheet names: \n\t' + '\n\t. '.join(missing_sheets))
         return False
 
     return True
 
 
-def validate_mandatory_sheets(template) -> int:
+def validate_mandatory_sheets(template, source_dir) -> int:
     """ Validate tree structure sheet in TreeValidator and Value substitution sheet in ValueSubstitutionValidator.
     Return number of valid sheets.
     """
     valid_mandatory_sheets = 0
     for sheet in template.sheet_names:
         if sheet.lower() == 'tree structure':
-            tree_df = template.parse(sheet, comment=COMMENT)
+            tree_df = template.parse(sheet, comment=None, header=None)
             tree_sheet_validator = TreeValidator(tree_df)
             if tree_sheet_validator.is_valid:
-                logger.info('Tree structure sheet seems okay.')
+                logger.info(' Tree structure sheet seems okay.')
                 valid_mandatory_sheets += 1
         if sheet.lower() == 'value substitution':
-                value_substitution_df = template.parse('Value substitution', comment=COMMENT)
-                value_substitution_validator = ValueSubstitutionValidator(value_substitution_df)
-                if value_substitution_validator.is_valid:
-                    logger.info('Value substitution sheet seems okay.')
-                    valid_mandatory_sheets += 1
+            value_substitution_df = template.parse(sheet)
+            value_substitution_validator = ValueSubstitutionValidator(value_substitution_df, source_dir, template)
+            if value_substitution_validator.is_valid:
+                logger.info(' Value substitution sheet seems okay.')
+                valid_mandatory_sheets += 1
 
     return valid_mandatory_sheets
 
@@ -96,13 +98,14 @@ def validate_data_sources(template, source_dir) -> int:
     """ Search for data source(s). Return 0 if all data sources are present and valid and >0
     if 1 or more data sources are missing or contain errors.
     """
+    invalid_data_sources = 0
     for sheet in template.sheet_names:
         if sheet.lower() == 'tree structure':
             tree_df = template.parse(sheet, comment=COMMENT)
     data_sources = set(tree_df['Sheet name/File name'].dropna().unique())
 
     for data_source in data_sources:
-        invalid_data_sources = read_data_source(data_source, template, source_dir, tree_df)
+        invalid_data_sources += read_data_source(data_source, template, source_dir, tree_df)
 
     return invalid_data_sources
 
@@ -119,21 +122,20 @@ def read_data_source(data_source, template, source_dir, tree_df) -> int:
         data_df = template.parse(data_source, dtype='str', header=None, comment=None)
 
     for file in os.listdir(source_dir):
-            if file == data_source:
-                source_found = True
-                # read in source if Excel file
-                if os.path.splitext(os.path.join(source_dir, file))[1] in ['.xls', '.xlsx']:
-                    data_df = pd.read_excel(os.path.join(source_dir, file), dtype='str', header=None)
+        if file == data_source:
+            source_found = True
+            # read in source if Excel file
+            if os.path.splitext(os.path.join(source_dir, file))[1] in ['.xls', '.xlsx']:
+                data_df = pd.read_excel(os.path.join(source_dir, file), dtype='str', header=None)
 
-                # Use python sniffer function (engine='python') to determine separator type if file is not excel
-                else:
-                    try:
-                        data_df = pd.read_csv(os.path.join(source_dir, file), dtype='str', sep=None, engine='python',
-                                              header=None)
-                    except Exception:
-                        source_found = False
-                        logger.error("Clinical data file '{}' cannot be read. It may not be a flat text "
-                                     "file".format(file))
+            # Use python sniffer function (engine='python') to determine separator type if file is not excel
+            else:
+                try:
+                    data_df = pd.read_csv(os.path.join(source_dir, file), dtype='str', sep=None, engine='python', header=None)
+                except csv.Error:
+                    source_found = False
+                    logger.error(" Clinical data file '{}' cannot be read. It may not be a flat text "
+                                 "file".format(file))
 
     if source_found:
         invalid_data_source = validate_data(data_df, tree_df, data_source)

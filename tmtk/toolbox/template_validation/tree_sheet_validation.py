@@ -1,6 +1,6 @@
 import logging
 
-logger = logging.getLogger(" Tree structure sheet")
+logger = logging.getLogger(' Tree structure')
 logger.setLevel(logging.DEBUG)
 
 
