@@ -60,10 +60,7 @@ def mandatory_sheets_present(sheet_names) -> bool:
     """ Checks whether mandatory sheets are present.
     """
     if not set(MANDATORY_SHEETS).issubset(sheet_names):
-        missing_sheets = []
-        for sheet in MANDATORY_SHEETS:
-            if sheet not in sheet_names:
-                missing_sheets.append(sheet)
+        missing_sheets = [sheet for sheet in MANDATORY_SHEETS if sheet not in sheet_names]
 
         logger.error(' Missing mandatory sheet(s). Make adjustments to the template and re-validate. Your file '
                      'does not contain the following sheet names: \n\t' + '\n\t. '.join(missing_sheets))
@@ -114,6 +111,7 @@ def read_data_source(data_source, template, source_dir, tree_df) -> int:
     """ Search for and read data source(s) in template and in files in source_dir.
     """
     source_found = False
+    source_error = False
 
     if data_source in template.sheet_names:
         source_found = True
@@ -124,33 +122,34 @@ def read_data_source(data_source, template, source_dir, tree_df) -> int:
     for file in os.listdir(source_dir):
         if file == data_source:
             source_found = True
-            # read in source if Excel file
+            # read source if Excel file
             if os.path.splitext(os.path.join(source_dir, file))[1] in ['.xls', '.xlsx']:
                 data_df = pd.read_excel(os.path.join(source_dir, file), dtype='str', header=None)
-
-            # Use python sniffer function (engine='python') to determine separator type if file is not excel
+            # Use python sniffer function (engine='python') to determine separator type if file is not Excel
             else:
                 try:
-                    data_df = pd.read_csv(os.path.join(source_dir, file), dtype='str', sep=None, engine='python', header=None)
+                    data_df = pd.read_csv(os.path.join(source_dir, file), dtype='str', sep=None, engine='python',
+                                          header=None)
                 except csv.Error:
-                    source_found = False
+                    source_error = True
                     logger.error(" Clinical data file '{}' cannot be read. It may not be a flat text "
-                                 "file".format(file))
+                                 "file.".format(file))
 
-    if source_found:
+    if source_found and not source_error:
         invalid_data_source = validate_data(data_df, tree_df, data_source)
-    else:
-        logger.error(
-            ' No clinical data file or sheet named "{}" detected. Make sure the sheet or file is referenced '
-            'correctly in the template. If the data is in separate file(s) from the template, it should be stored '
-            'in the same folder as the template file.'.format(data_source))
+    elif source_error:
         invalid_data_source = 1
+    else:
+        invalid_data_source = 1
+        logger.error(' No clinical data file or sheet named "{}" detected. Make sure the sheet or file is referenced '
+                     'correctly in the template. If the data is in separate file(s) from the template, it should be '
+                     'stored in the same folder as the template file.'.format(data_source))
 
     return invalid_data_source
 
 
 def validate_data(data_df, tree_df, data_source):
-    """ Validate data of data_df in Datavalidator object.
+    """ Validate data of data_df in DataValidator object.
     """
     invalid_data_source = 0
     data_validator = DataValidator(data_df, tree_df, data_source)
