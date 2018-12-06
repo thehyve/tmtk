@@ -65,7 +65,7 @@ def validate(template_filename, source_dir=None):
             if data_source in template.sheet_names:
                 # load data without comments to check for comments within data fields and without first row as header,
                 # otherwise duplicate column names in the same sheet are automatically numbered by pandas
-                data_df = template.parse(data_source, header=None, comment=None)
+                data_df = template.parse(data_source, dtype='str', header=None, comment=None)
                 # Validate data source(s) in DataValidator object
                 data_validator = DataValidator(data_df, tree_df, data_source)
 
