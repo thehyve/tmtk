@@ -39,6 +39,8 @@ class TreeValidator:
             next_test = next(self.tests_to_run, None)
             if next_test:
                 next_test()
+            else:
+                return
 
     def after_comments(self):
         """Determines where initial text with comments (instructions for data owner) ends, saves tree_df without

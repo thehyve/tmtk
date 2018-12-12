@@ -82,7 +82,7 @@ def validate_mandatory_sheets(template, source_dir) -> int:
                 logger.info(' Tree structure sheet seems okay.')
                 valid_mandatory_sheets += 1
         if sheet.lower() == 'value substitution':
-            value_substitution_df = template.parse(sheet)
+            value_substitution_df = template.parse(sheet, comment=None, header=None)
             value_substitution_validator = ValueSubstitutionValidator(value_substitution_df, source_dir, template)
             if value_substitution_validator.is_valid:
                 logger.info(' Value substitution sheet seems okay.')
