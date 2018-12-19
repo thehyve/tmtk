@@ -25,8 +25,10 @@ class TreeValidator:
                              [self.after_comments,
                               self.no_comment_or_backslash,
                               self.mandatory_columns,
+                              self.unique_col_names,
                               self.transmart_data_types,
                               self.data_source_referenced,
+                              self.consecutive_levels,
                               self.check_level_1
                               ])
 
@@ -57,36 +59,61 @@ class TreeValidator:
         """Iterate through data_df and check for # and \ within data. When one of these characters is detected
         set self.is_valid = False and give error message with their location column name and row number.
         """
-        chars = ('#', '\\')
+        forbidden_chars = ('#', '\\')
 
         for col_name, series in self.tree_df.iteritems():
             for idx, value in series.iteritems():
-                if any((c in chars) for c in str(value)):
+                if any((c in forbidden_chars) for c in str(value)):
                     self.is_valid = False
                     logger.error(" Detected '#' or '\\' at column: '{}', row: {}.".format(col_name, idx + 1))
 
     def mandatory_columns(self):
         """ Checks whether mandatory column names are present in the tree structure sheet.
         """
-        mandatory_col = ['tranSMART data type', 'Sheet name/File name', 'Column name', 'Level 1',
-                         'Level 1 metadata tag', 'Level 1 metadata value']
+        mandatory_columns = ['tranSMART data type', 'Sheet name/File name', 'Column name', 'Level 1',
+                             'Level 1 metadata tag', 'Level 1 metadata value']
 
-        missing_col = []
-
-        if not set(mandatory_col).issubset(self.tree_df.columns):
-            missing_col = [col for col in mandatory_col if col not in self.tree_df.columns]
+        missing_columns = [col for col in mandatory_columns if col not in self.tree_df.columns]
 
         for i in range(2, len(self.tree_df.columns)):
-            if 'Level ' + str(i) in self.tree_df.columns:
-                if 'Level ' + str(i) + ' metadata tag' not in self.tree_df.columns:
-                    missing_col.append('Level ' + str(i) + ' metadata tag')
-                if 'Level ' + str(i) + ' metadata value' not in self.tree_df.columns:
-                    missing_col.append('Level ' + str(i) + ' metadata value')
+            metadata_tag = 'Level ' + str(i) + ' metadata tag'
+            metadata_value = 'Level ' + str(i) + ' metadata value'
+            level = 'Level ' + str(i)
 
-        if len(missing_col) > 0:
+            # check if 'Level' column has corresponding 'metadata tag' and 'metadata value' columns:
+            if level in self.tree_df.columns:
+                if metadata_tag not in self.tree_df.columns:
+                    missing_columns.append(metadata_tag)
+                if 'Level ' + str(i) + ' metadata value' not in self.tree_df.columns:
+                    missing_columns.append(metadata_value)
+
+            # check if 'metadata tag' and 'metadata value' columns have a corresponding 'Level' column:
+            if metadata_tag in self.tree_df.columns and  metadata_value in self.tree_df.columns:
+                if level not in self.tree_df.columns:
+                    missing_columns.append(level)
+
+        if missing_columns:
             self.is_valid = False
             self.can_continue = False
-            logger.error(' Missing the following mandatory columns:\n\t' + '\n\t'.join(missing_col))
+            logger.error(' Missing the following mandatory columns:\n\t' + '\n\t'.join(missing_columns))
+
+    def unique_col_names(self):
+        """Set self.is_valid = False if a double column name is found and give an
+        error message specifying the duplicate column name(s).
+        """
+        unique_names = []
+        duplicate_names = []
+
+        for name in self.tree_df.columns.values.tolist():
+            if name not in unique_names:
+                unique_names.append(name)
+            else:
+                duplicate_names.append(name)
+
+        if duplicate_names:
+            self.can_continue = False
+            self.is_valid = False
+            logger.error(' Detected duplicate column name(s): \n\t' + '\n\t'.join(duplicate_names))
 
     def transmart_data_types(self):
         """ Checks whether the column tranSMART data type is not empty and contains the allowed data types.
@@ -106,16 +133,36 @@ class TreeValidator:
         """ Checks whether columns 'Column name' and 'Sheet name/File name' are either both filled out or both empty.
         """
         for i in range(self.n_comment_lines + 1, self.n_comment_lines + 1 + len(self.tree_df)):
-            if not pd.isnull(self.tree_df['Sheet name/File name'][i]) and pd.isnull(self.tree_df['Column name'][i]):
+            col_name = self.tree_df['Column name'][i]
+            sheet_or_file_name = self.tree_df['Sheet name/File name'][i]
+            if not pd.isnull(sheet_or_file_name) and pd.isnull(col_name):
                 self.is_valid = False
                 logger.error(" Row {} contains a 'Sheet name/File name', but no 'Column name' is given.".format(i + 1))
-            if pd.isnull(self.tree_df['Sheet name/File name'][i]) and not pd.isnull(self.tree_df['Column name'][i]):
+            if pd.isnull(sheet_or_file_name) and not pd.isnull(col_name):
                 self.is_valid = False
                 logger.error(" Row {} contains a 'Column name' which is not referenced in "
                              "'Sheet name/File name'.".format(i + 1))
 
-    def check_level_1(self):
-        """ Checks whether column 'Level 1' contains one entry.
+    def consecutive_levels(self):
+        """ Checks whether the levels that are present are consecutive.
         """
-        if len(self.tree_df['Level 1'].dropna()) != 1:
-            logger.error(" Column 'Level 1' contains more than one entry.")
+        level_nums = []
+
+        for col in self.tree_df.columns:
+            try:
+                level_nums.append(int(col[-1:]))
+            except ValueError:
+                pass
+
+        i = 1
+        for num in level_nums:
+            if num != i:
+                logger.error(' Level numbers should be consecutive, starting to count from 1 (e.g. Level 1, Level 2, '
+                             'Level 3... etc.')
+                return
+
+    def check_level_1(self):
+        """ Checks whether column 'Level 1' contains one unique entry.
+        """
+        if len(self.tree_df['Level 1'].dropna().unique()) != 1:
+            logger.error(" Column 'Level 1' contains no entry or more than one unique entry.")
