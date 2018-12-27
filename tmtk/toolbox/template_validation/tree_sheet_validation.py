@@ -146,10 +146,9 @@ class TreeValidator:
             except ValueError:
                 pass
 
-        for counter, num in enumerate(level_nums, 1):
-            if num != counter:
-                logger.error(' Level numbers should be consecutive, starting to count from 1 (e.g. Level 1, Level 2, '
-                             'Level 3... etc.')
+        missing_levels = sorted([level for level in range(1, max(level_nums)+1) if level not in level_nums])
+        if missing_levels:
+            logger.error('Level numbers are not consecutive; missing levels: {}'.format(missing_levels))
 
     def check_level_1(self):
         """ Checks whether column 'Level 1' contains one unique entry.
