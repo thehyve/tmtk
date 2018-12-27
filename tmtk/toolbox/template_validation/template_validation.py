@@ -18,8 +18,8 @@ COMMENT = '#'
 
 
 def validate(template_filename, source_dir=None):
-    """ Validate the structure and data in a 16.2 clinical template.
 
+    """ Validate the structure and data in 16.2 clinical templates.
     :param template_filename: Template Excel file name or path to Template Excel file to parse
     :param source_dir: directory containing the template and possible other source files
     """
@@ -43,6 +43,7 @@ def validate(template_filename, source_dir=None):
 
         # check whether mandatory sheets are present
         sheet_names = [sheet.lower() for sheet in template.sheet_names]
+
         can_continue = mandatory_sheets_present(sheet_names)
 
         if not can_continue:
