@@ -22,7 +22,10 @@ class DataValidator:
         self.n_comment_lines = 0
         self.is_valid = True
         self.tests_to_run = [self.after_comments(),
-                             self.check_encoding()
+                             self.check_encoding(),
+                             self.mandatory_col(),
+                             self.unique_col_names(),
+                             self.col_name_in_tree_sheet()
                              ]
 
     def after_comments(self):
@@ -52,6 +55,37 @@ class DataValidator:
                     self.is_valid = False
                     logger.error(" Detected '#' or '\\' in '{}' at column: '{}', row: "
                                  "{}.".format(self.sheet_name, col_name, idx + 1))
+
+    def mandatory_col(self):
+        """Set self.is_valid = False if a subject identifier column called 'SUBJ_ID' is
+        not present in the clinical data and give an error message if it is not.
+        """
+        if 'SUBJ_ID' not in self.data_df.columns:
+            self.is_valid = False
+            logger.error(" Mandatory column containing subject identifiers (SUBJ_ID) not detected "
+                         "in clinical data '{}.".format(self.sheet_name))
+
+    def unique_col_names(self):
+        """Set self.is_valid = False if a double column name is found and give an
+        error message specifying the duplicate column name(s).
+        """
+        columns = self.data_df.columns
+        duplicate_columns = set(columns[columns.duplicated()])
+
+        if duplicate_columns:
+            self.is_valid = False
+            logger.error(' Detected duplicate column name(s): \n\t' + '\n\t'.join(duplicate_columns))
+
+    def col_name_in_tree_sheet(self):
+        """Set self.can_continue = False if a column name in clinical data and tree structure
+        sheet do not match. Gives an error message specifying which column name(s) do not match.
+        :param tree_sheet_columns: list of entries in Tree structure sheet, Column name
+        :param data_columns: list of column names in clinical data
+        """
+        for col in set(self.data_df.columns):
+            if col != 'SUBJ_ID' and col not in set(self.tree_df['Column name']):
+                logger.error(" Column name: '{}' not listed in Tree structure column: 'Column name'.".format(col))
+                self.is_valid = False
 
 
 def is_utf8(string):
