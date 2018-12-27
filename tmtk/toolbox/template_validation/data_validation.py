@@ -14,7 +14,7 @@ class DataValidator:
         :param self.sheet_name: name of clinical data sheet
         :param self.n_comment_lines: stores index of first line in data sheet that is not a comment
         :param self.is_valid: boolean tracking if data passes validation steps
-        :param self.tests_to_run: dict containing function calls for data validation tests
+        :param self.tests_to_run: list containing function calls for data validation tests
         """
         self.data_df = data_df
         self.tree_df = tree_df

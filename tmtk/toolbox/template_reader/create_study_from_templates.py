@@ -36,15 +36,14 @@ def template_reader(template_filename, source_dir=None) -> Study:
     Note: The sheets need to be present, they can be empty
 
     :param template_filename: Template Excel file to parse
-    :param source_dir: directory containing all the templates (currently not used).
+    :param source_dir: directory containing all the templates.
 
     :return: tmtk.Study
     """
-    template_file = os.path.abspath(template_filename)
     if source_dir:
-        source_dir = os.path.abspath(source_dir)
+        template_file = os.path.join(source_dir, template_filename)
     else:
-        source_dir = os.path.dirname(template_file)
+        template_file = os.path.abspath(template_filename)
 
     template = pd.ExcelFile(template_file, comment=COMMENT)
     sheet_dict = get_template_sheets(template)
