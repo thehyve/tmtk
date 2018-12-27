@@ -41,14 +41,14 @@ class DataValidator:
         When data cannot be encoded or one of these characters is detected set self.is_valid = False and give error
         message with their location column name and row number.
         """
-        chars = ('#', '\\')
+        forbidden_chars = ('#', '\\')
 
         for col_name, series in self.data_df.iteritems():
             for idx, value in series.iteritems():
                 if not is_utf8(value):
                     logger.error(" Value in '{}' at column '{}', row: {} cannot be UTF-8 "
                                  "encoded.".format(self.sheet_name, col_name, idx + 1))
-                if any((c in chars) for c in value):
+                if any((c in forbidden_chars) for c in value):
                     self.is_valid = False
                     logger.error(" Detected '#' or '\\' in '{}' at column: '{}', row: "
                                  "{}.".format(self.sheet_name, col_name, idx + 1))
