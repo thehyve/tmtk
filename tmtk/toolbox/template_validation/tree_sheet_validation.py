@@ -88,7 +88,7 @@ class TreeValidator:
                     missing_columns.append(metadata_value)
 
             # check if 'metadata tag' and 'metadata value' columns have a corresponding 'Level' column:
-            if metadata_tag in self.tree_df.columns and  metadata_value in self.tree_df.columns:
+            if metadata_tag in self.tree_df.columns and metadata_value in self.tree_df.columns:
                 if level not in self.tree_df.columns:
                     missing_columns.append(level)
 
@@ -101,33 +101,25 @@ class TreeValidator:
         """Set self.is_valid = False if a double column name is found and give an
         error message specifying the duplicate column name(s).
         """
-        unique_names = []
-        duplicate_names = []
+        columns = self.tree_df.columns
+        duplicate_columns = set(columns[columns.duplicated()])
 
-        for name in self.tree_df.columns.values.tolist():
-            if name not in unique_names:
-                unique_names.append(name)
-            else:
-                duplicate_names.append(name)
-
-        if duplicate_names:
+        if duplicate_columns:
             self.can_continue = False
             self.is_valid = False
-            logger.error(' Detected duplicate column name(s): \n\t' + '\n\t'.join(duplicate_names))
+            logger.error(' Detected duplicate column name(s): \n\t' + '\n\t'.join(duplicate_columns))
 
     def transmart_data_types(self):
         """ Checks whether the column tranSMART data type is not empty and contains the allowed data types.
         """
-        i = self.n_comment_lines
-        for data_type in self.tree_df['tranSMART data type']:
-            i += 1
-            if pd.isnull(data_type) and not pd.isnull(self.tree_df['Column name'][i]):
+        for counter, data_type in enumerate(self.tree_df['tranSMART data type'], start=self.n_comment_lines + 1):
+            if pd.isnull(data_type) and not pd.isnull(self.tree_df['Column name'][counter]):
                 self.is_valid = False
-                logger.error(" No data type entered in row {} of column 'tranSMART data type'.".format(i + 1))
+                logger.error(" No data type entered in row {} of column 'tranSMART data type'.".format(counter + 1))
             if data_type not in ['Low-dimensional', 'High-dimensional'] and not pd.isnull(data_type):
                 self.is_valid = False
                 logger.error(" Wrong data type '{}' in row {} of column 'tranSMART data type'. Only 'Low-dimensional' "
-                             "or 'High-dimensional' allowed.".format(data_type, i + 1))
+                             "or 'High-dimensional' allowed.".format(data_type, counter + 1))
 
     def data_source_referenced(self):
         """ Checks whether columns 'Column name' and 'Sheet name/File name' are either both filled out or both empty.
@@ -154,12 +146,10 @@ class TreeValidator:
             except ValueError:
                 pass
 
-        i = 1
-        for num in level_nums:
-            if num != i:
+        for counter, num in enumerate(level_nums, 1):
+            if num != counter:
                 logger.error(' Level numbers should be consecutive, starting to count from 1 (e.g. Level 1, Level 2, '
                              'Level 3... etc.')
-                return
 
     def check_level_1(self):
         """ Checks whether column 'Level 1' contains one unique entry.
