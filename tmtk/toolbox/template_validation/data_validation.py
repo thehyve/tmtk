@@ -5,7 +5,7 @@ logger = logging.getLogger(' Clinical data')
 
 class DataValidator:
 
-    def __init__(self, data_df, tree_df, sheet_name):
+    def __init__(self, data_df, tree_df, data_source):
         """Creates object DataValidator that runs validation tests on clinical data and gives user-friendly
         error messages.
 
@@ -18,7 +18,7 @@ class DataValidator:
         """
         self.data_df = data_df
         self.tree_df = tree_df
-        self.sheet_name = sheet_name
+        self.data_source = data_source
         self.n_comment_lines = 0
         self.is_valid = True
         self.tests_to_run = [self.after_comments(),
@@ -50,11 +50,11 @@ class DataValidator:
             for idx, value in series.iteritems():
                 if not is_utf8(value):
                     logger.error(" Value in '{}' at column '{}', row: {} cannot be UTF-8 "
-                                 "encoded.".format(self.sheet_name, col_name, idx + 1))
+                                 "encoded.".format(self.data_source, col_name, idx + 1))
                 if any((c in forbidden_chars) for c in value):
                     self.is_valid = False
                     logger.error(" Detected '#' or '\\' in '{}' at column: '{}', row: "
-                                 "{}.".format(self.sheet_name, col_name, idx + 1))
+                                 "{}.".format(self.data_source, col_name, idx + 1))
 
     def mandatory_col(self):
         """Set self.is_valid = False if a subject identifier column called 'SUBJ_ID' is
@@ -63,7 +63,7 @@ class DataValidator:
         if 'SUBJ_ID' not in self.data_df.columns:
             self.is_valid = False
             logger.error(" Mandatory column containing subject identifiers (SUBJ_ID) not detected "
-                         "in clinical data '{}.".format(self.sheet_name))
+                         "in clinical data '{}'.".format(self.data_source))
 
     def unique_col_names(self):
         """Set self.is_valid = False if a double column name is found and give an
@@ -74,17 +74,25 @@ class DataValidator:
 
         if duplicate_columns:
             self.is_valid = False
-            logger.error(' Detected duplicate column name(s): \n\t' + '\n\t'.join(duplicate_columns))
+            logger.error(" Detected duplicate column name(s) in '" + self.data_source + "': \n\t" +
+                         "\n\t".join(duplicate_columns))
 
     def col_name_in_tree_sheet(self):
         """Set self.can_continue = False if a column name in clinical data and tree structure
         sheet do not match. Gives an error message specifying which column name(s) do not match.
         """
         columns = set(self.data_df.columns)
-        missing_columns = [col for col in columns if col != 'SUBJ_ID' and col not in set(self.tree_df['Column name'])]
+        tree_columns = []
+
+        for counter, data_source in enumerate(self.tree_df['Sheet name/File name']):
+            if data_source == self.data_source:
+                tree_columns.append(self.tree_df['Column name'][counter])
+
+        missing_columns = [col for col in columns if col != 'SUBJ_ID' and col not in tree_columns]
 
         if missing_columns:
-            logger.warning(" The following column(s) are not listed in Tree structure column: 'Column name': "
+            logger.warning(" The following column(s) in '" + self.data_source +
+                           "' are not listed in Tree structure column: 'Column name': "
                            "\n\t" + "\n\t".join(missing_columns))
             self.is_valid = False
 
