@@ -79,8 +79,6 @@ class DataValidator:
     def col_name_in_tree_sheet(self):
         """Set self.can_continue = False if a column name in clinical data and tree structure
         sheet do not match. Gives an error message specifying which column name(s) do not match.
-        :param tree_sheet_columns: list of entries in Tree structure sheet, Column name
-        :param data_columns: list of column names in clinical data
         """
         for col in set(self.data_df.columns):
             if col != 'SUBJ_ID' and col not in set(self.tree_df['Column name']):
