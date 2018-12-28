@@ -80,10 +80,13 @@ class DataValidator:
         """Set self.can_continue = False if a column name in clinical data and tree structure
         sheet do not match. Gives an error message specifying which column name(s) do not match.
         """
-        for col in set(self.data_df.columns):
-            if col != 'SUBJ_ID' and col not in set(self.tree_df['Column name']):
-                logger.error(" Column name: '{}' not listed in Tree structure column: 'Column name'.".format(col))
-                self.is_valid = False
+        columns = set(self.data_df.columns)
+        missing_columns = [col for col in columns if col != 'SUBJ_ID' and col not in set(self.tree_df['Column name'])]
+
+        if missing_columns:
+            logger.warning(" The following column(s) are not listed in Tree structure column: 'Column name': "
+                           "\n\t" + "\n\t".join(missing_columns))
+            self.is_valid = False
 
 
 def is_utf8(string):
