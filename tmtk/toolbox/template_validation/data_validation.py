@@ -78,23 +78,18 @@ class DataValidator:
                          "\n\t".join(duplicate_columns))
 
     def col_name_in_tree_sheet(self):
-        """Set self.can_continue = False if a column name in clinical data and tree structure
-        sheet do not match. Gives an error message specifying which column name(s) do not match.
+        """Check whether all the columns for the current data source are present in the tree sheet.
+        If data source contains additional columns: Log a warning message with all those column names.
         """
-        columns = set(self.data_df.columns)
-        tree_columns = []
+        # All column names present in the tree sheet for the current data source
+        tree_columns = self.tree_df[self.tree_df['Sheet name/File name'] == self.data_source]['Column name'].tolist()
 
-        for counter, data_source in enumerate(self.tree_df['Sheet name/File name']):
-            if data_source == self.data_source:
-                tree_columns.append(self.tree_df['Column name'][counter])
-
-        missing_columns = [col for col in columns if col != 'SUBJ_ID' and col not in tree_columns]
+        missing_columns = [col for col in self.data_df.columns if col != 'SUBJ_ID' and col not in tree_columns]
 
         if missing_columns:
             logger.warning(" The following column(s) in '" + self.data_source +
                            "' are not listed in Tree structure column: 'Column name': "
                            "\n\t" + "\n\t".join(missing_columns))
-            self.is_valid = False
 
 
 def is_utf8(string):
