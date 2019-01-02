@@ -11,7 +11,7 @@ class DataValidator:
 
         :param self.data_df: clinical data in pandas data frame
         :param self.tree_df: tree structure in pandas data frame
-        :param self.sheet_name: name of clinical data sheet
+        :param self.data_source: name of clinical data sheet or file
         :param self.n_comment_lines: stores index of first line in data sheet that is not a comment
         :param self.is_valid: boolean tracking if data passes validation steps
         :param self.tests_to_run: list containing function calls for data validation tests
