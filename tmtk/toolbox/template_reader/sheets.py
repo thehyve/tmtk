@@ -12,6 +12,7 @@ class TreeSheet:
         self.meta_columns = lower_columns.str.contains('metadata')
 
         self.item_name_i = list(lower_columns).index('column name')
+        self.source_name_i = list(lower_columns).index('sheet name/file name')
 
         try:
             self.ontology_code_i = list(lower_columns).index('ontology code')
@@ -142,19 +143,26 @@ class ValueSubstitutionSheet:
         self._generate_word_map()
 
     def _generate_word_map(self):
+        #TODO these lines should be removed as they are now part of the template validation
         if self.df.iloc[:, 1:3].duplicated().any():
             columns = self.df.iloc[:, 1:3].columns
             raise ValueSubstitutionError('Found duplicate mappings for COLUMN_NAME and FROM VALUE:\n{}'.
                                          format(self.df.loc[self.df[columns].duplicated(), columns]))
 
-        map_df = self.df.drop('sheet name/file name', axis=1).set_index(['column name', 'from value'])
+        map_df = self.df.copy()
+        # instead of just column name use the combination of column name and file name as key
+        new_col = [(col, file) for col, file in zip(map_df['column name'], map_df['sheet name/file name'])]
+        map_df['column name'] = new_col
+        map_df = map_df.drop('sheet name/file name', axis=1).set_index(['column name', 'from value'])
         map_df.columns = ['word_map']
 
         def get_word_map_dict(row):
             d = row.loc[row.name, :].to_dict()
-            return pd.Series(d)
+            return d
 
+        # Group together multiple mappings on the same variable
         word_map_df = map_df.groupby(level=0).apply(get_word_map_dict)
+        # Convert to final structure: {('column name', 'filename'): {'word_map': {'from': 'to', 'from2': 'to2'}}}
         self.word_map = word_map_df.T.to_dict()
 
 
@@ -192,6 +200,7 @@ class BlueprintFile:
 
         def _get_blueprint_entry(row):
             item_name = row[tree_sheet.item_name_i]
+            file_name = row[tree_sheet.source_name_i]
             if pd.isnull(item_name):
                 return
 
@@ -205,7 +214,7 @@ class BlueprintFile:
                 if row[tree_sheet.ontology_code_i] not in (None, pd.np.nan):
                     bpd['concept_code'] = row[tree_sheet.ontology_code_i]
 
-            blueprint[item_name] = bpd
+            blueprint[(item_name, file_name)] = bpd
 
         tree_sheet.df.apply(_get_blueprint_entry, axis=1)
         return blueprint
