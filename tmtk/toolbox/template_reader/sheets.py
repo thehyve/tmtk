@@ -6,16 +6,23 @@ from ...utils import Mappings
 
 class TreeSheet:
 
+    column_name_map = {
+        'col_name': 'column name',
+        'data_source': 'sheet name/file name',
+        'ontology': 'ontology code',
+        'data_type': 'transmart data type'
+    }
+
     def __init__(self, df):
         lower_columns = df.columns.str.lower()
         self.level_columns = lower_columns.str.contains('level') & ~lower_columns.str.contains('metadata')
         self.meta_columns = lower_columns.str.contains('metadata')
 
-        self.item_name_i = list(lower_columns).index('column name')
-        self.source_name_i = list(lower_columns).index('sheet name/file name')
+        self.item_name_i = list(lower_columns).index(self.column_name_map['col_name'])
+        self.source_name_i = list(lower_columns).index(self.column_name_map['data_source'])
 
         try:
-            self.ontology_code_i = list(lower_columns).index('ontology code')
+            self.ontology_code_i = list(lower_columns).index(self.column_name_map['ontology'])
         except ValueError:
             self.ontology_code_i = None
 
@@ -23,7 +30,7 @@ class TreeSheet:
         self.data_sources = self.get_data_sources(lower_columns)
 
     def get_data_sources(self, lower_columns) -> list:
-        data_source_col = lower_columns.str.contains('sheet name/file name')
+        data_source_col = lower_columns.str.contains(self.column_name_map['data_source'])
         data_sources = self.df.loc[:, data_source_col].iloc[:, 0].dropna().unique().tolist()
         return data_sources
 
@@ -62,7 +69,7 @@ class TreeSheet:
             tag_df = tag_df.append(sub_df.apply(get_path, axis=1, args=(level_columns,)))
 
         # Only return df if there are rows
-        if tag_df.shape[0]:
+        if not tag_df.empty:
             tag_df.columns = Mappings.tags_header
             return tag_df
 
@@ -136,6 +143,12 @@ class ModifierSheet:
 class ValueSubstitutionSheet:
     """ Concerns with the word mapping. """
 
+    column_name_map = {'col_name': 'column name',
+                       'data_source': 'sheet name/file name',
+                       'from': 'from value',
+                       'to': 'to value'
+                       }
+
     def __init__(self, df):
         lower_columns = df.columns.str.lower()
         self.df = df.applymap(str)
@@ -143,7 +156,7 @@ class ValueSubstitutionSheet:
         self._generate_word_map()
 
     def _generate_word_map(self):
-        #TODO these lines should be removed as they are now part of the template validation
+        # TODO these lines should be removed as they are now part of the template validation
         if self.df.iloc[:, 1:3].duplicated().any():
             columns = self.df.iloc[:, 1:3].columns
             raise ValueSubstitutionError('Found duplicate mappings for COLUMN_NAME and FROM VALUE:\n{}'.
@@ -151,9 +164,11 @@ class ValueSubstitutionSheet:
 
         map_df = self.df.copy()
         # instead of just column name use the combination of column name and file name as key
-        new_col = [(col, file) for col, file in zip(map_df['column name'], map_df['sheet name/file name'])]
-        map_df['column name'] = new_col
-        map_df = map_df.drop('sheet name/file name', axis=1).set_index(['column name', 'from value'])
+        new_col = [(col, file) for col, file in zip(map_df[self.column_name_map['col_name']],
+                                                    map_df[self.column_name_map['data_source']])]
+        map_df[self.column_name_map['col_name']] = new_col
+        map_df.drop(self.column_name_map['data_source'], axis=1, inplace=True)
+        map_df.set_index([self.column_name_map['col_name'], self.column_name_map['from']], inplace=True)
         map_df.columns = ['word_map']
 
         def get_word_map_dict(row):
