@@ -63,7 +63,9 @@ class TemplateReaderTests(TestBase):
     def test_value_substitution_sheet(self):
         value_substitution_sheet = ValueSubstitutionSheet(self.template.parse('Value substitution', comment=COMMENT))
         self.assertTupleEqual(value_substitution_sheet.df.shape, (6, 4))
-        key_set = {'Gender', 'QLQ-C30_Q01', 'QLQ-C30_Q02', 'QLQ-C30_Q03', 'QLQ-C30_Q04'}
+        key_set = {('Gender', 'Low-dimensional data (Mock)'), ('QLQ-C30_Q01', 'TRIAL_VISIT_Data (Mock)'),
+                   ('QLQ-C30_Q02', 'TRIAL_VISIT_Data (Mock)'), ('QLQ-C30_Q03', 'TRIAL_VISIT_Data (Mock)'),
+                   ('QLQ-C30_Q04', 'TRIAL_VISIT_Data (Mock)')}
         self.assertSequenceEqual(value_substitution_sheet.word_map.keys(), key_set)
 
     def test_trial_visit_sheet(self):
@@ -95,17 +97,17 @@ class TemplateReaderTests(TestBase):
     def test_blue_print_file(self):
         tree_sheet = TreeSheet(self.template.parse('Tree structure', comment=COMMENT))
         b = BlueprintFile(tree_sheet)
-        self.assertIn('Blood_Volume', b.blueprint)
+        self.assertIn(('Blood_Volume', 'SAMPLE (Mock)'), b.blueprint)
         self.assertEqual(len(b.blueprint), 29)
         self.assertDictEqual(
             {
                 'label': 'Blood volume',
                 'path': '3. Biobank\\Blood'
             },
-            b.blueprint['Blood_Volume']
+            b.blueprint[('Blood_Volume', 'SAMPLE (Mock)')]
         )
 
-        update_item = {'Blood_Volume':
+        update_item = {('Blood_Volume', 'SAMPLE (Mock)'):
             {
                 'label': 'Volume of blood',
                 'path': '3. Biobank',
@@ -119,10 +121,10 @@ class TemplateReaderTests(TestBase):
                 'path': '3. Biobank',
                 'new_item': 'test'
             },
-            b.blueprint['Blood_Volume']
+            b.blueprint[('Blood_Volume', 'SAMPLE (Mock)')]
         )
 
-        new_item = {'test_item':
+        new_item = {'RESERVED_KEYWORD':
             {
                 'label': 'this is a test',
                 'path': 'some path',
@@ -134,7 +136,7 @@ class TemplateReaderTests(TestBase):
             {
                 'label': 'this is a test',
                 'path': 'some path',
-            }, b.blueprint['test_item']
+            }, b.blueprint['RESERVED_KEYWORD']
         )
 
     def test_template_reader(self):
