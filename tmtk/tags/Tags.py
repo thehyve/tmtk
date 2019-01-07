@@ -1,7 +1,10 @@
-import pandas as pd
 import os
-from ..utils import Exceptions, FileBase, Mappings, path_converter, TransmartBatch, ValidateMixin, path_join
+from pathlib import Path
+
+import pandas as pd
+
 from ..params import TagsParams
+from ..utils import Exceptions, FileBase, Mappings, path_converter, TransmartBatch, ValidateMixin, path_join
 
 
 class MetaDataTags(FileBase, ValidateMixin):
@@ -78,8 +81,14 @@ class MetaDataTags(FileBase, ValidateMixin):
 
         :param blueprint: blueprint object.
         """
-        for var in self.parent.Clinical.all_variables.values():
-            blueprint_var = blueprint.get(var.header, {})
+        for variable in self.parent.Clinical.all_variables.values():
+            # The default blueprint key is a tuple containing the column name and the file name (without extension)
+            blueprint_key = (variable.header.strip(), Path(variable.filename).stem)
+            if blueprint_key not in blueprint:
+                # Fallback to assuming a column-name-only key
+                blueprint_key = blueprint_key[0]
+
+            blueprint_var = blueprint.get(blueprint_key, {})
             tags = blueprint_var.get('metadata_tags')
             if not tags:
                 continue
