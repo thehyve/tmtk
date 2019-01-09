@@ -48,13 +48,18 @@ def validate(template_filename, source_dir=None):
 
         if not can_continue:
             return
-        # validate mandatory sheets and data sources
-        mandatory_sheets_valid = validate_mandatory_sheets(template, source_dir)
-        invalid_data_sources = validate_data_sources(template, source_dir)
 
-        if mandatory_sheets_valid != 2 or invalid_data_sources > 0:
-            logger.error(' Make adjustments to template and possible other input files to fix errors '
-                         'and re-validate template.')
+        # validate mandatory sheets and data sources
+        tree_sheet_valid = validate_tree_sheet(template)
+        value_substitution_sheet_valid = validate_value_substitution_sheet(template, source_dir)
+
+        if not tree_sheet_valid:
+            logger.error(' Make adjustments to template to fix errors and re-validate.')
+        else:
+            invalid_data_sources = validate_data_sources(template, source_dir)
+            if not value_substitution_sheet_valid or invalid_data_sources > 0:
+                logger.error(' Make adjustments to template and possible other input files to fix errors '
+                             'and re-validate template.')
 
 
 def mandatory_sheets_present(sheet_names) -> bool:
@@ -70,26 +75,34 @@ def mandatory_sheets_present(sheet_names) -> bool:
     return True
 
 
-def validate_mandatory_sheets(template, source_dir) -> int:
-    """ Validate tree structure sheet in TreeValidator and Value substitution sheet in ValueSubstitutionValidator.
-    Return number of valid sheets.
+def validate_tree_sheet(template) -> bool:
+    """ Validate tree structure sheet in TreeValidator.
     """
-    valid_mandatory_sheets = 0
+    tree_sheet_valid = False
     for sheet in template.sheet_names:
         if sheet.lower() == 'tree structure':
             tree_df = template.parse(sheet, comment=None, header=None)
             tree_sheet_validator = TreeValidator(tree_df)
             if tree_sheet_validator.is_valid:
                 logger.info(' Tree structure sheet seems okay.')
-                valid_mandatory_sheets += 1
+                tree_sheet_valid = True
+
+    return tree_sheet_valid
+
+
+def validate_value_substitution_sheet(template, source_dir) -> bool:
+    """ Validate value substitution sheet in ValueSubstitutionValidator.
+    """
+    value_substitution_sheet_valid = False
+    for sheet in template.sheet_names:
         if sheet.lower() == 'value substitution':
             value_substitution_df = template.parse(sheet, comment=None, header=None)
             value_substitution_validator = ValueSubstitutionValidator(value_substitution_df, source_dir, template)
             if value_substitution_validator.is_valid:
                 logger.info(' Value substitution sheet seems okay.')
-                valid_mandatory_sheets += 1
+                value_substitution_sheet_valid = True
 
-    return valid_mandatory_sheets
+    return value_substitution_sheet_valid
 
 
 def validate_data_sources(template, source_dir) -> int:
