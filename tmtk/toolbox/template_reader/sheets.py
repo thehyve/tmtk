@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 from .sheet_exceptions import MetaDataException, ValueSubstitutionError
@@ -163,9 +165,9 @@ class ValueSubstitutionSheet:
                                          format(self.df.loc[self.df[columns].duplicated(), columns]))
 
         map_df = self.df.copy()
-        # instead of just column name use the combination of column name and file name as key
-        new_col = [(col, file) for col, file in zip(map_df[self.column_name_map['col_name']],
-                                                    map_df[self.column_name_map['data_source']])]
+        # instead of just column name use the combination of column name and file name without suffix as key
+        new_col = [(col, Path(file).stem) for col, file in zip(map_df[self.column_name_map['col_name']],
+                                                               map_df[self.column_name_map['data_source']])]
         map_df[self.column_name_map['col_name']] = new_col
         map_df.drop(self.column_name_map['data_source'], axis=1, inplace=True)
         map_df.set_index([self.column_name_map['col_name'], self.column_name_map['from']], inplace=True)
@@ -218,6 +220,9 @@ class BlueprintFile:
             file_name = row[tree_sheet.source_name_i]
             if pd.isnull(item_name):
                 return
+            # Remove suffix from file if there is one
+            if Path(file_name).suffix:
+                file_name = Path(file_name).stem
 
             fullname = '\\'.join(row[tree_sheet.level_columns][1:]).strip('\\')
             path, label = fullname.rsplit('\\', 1)
