@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import pandas as pd
 
@@ -23,7 +23,7 @@ KEYWORD_SHEETS = {
 }
 
 
-def template_reader(template_filename, source_dir=None) -> Study:
+def template_reader(template_file, source_dir=None) -> Study:
     """
     Create tranSMART files in designated output_dir for all data provided in templates in the source_dir.
 
@@ -33,17 +33,19 @@ def template_reader(template_filename, source_dir=None) -> Study:
     Additionally, for 17.x templates the following sheets are also required:
     - Modifier
     - Trial visit
-    Note: The sheets need to be present, they can be empty
+    Note: The sheets need to be present, but they can be empty
 
-    :param template_filename: Template Excel file to parse
-    :param source_dir: directory containing all the templates.
+    :param template_file: Template Excel file to parse
+    :param source_dir: directory containing the templates and source data.
 
     :return: tmtk.Study
     """
     if source_dir:
-        template_file = os.path.join(source_dir, template_filename)
+        template_file = Path(source_dir).joinpath(template_file)
     else:
-        template_file = os.path.abspath(template_filename)
+        template_file = Path(template_file).resolve()
+        source_dir = Path(template_file).parent
+    source_dir = Path(source_dir)
 
     template = pd.ExcelFile(template_file, comment=COMMENT)
     sheet_dict = get_template_sheets(template)
@@ -57,18 +59,15 @@ def template_reader(template_filename, source_dir=None) -> Study:
     study.ensure_metadata()
 
     # Add clinical data files to the study
+    source_dir_files = {path.name: path for path in source_dir.glob('*')}
     for data_source in sheet_dict['tree structure'].data_sources:
         if data_source in template.sheet_names:
             data_df = template.parse(data_source, comment=COMMENT)
-            study.Clinical.add_datafile(filename='{}.txt'.format(data_source), dataframe=data_df)
-
         else:
-            # TODO: Look for file in source_dir -> the data source is probably just the file name
-            # Notes: possible excel files, tab-separated and comma or semicolon separated files.
-            # Assumption if excel file, use first sheet
-            # Define list of supported file extensions --> .txt, tsv, csv, xls, xlsx
-            # Can use CSV sniffer function in pandas to determine sep type if none excel
-            pass
+            if data_source not in source_dir_files:
+                raise TemplateException('Data source "{}" not found in template or source_dir'.format(data_source))
+            data_df = _get_external_source_df(source_dir_files[data_source])
+        study.Clinical.add_datafile(filename='{}.txt'.format(Path(data_source).stem), dataframe=data_df)
 
     # Process 17.x sheets
     if not tmtk.options.transmart_batch_mode:
@@ -112,3 +111,12 @@ def get_template_sheets(template):
             keyword_sheet_dict[sheet_lower] = cls(template.parse(sheet, comment=COMMENT))
 
     return keyword_sheet_dict
+
+
+def _get_external_source_df(source_file):
+    if source_file.suffix in {'.xlsx', '.xls'}:
+        data_df = pd.read_excel(source_file, dtype='object', comment=COMMENT)
+    else:
+        # Assume text file
+        data_df = pd.read_csv(source_file, dtype='object', sep=None, engine='python')
+    return data_df
