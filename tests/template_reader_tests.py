@@ -66,8 +66,8 @@ class TemplateReaderTests(TestBase):
         self.assertTupleEqual(value_substitution_sheet.df.shape, (8, 4))
         key_set = {('Gender', 'Low-dimensional data (Mock)'), ('QLQ-C30_Q01', 'TRIAL_VISIT_Data (Mock)'),
                    ('QLQ-C30_Q02', 'TRIAL_VISIT_Data (Mock)'), ('QLQ-C30_Q03', 'TRIAL_VISIT_Data (Mock)'),
-                   ('QLQ-C30_Q04', 'TRIAL_VISIT_Data (Mock)'), ('FAVORITE_COLOR', 'csv_data_file.csv'),
-                   ('Favorite_drill', 'just_another_excel_file.xlsx')}
+                   ('QLQ-C30_Q04', 'TRIAL_VISIT_Data (Mock)'), ('FAVORITE_COLOR', 'csv_data_file'),
+                   ('Favorite_drill', 'just_another_excel_file')}
         self.assertSequenceEqual(value_substitution_sheet.word_map.keys(), key_set)
 
     def test_trial_visit_sheet(self):
@@ -145,7 +145,7 @@ class TemplateReaderTests(TestBase):
         study = template_reader(self.template_file)
         col_map = study.Clinical.ColumnMapping.df
         modifiers = study.Clinical.Modifiers.df
-        self.assertTupleEqual(col_map.shape, (39, 7))
+        self.assertTupleEqual(col_map.shape, (44, 7))
 
         used_modifiers = col_map.iloc[:, -1].unique().tolist()
         [self.assertIn(item, modifiers.modifier_cd.unique().tolist()+[''])
@@ -157,8 +157,8 @@ class TemplateReaderTests(TestBase):
         self.assertEqual(clinical_sources_in_study, {'Low-dimensional data (Mock).txt',
                                                      'SAMPLE (Mock).txt',
                                                      'TRIAL_VISIT_Data (Mock).txt',
-                                                     'just_another_excel_file.xlsx',
-                                                     'csv_data_file.csv'
+                                                     'just_another_excel_file.txt',
+                                                     'csv_data_file.txt'
                                                      })
 
     def test_data_labels_in_study(self):
@@ -175,6 +175,7 @@ class TemplateReaderTests(TestBase):
                     'Cause of life',
                     'Date resection primary tumor',
                     'Drill of choice',
+                    'Favorite color',
                     'Gender',
                     'History of colon polyps',
                     'Hypermutated',
@@ -194,8 +195,7 @@ class TemplateReaderTests(TestBase):
                     'Sequence colonoscopy',
                     'Subject identifiers',
                     'T stage',
-                    'TRIAL_VISIT_LABEL',
-                    'Z stage'
+                    'TRIAL_VISIT_LABEL'
                     }
 
         found = {var.data_label for var in study.Clinical.all_variables.values()}
