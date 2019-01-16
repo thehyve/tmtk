@@ -1,2 +1,4 @@
-SUBJ_ID FAVORITE_COLOR
-Subject_01  Blue
+SUBJ_ID;FAVORITE_COLOR
+Subject_01;Blue
+Subject_02;Green
+Subject_03;Red
