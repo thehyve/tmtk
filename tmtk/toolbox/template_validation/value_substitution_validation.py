@@ -60,26 +60,12 @@ class ValueSubstitutionValidator(Validator):
         """ Checks whether data source referenced in 'Sheet name/File name' and corresponding column names are present
         in the tree structure sheet.
         """
-        df = self.df.dropna(subset=['Sheet name/File name', 'Column name']).reset_index(drop=True)
-        incorrect_source_reference = set()
-
-        for sheet in self.template.sheet_names:
-            if sheet.lower() == 'tree structure':
-                tree_df = self.template.parse(sheet, comment='#')
+        df = self.df.dropna(subset=['Sheet name/File name', 'Column name'])\
+            .drop_duplicates(subset=['Sheet name/File name', 'Column name']).reset_index(drop=True)
 
         for counter, data_source in enumerate(df['Sheet name/File name']):
             column = df['Column name'][counter]
-            tree_columns = tree_df[tree_df['Sheet name/File name'] == data_source]['Column name'].tolist()
-
-            if data_source in tree_df['Sheet name/File name'].values:
-                if column not in tree_columns:
-                    self.is_valid = False
-                    self.logger.error(" Column '{}' in combination with sheet or file named '{}' not found in tree "
-                                      "structure. Check whether the reference is correct.".format(column, data_source))
-            else:
-                incorrect_source_reference.add(data_source)
-
-        if incorrect_source_reference:
-            self.is_valid = False
-            self.logger.error(" Sheet or file named '{}' not found in tree structure. Check whether the reference "
-                              "is correct.".format(data_source))
+            if not ((self.tree_df['Sheet name/File name'] == data_source) &
+                    (self.tree_df['Column name'] == column)).any():
+                self.logger.error(" Column '{}' in combination with sheet or file named '{}' not found in tree "
+                                  "structure. Check whether the reference is correct.".format(column, data_source))
