@@ -60,8 +60,8 @@ class ValueSubstitutionValidator(Validator):
         """ Checks whether data source referenced in 'Sheet name/File name' and corresponding column names are present
         in the tree structure sheet.
         """
-        df = self.df.dropna(subset=['Sheet name/File name', 'Column name'])\
-            .drop_duplicates(subset=['Sheet name/File name', 'Column name']).reset_index(drop=True)
+        df = self.df.dropna(subset=['Sheet name/File name', 'Column name'])
+        df = df.drop_duplicates(subset=['Sheet name/File name', 'Column name']).reset_index(drop=True)
 
         for counter, data_source in enumerate(df['Sheet name/File name']):
             column = df['Column name'][counter]
