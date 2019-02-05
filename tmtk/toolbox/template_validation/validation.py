@@ -8,10 +8,14 @@ class Validator:
         Creates object Validator that runs common validation steps for the loaded sheet or file.
 
         :param self.df: one of the sheets (or files referred to) in the template in a pandas data frame
+        :param self.n_comment_lines: stores index of first line in data sheet that is not a comment
         :param self.is_valid: boolean tracking if data passes validation steps
         :param self.can_continue: boolean tracking if validation steps can continue without issues in next tests
-        :param self.n_comment_lines: stores index of first line in data sheet that is not a comment
         :param self.tests_to_run: list containing function calls for data validation tests
+        :param self.logger: Logger instance
+        :param self.logger.setLevel: sets loggers level of printing
+        :param self.mandatory_columns: mandatory columns for a sheet
+        :param self.data_source:
         """
         self.df = df
         self.n_comment_lines = 0
