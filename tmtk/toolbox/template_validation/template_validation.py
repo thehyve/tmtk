@@ -1,9 +1,9 @@
-import csv
-
 import tmtk
 import logging
 import os
 import pandas as pd
+import csv
+import collections
 
 from .data_validation import DataValidator
 from .tree_sheet_validation import TreeValidator
@@ -45,6 +45,11 @@ def validate(template_filename, source_dir=None):
         if not can_continue:
             return
 
+        # check whether data sources have unique names
+        can_continue = unique_data_sources(template, source_dir)
+        if not can_continue:
+            return
+
         # validate mandatory sheets and data sources
         tree_sheet_valid = validate_tree_sheet(template)
         for sheet in template.sheet_names:
@@ -69,6 +74,23 @@ def mandatory_sheets_present(sheet_names) -> bool:
 
         logger.error(' Missing mandatory sheet(s). Make adjustments to the template and re-validate. Your file '
                      'does not contain the following sheet names: \n\t' + '\n\t. '.join(missing_sheets))
+        return False
+
+    return True
+
+
+def unique_data_sources(template, source_dir) -> bool:
+    """ Checks whether data sources have unique names.
+    """
+    file_names = [file.rsplit('.', 1)[0] for file in os.listdir(source_dir)]
+    for sheet in template.sheet_names:
+        file_names.append(sheet)
+
+    duplicate_file_names = [item for item, count in collections.Counter(file_names).items() if count > 1]
+
+    if duplicate_file_names:
+        logger.error(' Make adjustments to your source data file names and re-validate. Duplicate names for data '
+                     'sources detected: \n\t' + '\n\t'.join(duplicate_file_names))
         return False
 
     return True
