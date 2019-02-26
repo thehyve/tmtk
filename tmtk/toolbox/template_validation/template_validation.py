@@ -83,8 +83,8 @@ def mandatory_sheets_present(sheet_names) -> bool:
 def unique_data_sources(tree_df) -> bool:
     """ Checks whether data sources have unique names.
     """
-    tree_df = tree_df.drop_duplicates(subset='Sheet name/File name', keep='first')
-    file_names = [file.rsplit('.', 1)[0] for file in tree_df['Sheet name/File name']]
+    data_sources = tree_df['Sheet name/File name'].dropna().unique()
+    file_names = [file.rsplit('.', 1)[0] for file in data_sources]
     duplicate_file_names = [item for item, count in collections.Counter(file_names).items() if count > 1]
 
     if duplicate_file_names:
