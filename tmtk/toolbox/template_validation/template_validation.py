@@ -1,9 +1,9 @@
-import csv
-
 import tmtk
 import logging
 import os
 import pandas as pd
+import csv
+import collections
 
 from .data_validation import DataValidator
 from .tree_sheet_validation import TreeValidator
@@ -45,11 +45,17 @@ def validate(template_filename, source_dir=None):
         if not can_continue:
             return
 
-        # validate mandatory sheets and data sources
-        tree_sheet_valid = validate_tree_sheet(template)
+        # read tree structure sheet without comments
         for sheet in template.sheet_names:
             if sheet.lower() == 'tree structure':
-                tree_df = template.parse(sheet, comment='#')  # read tree structure sheet without comments
+                tree_df = template.parse(sheet, comment='#')
+        # check whether data sources listed in tree structure sheet have unique names
+        can_continue = unique_data_sources(tree_df)
+        if not can_continue:
+            return
+
+        # validate mandatory sheets and data sources
+        tree_sheet_valid = validate_tree_sheet(template)
         value_substitution_sheet_valid = validate_value_substitution_sheet(template, tree_df)
 
         if not tree_sheet_valid:
@@ -69,6 +75,21 @@ def mandatory_sheets_present(sheet_names) -> bool:
 
         logger.error(' Missing mandatory sheet(s). Make adjustments to the template and re-validate. Your file '
                      'does not contain the following sheet names: \n\t' + '\n\t. '.join(missing_sheets))
+        return False
+
+    return True
+
+
+def unique_data_sources(tree_df) -> bool:
+    """ Checks whether data sources have unique names.
+    """
+    data_sources = tree_df['Sheet name/File name'].dropna().unique()
+    file_names = [file.rsplit('.', 1)[0] for file in data_sources]
+    duplicate_file_names = [item for item, count in collections.Counter(file_names).items() if count > 1]
+
+    if duplicate_file_names:
+        logger.error(' Make adjustments to your source data file names and re-validate. Duplicate names for data '
+                     'sources detected: \n\t' + '\n\t'.join(duplicate_file_names))
         return False
 
     return True
