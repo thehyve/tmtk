@@ -17,7 +17,7 @@ def get_clinical_template(study):
     clinical_template = None
     if len(clinical_templates) == 1:
         clinical_template_name = clinical_templates[0]
-        clinical_template = pd.ExcelFile(clinical_template_name)
+        clinical_template = pd.ExcelFile(clinical_template_name, comment="#")
         print("[INFO] Clinical data template detected: " + clinical_template_name)
     elif len(clinical_templates) == 0:
         study.clinical_template_present = False
