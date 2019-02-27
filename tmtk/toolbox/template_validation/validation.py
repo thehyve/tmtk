@@ -51,16 +51,18 @@ class Validator:
         self.df = self.df.rename(columns=header)
 
     def check_forbidden_chars(self):
-        """Iterate through df and check for # and \ within data. When one of these characters is detected
-        set self.is_valid = False and give error message with their location column name and row number.
+        """Iterate through df and check for #, \ and newlines (\n or \r)  within data. When one of these characters or
+         character sets is detected set self.is_valid = False and give error message with their location column name
+         and row number.
         """
-        forbidden_chars = ('#', '\\')
+        forbidden_chars = ('#', '\\', '\n', '\r')
 
         for col_name, series in self.df.iteritems():
             for idx, value in series.iteritems():
                 if any((c in forbidden_chars) for c in str(value)):
                     self.is_valid = False
-                    self.logger.error(" Detected '#' or '\\' at column: '{}', row: {}.".format(col_name, idx + 1))
+                    self.logger.error(" Detected '#', '\\' or new line at column: '{}', row: {}."
+                                      .format(col_name, idx + 1))
 
     def check_whitespace(self):
         """Checks whether there is any whitespace at the start or end of a value.
@@ -71,8 +73,8 @@ class Validator:
                 self.can_continue = False
                 self.is_valid = False
                 self.logger.error(" Detected whitespace at start or end of column header: '{}'.".format(col_name))
-            for idx, value in series.iteritems():
-                if not pd.isnull(value) and (str(value).startswith(' ') or str(value).endswith(' ')):
+            for idx, value in series.dropna().iteritems():
+                if str(value).startswith(' ') or str(value).endswith(' '):
                     self.is_valid = False
                     self.logger.error(" Detected whitespace at start or end of value in column: '{}', row: {}."
                                       .format(col_name, idx + 1))
