@@ -1,4 +1,5 @@
 import logging
+import pandas as pd
 
 
 class Validator:
@@ -60,6 +61,21 @@ class Validator:
                 if any((c in forbidden_chars) for c in str(value)):
                     self.is_valid = False
                     self.logger.error(" Detected '#' or '\\' at column: '{}', row: {}.".format(col_name, idx + 1))
+
+    def check_whitespace(self):
+        """Checks whether there is any whitespace at the start or end of a value.
+        """
+        # check values in columns
+        for col_name, series in self.df.iteritems():
+            if col_name.startswith(' ') or col_name.endswith(' '):
+                self.can_continue = False
+                self.is_valid = False
+                self.logger.error(" Detected whitespace at start or end of column header: '{}'.".format(col_name))
+            for idx, value in series.iteritems():
+                if not pd.isnull(value) and (str(value).startswith(' ') or str(value).endswith(' ')):
+                    self.is_valid = False
+                    self.logger.error(" Detected whitespace at start or end of value in column: '{}', row: {}."
+                                      .format(col_name, idx + 1))
 
     def check_mandatory_columns(self):
         """ Checks whether mandatory columns are present. If one or more mandatory columns are absent self.can_continue

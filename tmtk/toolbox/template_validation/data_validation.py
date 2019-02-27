@@ -20,6 +20,7 @@ class DataValidator(Validator):
         self.tests_to_run = (test for test in
                              [self.after_comments,
                               self.check_forbidden_chars,
+                              self.check_whitespace,
                               self.check_encoding,
                               self.mandatory_col,
                               self.unique_col_names,
