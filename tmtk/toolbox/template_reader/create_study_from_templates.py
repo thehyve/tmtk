@@ -47,7 +47,7 @@ def template_reader(template_file, source_dir=None) -> Study:
         source_dir = Path(template_file).parent
     source_dir = Path(source_dir)
 
-    template = pd.ExcelFile(template_file, comment=COMMENT)
+    template = pd.ExcelFile(template_file)
     sheet_dict = get_template_sheets(template)
 
     # Create the initial blueprint from the tree_sheet and update with the value substitution sheet

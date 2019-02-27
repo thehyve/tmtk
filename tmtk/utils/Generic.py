@@ -58,9 +58,9 @@ def file2df(path=None):
     """
     if not os.path.exists(path):
         raise PathError('File ({}) does not exist.'.format(path))
-    df = pd.read_table(path,
-                       sep='\t',
-                       dtype=object)
+    df = pd.read_csv(path,
+                     sep='\t',
+                     dtype=object)
     return df
 
 

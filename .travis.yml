@@ -1,27 +1,26 @@
 language: python
+sudo: required
+dist: xenial
 
 matrix:
   exclude:
-  - python: 3.4
-    env: TOX_ENV=pandas0.21
-  - python: 3.4
+  - python: 3.7
     env: TOX_ENV=pandas0.22
-  - python: 3.4
+  - python: 3.7
     env: TOX_ENV=pandas0.23
 
 os:
   - linux
 
 python:
-  - 3.4
   - 3.5
   - 3.6
+  - 3.7
 
 env:
-  - TOX_ENV=pandas0.20
-  - TOX_ENV=pandas0.21
   - TOX_ENV=pandas0.22
   - TOX_ENV=pandas0.23
+  - TOX_ENV=pandas0.24
 
 install:
   - pip install tox-travis codecov coverage
