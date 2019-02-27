@@ -23,6 +23,7 @@ class ValueSubstitutionValidator(Validator):
                              [self.after_comments,
                               self.check_mandatory_columns,
                               self.check_forbidden_chars,
+                              self.check_whitespace,
                               self.no_empty_cells,
                               self.value_substitution_unique,
                               self.source_in_tree,
