@@ -118,27 +118,30 @@ class OntologyTree:
         while self._iterate_hierarchy():
             pass
 
-    def json(self, as_object=False):
+    def json(self, as_object=False, unique_codes=True):
         ids_ = set()
 
-        def clean_duplicate_ids(children):
+        def clean_duplicate_ids(children, id_type):
             for term in children:
-                if term.get('data', {}).get('code') in ids_:
+                if term.get('data', {}).get(id_type) in ids_:
                     term['id'] = None
                 else:
                     ids_.add(term['id'])
 
-                clean_duplicate_ids(term.get('children'))
+                clean_duplicate_ids(term.get('children'), id_type)
 
         tree = [node.json() for node in self.anchors]
-        clean_duplicate_ids(tree)
+        if unique_codes:
+            clean_duplicate_ids(tree, id_type='code')
+        else:
+            clean_duplicate_ids(tree, id_type='text')
         if as_object:
             return tree
         else:
             return json.dumps(tree)
 
-    def get_concept_rows(self):
-        for node in self.json(as_object=True):
+    def get_concept_rows(self, unique_codes=True):
+        for node in self.json(as_object=True, unique_codes=unique_codes):
             yield from self._get_next_concept_row(node, path='')
 
     def _get_next_concept_row(self, node, path):

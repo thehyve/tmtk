@@ -48,6 +48,6 @@ class SkinnyTests(TestBase):
         self.assertNotIn(pd.np.nan, set(df.sex_cd))
 
     def test_no_top_node(self):
-        self.assertEqual((41, 27), self.export.i2b2_secure.df.shape)
+        nr_of_nodes = self.export.i2b2_secure.df.shape[0]
         self.export2 = tmtk.toolbox.SkinnyExport(self.study, self.temp_dir, add_top_node=False)
-        self.assertEqual((39, 27), self.export2.i2b2_secure.df.shape)
+        self.assertEqual(nr_of_nodes-2, self.export2.i2b2_secure.df.shape[0])

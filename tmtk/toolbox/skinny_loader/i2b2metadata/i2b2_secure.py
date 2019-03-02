@@ -1,7 +1,6 @@
 from ..shared import TableRow, Defaults, calc_hlevel, get_full_path, path_slash_all, path_converter
 
 import pandas as pd
-import uuid
 from tqdm import tqdm
 from hashlib import sha1
 
@@ -95,17 +94,19 @@ class I2B2Secure(TableRow):
 
     def back_populate_ontology(self, concept_dimension):
         """ Create rows for ontology terms. """
-        for concept_row in concept_dimension.df.itertuples():
+        for concept_row in concept_dimension.df_ontology.itertuples():
             concept_code = concept_row[1]
             concept_path = concept_row[2]
             concept_name = concept_row[3]
-            row = self.df[self.df.c_basecode == concept_code].copy()
-            row.c_fullname = concept_path
-            row.c_hlevel = calc_hlevel(concept_path)
-            row.c_name = concept_name
-            row.sourcesystem_cd = None
-            row.secure_obj_token = Defaults.PUBLIC_TOKEN
-            self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
+            rows = self.df[self.df.c_basecode == concept_code].copy()
+            if len(rows) > 0:
+                row = rows.copy().iloc[[0]]
+                row.c_fullname = concept_path
+                row.c_hlevel = calc_hlevel(concept_path)
+                row.c_name = concept_name
+                row.sourcesystem_cd = None
+                row.secure_obj_token = Defaults.PUBLIC_TOKEN
+                self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
 
     def add_missing_folders(self):
         """ Add rows for all parent folders not present yet. """
