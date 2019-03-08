@@ -61,6 +61,7 @@ class DataValidator(Validator):
         missing_columns = [col for col in self.df.columns if col != 'SUBJ_ID' and col not in tree_columns]
 
         if missing_columns:
+            self.is_valid = False
             self.logger.warning(" The following column(s) in '" + self.data_source +
                                 "' are not listed in Tree structure column: 'Column name': "
                                 "\n\t" + "\n\t".join(missing_columns))
