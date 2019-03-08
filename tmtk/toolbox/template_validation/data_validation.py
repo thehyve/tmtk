@@ -24,7 +24,8 @@ class DataValidator(Validator):
                               self.check_encoding,
                               self.mandatory_col,
                               self.unique_col_names,
-                              self.col_name_in_tree_sheet
+                              self.col_name_in_tree_sheet,
+                              self.tree_col_name_in_data
                               ])
 
         self.validate_sheet()
@@ -63,6 +64,21 @@ class DataValidator(Validator):
             self.logger.warning(" The following column(s) in '" + self.data_source +
                                 "' are not listed in Tree structure column: 'Column name': "
                                 "\n\t" + "\n\t".join(missing_columns))
+
+    def tree_col_name_in_data(self):
+        """Check whether all the columns referenced in the tree sheet are present in the data source(s).
+        If data source contains additional columns: Log a warning message with all those column names.
+        """
+        # All column names present in the tree sheet for the current data source
+        tree_columns = self.tree_df[self.tree_df['Sheet name/File name'] == self.data_source]['Column name'].tolist()
+
+        missing_columns = [col for col in tree_columns if col not in self.df.columns]
+
+        if missing_columns:
+            self.is_valid = False
+            self.logger.warning(" The following column(s) listed in Tree structure column: 'Column name' are not "
+                                "listed in data sheet or file '" + self.data_source + "': \n\t" + "\n\t"
+                                .join(missing_columns))
 
 
 def is_utf8(string):
