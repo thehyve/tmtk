@@ -98,7 +98,7 @@ class _ArboristToTemplate:
         self.raw_tree = full_tree
 
     def _add_mandatory_columns(self):
-        self.df.insert(loc=0, column='Column number', value=np.nan)
+        self.df.insert(loc=0, column='Column name', value=np.nan)
         self.df.insert(loc=0, column='Sheet name/File name', value=np.nan)
         self.df.insert(loc=0, column='tranSMART data type', value='Low-dimensional')
 
@@ -125,26 +125,35 @@ class _ArboristToTemplate:
             self.df.loc[row_index, 'Level {} metadata value'.format(level)] = value
             row_index += 1
 
-    def _determine_row_index(self, last_row_index, cols_equal_or_higher_level, last_regular_node_row_index):
+    def _determine_row_index(self, last_regular_node_row_index, depth):
         """Determine the row index on which the current node should be inserted."""
-        # The df is still empty
-        if last_row_index is None:
-            row_index = 0
-        # If all >= levels on this row are empty, add node on the same row
-        elif all(self.df.loc[last_row_index, cols_equal_or_higher_level].isnull()):
-            row_index = last_regular_node_row_index
-        # Otherwise insert node on a new row
-        else:
-            row_index = last_row_index + 1
-        return row_index
+        # Insert on first line if df is still empty
+        if last_regular_node_row_index is None:
+            return 0
+
+        # If any level is already present on current or greater level: insert one row lower
+        row_index_of_insert = last_regular_node_row_index
+        level_cols_eq_or_higher = [col for col in self.df.columns if
+                                   int(col.split()[1]) >= depth and 'metadata' not in col]
+        if any(self.df.loc[row_index_of_insert, level_cols_eq_or_higher].notnull()):
+            row_index_of_insert += 1
+
+        metadata_col = 'Level {} metadata tag'.format(depth)
+        # If no metadata is present or the row doesn't exist yet, it's safe to insert
+        if metadata_col not in self.df.columns or row_index_of_insert not in self.df.index:
+            return row_index_of_insert
+
+        # Get first row index that doesn't conflict with metadata of node above
+        lvi = self.df.loc[row_index_of_insert:, metadata_col].last_valid_index()
+        if lvi is not None:
+            row_index_of_insert = lvi + 1
+        return row_index_of_insert
 
     def _insert_node_data_into_df(self, node, depth):
-        last_row_index = max(self.df.apply(pd.Series.last_valid_index), default=None)
         regular_node_cols = [col for col in self.df.columns if 'metadata' not in col]
         last_regular_node_row_index = max(self.df[regular_node_cols].apply(pd.Series.last_valid_index), default=None)
-        cols_equal_or_higher_level = [col for col in self.df.columns if int(col.split()[1]) >= depth]
 
-        row_index = self._determine_row_index(last_row_index, cols_equal_or_higher_level, last_regular_node_row_index)
+        row_index = self._determine_row_index(last_regular_node_row_index, depth)
         self.df.loc[row_index, 'Level {}'.format(depth)] = node['text']
 
         if 'metadata' in node:
@@ -173,7 +182,7 @@ class _ArboristToTemplate:
             return
         self._insert_node_data_into_df(node, depth)
 
-        for child_node in node['children']:
+        for child_node in node.get('children', []):
             self._loop_through_nodes(child_node, depth + 1)
 
 

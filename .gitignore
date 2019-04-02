@@ -46,5 +46,6 @@ to_pip.sh
 # Additional stuff
 *.ipynb
 *.log
+~$*.xlsx
 !tmtk/arborist/static/jstree/dist
 !examples/*.ipynb
