@@ -122,6 +122,12 @@ class OntologyTree:
         ids_ = set()
 
         def clean_duplicate_ids(children, id_type):
+            """
+            jsTree needs every node to have a unique ID. If a ontology tree node has multiple parents, it will be
+            twice in the tree, with the same ID. This function sets the ID of the second and further occurrences of the
+            tree node to None. This will allow jsTree to generate a unique ID instead.
+            Note that the second and further occurrences will not be selected when interacting with the ontology tree.
+            """
             for term in children:
                 if term.get('id') in ids_:
                     term['id'] = None
@@ -138,6 +144,14 @@ class OntologyTree:
             return json.dumps(tree)
 
     def get_concept_rows(self, single_row_per_concept=True):
+        """
+        Will return a row for each concept in the tree.
+
+        single_row_per_concept = True: will only return one row per concept, even if the concept occurs in multiple
+        places in the tree. Needed for creating the concept dimension table.
+        single_row_per_concept = True: will also return a row for each second or following occurrence of a concept.
+        Needed for creation of the tree (i2b2_secure) table.
+        """
         for node in self.json(as_object=True):
             yield from self._get_next_concept_row(node, path='', single_row_per_concept=single_row_per_concept)
 
