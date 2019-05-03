@@ -21,8 +21,9 @@ class ValueSubstitutionValidator(Validator):
         self.mandatory_columns = ['Sheet name/File name', 'Column name', 'From value', 'To value']
         self.tests_to_run = (test for test in
                              [self.after_comments,
-                              self.check_mandatory_columns,
                               self.check_forbidden_chars,
+                              self.check_whitespace,
+                              self.check_mandatory_columns,
                               self.no_empty_cells,
                               self.value_substitution_unique,
                               self.source_in_tree,
