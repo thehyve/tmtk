@@ -16,7 +16,8 @@ class ConceptDimension(TableRow):
             row_list += [self._build_ontology_row(c)
                          for c in study.Clinical.OntologyMapping.tree.get_concept_rows()]
             ontology_row_list += [self._build_ontology_row(c)
-                                  for c in study.Clinical.OntologyMapping.tree.get_concept_rows(unique_codes=False)]
+                                  for c in
+                                  study.Clinical.OntologyMapping.tree.get_concept_rows(single_row_per_concept=False)]
 
         self.df = pd.DataFrame(row_list, columns=self.columns)
         self.df_ontology = pd.DataFrame(ontology_row_list, columns=self.columns)

@@ -118,12 +118,12 @@ class OntologyTree:
         while self._iterate_hierarchy():
             pass
 
-    def json(self, as_object=False, unique_codes=True):
+    def json(self, as_object=False):
         ids_ = set()
 
         def clean_duplicate_ids(children, id_type):
             for term in children:
-                if term.get('data', {}).get(id_type) in ids_:
+                if term.get('id') in ids_:
                     term['id'] = None
                 else:
                     ids_.add(term['id'])
@@ -131,23 +131,21 @@ class OntologyTree:
                 clean_duplicate_ids(term.get('children'), id_type)
 
         tree = [node.json() for node in self.anchors]
-        if unique_codes:
-            clean_duplicate_ids(tree, id_type='code')
-        else:
-            clean_duplicate_ids(tree, id_type='text')
+        clean_duplicate_ids(tree, id_type='code')
         if as_object:
             return tree
         else:
             return json.dumps(tree)
 
-    def get_concept_rows(self, unique_codes=True):
-        for node in self.json(as_object=True, unique_codes=unique_codes):
-            yield from self._get_next_concept_row(node, path='')
+    def get_concept_rows(self, single_row_per_concept=True):
+        for node in self.json(as_object=True):
+            yield from self._get_next_concept_row(node, path='', single_row_per_concept=single_row_per_concept)
 
-    def _get_next_concept_row(self, node, path):
+    def _get_next_concept_row(self, node, path, single_row_per_concept):
 
         path += '\\' + node.get('text')
         for child in node.get('children'):
-            yield from self._get_next_concept_row(child, path)
-        if node.get('id'):
-            yield node.get('id'), path, node.get('text'), node.get('data').get('blob')
+            yield from self._get_next_concept_row(child, path, single_row_per_concept)
+
+        if node.get('id') or not single_row_per_concept:
+            yield node.get('data').get('code'), path, node.get('text'), node.get('data').get('blob')
