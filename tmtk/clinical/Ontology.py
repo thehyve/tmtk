@@ -121,7 +121,7 @@ class OntologyTree:
     def json(self, as_object=False):
         ids_ = set()
 
-        def clean_duplicate_ids(children, id_type):
+        def clean_duplicate_ids(children):
             """
             jsTree needs every node to have a unique ID. If a ontology tree node has multiple parents, it will be
             twice in the tree, with the same ID. This function sets the ID of the second and further occurrences of the
@@ -134,10 +134,10 @@ class OntologyTree:
                 else:
                     ids_.add(term['id'])
 
-                clean_duplicate_ids(term.get('children'), id_type)
+                clean_duplicate_ids(term.get('children'))
 
         tree = [node.json() for node in self.anchors]
-        clean_duplicate_ids(tree, id_type='code')
+        clean_duplicate_ids(tree)
         if as_object:
             return tree
         else:
