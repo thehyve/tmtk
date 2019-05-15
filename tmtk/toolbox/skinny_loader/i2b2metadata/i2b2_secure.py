@@ -30,7 +30,7 @@ class I2B2Secure(TableRow):
 
         # Add Ontology paths as nodes in tree. This creates paths in i2b2_secure for
         # each term defined in ontology mapping.
-        self.back_populate_ontology(concept_dimension)
+        self.add_ontology_tree()
 
         # Add 'unmapped' variables from i2b2_secure to concept dimension
         self.concept_dimension.add_one_timer_concepts(self)
@@ -92,21 +92,24 @@ class I2B2Secure(TableRow):
 
             yield row
 
-    def back_populate_ontology(self, concept_dimension):
+    def add_ontology_tree(self):
         """ Create rows for ontology terms. """
-        for concept_row in concept_dimension.df_ontology.itertuples():
-            concept_code = concept_row[1]
-            concept_path = concept_row[2]
-            concept_name = concept_row[3]
+        for concept_row in self.study.Clinical.OntologyMapping.tree.get_concept_rows(single_row_per_concept=False):
+
+            concept_code, concept_path, concept_name, _ = concept_row
+
+            # This filters out concepts that have no associated data points (not defined in column mapping)
             rows = self.df[self.df.c_basecode == concept_code].copy()
-            if len(rows) > 0:
-                row = rows.copy().iloc[[0]]
-                row.c_fullname = concept_path
-                row.c_hlevel = calc_hlevel(concept_path)
-                row.c_name = concept_name
-                row.sourcesystem_cd = None
-                row.secure_obj_token = Defaults.PUBLIC_TOKEN
-                self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
+            if len(rows) == 0:
+                continue
+
+            row = rows.iloc[[0]].copy()
+            row.c_fullname = path_slash_all(concept_path)
+            row.c_hlevel = calc_hlevel(concept_path)
+            row.c_name = concept_name
+            row.sourcesystem_cd = None
+            row.secure_obj_token = Defaults.PUBLIC_TOKEN
+            self.df = self.df.append(row, ignore_index=True, verify_integrity=False)
 
     def add_missing_folders(self):
         """ Add rows for all parent folders not present yet. """

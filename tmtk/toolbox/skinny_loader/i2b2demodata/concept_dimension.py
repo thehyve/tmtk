@@ -11,16 +11,11 @@ class ConceptDimension(TableRow):
         super().__init__()
 
         row_list = []
-        ontology_row_list = []
         if study.Clinical.OntologyMapping and study.Clinical.OntologyMapping.df.shape[0] > 1:
             row_list += [self._build_ontology_row(c)
                          for c in study.Clinical.OntologyMapping.tree.get_concept_rows()]
-            ontology_row_list += [self._build_ontology_row(c)
-                                  for c in
-                                  study.Clinical.OntologyMapping.tree.get_concept_rows(single_row_per_concept=False)]
 
         self.df = pd.DataFrame(row_list, columns=self.columns)
-        self.df_ontology = pd.DataFrame(ontology_row_list, columns=self.columns)
 
         # Put back the right order of columns after concatenating the two dataframes
         self.df = self.df.reindex(columns=self.columns)
