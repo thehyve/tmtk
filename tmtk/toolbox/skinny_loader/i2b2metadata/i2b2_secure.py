@@ -1,7 +1,6 @@
 from ..shared import TableRow, Defaults, calc_hlevel, get_full_path, path_slash_all, path_converter
 
 import pandas as pd
-import uuid
 from tqdm import tqdm
 from hashlib import sha1
 
@@ -31,7 +30,8 @@ class I2B2Secure(TableRow):
 
         # Add Ontology paths as nodes in tree. This creates paths in i2b2_secure for
         # each term defined in ontology mapping.
-        self.back_populate_ontology(concept_dimension)
+        if study.Clinical.OntologyMapping and study.Clinical.OntologyMapping.df.shape[0] > 1:
+            self.add_ontology_tree()
 
         # Add 'unmapped' variables from i2b2_secure to concept dimension
         self.concept_dimension.add_one_timer_concepts(self)
@@ -93,14 +93,19 @@ class I2B2Secure(TableRow):
 
             yield row
 
-    def back_populate_ontology(self, concept_dimension):
+    def add_ontology_tree(self):
         """ Create rows for ontology terms. """
-        for concept_row in concept_dimension.df.itertuples():
-            concept_code = concept_row[1]
-            concept_path = concept_row[2]
-            concept_name = concept_row[3]
-            row = self.df[self.df.c_basecode == concept_code].copy()
-            row.c_fullname = concept_path
+        for concept_row in self.study.Clinical.OntologyMapping.tree.get_concept_rows(single_row_per_concept=False):
+
+            concept_code, concept_path, concept_name, _ = concept_row
+
+            # This filters out concepts that have no associated data points (not defined in column mapping)
+            rows = self.df[self.df.c_basecode == concept_code].copy()
+            if len(rows) == 0:
+                continue
+
+            row = rows.iloc[[0]].copy()
+            row.c_fullname = self.sanitize_path(concept_path)
             row.c_hlevel = calc_hlevel(concept_path)
             row.c_name = concept_name
             row.sourcesystem_cd = None

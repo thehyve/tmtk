@@ -1,0 +1,4 @@
+Filename	Category Code	Column number	Data label	magic_5	ontology_code	concept_type
+demographics.tsv	Demography	1	SUBJ_ID
+demographics.tsv	Demography	2	Sex		TEST:CHILD1	CATEGORICAL
+demographics.tsv	Demography	3	Race		TEST:CHILD2

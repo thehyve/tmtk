@@ -1,0 +1,2 @@
+COLUMN_MAP_FILE=columns.tsv
+ONTOLOGY_MAP_FILE=ontology_codes.tsv
