@@ -30,7 +30,8 @@ class I2B2Secure(TableRow):
 
         # Add Ontology paths as nodes in tree. This creates paths in i2b2_secure for
         # each term defined in ontology mapping.
-        self.add_ontology_tree()
+        if study.Clinical.OntologyMapping and study.Clinical.OntologyMapping.df.shape[0] > 1:
+            self.add_ontology_tree()
 
         # Add 'unmapped' variables from i2b2_secure to concept dimension
         self.concept_dimension.add_one_timer_concepts(self)
@@ -104,7 +105,7 @@ class I2B2Secure(TableRow):
                 continue
 
             row = rows.iloc[[0]].copy()
-            row.c_fullname = path_slash_all(concept_path)
+            row.c_fullname = self.sanitize_path(concept_path)
             row.c_hlevel = calc_hlevel(concept_path)
             row.c_name = concept_name
             row.sourcesystem_cd = None
