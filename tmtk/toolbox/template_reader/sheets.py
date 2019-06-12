@@ -120,6 +120,11 @@ class ModifierSheet:
         self.df.columns = lower_columns
         self.df.rename(columns=self.modifier_column_map, inplace=True)
         self.df['modifier_path'] = self.df['modifier_cd']
+
+        # optional values
+        self.df['dimension_type'] = pd.np.NaN
+        self.df['sort_index'] = pd.np.NaN
+
         self.df = self.df[Mappings.modifiers_header]
         self.df.set_index('modifier_cd', drop=False, inplace=True)
         self.modifier_blueprint = {}

@@ -159,21 +159,23 @@ Example trial visit file:
 
 Modifier file
 '''''''''''''
-A tab separated file with **four** columns:
+A tab separated file with **six** columns:
 
 * ``Modifier path``. Path of the modifier.
 * ``Modifier code``. Unique modifier code. Used in the **column mapping file** as ``Concept type``
 * ``Name charater``. Label of the modifier
 * ``Data type``. Data type of the modifier, options *CATEGORICAL* or *NUMERICAL*
+* ``dimension_type``. Indicates whether the dimension represents subjects or observation attributes, options *SUBJECT* or *ATTRIBUTE* (optional).
+* ``sort_index``. Specifies a relative order between dimensions (optional).
 
-+---------+---------+------------------------+-----------+
-|modifier |modifier |name                    |data       |
-|path     |code     |char                    |type       |
-+=========+=========+========================+===========+
-|\\Dose   |DOSE     | Drug dose administered |NUMERICAL  |
-+---------+---------+------------------------+-----------+
-|\\Samples|SAMPLE_ID| Modifier for Samples   |CATEGORICAL|
-+---------+---------+------------------------+-----------+ 
++---------+---------+------------------------+-----------+---------+-----+
+|modifier |modifier |name                    |data       |dimension|sort |
+|path     |code     |char                    |type       |type     |index|
++=========+=========+========================+===========+=========+=====+
+|\\Dose   |DOSE     | Drug dose administered |NUMERICAL  | SUBJECT | 2   |
++---------+---------+------------------------+-----------+---------+-----+
+|\\Samples|SAMPLE_ID| Modifier for Samples   |CATEGORICAL| SUBJECT | 3   |
++---------+---------+------------------------+-----------+---------+-----+
 
 
 .. _ontology_file_format:
