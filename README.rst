@@ -102,15 +102,18 @@ Requirements
 ^^^^^^^^^^^^
 
 These dependencies will have to be installed:
- - pandas>=0.20.0
+ - pandas>=0.22.0
  - ipython>=5.3.0
  - jupyter>=1.0.0
  - jupyter-client>=5.0.0
  - jupyter-core>=4.3.0
  - jupyter-console>=5.1.0
- - notebook>=4.2.0
+ - notebook>=4.4.1
  - requests>=2.13.0
  - tqdm>=4.11.0
+ - xlrd>=1.0.0
+ - click>=6.0
+ - arrow>=0.10.0
 
 Optional dependencies:
  - mygene>=3.0.0
