@@ -1,2 +1,2 @@
-modifier_path	modifier_cd	name_char	Data type	dimension_type	sort_index
+modifier_path	modifier_cd	name_char	Data Type	dimension_type	sort_index
 \Missing Value	MISSVAL	Missing Value	CATEGORICAL		
