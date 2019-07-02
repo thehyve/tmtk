@@ -28,6 +28,8 @@ class Mappings:
     modifier_cd = 'modifier_cd'
     name_char = 'name_char'
     column_type = 'Data Type'
+    dimension_type = "dimension_type"
+    sort_index = 'sort_index'
 
     # Ontology file
     term_label = 'Label'
@@ -87,7 +89,9 @@ class Mappings:
     modifiers_header = [modifier_path,
                         modifier_cd,
                         name_char,
-                        column_type]
+                        column_type,
+                        dimension_type,
+                        sort_index]
 
     ontology_header = [ontology_code,
                        term_label,

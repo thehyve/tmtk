@@ -47,7 +47,7 @@ class TemplateReaderTests(TestBase):
 
     def test_modifier_sheet(self):
         modifier_sheet = ModifierSheet(self.template.parse('Modifier', comment=COMMENT))
-        self.assertTupleEqual(modifier_sheet.df.shape, (3, 4))
+        self.assertTupleEqual(modifier_sheet.df.shape, (3, 6))
         self.assertDictEqual(modifier_sheet.modifier_blueprint, {})
 
         modifier_sheet.set_initial_modifier_blueprint(self.study.Clinical.Modifiers.df)

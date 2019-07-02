@@ -1,3 +1,3 @@
-modifier_path	modifier_cd	name_char	Data type
-\Test mod Code	TEST_MOD	test_mod	CATEGORICAL
-\Test single mod Code	TEST_MOD_SINGLE	test_mod_single	CATEGORICAL
+modifier_path	modifier_cd	name_char	Data Type	dimension_type	sort_index
+\Test mod Code	TEST_MOD	test_mod	CATEGORICAL		
+\Test single mod Code	TEST_MOD_SINGLE	test_mod_single	CATEGORICAL		

@@ -63,3 +63,14 @@ class SkinnyTests(TestBase):
         nr_of_nodes = self.export.i2b2_secure.df.shape[0]
         self.export2 = tmtk.toolbox.SkinnyExport(self.study, self.temp_dir, add_top_node=False)
         self.assertEqual(nr_of_nodes-2, self.export2.i2b2_secure.df.shape[0])
+
+    def test_dimension_description(self):
+        df = self.export.dimension_description.df
+        modifier_dimension_type = df.loc[df.modifier_code == 'TRANSMART:SAMPLE_CODE', 'dimension_type'].values[0]
+        modifier_sort_index = df.loc[df.modifier_code == 'TRANSMART:SAMPLE_CODE', 'sort_index'].values[0]
+        patient_dimension_type = df.loc[df.name == 'patient', 'dimension_type'].values[0]
+        patient_sort_index = df.loc[df.name == 'patient', 'sort_index'].values[0]
+        self.assertEqual(modifier_dimension_type, 'SUBJECT')
+        self.assertEqual(modifier_sort_index, '2')
+        self.assertEqual(patient_dimension_type, 'SUBJECT')
+        self.assertEqual(patient_sort_index, '1')

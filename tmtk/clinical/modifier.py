@@ -55,7 +55,9 @@ class Modifiers(FileBase):
                               'modifier_path': ['\Missing Value', '\Sample_id'],
                               'modifier_cd': ['MISSVAL', 'SAMPLE_ID'],
                               'name_char': ['Missing Value','Sample identifier'],
-                              'Data Type': ['CATEGORICAL', 'CATEGORICAL']}
+                              'Data Type': ['CATEGORICAL', 'CATEGORICAL'],
+                              'dimension_type': ['ATTRIBUTE', 'SUBJECT'],
+                              'sort_index': [3, 2]}
                           )
         df = self.build_index(df)
         return df

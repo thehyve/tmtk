@@ -1,2 +1,2 @@
-modifier_path	modifier_cd	name_char	Data type
-\Sample Code	TRANSMART:SAMPLE_CODE	sample_code	CATEGORICAL
+modifier_path	modifier_cd	name_char	Data Type	dimension_type	sort_index
+\Sample Code	TRANSMART:SAMPLE_CODE	sample_code	CATEGORICAL	SUBJECT	2

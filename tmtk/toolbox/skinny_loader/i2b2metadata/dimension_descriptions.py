@@ -23,6 +23,12 @@ class DimensionDescription(TableRow):
         # Cannot use dot notation here because name is an attribute of
         # pd.Series and that causes a collision.
         row['name'] = dimension
+
+        # Hardcoded patient dimension properties
+        if dimension == 'patient':
+            row['dimension_type'] = 'SUBJECT'
+            row['sort_index'] = '1'
+
         return row
 
     def adapt_rows_from_modifier_dimension(self):
@@ -33,8 +39,13 @@ class DimensionDescription(TableRow):
             if not any(modifier_row):
                 return
 
+            size = len(x)
             self.df.loc[modifier_row, 'modifier_code'] = x[1]
             self.df.loc[modifier_row, 'value_type'] = 'T' if x[3] == 'CATEGORICAL' else 'N'
+            if size > 4:
+                self.df.loc[modifier_row, 'dimension_type'] = x[4]
+            if size > 5:
+                self.df.loc[modifier_row, 'sort_index'] = x[5]
 
             # Some hardcoded stuff
             self.df.loc[modifier_row, 'density'] = 'DENSE'
@@ -55,6 +66,8 @@ class DimensionDescription(TableRow):
                 None,  # name
                 None,  # packable
                 None,  # size_cd
+                None,  # dimension_type
+                None,  # sort_index
             ],
             index=[
                 'id',
@@ -64,4 +77,6 @@ class DimensionDescription(TableRow):
                 'name',
                 'packable',
                 'size_cd',
+                'dimension_type',
+                'sort_index'
             ])
