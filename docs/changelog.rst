@@ -2,6 +2,12 @@
 Changelog
 =========
 
+
+.. topic::  Version 0.5.6
+
+    * Add dimension_type and sort_order columns to the dimension_description
+    * Add end dates to the observation_fact export in skinny loader (end date dimension still missing)
+
 .. topic::  Version 0.5.5
 
     * 16.2 template validation
