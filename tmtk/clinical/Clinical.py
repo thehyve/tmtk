@@ -1,6 +1,4 @@
 import os
-from pathlib import Path
-
 import pandas as pd
 
 import tmtk
@@ -103,14 +101,9 @@ class Clinical(ValidateMixin):
         :param omit_missing: if True, then variable that are not present in the blueprint
         will be set to OMIT.
         """
-        for variable in self.all_variables.values():
-            # The default blueprint key is a tuple containing the column name and the file name (without extension)
-            blueprint_key = (variable.header.strip(), Path(variable.filename).stem)
-            if blueprint_key not in blueprint:
-                # Fallback to assuming a column-name-only key
-                blueprint_key = blueprint_key[0]
+        for var_id, variable in self.all_variables.items():
 
-            blueprint_var = blueprint.get(blueprint_key)
+            blueprint_var = blueprint.get(variable.header.strip())
 
             if not blueprint_var:
                 self.msgs.info("Column with header {!r}. Not found in blueprint.".format(variable.header))

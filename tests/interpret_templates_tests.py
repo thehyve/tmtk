@@ -9,7 +9,8 @@ from tmtk.utils import PathError
 
 
 def compare_two_files(file1, file2):
-    with open(str(file1), 'r') as reader1, open(str(file2)) as reader2:
+    with open(str(file1), 'r') as reader1:
+        with open(str(file2)) as reader2:
 
             # windows line endings :(
             split_pattern = r'[~\r\n]+'

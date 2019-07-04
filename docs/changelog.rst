@@ -2,12 +2,6 @@
 Changelog
 =========
 
-.. topic::  Version 0.5.5
-
-    * 16.2 template validation
-    * Allow reuse of column names in separate source files used by template reader
-    * Template reader source data can be provided in single sheet Excel files
-
 .. topic::  Version 0.5.4
 
     * Create transmart-copy files without setting ``FAS`` on study node.
