@@ -78,7 +78,7 @@ or do this using `virtualenvwrapper`_.
 
 
 Installation from source
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 To install *tmtk* and all dependencies into your Python environment,
 and enable the Arborist Jupyter notebook extension, run:
@@ -102,7 +102,7 @@ Requirements
 ^^^^^^^^^^^^
 
 These dependencies will have to be installed:
- - pandas>=0.20.0
+ - pandas>=0.19.2
  - ipython>=5.3.0
  - jupyter>=1.0.0
  - jupyter-client>=5.0.0

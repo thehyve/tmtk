@@ -120,7 +120,7 @@ class HighDim:
         """Try to read the specified template file and send to sheet loading method."""
         template_path = os.path.join(source_dir, hd_template)
         try:
-            hd_template_workbook = pd.ExcelFile(template_path)
+            hd_template_workbook = pd.ExcelFile(template_path, comment="#", dtype=object)
         except FileNotFoundError:
             raise Validity.TemplateException("Could not find high-dim template file at: {0}".format(template_path))
         # except XLRDError:

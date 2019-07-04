@@ -1,11 +1,11 @@
-Subjects	Gender	Age	History of colon polyps	Location tumor	Hypermutated	T stage	M stage	Location	Number of affected organs	Radiotherapy	Treatment arm	Previous adjuvant therapy	LDH (serum)	CEA (blood/serum)	Cause of death	Overall survival event	Overall survival	Unnamed: 18	Unnamed: 19	Unnamed: 20	Unnamed: 21	Unnamed: 22	Unnamed: 23	Unnamed: 24
-Subject_1	M	91.7516829646807	No	Ascending colon	No	T3	M0	Hepatic	2	No	A	No	Normal	0.22305168314399873	Progression	Dead	720.9488792525729							
-Subject_2	F	28.982961639209176	No information	Rectum	No information	T1	No information	No information	2	No information	B	No information	No information	1.717060766409365	No information	Dead	411.56699870212674							
-Subject_3	M	53.15340161405097	No	Rectum	No	T3	M0	Hepatic	2	No	A	No	Normal	2.547294206959922	Progression	Dead	43.05287608633188							
-Subject_4	M	29.990885346446724	No	Colon	Yes	T3	M0	Hepatic	2	No	A	No	Normal	1.3478592078726632	Progression	Dead	318.0122350067363							
-Subject_5	M	86.44694031211057	No information	Hepatic flexure	No	T2	No information	No information	2	No information	B	No information	No information	1.6791827289157841	No information	Dead	119.21045106745419							
-Subject_6	M	34.34811794981826	No information	Colon	No information	T4	M1	Extrahepatic	4	No	B	Yes	Abnormal	0.3154436218013795	No information	Dead	175.17821204103876							
-Subject_7	F	66.1165073032668	Yes	Transverse colon	No	T3	M0	Hepatic	1	No	A	No	Normal	0.85485514866372	Progression	Dead	858.5488125389456							
-Subject_8	F	30.31755410972724	Yes	Splenic flexure	No information	T2	M0	Hepatic	1	Yes	A	No	Normal	2.119908848592916	Progression	Dead	429.4775431586628							
-Subject_9	F	39.72265461276349	Yes	Rectum	No information	T4	M0	Hepatic	1	No	A	No	Normal	1.5052733252780328	Progression	Dead	511.2804312649796							
-Subject_10	F	54.904323225345664	No information	Colon	No information	T2	M1	Extrahepatic	3	No	B	No	Abnormal	1.3891062590324872	Toxicity	Alive	287.5405743348291							
+Subjects	Gender	Age	History of colon polyps	Location tumor	Hypermutated	T stage	M stage	Location	Number of affected organs	Radiotherapy	Treatment arm	Previous adjuvant therapy	LDH (serum)	CEA (blood/serum)	Cause of death	Overall survival event	Overall survival
+Subject_1	M	91.7516829646807	No	Ascending colon	No	T3	M0	Hepatic	2	No	A	No	Normal	0.22305168314399873	Progression	Dead	720.9488792525729
+Subject_2	F	28.982961639209176	No information	Rectum	No information	T1	No information	No information	2	No information	B	No information	No information	1.717060766409365	No information	Dead	411.56699870212674
+Subject_3	M	53.15340161405097	No	Rectum	No	T3	M0	Hepatic	2	No	A	No	Normal	2.547294206959922	Progression	Dead	43.05287608633188
+Subject_4	M	29.990885346446724	No	Colon	Yes	T3	M0	Hepatic	2	No	A	No	Normal	1.3478592078726632	Progression	Dead	318.0122350067363
+Subject_5	M	86.44694031211057	No information	Hepatic flexure	No	T2	No information	No information	2	No information	B	No information	No information	1.6791827289157841	No information	Dead	119.21045106745419
+Subject_6	M	34.34811794981826	No information	Colon	No information	T4	M1	Extrahepatic	4	No	B	Yes	Abnormal	0.3154436218013795	No information	Dead	175.17821204103876
+Subject_7	F	66.1165073032668	Yes	Transverse colon	No	T3	M0	Hepatic	1	No	A	No	Normal	0.85485514866372	Progression	Dead	858.5488125389456
+Subject_8	F	30.31755410972724	Yes	Splenic flexure	No information	T2	M0	Hepatic	1	Yes	A	No	Normal	2.119908848592916	Progression	Dead	429.4775431586628
+Subject_9	F	39.72265461276349	Yes	Rectum	No information	T4	M0	Hepatic	1	No	A	No	Normal	1.5052733252780328	Progression	Dead	511.2804312649796
+Subject_10	F	54.904323225345664	No information	Colon	No information	T2	M1	Extrahepatic	3	No	B	No	Abnormal	1.3891062590324872	Toxicity	Alive	287.5405743348291
