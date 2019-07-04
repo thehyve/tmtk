@@ -28,6 +28,18 @@ class SkinnyTests(TestBase):
         df = self.export.observation_fact.df
         self.assertEqual(len(set(df[df.modifier_cd == 'TRANSMART:SAMPLE_CODE']['instance_num'])), 2)
 
+    def test_start_date_in_observation_fact(self):
+        start_date_series = pd.to_datetime(self.export.observation_fact.df['start_date'])
+        self.assertEqual(sum(start_date_series.isnull()), 0)
+        self.assertEqual(max(start_date_series).date(), pd.to_datetime('2016-04-19').date())
+        self.assertEqual(min(start_date_series).date(), pd.to_datetime('2016-02-26').date())
+
+    def test_end_date_in_observation_fact(self):
+        end_date_series = pd.to_datetime(self.export.observation_fact.df['end_date'])
+        self.assertEqual(sum(end_date_series.isnull()), 413)
+        self.assertEqual(max(end_date_series.dropna()).date(), pd.to_datetime('2016-04-07').date())
+        self.assertEqual(min(end_date_series.dropna()).date(), pd.to_datetime('2016-03-02').date())
+
     def test_trial_visit_dimension(self):
         df = self.export.trial_visit_dimension.df
         self.assertEqual(df.shape[0], 8)
@@ -48,6 +60,17 @@ class SkinnyTests(TestBase):
         self.assertNotIn(pd.np.nan, set(df.sex_cd))
 
     def test_no_top_node(self):
-        self.assertEqual((41, 27), self.export.i2b2_secure.df.shape)
+        nr_of_nodes = self.export.i2b2_secure.df.shape[0]
         self.export2 = tmtk.toolbox.SkinnyExport(self.study, self.temp_dir, add_top_node=False)
-        self.assertEqual((39, 27), self.export2.i2b2_secure.df.shape)
+        self.assertEqual(nr_of_nodes-2, self.export2.i2b2_secure.df.shape[0])
+
+    def test_dimension_description(self):
+        df = self.export.dimension_description.df
+        modifier_dimension_type = df.loc[df.modifier_code == 'TRANSMART:SAMPLE_CODE', 'dimension_type'].values[0]
+        modifier_sort_index = df.loc[df.modifier_code == 'TRANSMART:SAMPLE_CODE', 'sort_index'].values[0]
+        patient_dimension_type = df.loc[df.name == 'patient', 'dimension_type'].values[0]
+        patient_sort_index = df.loc[df.name == 'patient', 'sort_index'].values[0]
+        self.assertEqual(modifier_dimension_type, 'SUBJECT')
+        self.assertEqual(modifier_sort_index, '2')
+        self.assertEqual(patient_dimension_type, 'SUBJECT')
+        self.assertEqual(patient_sort_index, '1')

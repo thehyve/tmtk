@@ -17,7 +17,7 @@ def get_clinical_template(study):
     clinical_template = None
     if len(clinical_templates) == 1:
         clinical_template_name = clinical_templates[0]
-        clinical_template = pd.ExcelFile(clinical_template_name, comment="#")
+        clinical_template = pd.ExcelFile(clinical_template_name)
         print("[INFO] Clinical data template detected: " + clinical_template_name)
     elif len(clinical_templates) == 0:
         study.clinical_template_present = False
@@ -33,7 +33,8 @@ def get_clinical_template(study):
 
 def get_sheet_dict(workbook, comment_char="#"):
     """Return a sheet dictionary of all sheets in the workbook."""
-    sheets = {sheet_name: workbook.parse(sheet_name, comment=comment_char) for sheet_name in workbook.sheet_names}
+    sheets = {sheet_name: workbook.parse(sheet_name, comment=comment_char, dtype='object')
+              for sheet_name in workbook.sheet_names}
     return sheets
 
 
@@ -57,7 +58,7 @@ def get_data_file_name(data_file, sheets, data_type="Low-dimensional"):
 def construct_concept_cd(row, previous_row, study):
     """Construct concept_cd based on current row in the tree sheet (and info gathered from previous rows)"""
     # Use only colums containing the concept code values
-    row = row[3::3]
+    row = row[3::3].copy()
 
     # Only for the first row to instantiate concept_cd
     if previous_row is None:
@@ -394,7 +395,7 @@ def write_clinical_data_sheets(study, sheets):
     data_files = tree_sheet["Sheet name/File name"].dropna().unique().tolist()
     for file in data_files:
         if file in sheets.keys():
-            clinical_data_sheet = sheets[file].dropna(axis='columns', how='all')
+            clinical_data_sheet = sheets[file]
             write_location = os.path.join(study.clin_output_dir, file) + ".tsv"
             clinical_data_sheet.to_csv(write_location, sep="\t", index=False, na_rep="")
             print("[INFO] Clinical data file written at: {0}".format(write_location))

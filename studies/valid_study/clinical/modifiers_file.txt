@@ -1,1 +1,1 @@
-modifier_path	modifier_cd	name_char	Data Type
+modifier_path	modifier_cd	name_char	Data Type	dimension_type	sort_index

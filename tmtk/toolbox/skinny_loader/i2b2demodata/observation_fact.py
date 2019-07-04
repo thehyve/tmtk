@@ -80,6 +80,7 @@ class ObservationFact(TableRow):
         # Preload these, so we don't have to get them for every value in the current variable
         modifiers = var.modifiers
         start_date = var.start_date
+        end_date = var.end_date
 
         if var.trial_visit:
             trial_visit_num = var.trial_visit.values.map(self.skinny.trial_visit_dimension.get_num)
@@ -106,6 +107,7 @@ class ObservationFact(TableRow):
             'concept_cd': var.concept_code or self.skinny.concept_dimension.map.get(var_full_path),
             'provider_id': '@',
             'start_date': start_date.values if start_date else None,
+            'end_date': end_date.values if end_date else None,
             'modifier_cd': '@',
             'trial_visit_num': trial_visit_num,
             # because of poorly suited primary key on observation_fact
