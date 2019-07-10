@@ -38,20 +38,20 @@ For general documentation visit `readthedocs`_.
 Installation
 ------------
 
-Installing via Anaconda Cloud or Pypi package managers
+Installing via Anaconda Cloud or Pip package managers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Anaconda:
 
 .. code:: sh
 
-    $   conda install -c conda-forge tmtk
+    conda install -c conda-forge tmtk
 
-Pypi:
+Pip:
 
 .. code:: sh
 
-    $   pip3 install tmtk
+    pip install tmtk
 
 Installing manually
 ^^^^^^^^^^^^^^^^^^^
@@ -61,20 +61,8 @@ Initialize a virtualenv
 
 .. code:: bash
 
-    $ pip install virtualenv
-    $ virtualenv -p /path/to/python3.x/installation env
-    $ source env/bin/activate
-
-
-For mac users it will most likely be
-
-.. code:: bash
-
-    $ pip install virtualenv
-    $ virtualenv -p python3 env
-    $ source env/bin/activate
-
-or do this using `virtualenvwrapper`_.
+    python3 -m venv env
+    source env/bin/activate
 
 
 Installation from source
@@ -85,38 +73,25 @@ and enable the Arborist Jupyter notebook extension, run:
 
 .. code:: sh
 
-    $   pip3 install -r requirements.txt
-    $   python3 setup.py install
+    pip install -r requirements.txt
+    python setup.py install
 
 or if you want to run the tool from code in development mode:
 
 .. code:: sh
 
-    $   pip3 install -r requirements.txt
-    $   python3 setup.py develop
-    $   jupyter-nbextension install --py tmtk.arborist
-    $   jupyter-serverextension enable tmtk.arborist
+    pip install -r requirements.txt
+    python setup.py develop
+    jupyter-nbextension install --py tmtk.arborist
+    jupyter-serverextension enable tmtk.arborist
 
 
 Requirements
 ^^^^^^^^^^^^
 
-These dependencies will have to be installed:
- - pandas>=0.22.0
- - ipython>=5.3.0
- - jupyter>=1.0.0
- - jupyter-client>=5.0.0
- - jupyter-core>=4.3.0
- - jupyter-console>=5.1.0
- - notebook>=4.4.1
- - requests>=2.13.0
- - tqdm>=4.11.0
- - xlrd>=1.0.0
- - click>=6.0
- - arrow>=0.10.0
+The dependencies are in ``requirements.txt``,
+optional dependencies are in ``requirements-dev.txt``.
 
-Optional dependencies:
- - mygene>=3.0.0
 
 Licence
 -------
