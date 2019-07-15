@@ -31,6 +31,7 @@ class BlueprintModifierTests(TestBase):
 
     def test_modifier_added(self):
         self.assertEqual(sum(self.study.Clinical.ColumnMapping.df['Data Type'] == "TEST_MOD"), 1)
+        self.assertEqual(sum(self.study.Clinical.Modifiers.df['dimension_type'] == "SUBJECT"), 1)
 
     def test_non_missing_modifiers(self):
         df = self.export.observation_fact.df
