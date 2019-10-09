@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import pandas as pd
+from pandas.util import hash_pandas_object
 
 import tmtk
 from .ColumnMapping import ColumnMapping
@@ -343,7 +344,7 @@ class Clinical(ValidateMixin):
         hashes = 0
         for key, obj in self.__dict__.items():
             if hasattr(obj, 'df'):
-                hashes += hash(obj)
+                hashes += int(hash_pandas_object(obj.df).sum())
         return hashes
 
     def show_changes(self):

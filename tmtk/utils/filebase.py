@@ -25,7 +25,7 @@ class FileBase:
             Message.okay("Creating dataframe for: {}".format(self))
             df = self.create_df()
         df = self._df_processing(df)
-        self._hash_init = hash_pandas_object(df)
+        self._hash_init = int(hash_pandas_object(df).sum())
         return df
 
     @property
@@ -59,14 +59,14 @@ class FileBase:
         return df
 
     def __hash__(self):
-        return hash_pandas_object(self.df)
+        return int(hash_pandas_object(self.df).sum())
 
     @property
     def df_has_changed(self):
-        if not self._hash_init:
+        if self._hash_init is None:
             return False
         else:
-            return hash(self) != self._hash_init
+            return int(hash_pandas_object(self.df).sum()) != self._hash_init
 
     @property
     def header(self):
