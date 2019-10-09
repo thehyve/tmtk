@@ -38,7 +38,7 @@ class FileBase:
         if not isinstance(value, pd.DataFrame):
             raise TypeError('Expected pd.DataFrame object.')
         value = self._df_processing(value)
-        self._hash_init = self._hash_init or 1
+        self._hash_init = self._hash_init if self._hash_init is not None else 1
         self._df = value
 
     def _df_processing(self, df):
