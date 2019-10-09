@@ -1,5 +1,7 @@
 import os
+
 import pandas as pd
+from pandas.util import hash_pandas_object
 
 from . import file2df, df2file, cached_property, Message
 
@@ -23,7 +25,8 @@ class FileBase:
             Message.okay("Creating dataframe for: {}".format(self))
             df = self.create_df()
         df = self._df_processing(df)
-        self._hash_init = hash(bytes(df))
+        self._hash_init = hash_pandas_object(df)
+        print(self._hash_init)
         return df
 
     @property
@@ -57,7 +60,7 @@ class FileBase:
         return df
 
     def __hash__(self):
-        return hash(bytes(self.df))
+        return hash_pandas_object(self.df)
 
     @property
     def df_has_changed(self):
