@@ -21,6 +21,7 @@ env:
   - TOX_ENV=pandas0.22
   - TOX_ENV=pandas0.23
   - TOX_ENV=pandas0.24
+  - TOX_ENV=pandas0.25
 
 install:
   - pip install tox-travis codecov coverage
