@@ -23,7 +23,7 @@ class FileBase:
             Message.okay("Creating dataframe for: {}".format(self))
             df = self.create_df()
         df = self._df_processing(df)
-        self._hash_init = hash(df.__bytes__())
+        self._hash_init = hash(bytes(df))
         return df
 
     @property
@@ -57,7 +57,7 @@ class FileBase:
         return df
 
     def __hash__(self):
-        return hash(self.df.__bytes__())
+        return hash(bytes(self.df))
 
     @property
     def df_has_changed(self):
