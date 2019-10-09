@@ -26,7 +26,6 @@ class FileBase:
             df = self.create_df()
         df = self._df_processing(df)
         self._hash_init = hash_pandas_object(df)
-        print(self._hash_init)
         return df
 
     @property
