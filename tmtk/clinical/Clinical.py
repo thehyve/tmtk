@@ -345,7 +345,6 @@ class Clinical(ValidateMixin):
         for key, obj in self.__dict__.items():
             if hasattr(obj, 'df'):
                 hashes += hash(obj)
-                # hashes += int(hash_pandas_object(obj.df).sum())
         return hashes
 
     def show_changes(self):
