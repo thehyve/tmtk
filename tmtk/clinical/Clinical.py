@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import pandas as pd
-from pandas.util import hash_pandas_object
 
 import tmtk
 from .ColumnMapping import ColumnMapping

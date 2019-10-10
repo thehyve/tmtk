@@ -89,7 +89,8 @@ class TreeSheet:
         level_columns = lower_columns.str.contains('level') & ~lower_columns.str.contains('metadata')
         # Make the array of booleans equal length to the number of columns in the full df
         missing_false_values = len(self.df.columns) - len(level_columns)
-        level_columns = pd.np.append(level_columns, [False] * missing_false_values)
+        if missing_false_values > 0:
+            level_columns = pd.np.append(level_columns, [False] * missing_false_values)
         return level_columns
 
 
