@@ -1,5 +1,7 @@
 import os
+
 import pandas as pd
+from pandas.util import hash_pandas_object
 
 from . import file2df, df2file, cached_property, Message
 
@@ -23,7 +25,7 @@ class FileBase:
             Message.okay("Creating dataframe for: {}".format(self))
             df = self.create_df()
         df = self._df_processing(df)
-        self._hash_init = hash(df.__bytes__())
+        self._hash_init = int(hash_pandas_object(df).sum())
         return df
 
     @property
@@ -36,7 +38,7 @@ class FileBase:
         if not isinstance(value, pd.DataFrame):
             raise TypeError('Expected pd.DataFrame object.')
         value = self._df_processing(value)
-        self._hash_init = self._hash_init or 1
+        self._hash_init = self._hash_init if self._hash_init is not None else 1
         self._df = value
 
     def _df_processing(self, df):
@@ -57,14 +59,14 @@ class FileBase:
         return df
 
     def __hash__(self):
-        return hash(self.df.__bytes__())
+        return int(hash_pandas_object(self.df).sum())
 
     @property
     def df_has_changed(self):
-        if not self._hash_init:
+        if self._hash_init is None:
             return False
         else:
-            return hash(self) != self._hash_init
+            return int(hash_pandas_object(self.df).sum()) != self._hash_init
 
     @property
     def header(self):
