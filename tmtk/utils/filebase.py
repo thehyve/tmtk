@@ -8,7 +8,7 @@ from . import file2df, df2file, cached_property, Message
 
 
 def hash_df_to_single_int(df) -> int:
-    return int.from_bytes(sha256(pd.util.hash_pandas_object(df, index=True).values).digest(), 'big')
+    return int.from_bytes(sha256(pd.util.hash_pandas_object(df).values).digest(), 'big')
 
 
 class FileBase:
