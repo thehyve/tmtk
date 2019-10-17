@@ -1,7 +1,14 @@
 import os
+from hashlib import sha256
+
 import pandas as pd
+from pandas.util import hash_pandas_object
 
 from . import file2df, df2file, cached_property, Message
+
+
+def hash_df_to_single_int(df) -> int:
+    return int.from_bytes(sha256(pd.util.hash_pandas_object(df).values).digest(), 'big')
 
 
 class FileBase:
@@ -23,7 +30,7 @@ class FileBase:
             Message.okay("Creating dataframe for: {}".format(self))
             df = self.create_df()
         df = self._df_processing(df)
-        self._hash_init = hash(df.__bytes__())
+        self._hash_init = hash_df_to_single_int(df)
         return df
 
     @property
@@ -36,7 +43,7 @@ class FileBase:
         if not isinstance(value, pd.DataFrame):
             raise TypeError('Expected pd.DataFrame object.')
         value = self._df_processing(value)
-        self._hash_init = self._hash_init or 1
+        self._hash_init = self._hash_init if self._hash_init is not None else 1
         self._df = value
 
     def _df_processing(self, df):
@@ -57,14 +64,14 @@ class FileBase:
         return df
 
     def __hash__(self):
-        return hash(self.df.__bytes__())
+        return hash_df_to_single_int(self.df)
 
     @property
     def df_has_changed(self):
-        if not self._hash_init:
+        if self._hash_init is None:
             return False
         else:
-            return hash(self) != self._hash_init
+            return hash_df_to_single_int(self.df) != self._hash_init
 
     @property
     def header(self):
