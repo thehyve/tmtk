@@ -47,6 +47,5 @@ to_pip.sh
 *.ipynb
 *.log
 ~$*.xlsx
-.ipynb_checkpoints/
 !tmtk/arborist/static/jstree/dist
 !examples/*.ipynb

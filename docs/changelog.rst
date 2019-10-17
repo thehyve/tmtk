@@ -3,10 +3,6 @@ Changelog
 =========
 
 
-.. topic::  Version 0.5.7
-
-    * Make compatible with pandas 0.25
-
 .. topic::  Version 0.5.6
 
     * Add dimension_type and sort_order columns to the dimension_description
