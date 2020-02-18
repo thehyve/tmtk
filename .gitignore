@@ -9,6 +9,7 @@
 dist
 build
 eggs
+.eggs
 parts
 bin
 var
@@ -50,3 +51,4 @@ to_pip.sh
 .ipynb_checkpoints/
 !tmtk/arborist/static/jstree/dist
 !examples/*.ipynb
+env/

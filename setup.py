@@ -39,9 +39,9 @@ class HookedInstall(install):
             return
 
         notebook_version = getattr(notebook, '__version__')
-        if notebook_version is None or notebook_version < '4.2.0':
-            log.info("Version of notebook package should be at least 4.2.0 for Arborist, consider:")
-            log.info("    $ pip3 install --upgrade notebook")
+        if notebook_version is None or notebook_version < '5.7.8':
+            log.info("Version of notebook package should be at least 5.7.8 for Arborist, consider:")
+            log.info("    $ pip install --upgrade notebook")
             log.info('Aborting automated install.')
             return
 
@@ -87,6 +87,11 @@ setuptools.setup(
     download_url='https://github.com/thehyve/tmtk/tarball/{}/'.format(version_string),
 
     install_requires=required_packages,
+
+    setup_requires=[
+        # dependency for `python setup.py bdist_wheel`
+        'wheel'
+    ],
 
     entry_points={
         'console_scripts': [
