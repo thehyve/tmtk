@@ -12,6 +12,8 @@ matrix:
     env: TOX_ENV=pandas0.22
   - python: 3.8
     env: TOX_ENV=pandas0.23
+  - python: 3.8
+    env: TOX_ENV=pandas0.24
 
 os:
   - linux
