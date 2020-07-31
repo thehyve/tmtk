@@ -2,6 +2,9 @@
 Changelog
 =========
 
+.. topic::  Version 0.5.8
+
+    * Update dependencies, restrict to pandas < 0.26.
 
 .. topic::  Version 0.5.7
 
