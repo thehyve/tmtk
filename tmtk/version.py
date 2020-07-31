@@ -4,5 +4,5 @@ This file is distributed under the GNU General Public License
   (see accompanying file LICENSE).
 """
 
-version_info = (0, 5, 7)
+version_info = (0, 5, 8)
 __version__ = '.'.join(map(str, version_info))
