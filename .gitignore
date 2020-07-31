@@ -52,3 +52,4 @@ to_pip.sh
 !tmtk/arborist/static/jstree/dist
 !examples/*.ipynb
 env/
+venv/
