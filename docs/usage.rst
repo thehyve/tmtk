@@ -42,7 +42,7 @@ Here we will create a study from these two files:
 .. code:: python
 
     # Create a study object by running the wizard
-    study = tmtk.wizard.create_study('./studies/wizard/')
+    study = tmtk.toolbox.wizard.create_study('./studies/wizard/')
 
 
 .. parsed-literal::
